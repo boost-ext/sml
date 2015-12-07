@@ -9,6 +9,7 @@ namespace di = boost::di;
 
 namespace msm {
 struct type_op {};
+struct event_base {};
 struct state_base {};
 struct state_base_init {};
 struct anonymous {
@@ -38,13 +39,30 @@ template <class... Ts> struct pool<di::aux::type_list<Ts...>> : Ts... {
   explicit pool(Ts... args) noexcept : Ts(args)... {}
 };
 
-template <class T, class TPool> decltype(auto) get__(const TPool &p) noexcept {
+struct _ {};
+
+template <class T, class TEvent, class TPool>
+decltype(auto) get__(di::aux::type<T>, const TEvent &e,
+                     const TPool &p) noexcept {
   return static_cast<opaque<T>>(p).object;
 }
 
+template <class TEvent, class TPool>
+decltype(auto) get__(di::aux::type<_>, const TEvent &e,
+                     const TPool &p) noexcept {
+  return e;
+}
+
+template <class> struct ignore_events;
+
+template <class... Ts> struct ignore_events<di::aux::type_list<Ts...>> {
+  using type = di::aux::type_list<di::aux::conditional_t<
+      di::aux::is_base_of<event_base, Ts>::value, _, Ts>...>;
+};
+
 template <class T, class E>
-auto args__(int)
-    -> di::aux::function_traits_t<decltype(&T::template operator() < E > )>;
+auto args__(int) -> typename ignore_events<
+    di::aux::function_traits_t<decltype(&T::template operator() < E > )>>::type;
 template <class T, class>
 auto args__(int) -> di::aux::function_traits_t<decltype(&T::operator())>;
 template <class, class> di::aux::type_list<> args__(...);
@@ -68,7 +86,8 @@ private:
   template <class... Tx, class TE, class U>
   auto call(const TE &event, const pool<Ts...> &args, const U &x) const
       noexcept {
-    return reinterpret_cast<const T &> (*this)(get__<Ts>(args)...);
+    return reinterpret_cast<const T &> (*this)(
+        get__(di::aux::type<Ts>{}, event, args)...);
   }
 
   pool<Ts...> args_;
@@ -98,7 +117,7 @@ template <class T, class = int> struct get_ {
 
 template <class T>
 struct get_<T, BOOST_DI_REQUIRES(di::aux::is_base_of<type_op, T>::value)> {
-  using type = typename T::dupa;
+  using type = typename T::types;
 };
 
 template <class T> using get_t = typename get_<T>::type;
@@ -112,10 +131,10 @@ template <class E, class... Ts> struct ar<E, di::aux::type_list<Ts...>> {
 template <class S1, class S2, class E, class G, class A>
 struct transition_impl {
   using event = E;
-  using dupa = di::aux::join_t<typename ar<E, get_t<G>>::type,
-                               typename ar<E, get_t<A>>::type>;
+  using types = di::aux::join_t<typename ar<E, get_t<G>>::type,
+                                typename ar<E, get_t<A>>::type>;
 
-  using boost_di_inject__ = dupa;
+  using boost_di_inject__ = types;
 
   template <class... Ts>
   explicit transition_impl(Ts... args)
@@ -160,7 +179,7 @@ struct transition_impl {
   void handle_event(bool &, int &, const TEvent &e) const noexcept {}
 
 private:
-  pool<dupa> args_;
+  pool<types> args_;
 };
 
 template <class T> struct get_transition { using type = transition<T>; };
@@ -219,7 +238,7 @@ struct transition<S1, S2, E, G> {
 };
 
 template <class T> struct not_ : type_op {
-  using dupa = di::aux::join_t<get_t<T>>;
+  using types = di::aux::join_t<get_t<T>>;
   template <class TEvent, class TPool>
   auto operator()(const TEvent &e, const TPool &p) const noexcept {
     return !get<T, TEvent>(p)(e, p);
@@ -227,7 +246,7 @@ template <class T> struct not_ : type_op {
 };
 
 template <class... Ts> struct and_ : type_op {
-  using dupa = di::aux::join_t<get_t<Ts>...>;
+  using types = di::aux::join_t<get_t<Ts>...>;
   template <class TEvent, class TPool>
   auto operator()(const TEvent &e, const TPool &p) const noexcept {
     std::array<bool, sizeof...(Ts)> a = {{get<Ts, TEvent>(p)(e, p)...}};
@@ -236,7 +255,7 @@ template <class... Ts> struct and_ : type_op {
 };
 
 template <class... Ts> struct or_ : type_op {
-  using dupa = di::aux::join_t<get_t<Ts>...>;
+  using types = di::aux::join_t<get_t<Ts>...>;
   template <class TEvent, class TPool>
   auto operator()(const TEvent &e, const TPool &p) const noexcept {
     std::array<bool, sizeof...(Ts)> a = {{get<Ts, TEvent>(p)(e, p)...}};
@@ -245,7 +264,7 @@ template <class... Ts> struct or_ : type_op {
 };
 
 template <class... Ts> struct seq_ : type_op {
-  using dupa = di::aux::join_t<get_t<Ts>...>;
+  using types = di::aux::join_t<get_t<Ts>...>;
   template <class TEvent, class TPool>
   auto operator()(const TEvent &e, const TPool &p) const noexcept {
     int _[]{0, (get<Ts, TEvent>(p)(e, p), 0)...};
@@ -267,14 +286,14 @@ auto operator, (const T1 &, const T2 &) noexcept {
   return seq_<T1, T2>{};
 }
 
-template <class TEvent, int Id> struct event {
+template <class TEvent, int Id> struct event : event_base {
   static constexpr auto id = Id;
 
   template <class T> auto operator[](const T &) const noexcept {
-    return transition<event, T>{};
+    return transition<TEvent, T>{};
   }
   template <class T> auto operator/(const T &) const noexcept {
-    return transition<event, always, T>{};
+    return transition<TEvent, always, T>{};
   }
 };
 

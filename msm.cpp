@@ -15,13 +15,17 @@
 #include "msm.hpp"
 
 //->
-using e1 = msm::event<int, __LINE__>;
-using e2 = msm::event<int, __LINE__>;
-using e3 = msm::event<int, __LINE__>;
+struct e1 : msm::event<e1, __LINE__> {
+  e1(int i) : i(i) {}
+  int i = 0;
+};
+struct e2 : msm::event<e2, __LINE__> {};
+struct e3 : msm::event<e3, __LINE__> {};
 
-auto guard1 = [](auto, int i) {
+auto guard1 = [](auto e, int i) {
   // assert(42 == i);
-  std::cout << "guard1: " << i << std::endl;
+  std::cout << typeid(e).name() << " " << e.i << std::endl;
+  // std::cout << "guard1: " << i << std::endl;
   return true;
 };
 
@@ -39,10 +43,10 @@ auto controller() noexcept {
   // clang-format off
   return make_transition_table(
    // +-----------------------------------------------------------------+
-        idle == s1 + e1() [guard1 && guard2] / []{std::cout << "hej" << std::endl;}
-	  , s1    == s1 + e1() [guard1] / (action1, action2)
+        idle == s1 + e1(42) [guard1 && guard2] / []{std::cout << "hej" << std::endl;}
+      , s1    == s1 + e1(42) [guard1] / (action1, action2)
    ////+-----------------------------------------------------------------+
-	, idle2   == s2 + e2() [!guard1 && guard2] / (action1, []() {std::cout << "action2" << std::endl; })
+    , idle2   == s2 + e2() [guard2] / (action1, []() {std::cout << "action2" << std::endl; })
    //+-----------------------------------------------------------------+
   );
   // clang-format on
@@ -53,11 +57,11 @@ int main() {
   using q = decltype(controller());
   auto sm = injector.create<decltype(controller())>();
 
-  // std::cout <<
-  // boost::units::detail::demangle(typeid(decltype(controller())).name()) <<
-  // std::endl;
-  sm.process_event(e1());
-  sm.process_event(e1());
+  /*  std::cout << boost::units::detail::demangle(*/
+  // typeid(decltype(controller())).name())
+  /*<< std::endl;*/
+  sm.process_event(e1(77));
+  sm.process_event(e1(12));
 
   // sm.visit_current_states(
   //[](auto s) { std::cout << "\t" << typeid(s).name() << std::endl; });
