@@ -144,16 +144,20 @@ struct transition_impl {
     }
   }
 
-  template <class TEvent>
+  template <class TEvent,
+            BOOST_DI_REQUIRES(di::aux::is_base_of<TEvent, E>::value) = 0>
   void handle_event(bool &handled, int &current_state, const TEvent &e) const
       noexcept {
-    if (!handled && current_state == S1::id &&
-        di::aux::is_base_of<TEvent, E>::value && get<G, E>(args_)(e, args_)) {
+    if (!handled && current_state == S1::id && get<G, E>(args_)(e, args_)) {
       get<A, E>(args_)(e, args_);
       current_state = S2::id;
       handled = true;
     }
   }
+
+  template <class TEvent,
+            BOOST_DI_REQUIRES(!di::aux::is_base_of<TEvent, E>::value) = 0>
+  void handle_event(bool &, int &, const TEvent &e) const noexcept {}
 
 private:
   pool<dupa> args_;
@@ -320,7 +324,7 @@ public:
 
   template <class T> void process_event(const T &event) noexcept {
     if (!process_event_impl(event)) {
-      // process_event_impl(otherwise{});
+      process_event_impl(otherwise{});
     }
   }
 

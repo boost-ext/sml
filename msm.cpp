@@ -31,7 +31,7 @@ auto action2 = [](double, float &) { std::cout << "action2" << std::endl; };
 
 auto controller() noexcept {
   using namespace msm;
-  auto idle = init_state<__LINE__>{};
+  auto idle = init_state<__LINE__>{}; // todo constexpr counter
   auto idle2 = init_state<__LINE__>{};
   auto s1 = state<__LINE__>{};
   auto s2 = state<__LINE__>{};
@@ -39,10 +39,10 @@ auto controller() noexcept {
   // clang-format off
   return make_transition_table(
    // +-----------------------------------------------------------------+
-        idle == s1 + e1() [guard1] / []{std::cout << "hej" << std::endl;}
+        idle == s1 + e1() [guard1 && guard2] / []{std::cout << "hej" << std::endl;}
 	  , s1    == s1 + e1() [guard1] / (action1, action2)
    ////+-----------------------------------------------------------------+
-	//, idle2   == s2 + e2() [!guard1 && guard2] / (action1, [](auto) {std::cout << "action2" << std::endl; })
+	, idle2   == s2 + e2() [!guard1 && guard2] / (action1, []() {std::cout << "action2" << std::endl; })
    //+-----------------------------------------------------------------+
   );
   // clang-format on
