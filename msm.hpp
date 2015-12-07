@@ -26,35 +26,21 @@ struct none {
   template <class TEvent> void operator()(const TEvent &) const noexcept {}
 };
 
-template <class T> struct opaque {
-  opaque() noexcept = default;
-  opaque(T t) noexcept : object(t) {}
-  decltype(auto) get() const noexcept { return object; }
-
-private:
-  T object;
-};
-
-template <class T> struct opaque<T &> {
-  opaque() noexcept = default;
-  opaque(T &t) noexcept : object(&t) {}
-  decltype(auto) get() noexcept { return *object; }
-
-private:
-  T *object = nullptr;
-};
+template <class T> struct opaque { T object; };
 
 template <class... Ts> struct pool : opaque<Ts>... {
-  pool() = default;
-  explicit pool(Ts... args) noexcept : opaque<Ts>(args)... {}
+  explicit pool(Ts... args) noexcept : opaque<Ts>{args}... {}
 };
 
 template <> struct pool<> {};
 
 template <class... Ts> struct pool<di::aux::type_list<Ts...>> : Ts... {
-  pool() = default;
   explicit pool(Ts... args) noexcept : Ts(args)... {}
 };
+
+template <class T, class TPool> decltype(auto) get__(const TPool &p) noexcept {
+  return static_cast<opaque<T>>(p).object;
+}
 
 template <class T, class E>
 auto args__(int)
@@ -66,22 +52,23 @@ template <class T, class E> using args = decltype(args__<T, E>(0));
 
 template <class T, class E, class = args<T, E>> struct wrapper_impl;
 
-template <class T, class E, class X, class... Ts>
-struct wrapper_impl<T, E, di::aux::type_list<X, Ts...>> {
+template <class T, class E, class... Ts>
+struct wrapper_impl<T, E, di::aux::type_list<Ts...>> {
   using boost_di_inject__ = di::inject<Ts...>;
 
   template <class... Tx>
-  explicit wrapper_impl(Tx... ts) noexcept : args_(ts...) {}
+  explicit wrapper_impl(Tx... ts) noexcept : args_{ts...} {}
 
-  auto operator()(const E &event) const noexcept {
-    return (*this)(event, args_);
+  template <class TE, class U>
+  auto operator()(const TE &event, const U &x) const noexcept {
+    return call(event, args_, x);
   }
 
 private:
-  template <class... Tx>
-  auto operator()(const E &event, const pool<Ts...> &args) const noexcept {
-    // return reinterpret_cast<const T &> (*this)(event, get<Ts, E>(args)...);
-    return true;
+  template <class... Tx, class TE, class U>
+  auto call(const TE &event, const pool<Ts...> &args, const U &x) const
+      noexcept {
+    return reinterpret_cast<const T &> (*this)(get__<Ts>(args)...);
   }
 
   pool<Ts...> args_;
@@ -89,9 +76,18 @@ private:
 
 template <class T, class E> using wrapper = wrapper_impl<T, E>;
 
-template <class T, class E, class TPool>
+template <class T, class E, class TPool,
+          BOOST_DI_REQUIRES(
+              di::aux::is_convertible<TPool, const wrapper<T, E> &>::value) = 0>
 decltype(auto) get(const TPool &p) noexcept {
-  return static_cast<wrapper<T, E>>(p);
+  return static_cast<const wrapper<T, E> &>(p);
+}
+
+template <class T, class E, class TPool,
+          BOOST_DI_REQUIRES(!di::aux::is_convertible<
+                            TPool, const wrapper<T, E> &>::value) = 0>
+decltype(auto) get(const TPool &p) noexcept {
+  return T{};
 }
 
 template <class...> struct transition;
@@ -114,15 +110,16 @@ template <class E, class... Ts> struct ar<E, di::aux::type_list<Ts...>> {
 };
 
 template <class S1, class S2, class E, class G, class A>
-struct transition<S1, S2, E, G, A> {
+struct transition_impl {
   using event = E;
   using dupa = di::aux::join_t<typename ar<E, get_t<G>>::type,
                                typename ar<E, get_t<A>>::type>;
 
   using boost_di_inject__ = dupa;
 
-  transition() = default;
-  transition(pool<dupa> args) : args_(args) {}
+  template <class... Ts>
+  explicit transition_impl(Ts... args)
+      : args_(args...) {}
 
   void init_state(std::vector<int> &current_states) const noexcept {
     const auto id = S1::id;
@@ -197,19 +194,21 @@ template <class... Ts> struct transition {
   }
 };
 
-template <class S1, class S2, class E>
-struct transition<S1, S2, E> : transition<S1, S2, E, always, none> {
-  using type = transition;
-  using transition<S1, S2, E, always, none>::transition;
+template <class S1, class S2, class E, class G, class A>
+struct transition<S1, S2, E, G, A> {
+  using type__ = transition_impl<S1, S2, E, G, A>;
+};
+
+template <class S1, class S2, class E> struct transition<S1, S2, E> {
+  using type__ = transition_impl<S1, S2, E, always, none>;
   template <class T> auto operator/(const T &) const noexcept {
     return merge_transition_t<transition, get_transition_t<T>>{};
   }
 };
 
 template <class S1, class S2, class E, class G>
-struct transition<S1, S2, E, G> : transition<S1, S2, E, G, none> {
-  using type = transition;
-  using transition<S1, S2, E, G, none>::transition;
+struct transition<S1, S2, E, G> {
+  using type__ = transition_impl<S1, S2, E, G, none>;
   template <class T> auto operator/(const T &) const noexcept {
     return merge_transition_t<transition, get_transition_t<T>>{};
   }
@@ -306,7 +305,7 @@ struct state : state_impl<state<N, Ts...>>, state_base, Ts... {};
 template <int N, class... Ts>
 struct init_state : state_impl<init_state<N, Ts...>>, state_base_init, Ts... {};
 
-template <class... Ts> class sm : public Ts... {
+template <class... Ts> class sm : Ts... {
   template <class T> struct get_event { using type = typename T::event; };
 
 public:
@@ -321,7 +320,7 @@ public:
 
   template <class T> void process_event(const T &event) noexcept {
     if (!process_event_impl(event)) {
-      process_event_impl(otherwise{});
+      // process_event_impl(otherwise{});
     }
   }
 
@@ -349,8 +348,9 @@ private:
   std::vector<int> current_states_;
 };
 
-template <class... Ts> auto make_transition_table(Ts... ts) {
-  return sm<Ts...>(ts...);
+template <class... Ts> sm<typename Ts::type__...> make_transition_table(Ts...) {
+  sm<typename Ts::type__...> *ptr;
+  return *ptr;
 }
 
 template <class TEvent, class TConfig> struct dispatcher {
