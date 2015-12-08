@@ -19,9 +19,11 @@ struct state_base {};
 struct state_base_init {};
 struct anonymous {
   static constexpr auto id = -1;
+  anonymous(...) {}
 };
 struct otherwise {
   static constexpr auto id = -2;
+  otherwise(...) {}
 };
 struct always {
   template <class TEvent> auto operator()(const TEvent &) const noexcept {
@@ -236,10 +238,12 @@ template <class... Ts> struct transition {
 
 template <class S1, class S2, class E, class G, class A>
 struct transition<S1, S2, E, G, A> {
+  using type = transition;
   using type__ = transition_impl<S1, S2, E, G, A>;
 };
 
 template <class S1, class S2, class E> struct transition<S1, S2, E> {
+  using type = transition;
   using type__ = transition_impl<S1, S2, E, always, none>;
   template <class T> auto operator/(const T &) const noexcept {
     return merge_transition_t<transition, get_transition_t<T>>{};
@@ -248,6 +252,7 @@ template <class S1, class S2, class E> struct transition<S1, S2, E> {
 
 template <class S1, class S2, class E, class G>
 struct transition<S1, S2, E, G> {
+  using type = transition;
   using type__ = transition_impl<S1, S2, E, G, none>;
   template <class T> auto operator/(const T &) const noexcept {
     return merge_transition_t<transition, get_transition_t<T>>{};
@@ -305,6 +310,7 @@ auto operator, (const T1 &, const T2 &) noexcept {
 }
 
 template <class TEvent> struct event_impl {
+  using type = TEvent;
 
   template <class T> auto operator[](const T &) const noexcept {
     return transition<TEvent, T>{};
@@ -328,7 +334,7 @@ struct state_impl<TState<N, Ts...>> {
   }
   template <class T> auto operator+(const T &) const noexcept {
     return merge_transition_t<transition<TState<N, Ts...>>,
-                              get_transition_t<T>>{};
+                              get_transition_t<typename T::type>>{};
   }
   template <class T> auto operator[](const T &) const noexcept {
     return merge_transition_t<transition<TState<N, Ts...>>,

@@ -37,7 +37,6 @@ void f(int i, double) { std::cout << "f" << i << std::endl; }
 
 struct q {
   bool operator()(const e1 &) { return true; }
-
   bool operator()(const e2 &) { return false; }
 };
 
