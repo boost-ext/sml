@@ -15,12 +15,12 @@
 #include "msm.hpp"
 
 //->
-struct e1 : msm::event<e1, __LINE__> {
+struct e1 {
   e1(int i) : i(i) {}
   int i = 0;
 };
-struct e2 : msm::event<e2, __LINE__> {};
-struct e3 : msm::event<e3, __LINE__> {};
+struct e2 {};
+struct e3 {};
 
 auto guard1 = [](auto e, int i) {
   // assert(42 == i);
@@ -33,9 +33,17 @@ auto guard2 = [](auto) { return true; };
 auto action1 = [] { std::cout << "action1" << std::endl; };
 auto action2 = [](double, float &) { std::cout << "action2" << std::endl; };
 
+void f(int i, double) { std::cout << "f" << i << std::endl; }
+
+struct q {
+  bool operator()(const e1 &) { return true; }
+
+  bool operator()(const e2 &) { return false; }
+};
+
 auto controller() noexcept {
   using namespace msm;
-  auto idle = init_state<__LINE__>{}; // todo constexpr counter
+  auto idle = init_state<__LINE__>{};
   auto idle2 = init_state<__LINE__>{};
   auto s1 = state<__LINE__>{};
   auto s2 = state<__LINE__>{};
@@ -43,10 +51,10 @@ auto controller() noexcept {
   // clang-format off
   return make_transition_table(
    // +-----------------------------------------------------------------+
-        idle == s1 + e1(42) [guard1 && guard2] / []{std::cout << "hej" << std::endl;}
-      , s1    == s1 + e1(42) [guard1] / (action1, action2)
+        idle == s1 + event<e1> [guard1 && guard2] / ([]{std::cout << "hej" << std::endl;})
+      , s1    == s1 + event<e1> [guard1] / (action1, action2)
    ////+-----------------------------------------------------------------+
-    , idle2   == s2 + e2() [guard2] / (action1, []() {std::cout << "action2" << std::endl; })
+    , idle2   == s2 + event<e2> [guard2] / (action1, []() {std::cout << "action2" << std::endl; })
    //+-----------------------------------------------------------------+
   );
   // clang-format on

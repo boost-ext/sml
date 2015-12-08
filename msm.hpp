@@ -8,8 +8,13 @@
 namespace di = boost::di;
 
 namespace msm {
+
+template <class> struct is_function : di::aux::false_type {};
+
+template <class T, class... Ts>
+struct is_function<T(Ts...)> : di::aux::true_type {};
+
 struct type_op {};
-struct event_base {};
 struct state_base {};
 struct state_base_init {};
 struct anonymous {
@@ -53,15 +58,20 @@ decltype(auto) get__(di::aux::type<_>, const TEvent &e,
   return e;
 }
 
-template <class> struct ignore_events;
+template <class, class> struct ignore_event;
 
-template <class... Ts> struct ignore_events<di::aux::type_list<Ts...>> {
-  using type = di::aux::type_list<di::aux::conditional_t<
-      di::aux::is_base_of<event_base, Ts>::value, _, Ts>...>;
+template <class... Ts, class E>
+struct ignore_event<E, di::aux::type_list<Ts...>> {
+  using type = di::aux::type_list<
+      di::aux::conditional_t<di::aux::is_same<E, Ts>::value, _, Ts>...>;
 };
 
 template <class T, class E>
-auto args__(int) -> typename ignore_events<
+auto args__(int) ->
+    typename ignore_event<E, di::aux::function_traits_t<T>>::type;
+template <class T, class E>
+auto args__(int) -> typename ignore_event<
+    E,
     di::aux::function_traits_t<decltype(&T::template operator() < E > )>>::type;
 template <class T, class>
 auto args__(int) -> di::aux::function_traits_t<decltype(&T::operator())>;
@@ -79,15 +89,22 @@ struct wrapper_impl<T, E, di::aux::type_list<Ts...>> {
 
   template <class TE, class U>
   auto operator()(const TE &event, const U &x) const noexcept {
-    return call(event, args_, x);
+    return call(event, args_, x, is_function<T>{});
   }
 
 private:
   template <class... Tx, class TE, class U>
-  auto call(const TE &event, const pool<Ts...> &args, const U &x) const
-      noexcept {
+  auto call(const TE &event, const pool<Ts...> &args, const U &x,
+            di::aux::false_type) const noexcept {
     return reinterpret_cast<const T &> (*this)(
         get__(di::aux::type<Ts>{}, event, args)...);
+  }
+
+  template <class... Tx, class TE, class U>
+  auto call(const TE &event, const pool<Ts...> &args, const U &x,
+            di::aux::true_type) const noexcept {
+    throw 0;
+    // return T(get__(di::aux::type<Ts>{}, event, args)...);
   }
 
   pool<Ts...> args_;
@@ -280,14 +297,14 @@ template <class T1, class T2> auto operator||(const T1 &, const T2 &) noexcept {
 }
 template <class T> auto operator!(const T &)noexcept { return not_<T>{}; }
 template <class T1, class T2,
-          BOOST_DI_REQUIRES(di::aux::is_callable<T1>::value
-                                &&di::aux::is_callable<T2>::value) = 0>
+          BOOST_DI_REQUIRES(
+              (di::aux::is_callable<T1>::value || is_function<T1>::value) &&
+              (di::aux::is_callable<T2>::value || is_function<T2>::value)) = 0>
 auto operator, (const T1 &, const T2 &) noexcept {
   return seq_<T1, T2>{};
 }
 
-template <class TEvent, int Id> struct event : event_base {
-  static constexpr auto id = Id;
+template <class TEvent> struct event_impl {
 
   template <class T> auto operator[](const T &) const noexcept {
     return transition<TEvent, T>{};
@@ -296,6 +313,8 @@ template <class TEvent, int Id> struct event : event_base {
     return transition<TEvent, always, T>{};
   }
 };
+
+template <class TEvent> event_impl<TEvent> event{};
 
 template <class> struct state_impl;
 
