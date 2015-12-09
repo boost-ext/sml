@@ -89,22 +89,23 @@ struct wrapper_impl<T, E, di::aux::type_list<Ts...>> {
   template <class... Tx>
   explicit wrapper_impl(Tx... ts) noexcept : args_{ts...} {}
 
-  template <class TE, class U>
-  auto operator()(const TE &event, const U &x) const noexcept {
-    return call(event, args_, x, is_function<T>{});
+  template <class TE, class U, class TObjects>
+  auto operator()(const TE &event, const U &x, const TObjects &objects) const
+      noexcept {
+    return call(event, args_, x, objects, is_function<T>{});
   }
 
 private:
-  template <class... Tx, class TE, class U>
+  template <class... Tx, class TE, class U, class TObjects>
   auto call(const TE &event, const pool<Ts...> &args, const U &x,
-            di::aux::false_type) const noexcept {
+            const TObjects &objects, di::aux::false_type) const noexcept {
     return reinterpret_cast<const T &> (*this)(
         get__(di::aux::type<Ts>{}, event, args)...);
   }
 
-  template <class... Tx, class TE, class U>
+  template <class... Tx, class TE, class U, class TObjects>
   auto call(const TE &event, const pool<Ts...> &args, const U &x,
-            di::aux::true_type) const noexcept {
+            const TObjects &objects, di::aux::true_type) const noexcept {
     throw 0;
     // return T(get__(di::aux::type<Ts>{}, event, args)...);
   }
@@ -182,20 +183,22 @@ struct transition_impl {
     }
   }
 
-  template <class TEvent,
+  template <class TEvent, class TObjects,
             BOOST_DI_REQUIRES(di::aux::is_base_of<TEvent, E>::value) = 0>
-  void handle_event(bool &handled, int &current_state, const TEvent &e) const
-      noexcept {
-    if (!handled && current_state == S1::id && get<G, E>(args_)(e, args_)) {
-      get<A, E>(args_)(e, args_);
+  void handle_event(bool &handled, int &current_state, const TEvent &e,
+                    const TObjects &objects) const noexcept {
+    if (!handled && current_state == S1::id &&
+        get<G, E>(args_)(e, args_, objects)) {
+      get<A, E>(args_)(e, args_, objects);
       current_state = S2::id;
       handled = true;
     }
   }
 
-  template <class TEvent,
+  template <class TEvent, class TObjects,
             BOOST_DI_REQUIRES(!di::aux::is_base_of<TEvent, E>::value) = 0>
-  void handle_event(bool &, int &, const TEvent &e) const noexcept {}
+  void handle_event(bool &, int &, const TEvent &e, const TObjects &) const
+      noexcept {}
 
 private:
   pool<types> args_;
@@ -353,9 +356,10 @@ struct state : state_impl<state<N, Ts...>>, state_base, Ts... {};
 template <int N, class... Ts>
 struct init_state : state_impl<init_state<N, Ts...>>, state_base_init, Ts... {};
 
-template <class> struct sm_impl;
+template <class, class> struct sm_impl;
 
-template <class... Ts> struct sm_impl<pool<Ts...>> : Ts::type__... {
+template <class Q, class... Ts>
+struct sm_impl<Q, pool<Ts...>> : private Ts::type__... {
   template <class T> struct get_event { using type = typename T::event; };
 
 public:
@@ -363,7 +367,8 @@ public:
       di::aux::type_list<typename get_event<typename Ts::type__>::type...>;
 
   sm_impl() = delete;
-  explicit sm_impl(typename Ts::type__... ts) : Ts::type__(ts)... {
+  explicit sm_impl(typename Ts::type__... ts)
+      : Ts::type__(ts)..., objects_(Q{}.configure()) {
     [](...) {
     }((static_cast<typename Ts::type__ &>(*this).init_state(current_states_),
        0)...);
@@ -393,22 +398,23 @@ private:
     auto handled = false;
     for (auto &state : current_states_) {
       [](...) {}((static_cast<typename Ts::type__ &>(*this)
-                      .handle_event(handled, state, event),
+                      .handle_event(handled, state, event, objects_),
                   0)...);
     }
     return handled;
   }
 
   std::vector<int> current_states_;
+  pool<Ts...> objects_;
 };
 
 template <class T>
-struct sm : sm_impl<decltype(di::aux::declval<T>().configure())> {
-  using sm_impl<decltype(di::aux::declval<T>().configure())>::sm_impl;
+struct sm : sm_impl<T, decltype(di::aux::declval<T>().configure())> {
+  using sm_impl<T, decltype(di::aux::declval<T>().configure())>::sm_impl;
 };
 
 template <class... Ts> pool<Ts...> make_transition_table(Ts... ts) {
-  return pool<Ts...>(ts...);
+  return pool<Ts...>{ts...};
 }
 
 template <class TEvent, class TConfig> struct dispatcher {

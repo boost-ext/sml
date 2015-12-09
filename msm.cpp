@@ -53,10 +53,11 @@ public:
     // todo remove it
       return make_transition_table(
        // +-----------------------------------------------------------------+
-            idle == s1 + event<e1> [guard1 && guard2] / ([]{std::cout << "hej" << std::endl;})
-          , s1    == s1 + event<e1> [guard1] / (action1, action2)
-       ////+-----------------------------------------------------------------+
-        , idle2   == s2 + event<e2> [guard2] / (action1, []() {std::cout << "action2" << std::endl; })
+            idle == s1 + event<e1> / action1
+            //idle == s1 + event<e1> [guard1 && guard2] / ([]{std::cout << "hej" << std::endl;})
+          //, s1    == s1 + event<e1> [guard1] / (action1, action2)
+       //////+-----------------------------------------------------------------+
+        //, idle2   == s2 + event<e2> [guard2] / (action1, []() {std::cout << "action2" << std::endl; })
        //+-----------------------------------------------------------------+
       );
     // clang-format on
@@ -70,7 +71,7 @@ int main() {
   auto sm = injector.create<msm::sm<controller>>();
 
   /*  std::cout << boost::units::detail::demangle(*/
-  // typeid(decltype(controller())).name())
+  // typeid(controller{}.configure()).name())
   /*<< std::endl;*/
   sm.process_event(e1(77));
   sm.process_event(e1(12));
