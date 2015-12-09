@@ -353,15 +353,20 @@ struct state : state_impl<state<N, Ts...>>, state_base, Ts... {};
 template <int N, class... Ts>
 struct init_state : state_impl<init_state<N, Ts...>>, state_base_init, Ts... {};
 
-template <class... Ts> class sm : Ts... {
+template <class> struct sm_impl;
+
+template <class... Ts> struct sm_impl<pool<Ts...>> : Ts::type__... {
   template <class T> struct get_event { using type = typename T::event; };
 
 public:
-  using events = di::aux::type_list<typename get_event<Ts>::type...>;
+  using events =
+      di::aux::type_list<typename get_event<typename Ts::type__>::type...>;
 
-  sm() = delete;
-  explicit sm(Ts... ts) : Ts(ts)... {
-    [](...) {}((static_cast<Ts &>(*this).init_state(current_states_), 0)...);
+  sm_impl() = delete;
+  explicit sm_impl(typename Ts::type__... ts) : Ts::type__(ts)... {
+    [](...) {
+    }((static_cast<typename Ts::type__ &>(*this).init_state(current_states_),
+       0)...);
   }
 
   void start() noexcept { process_event_impl(anonymous{}); }
@@ -376,7 +381,7 @@ public:
   void visit_current_states(const T &visitor) const noexcept {
     for (auto &state : current_states_) {
       auto visited = false;
-      int _[]{0, (static_cast<const Ts &>(*this)
+      int _[]{0, (static_cast<const typename Ts::type__ &>(*this)
                       .visit_state(visited, state, visitor),
                   0)...};
       (void)_;
@@ -387,8 +392,9 @@ private:
   template <class T> bool process_event_impl(const T &event) noexcept {
     auto handled = false;
     for (auto &state : current_states_) {
-      [](...) {
-      }((static_cast<Ts &>(*this).handle_event(handled, state, event), 0)...);
+      [](...) {}((static_cast<typename Ts::type__ &>(*this)
+                      .handle_event(handled, state, event),
+                  0)...);
     }
     return handled;
   }
@@ -396,9 +402,13 @@ private:
   std::vector<int> current_states_;
 };
 
-template <class... Ts> sm<typename Ts::type__...> make_transition_table(Ts...) {
-  sm<typename Ts::type__...> *ptr;
-  return *ptr;
+template <class T>
+struct sm : sm_impl<decltype(di::aux::declval<T>().configure())> {
+  using sm_impl<decltype(di::aux::declval<T>().configure())>::sm_impl;
+};
+
+template <class... Ts> pool<Ts...> make_transition_table(Ts... ts) {
+  return pool<Ts...>(ts...);
 }
 
 template <class TEvent, class TConfig> struct dispatcher {
