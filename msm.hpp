@@ -120,8 +120,10 @@ template <class... Ts> auto make_transition_table(Ts... ts) noexcept {
 }
 
 template <class...> struct transition;
-template <class, class> struct transition_g;
-template <class, class> struct transition_a;
+template <class, class> struct transition_sg;
+template <class, class> struct transition_sa;
+template <class, class> struct transition_eg;
+template <class, class> struct transition_ea;
 template <class> struct state_properties {};
 template <template <class...> class TState, class... Ts>
 struct state_properties<TState<Ts...>> : Ts... {};
@@ -137,11 +139,11 @@ struct state_impl : state_properties<TState>, state_base {
   }
 
   template <class T> auto operator[](const T &t) const noexcept {
-    return transition_g<state_impl, T>{*this, t};
+    return transition_sg<state_impl, T>{*this, t};
   }
 
   template <class T> auto operator/(const T &t) const noexcept {
-    return transition_a<state_impl, T>{*this, t};
+    return transition_sa<state_impl, T>{*this, t};
   }
 };
 
@@ -152,7 +154,11 @@ struct property_state : state_impl<property_state<Ts...>> {};
 
 template <class TEvent> struct event_impl : event_base {
   template <class T> auto operator[](const T &t) const noexcept {
-    return transition<event_impl, T>{*this, t};
+    return transition_eg<event_impl, T>{*this, t};
+  }
+
+  template <class T> auto operator/(const T &t) const noexcept {
+    return transition_ea<event_impl, T>{*this, t};
   }
 };
 
@@ -184,7 +190,7 @@ struct transition<state_impl<S1>, state_impl<S2>> {
   const state_impl<S2> &s2;
 };
 
-template <class S2, class G> struct transition_g<state_impl<S2>, G> {
+template <class S2, class G> struct transition_sg<state_impl<S2>, G> {
   template <class T> auto operator/(const T &t) const noexcept {
     return transition<state, G, T>{s2, g, t};
   }
@@ -192,7 +198,7 @@ template <class S2, class G> struct transition_g<state_impl<S2>, G> {
   G g;
 };
 
-template <class S2, class A> struct transition_a<state_impl<S2>, A> {
+template <class S2, class A> struct transition_sa<state_impl<S2>, A> {
   const state_impl<S2> &s2;
   A a;
 };
@@ -200,6 +206,19 @@ template <class S2, class A> struct transition_a<state_impl<S2>, A> {
 template <class S2, class E> struct transition<state_impl<S2>, event_impl<E>> {
   const state_impl<S2> &s2;
   event_impl<E> e;
+};
+
+template <class E, class G> struct transition_eg<event_impl<E>, G> {
+  template <class T> auto operator/(const T &t) const noexcept {
+    return transition<event_impl<E>, G, T>{e, g, t};
+  }
+  event_impl<E> e;
+  G g;
+};
+
+template <class E, class A> struct transition_ea<event_impl<E>, A> {
+  event_impl<E> e;
+  A a;
 };
 
 template <class T, class E> auto args__(int) -> aux::function_traits_t<T>;
@@ -412,22 +431,68 @@ struct transition<state_impl<S1>, Transition<state_impl<S2>, event_impl<E>>>
 };
 
 template <class S1, class S2, class G>
-struct transition<state_impl<S1>, transition_g<state_impl<S2>, G>>
+struct transition<state_impl<S1>, transition_sg<state_impl<S2>, G>>
     : transition<state_impl<S1>, state_impl<S2>, event_impl<anonymous>, G,
                  none> {
-  transition(const state_impl<S1> &s1, const transition_g<state_impl<S2>, G> &t)
+  transition(const state_impl<S1> &s1,
+             const transition_sg<state_impl<S2>, G> &t)
       : transition<state_impl<S1>, state_impl<S2>, event_impl<anonymous>, G,
                    none>{s1, t.s2, event_impl<anonymous>{}, t.g, none{}} {}
 };
 
 template <class S1, class S2, class A>
-struct transition<state_impl<S1>, transition_a<state_impl<S2>, A>>
+struct transition<state_impl<S1>, transition_sa<state_impl<S2>, A>>
     : transition<state_impl<S1>, state_impl<S2>, event_impl<anonymous>, always,
                  A> {
-  transition(const state_impl<S1> &s1, const transition_a<state_impl<S2>, A> &t)
+  transition(const state_impl<S1> &s1,
+             const transition_sa<state_impl<S2>, A> &t)
       : transition<state_impl<S1>, state_impl<S2>, event_impl<anonymous>,
                    always, A>{s1, t.s2, event_impl<anonymous>{}, always{},
                               t.a} {}
+};
+
+template <class S2, class E, class G>
+struct transition<state_impl<S2>, transition_eg<event_impl<E>, G>> {
+  transition(const state_impl<S2> &s2, const transition_eg<event_impl<E>, G> &t)
+      : s2(s2), e(t.e), g(t.g) {}
+
+  const state_impl<S2> &s2;
+  event_impl<E> e;
+  G g;
+};
+
+template <class S1, template <class...> class Transition, class S2, class E,
+          class G>
+struct transition<state_impl<S1>,
+                  Transition<state_impl<S2>, transition_eg<event_impl<E>, G>>>
+    : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, none> {
+  transition(
+      const state_impl<S1> &s1,
+      const Transition<state_impl<S2>, transition_eg<event_impl<E>, G>> &t)
+      : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, none>{
+            s1, t.s2, t.e, t.g, none{}} {}
+};
+
+template <class S2, class E, class A>
+struct transition<state_impl<S2>, transition_ea<event_impl<E>, A>> {
+  transition(const state_impl<S2> &s2, const transition_ea<event_impl<E>, A> &t)
+      : s2(s2), e(t.e), a(t.a) {}
+
+  const state_impl<S2> &s2;
+  event_impl<E> e;
+  A a;
+};
+
+template <class S1, template <class...> class Transition, class S2, class E,
+          class A>
+struct transition<state_impl<S1>,
+                  Transition<state_impl<S2>, transition_ea<event_impl<E>, A>>>
+    : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, always, A> {
+  transition(
+      const state_impl<S1> &s1,
+      const Transition<state_impl<S2>, transition_ea<event_impl<E>, A>> &t)
+      : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, always, A>{
+            s1, t.s2, t.e, always{}, t.a} {}
 };
 
 template <class S1, template <class...> class Transition, class S2, class E,
