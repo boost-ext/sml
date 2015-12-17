@@ -67,7 +67,7 @@ public:
      , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2)
      , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2, []{})
      , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2, []{}, [](auto){})
-     , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2, []{}, [](int, auto, float){})
+     , idle == s1 + event<e2> [guard1 && guard2] / (action1, action2, []{}, [](int, auto, float){})
      , idle == s1 + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float){})
      , idle == s1 + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto) { return false; } ] / (action1, action2, []{}, [](int, auto, float){})
      //+-----------------------------------------------------------------+
@@ -81,6 +81,7 @@ namespace di = boost::di;
 int main() {
   auto injector = di::make_injector(di::bind<int>().to(42));
   auto sm = injector.create<msm::sm<controller>>();
+  std::cout << typeid(decltype(sm)::events).name() << std::endl;
   sm.start();
   sm.process_event(e1(77));
 }

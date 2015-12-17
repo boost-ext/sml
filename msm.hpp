@@ -618,6 +618,8 @@ using init_states_nr =
                      int, aux::is_base_of<init_state_base,
                                           typename Ts::src_state>::value>...>>;
 
+template <class... Ts> using get_event = aux::type_list<typename Ts::event...>;
+
 template <class T> struct sm__ : T { using T::process_event__; };
 
 template <class, class> class sm_impl;
@@ -629,7 +631,10 @@ template <class T, class... TDeps> class sm_impl<T, aux::pool<TDeps...>> {
       aux::apply_t<init_states_nr, transitions_t>::value;
 
 public:
-  explicit sm_impl(TDeps... deps) noexcept : deps_{decltype(deps){deps}...},
+  using events =
+      aux::apply_t<aux::unique_t, aux::apply_t<get_event, transitions_t>>;
+
+  explicit sm_impl(TDeps... deps) noexcept : deps_{deps...},
                                              transitions_(T{}.configure()) {
     init_states(indexes_t{});
   }
