@@ -48,7 +48,25 @@ public:
     // clang-format off
     return make_transition_table(
      // +-----------------------------------------------------------------+
-          idle == s1 
+		   idle == s1
+         , idle == s1 [guard1]
+         //, idle == s2 [guard1]
+         , idle == s1 [guard1 && !guard2]
+         , idle == s1 [guard1] / action1
+         , idle == s1 / action1
+         , idle == s1 / (action1, action2)
+         , idle == s1 + event<e1>
+         , idle == s1 + event<e1> [guard1]
+         , idle == s1 + event<e1> [guard1] / action1
+         , idle == s1 + event<e1> / action1
+         , idle == s1 + event<e1> / (action1, action2)
+         , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2)
+         , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2, []{})
+         , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2, []{}, [](auto){})
+         , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2, []{}, [](int, auto, float){})
+         , idle == s1 + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float){})
+         , idle == s1 + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto) { return false; } ] / (action1, action2, []{}, [](int, auto, float){})
+
           //idle == s1 + event<e1> [guard1 && guard2] / ([]{std::cout << "hej" << std::endl;})
         //, s1    == s1 + event<e1> [guard1] / (action1, action2)
      //////+-----------------------------------------------------------------+

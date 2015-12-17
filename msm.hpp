@@ -184,15 +184,19 @@ template <class S2, class G, class A> struct transition<state_impl<S2>, G, A> {
   A a;
 };
 
-template <class S1, class S2>
-struct transition<state_impl<S1>, state_impl<S2>> {
-  const state_impl<S1> &s1;
-  const state_impl<S2> &s2;
+template <class S1>
+struct transition<state_impl<S1>, state>
+    : transition<state_impl<S1>, state_impl<state>, event_impl<anonymous>,
+                 always, none> {
+  transition(const state_impl<S1> &s1, const state &s2)
+      : transition<state_impl<S1>, state_impl<state>, event_impl<anonymous>,
+                   always, none>{s1, s2, event_impl<anonymous>{}, always{},
+                                 none{}} {}
 };
 
 template <class S2, class G> struct transition_sg<state_impl<S2>, G> {
   template <class T> auto operator/(const T &t) const noexcept {
-    return transition<state, G, T>{s2, g, t};
+    return transition<state_impl<S2>, G, T>{s2, g, t};
   }
   const state_impl<S2> &s2;
   G g;
