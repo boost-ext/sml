@@ -35,7 +35,7 @@ void f(int i, double) { std::cout << "f" << i << std::endl; }
 
 struct q {
   bool operator()(const e1 &) { return true; }
-  bool operator()(const e2 &) { return false; }
+  // bool operator()(const e2 &) { return false; }
 };
 
 struct game_over {};
@@ -59,7 +59,7 @@ public:
      , s4 == s5 / action1
      , s5 == end / (action1, action2)
      , idle == s1 + event<e1>
-     , idle == s1 + event<e1> [guard1]
+     , idle == s1 + event<e1> [q{} && guard1]
      , idle == s1 + event<e1> [guard1] / action1
      , idle == s1 + event<e1> / action1
      , idle == s1 + event<e1> / (action1, action2)
@@ -81,7 +81,6 @@ int main() {
   auto injector = di::make_injector(di::bind<int>().to(42));
   auto sm = injector.create<msm::sm<controller>>();
   sm.start();
-
   sm.process_event(e1(77));
 }
 
