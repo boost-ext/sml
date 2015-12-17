@@ -577,6 +577,12 @@ template <class T> struct sum_up<T> : aux::integral_constant<int, T::value> {};
 
 template <> struct sum_up<> : aux::integral_constant<int, 0> {};
 
+template <class> struct get_size;
+
+template <class... Ts> struct get_size<aux::pool<Ts...>> {
+  static constexpr auto value = sizeof...(Ts);
+};
+
 template <class... Ts>
 using init_states_nr =
     aux::apply_t<sum_up,
@@ -588,43 +594,45 @@ template <class, class> class sm_impl;
 
 template <class T, class... TDeps> class sm_impl<T, aux::pool<TDeps...>> {
   using transitions_t = decltype(aux::declval<T>().configure());
+  using indexes_t = aux::make_index_sequence<get_size<transitions_t>::value>;
   static constexpr auto regions_nr =
       aux::apply_t<init_states_nr, transitions_t>::value;
 
 public:
   explicit sm_impl(TDeps... deps) noexcept : deps_{decltype(deps){deps}...},
                                              transitions_(T{}.configure()) {
-    init_states(transitions_);
+    init_states(indexes_t{});
   }
 
-  void start() noexcept { process_event_impl(transitions_, anonymous{}); }
+  void start() noexcept { process_event_impl(indexes_t{}, anonymous{}); }
 
   template <class TEvent> void process_event(const TEvent &event) noexcept {
-    if (!process_event_impl(transitions_, event)) {
-      process_event_impl(transitions_, otherwise{});
+    if (!process_event_impl(indexes_t{}, event)) {
+      process_event_impl(indexes_t{}, otherwise{});
     }
   }
 
   template <class TVisitor>
   void visit_current_states(const TVisitor &visitor) const noexcept {
-    visit_current_states_impl(transitions_, visitor);
+    visit_current_states_impl(indexes_t{}, visitor);
   };
 
 private:
-  template <class... Ts>
-  void init_states(aux::pool<Ts...> &transitions) noexcept {
+  template <int... Ns>
+  void init_states(const aux::index_sequence<Ns...> &) noexcept {
     auto i = 0;
-    int _[]{0, (transitions.template get<Ts>().init_state(current_states_, i),
-                0)...};
+    int _[]{0,
+            (transitions_.template get<Ns - 1>().init_state(current_states_, i),
+             0)...};
     (void)_;
   }
 
-  template <class... Ts, class TEvent>
-  bool process_event_impl(aux::pool<Ts...> &transitions,
+  template <int... Ns, class TEvent>
+  bool process_event_impl(const aux::index_sequence<Ns...> &,
                           const TEvent &event) noexcept {
     auto handled = false;
     for (auto i = 0; i < regions_nr; ++i) {
-      int _[]{0, (transitions.template get<Ts>().process_event(
+      int _[]{0, (transitions_.template get<Ns - 1>().process_event(
                       &current_states_[i], event, deps_, handled),
                   0)...};
       (void)_;
@@ -632,14 +640,14 @@ private:
     return handled;
   }
 
-  template <class... Ts, class TVisitor>
-  void visit_current_states_impl(aux::pool<Ts...> &transitions,
+  template <int... Ns, class TVisitor>
+  void visit_current_states_impl(const aux::index_sequence<Ns...>,
                                  const TVisitor &visitor) const noexcept {
     for (const auto *state : current_states_) {
       auto visited = false;
       auto i = 0;
-      int _[]{0, (transitions.template get<Ts>().visit_state(state, visitor,
-                                                             visited),
+      int _[]{0, (transitions_.template get<Ns - 1>().visit_state(
+                      state, visitor, visited),
                   0)...};
       (void)_;
     }
