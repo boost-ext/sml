@@ -89,6 +89,7 @@ using apply_t = typename apply<T, D>::type;
 struct _ {};
 struct type_op {};
 struct state_base {};
+struct init_state_base {};
 struct event_base {};
 struct anonymous {
   static constexpr auto id = -1;
@@ -147,10 +148,10 @@ struct state_impl : state_properties<TState>, state_base {
   }
 };
 
-struct state : state_impl<state> {};
-struct init_state : state_impl<init_state> {};
+template <class... Ts> struct state : state_impl<state<Ts...>> {};
+
 template <class... Ts>
-struct property_state : state_impl<property_state<Ts...>> {};
+struct init_state : state_impl<init_state<Ts...>>, init_state_base {};
 
 template <class TEvent> struct event_impl : event_base {
   template <class T> auto operator[](const T &t) const noexcept {
@@ -184,14 +185,14 @@ template <class S2, class G, class A> struct transition<state_impl<S2>, G, A> {
   A a;
 };
 
-template <class S1>
-struct transition<state_impl<S1>, state>
-    : transition<state_impl<S1>, state_impl<state>, event_impl<anonymous>,
-                 always, none> {
-  transition(const state_impl<S1> &s1, const state &s2)
-      : transition<state_impl<S1>, state_impl<state>, event_impl<anonymous>,
-                   always, none>{s1, s2, event_impl<anonymous>{}, always{},
-                                 none{}} {}
+template <class S1, class... Ts>
+struct transition<state_impl<S1>, state<Ts...>>
+    : transition<state_impl<S1>, state_impl<state<Ts...>>,
+                 event_impl<anonymous>, always, none> {
+  transition(const state_impl<S1> &s1, const state<Ts...> &s2)
+      : transition<state_impl<S1>, state_impl<state<Ts...>>,
+                   event_impl<anonymous>, always, none>{
+            s1, s2, event_impl<anonymous>{}, always{}, none{}} {}
 };
 
 template <class S2, class G> struct transition_sg<state_impl<S2>, G> {
@@ -362,7 +363,8 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
     init_state_impl(S1{}, cs, i);
   }
   void init_state_impl(...) const noexcept {}
-  void init_state_impl(const msm::init_state &, const state_base *cs[],
+  template <class... Ts>
+  void init_state_impl(const msm::init_state<Ts...> &, const state_base *cs[],
                        int &i) const noexcept {
     cs[i++] = &s1;
   }
@@ -545,10 +547,11 @@ template <class T> struct sum_up<T> : aux::integral_constant<int, T::value> {};
 template <> struct sum_up<> : aux::integral_constant<int, 0> {};
 
 template <class... Ts>
-using init_states_nr = aux::apply_t<
-    sum_up,
-    aux::type_list<aux::integral_constant<
-        int, aux::is_same<init_state, typename Ts::src_state>::value>...>>;
+using init_states_nr =
+    aux::apply_t<sum_up,
+                 aux::type_list<aux::integral_constant<
+                     int, aux::is_base_of<init_state_base,
+                                          typename Ts::src_state>::value>...>>;
 
 template <class, class> class sm_impl;
 
