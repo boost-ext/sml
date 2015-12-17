@@ -45,8 +45,8 @@ public:
   auto configure() noexcept {
     using namespace msm;
     init_state idle;
-    state s1, s2;
-    property_state<game_over> s3;
+    state s1, s2, s3, s4, s5;
+    property_state<game_over> end;
 
     // clang-format off
     return make_transition_table(
@@ -54,10 +54,10 @@ public:
 	   idle == s1
      , s1 == s2 [guard1]
      //, idle == s2 [guard1]
-     , idle == s1 [guard1 && !guard2]
-     , idle == s1 [guard1] / action1
-     , idle == s1 / action1
-     , idle == s1 / (action1, action2)
+     , s2 == s3 [guard1 && !guard2]
+     , s3 == s4 [guard1] / action1
+     , s4 == s5 / action1
+     , s5 == end / (action1, action2)
      , idle == s1 + event<e1>
      , idle == s1 + event<e1> [guard1]
      , idle == s1 + event<e1> [guard1] / action1
