@@ -648,7 +648,7 @@ public:
   }
 
   template <class TVisitor>
-  void visit_current_states(const TVisitor &visitor) const noexcept {
+  void visit_current_states(const TVisitor &visitor) noexcept {
     visit_current_states_impl(indexes_t{}, visitor);
   };
 
@@ -682,11 +682,10 @@ private:
   }
 
   template <int... Ns, class TVisitor>
-  void visit_current_states_impl(const aux::index_sequence<Ns...>,
-                                 const TVisitor &visitor) const noexcept {
+  void visit_current_states_impl(const aux::index_sequence<Ns...> &,
+                                 const TVisitor &visitor) noexcept {
     for (const auto *state : current_states_) {
       auto visited = false;
-      auto i = 0;
       int _[]{0, (transitions_.template get<Ns - 1>().visit_state(
                       state, visitor, visited),
                   0)...};
