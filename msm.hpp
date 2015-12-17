@@ -133,6 +133,12 @@ template <class> struct get_size;
 template <class... Ts> struct get_size<pool<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
+template <class...> struct sum_up;
+template <class T, class... Ts>
+struct sum_up<T, Ts...>
+    : aux::integral_constant<int, T::value + sum_up<Ts...>::value> {};
+template <class T> struct sum_up<T> : aux::integral_constant<int, T::value> {};
+template <> struct sum_up<> : aux::integral_constant<int, 0> {};
 } // aux
 
 struct _ {};
@@ -147,6 +153,14 @@ struct anonymous {
 struct otherwise {
   static constexpr auto id = -2;
   otherwise(...) {}
+};
+struct on_entry {
+  static constexpr auto id = -3;
+  on_entry(...) {}
+};
+struct on_exit {
+  static constexpr auto id = -4;
+  on_exit(...) {}
 };
 struct always {
   auto operator()() { return true; }
@@ -597,19 +611,9 @@ using merge_deps = aux::apply_t<
     aux::apply_t<ignore_t, aux::apply_t<aux::unique_t,
                                         aux::join_t<typename Ts::deps...>>>>;
 
-template <class...> struct sum_up;
-
-template <class T, class... Ts>
-struct sum_up<T, Ts...>
-    : aux::integral_constant<int, T::value + sum_up<Ts...>::value> {};
-
-template <class T> struct sum_up<T> : aux::integral_constant<int, T::value> {};
-
-template <> struct sum_up<> : aux::integral_constant<int, 0> {};
-
 template <class... Ts>
 using init_states_nr =
-    aux::apply_t<sum_up,
+    aux::apply_t<aux::sum_up,
                  aux::type_list<aux::integral_constant<
                      int, aux::is_base_of<init_state_base,
                                           typename Ts::src_state>::value>...>>;
