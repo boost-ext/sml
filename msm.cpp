@@ -10,9 +10,9 @@
 //<-
 #include <cassert>
 #include <iostream>
-#include <boost/units/detail/utility.hpp>
 #include <typeinfo>
 #include "msm.hpp"
+#include "boost/di.hpp"
 
 //->
 struct e1 {
@@ -23,9 +23,7 @@ struct e2 {};
 struct e3 {};
 
 auto guard1 = [](auto e, int i) {
-  // assert(42 == i);
-  std::cout << typeid(e).name() << " " << e.i << std::endl;
-  // std::cout << "guard1: " << i << std::endl;
+  std::cout << "guard1: " << i << std::endl;
   return true;
 };
 
@@ -42,39 +40,33 @@ struct q {
 
 class controller {
 public:
-  auto configure() {
+  auto configure() noexcept {
     using namespace msm;
-    auto idle = init_state<__LINE__>{};
-    auto idle2 = init_state<__LINE__>{};
-    auto s1 = state<__LINE__>{};
-    auto s2 = state<__LINE__>{};
+    init_state idle;
+    state s1, s2;
 
     // clang-format off
-    // todo remove it
-      return make_transition_table(
-       // +-----------------------------------------------------------------+
-            idle == s1 + event<e1> / action1
-            //idle == s1 + event<e1> [guard1 && guard2] / ([]{std::cout << "hej" << std::endl;})
-          //, s1    == s1 + event<e1> [guard1] / (action1, action2)
-       //////+-----------------------------------------------------------------+
-        //, idle2   == s2 + event<e2> [guard2] / (action1, []() {std::cout << "action2" << std::endl; })
-       //+-----------------------------------------------------------------+
-      );
+    return make_transition_table(
+     // +-----------------------------------------------------------------+
+          idle == s1 + event<e1> [guard1] / action1
+          //idle == s1 + event<e1> [guard1 && guard2] / ([]{std::cout << "hej" << std::endl;})
+        //, s1    == s1 + event<e1> [guard1] / (action1, action2)
+     //////+-----------------------------------------------------------------+
+      //, idle2   == s2 + event<e2> [guard2] / (action1, []() {std::cout << "action2" << std::endl; })
+     //+-----------------------------------------------------------------+
+    );
     // clang-format on
   }
 };
 
+namespace di = boost::di;
+
 int main() {
   auto injector = di::make_injector(di::bind<int>().to(42));
-  // using q = decltype(controller());
-  // auto sm = injector.create<decltype(controller())>();
   auto sm = injector.create<msm::sm<controller>>();
 
-  /*  std::cout << boost::units::detail::demangle(*/
-  // typeid(controller{}.configure()).name())
-  /*<< std::endl;*/
   sm.process_event(e1(77));
-  sm.process_event(e1(12));
+  // sm.process_event(e1(12));
 
   // sm.visit_current_states(
   //[](auto s) { std::cout << "\t" << typeid(s).name() << std::endl; });
