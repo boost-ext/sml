@@ -129,6 +129,10 @@ struct pool : pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {
   using type = pool;
   using pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...>::pool_impl;
 };
+template <class> struct get_size;
+template <class... Ts> struct get_size<pool<Ts...>> {
+  static constexpr auto value = sizeof...(Ts);
+};
 } // aux
 
 struct _ {};
@@ -317,12 +321,20 @@ auto call(T object, const TEvent &event, TDeps &deps) noexcept {
   return call_impl(args_t<T, TEvent>{}, object, event, deps);
 }
 
-template <class... Ts> struct seq_ : type_op {
+template <class... Ts> class seq_ : type_op {
+public:
   explicit seq_(Ts... ts) noexcept : a(ts...) {}
 
   template <class TEvent, class TDeps>
   void operator()(const TEvent &event, TDeps &deps) noexcept {
-    int _[]{0, (call(a.template get<Ts>(), event, deps), 0)...};
+    for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps);
+  }
+
+private:
+  template <int... Ns, class TEvent, class TDeps>
+  void for_all(const aux::index_sequence<Ns...> &, const TEvent &event,
+               TDeps &deps) noexcept {
+    int _[]{0, (call(a.template get<Ns - 1>(), event, deps), 0)...};
     (void)_;
   }
 
@@ -334,13 +346,21 @@ auto operator, (const T1 &t1, const T2 &t2) noexcept {
   return seq_<T1, T2>(t1, t2);
 }
 
-template <class... Ts> struct and_ : type_op {
+template <class... Ts> class and_ : type_op {
+public:
   explicit and_(Ts... ts) noexcept : g(ts...) {}
 
   template <class TEvent, class TDeps>
-  bool operator()(const TEvent &event, TDeps &deps) noexcept {
+  auto operator()(const TEvent &event, TDeps &deps) noexcept {
+    return for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps);
+  }
+
+private:
+  template <int... Ns, class TEvent, class TDeps>
+  auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event,
+               TDeps &deps) noexcept {
     auto result = true;
-    for (auto r : {call(g.template get<Ts>(), event, deps)...})
+    for (auto r : {call(g.template get<Ns - 1>(), event, deps)...})
       result &= r;
     return result;
   }
@@ -353,13 +373,21 @@ auto operator&&(const T1 &t1, const T2 &t2) noexcept {
   return and_<T1, T2>(t1, t2);
 }
 
-template <class... Ts> struct or_ : type_op {
+template <class... Ts> class or_ : type_op {
+public:
   explicit or_(Ts... ts) noexcept : g(ts...) {}
 
   template <class TEvent, class TDeps>
-  bool operator()(const TEvent &event, TDeps &deps) noexcept {
+  auto operator()(const TEvent &event, TDeps &deps) noexcept {
+    return for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps);
+  }
+
+private:
+  template <int... Ns, class TEvent, class TDeps>
+  auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event,
+               TDeps &deps) noexcept {
     auto result = false;
-    for (auto r : {call(g.template get<Ts>(), event, deps)...})
+    for (auto r : {call(g.template get<Ns - 1>(), event, deps)...})
       result |= r;
     return result;
   }
@@ -372,14 +400,16 @@ auto operator||(const T1 &t1, const T2 &t2) noexcept {
   return or_<T1, T2>(t1, t2);
 }
 
-template <class T> struct not_ : type_op {
+template <class T> class not_ : type_op {
+public:
   explicit not_(T t) noexcept : g(t) {}
 
   template <class TEvent, class TDeps>
-  bool operator()(const TEvent &event, TDeps &deps) noexcept {
+  auto operator()(const TEvent &event, TDeps &deps) noexcept {
     return !call(g, event, deps);
   }
 
+private:
   T g;
 };
 
@@ -577,12 +607,6 @@ template <class T> struct sum_up<T> : aux::integral_constant<int, T::value> {};
 
 template <> struct sum_up<> : aux::integral_constant<int, 0> {};
 
-template <class> struct get_size;
-
-template <class... Ts> struct get_size<aux::pool<Ts...>> {
-  static constexpr auto value = sizeof...(Ts);
-};
-
 template <class... Ts>
 using init_states_nr =
     aux::apply_t<sum_up,
@@ -594,7 +618,8 @@ template <class, class> class sm_impl;
 
 template <class T, class... TDeps> class sm_impl<T, aux::pool<TDeps...>> {
   using transitions_t = decltype(aux::declval<T>().configure());
-  using indexes_t = aux::make_index_sequence<get_size<transitions_t>::value>;
+  using indexes_t =
+      aux::make_index_sequence<aux::get_size<transitions_t>::value>;
   static constexpr auto regions_nr =
       aux::apply_t<init_states_nr, transitions_t>::value;
 
