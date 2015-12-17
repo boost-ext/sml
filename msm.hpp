@@ -564,6 +564,8 @@ public:
     init_states(transitions_);
   }
 
+  void start() noexcept { process_event_impl(transitions_, anonymous{}); }
+
   template <class TEvent> void process_event(const TEvent &event) noexcept {
     if (!process_event_impl(transitions_, event)) {
       process_event_impl(transitions_, otherwise{});

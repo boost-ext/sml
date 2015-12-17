@@ -38,39 +38,37 @@ struct q {
   bool operator()(const e2 &) { return false; }
 };
 
+struct game_over {};
+
 class controller {
 public:
   auto configure() noexcept {
     using namespace msm;
     init_state idle;
     state s1, s2;
+    property_state<game_over> s3;
 
     // clang-format off
     return make_transition_table(
      // +-----------------------------------------------------------------+
-		   idle == s1
-         , idle == s1 [guard1]
-         //, idle == s2 [guard1]
-         , idle == s1 [guard1 && !guard2]
-         , idle == s1 [guard1] / action1
-         , idle == s1 / action1
-         , idle == s1 / (action1, action2)
-         , idle == s1 + event<e1>
-         , idle == s1 + event<e1> [guard1]
-         , idle == s1 + event<e1> [guard1] / action1
-         , idle == s1 + event<e1> / action1
-         , idle == s1 + event<e1> / (action1, action2)
-         , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2)
-         , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2, []{})
-         , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2, []{}, [](auto){})
-         , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2, []{}, [](int, auto, float){})
-         , idle == s1 + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float){})
-         , idle == s1 + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto) { return false; } ] / (action1, action2, []{}, [](int, auto, float){})
-
-          //idle == s1 + event<e1> [guard1 && guard2] / ([]{std::cout << "hej" << std::endl;})
-        //, s1    == s1 + event<e1> [guard1] / (action1, action2)
-     //////+-----------------------------------------------------------------+
-      //, idle2   == s2 + event<e2> [guard2] / (action1, []() {std::cout << "action2" << std::endl; })
+	   idle == s1
+     , s1 == s2 [guard1]
+     //, idle == s2 [guard1]
+     , idle == s1 [guard1 && !guard2]
+     , idle == s1 [guard1] / action1
+     , idle == s1 / action1
+     , idle == s1 / (action1, action2)
+     , idle == s1 + event<e1>
+     , idle == s1 + event<e1> [guard1]
+     , idle == s1 + event<e1> [guard1] / action1
+     , idle == s1 + event<e1> / action1
+     , idle == s1 + event<e1> / (action1, action2)
+     , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2)
+     , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2, []{})
+     , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2, []{}, [](auto){})
+     , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2, []{}, [](int, auto, float){})
+     , idle == s1 + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float){})
+     , idle == s1 + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto) { return false; } ] / (action1, action2, []{}, [](int, auto, float){})
      //+-----------------------------------------------------------------+
     );
     // clang-format on
@@ -82,21 +80,9 @@ namespace di = boost::di;
 int main() {
   auto injector = di::make_injector(di::bind<int>().to(42));
   auto sm = injector.create<msm::sm<controller>>();
+  sm.start();
 
   sm.process_event(e1(77));
-  // sm.process_event(e1(12));
-
-  // sm.visit_current_states(
-  //[](auto s) { std::cout << "\t" << typeid(s).name() << std::endl; });
-  // sm.process_event(e1());
-  // sm.visit_current_states(
-  //[](auto s) { std::cout << "\t" << typeid(s).name() << std::endl; });
-  // sm.process_event(e2());
-  // sm.visit_current_states(
-  //[](auto s) { std::cout << "\t" << typeid(s).name() << std::endl; });
-  // sm.process_event(e3());
-  // sm.visit_current_states(
-  //[](auto s) { std::cout << "\t" << typeid(s).name() << std::endl; });
 }
 
 //]
