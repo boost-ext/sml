@@ -448,20 +448,20 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
     cs[i++] = &s1;
   }
 
-  template <class TEvent, class TDeps,
+  template <class TEvent, class TDeps, class T,
             std::enable_if_t<!std::is_same<TEvent, E>::value, int> = 0>
-  void process_event(const state_base **, const TEvent &, TDeps &, bool &) const
-      noexcept {}
+  void process_event(const state_base **, const TEvent &, TDeps &, T &,
+                     bool &) const noexcept {}
 
-  template <class TEvent, class TDeps,
+  template <class TEvent, class TDeps, class T,
             std::enable_if_t<std::is_same<TEvent, E>::value, int> = 0>
   void process_event(const state_base **state, const TEvent &event, TDeps &deps,
-                     bool &handled) const noexcept {
+                     T &sm, bool &handled) const noexcept {
     if (!handled && *state == &s1 && call(g, event, deps)) {
       call(a, event, deps);
-      // on_entry
+      sm.process_event__(on_entry{});
       *state = &s2;
-      // on_exit
+      sm.process_event__(on_exit{});
       handled = true;
     }
   }
@@ -618,8 +618,9 @@ using init_states_nr =
                      int, aux::is_base_of<init_state_base,
                                           typename Ts::src_state>::value>...>>;
 
-template <class, class> class sm_impl;
+template <class T> struct sm__ : T { using T::process_event__; };
 
+template <class, class> class sm_impl;
 template <class T, class... TDeps> class sm_impl<T, aux::pool<TDeps...>> {
   using transitions_t = decltype(aux::declval<T>().configure());
   using indexes_t =
@@ -646,6 +647,11 @@ public:
     visit_current_states_impl(indexes_t{}, visitor);
   };
 
+protected:
+  template <class TEvent> void process_event__(const TEvent &event) noexcept {
+    process_event_impl(indexes_t{}, event);
+  }
+
 private:
   template <int... Ns>
   void init_states(const aux::index_sequence<Ns...> &) noexcept {
@@ -662,7 +668,8 @@ private:
     auto handled = false;
     for (auto i = 0; i < regions_nr; ++i) {
       int _[]{0, (transitions_.template get<Ns - 1>().process_event(
-                      &current_states_[i], event, deps_, handled),
+                      &current_states_[i], event, deps_,
+                      static_cast<sm__<sm_impl> &>(*this), handled),
                   0)...};
       (void)_;
     }
