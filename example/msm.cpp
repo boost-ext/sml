@@ -47,7 +47,7 @@ auto is_key = [](int v) { return [=] { return guard3(v); }; };
 
 class sub {
  public:
-  auto configure() noexcept {
+  auto configure() const noexcept {
     using namespace msm;
     init_state<> idle;
     state<> s1, s2;
@@ -69,7 +69,7 @@ class controller {
   // std::cout << "i:" << i << "d:" << d << std::endl;
   /*}*/
 
-  auto configure() noexcept {
+  auto configure() const noexcept {
     using namespace msm;
     init_state<> idle;
     state<> s1, s2, s3, s4, s5;

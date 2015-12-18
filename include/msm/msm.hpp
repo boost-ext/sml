@@ -834,8 +834,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<state<sm_impl<T, aux::
     }
   }
 
- public:  // TODO remove
-  T fsm_;
+  const T &fsm_;
   aux::pool<TDeps...> deps_;
   transitions_t transitions_;
   const state_base *current_states_[regions_nr];
