@@ -80,6 +80,7 @@ class controller {
      // +-----------------------------------------------------------------+
        idle == sub_ + event<e1> [ guard1 && is_key(77) ] / (action1, f)
      , sub_ == s1 + event<e2> / ([] { std::cout << "SUB exit" << std::endl; })
+	 , s1 == s2 + event<e4> / process_event(e5{})
 	 , _ + event<not_handled> / [] { std::cout << "not handled" << std::endl; }
      // +-----------------------------------------------------------------+
 	 //, s1 / [] {}
@@ -125,5 +126,6 @@ int main() {
   sm.process_event(e3());
   sm.process_event(e4());
   sm.process_event(e2());
-  sm.process_event(e5());
+  sm.process_event(e4());
+  // sm.process_event(e5());
 }

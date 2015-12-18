@@ -231,6 +231,7 @@ struct sum_up<> : aux::integral_constant<int, 0> {};
 struct type_op {};
 struct state_base {};
 struct init_state_base {};
+struct sm_base {};
 struct event_base {};
 struct anonymous {
   static constexpr auto id = -1;
@@ -423,6 +424,9 @@ template <class T, class E>
 auto args__(int) -> aux::function_traits_t<decltype(&T::template operator() < E > )>;
 template <class T, class>
 auto args__(int) -> aux::function_traits_t<decltype(&T::operator())>;
+template <class T, class E>
+auto args__(int) -> aux::function_traits_t<decltype(&T::call_operator_args__)>;
+
 template <class, class>
 aux::type_list<> args__(...);
 template <class T, class E>
@@ -441,33 +445,41 @@ struct get_deps<T<Ts...>, E, aux::enable_if_t<aux::is_base_of<type_op, T<Ts...>>
   using type = aux::join_t<get_deps_t<Ts, E>...>;
 };
 
-template <class T, class TEvent, class TDeps,
-          aux::enable_if_t<!aux::is_same<TEvent, aux::remove_qualifiers_t<T>>::value, int> = 0>
-decltype(auto) get(const TEvent &, TDeps &deps) noexcept {
+template <class T, class TEvent, class TDeps, class SM,
+          aux::enable_if_t<!aux::is_same<TEvent, aux::remove_qualifiers_t<T>>::value &&
+                               !aux::is_same<sm_base, aux::remove_qualifiers_t<T>>::value,
+                           int> = 0>
+decltype(auto) get(const TEvent &, TDeps &deps, SM &) noexcept {
   return deps.template get<T>();
 }
 
-template <class T, class TEvent, class TDeps,
+template <class T, class TEvent, class TDeps, class SM,
           aux::enable_if_t<aux::is_same<TEvent, aux::remove_qualifiers_t<T>>::value, int> = 0>
-decltype(auto) get(const TEvent &event, TDeps &) noexcept {
+decltype(auto) get(const TEvent &event, TDeps &, SM &) noexcept {
   return event;
 }
 
-template <class... Ts, class T, class TEvent, class TDeps,
+template <class T, class TEvent, class TDeps, class SM,
+          aux::enable_if_t<aux::is_same<sm_base, aux::remove_qualifiers_t<T>>::value, int> = 0>
+decltype(auto) get(const TEvent &, TDeps &, SM &sm) noexcept {
+  return sm;
+}
+
+template <class... Ts, class T, class TEvent, class TDeps, class SM,
           aux::enable_if_t<!aux::is_base_of<type_op, T>::value, int> = 0>
-auto call_impl(const aux::type_list<Ts...> &, T object, const TEvent &event, TDeps &deps) noexcept {
-  return object(get<Ts>(event, deps)...);
+auto call_impl(const aux::type_list<Ts...> &, T object, const TEvent &event, TDeps &deps, SM &sm) noexcept {
+  return object(get<Ts>(event, deps, sm)...);
 }
 
-template <class... Ts, class T, class TEvent, class TDeps,
+template <class... Ts, class T, class TEvent, class TDeps, class SM,
           aux::enable_if_t<aux::is_base_of<type_op, T>::value, int> = 0>
-auto call_impl(const aux::type_list<Ts...> &, T object, const TEvent &event, TDeps &deps) noexcept {
-  return object(event, deps);
+auto call_impl(const aux::type_list<Ts...> &, T object, const TEvent &event, TDeps &deps, SM &sm) noexcept {
+  return object(event, deps, sm);
 }
 
-template <class T, class TEvent, class TDeps>
-auto call(T object, const TEvent &event, TDeps &deps) noexcept {
-  return call_impl(args_t<T, TEvent>{}, object, event, deps);
+template <class T, class TEvent, class TDeps, class SM>
+auto call(T object, const TEvent &event, TDeps &deps, SM &sm) noexcept {
+  return call_impl(args_t<T, TEvent>{}, object, event, deps, sm);
 }
 
 template <class... Ts>
@@ -475,15 +487,15 @@ class seq_ : type_op {
  public:
   explicit seq_(Ts... ts) noexcept : a(ts...) {}
 
-  template <class TEvent, class TDeps>
-  void operator()(const TEvent &event, TDeps &deps) noexcept {
-    for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps);
+  template <class TEvent, class TDeps, class SM>
+  void operator()(const TEvent &event, TDeps &deps, SM &sm) noexcept {
+    for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps, sm);
   }
 
  private:
-  template <int... Ns, class TEvent, class TDeps>
-  void for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps) noexcept {
-    int _[]{0, (call(a.template get<Ns - 1>(), event, deps), 0)...};
+  template <int... Ns, class TEvent, class TDeps, class SM>
+  void for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
+    int _[]{0, (call(a.template get<Ns - 1>(), event, deps, sm), 0)...};
     (void)_;
   }
 
@@ -500,16 +512,16 @@ class and_ : type_op {
  public:
   explicit and_(Ts... ts) noexcept : g(ts...) {}
 
-  template <class TEvent, class TDeps>
-  auto operator()(const TEvent &event, TDeps &deps) noexcept {
-    return for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps);
+  template <class TEvent, class TDeps, class SM>
+  auto operator()(const TEvent &event, TDeps &deps, SM &sm) noexcept {
+    return for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps, sm);
   }
 
  private:
-  template <int... Ns, class TEvent, class TDeps>
-  auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps) noexcept {
+  template <int... Ns, class TEvent, class TDeps, class SM>
+  auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
     auto result = true;
-    for (auto r : {call(g.template get<Ns - 1>(), event, deps)...}) result &= r;
+    for (auto r : {call(g.template get<Ns - 1>(), event, deps, sm)...}) result &= r;
     return result;
   }
 
@@ -526,16 +538,16 @@ class or_ : type_op {
  public:
   explicit or_(Ts... ts) noexcept : g(ts...) {}
 
-  template <class TEvent, class TDeps>
-  auto operator()(const TEvent &event, TDeps &deps) noexcept {
-    return for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps);
+  template <class TEvent, class TDeps, class SM>
+  auto operator()(const TEvent &event, TDeps &deps, SM &sm) noexcept {
+    return for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps, sm);
   }
 
  private:
-  template <int... Ns, class TEvent, class TDeps>
-  auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps) noexcept {
+  template <int... Ns, class TEvent, class TDeps, class SM>
+  auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
     auto result = false;
-    for (auto r : {call(g.template get<Ns - 1>(), event, deps)...}) result |= r;
+    for (auto r : {call(g.template get<Ns - 1>(), event, deps, sm)...}) result |= r;
     return result;
   }
 
@@ -552,9 +564,9 @@ class not_ : type_op {
  public:
   explicit not_(T t) noexcept : g(t) {}
 
-  template <class TEvent, class TDeps>
-  auto operator()(const TEvent &event, TDeps &deps) noexcept {
-    return !call(g, event, deps);
+  template <class TEvent, class TDeps, class SM>
+  auto operator()(const TEvent &event, TDeps &deps, SM &sm) noexcept {
+    return !call(g, event, deps, sm);
   }
 
  private:
@@ -604,11 +616,11 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
     cs[i++] = &s1;
   }
 
-  template <class TEvent, class TDeps, class T, std::enable_if_t<std::is_same<TEvent, E>::value, int> = 0>
-  void process_event(const state_base **state, const TEvent &event, TDeps &deps, T &sm, bool &handled) const noexcept {
+  template <class TEvent, class TDeps, class SM, std::enable_if_t<std::is_same<TEvent, E>::value, int> = 0>
+  void process_event(const state_base **state, const TEvent &event, TDeps &deps, SM &sm, bool &handled) const noexcept {
     if (!handled && match<get_state_t<S1>>(*state, &s1)) {
-      if (!process_event_via_sub_sm(event, is_sm_state<get_state_t<S1>>{}) && call(g, event, deps)) {
-        call(a, event, deps);
+      if (!process_event_via_sub_sm(event, is_sm_state<get_state_t<S1>>{}) && call(g, event, deps, sm)) {
+        call(a, event, deps, sm);
         sm.process_event__(on_entry{});
         *state = &s2;
         sm.process_event__(on_exit{});
@@ -617,8 +629,8 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
     }
   }
 
-  template <class TEvent, class TDeps, class T, std::enable_if_t<!std::is_same<TEvent, E>::value, int> = 0>
-  void process_event(const state_base **state, const TEvent &event, TDeps &, T &, bool &handled) const noexcept {
+  template <class TEvent, class TDeps, class SM, std::enable_if_t<!std::is_same<TEvent, E>::value, int> = 0>
+  void process_event(const state_base **state, const TEvent &event, TDeps &, SM &, bool &handled) const noexcept {
     if (!handled && match<get_state_t<S1>>(*state, &s1) &&
         process_event_via_sub_sm(event, is_sm_state<get_state_t<S1>>{})) {
       handled = true;
@@ -825,6 +837,25 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<state<sm_impl<T, aux::
 
 template <class T>
 using sm = sm_impl<T, aux::apply_t<merge_deps, decltype(aux::declval<T>().configure())>>;
+
+struct process_event_impl {
+  template <class TEvent>
+  struct process_impl {
+    void call_operator_args__(sm_base);
+
+    template <class SM>
+    void operator()(SM &sm, ...) noexcept {
+      sm.process_event(event);
+    }
+
+    TEvent event;
+  };
+
+  template <class TEvent>
+  auto operator()(const TEvent &event) noexcept {
+    return process_impl<TEvent>{event};
+  }
+} process_event;
 
 template <class TEvent, class TConfig>
 struct dispatcher {
