@@ -6,6 +6,7 @@
 //
 #pragma once
 namespace msm {
+inline namespace v_1_0_0 {
 namespace aux {
 struct none_type {};
 template <class...>
@@ -876,4 +877,5 @@ struct dispatcher {
   template <class T>
   static void dispatch_event_impl(const TEvent &, T &, const aux::type_list<> &) noexcept {}
 };
+}
 }  // msm
