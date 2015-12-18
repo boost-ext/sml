@@ -20,8 +20,8 @@ struct e3 {};
 struct e4 {};
 struct e5 {};
 
-auto guard1 = [](auto, int i) {
-  std::cout << "guard1: " << i << std::endl;
+auto guard1 = [](auto e, int i) {
+  std::cout << "guard1: " << typeid(e).name() << " " << i << std::endl;
   return true;
 };
 

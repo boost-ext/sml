@@ -443,9 +443,27 @@ aux::type_list<> args__(...);
 template <class T, class E>
 using args_t = decltype(args__<T, E>(0));
 
+template <class, class>
+struct ignore;
+
+template <class, class T>
+struct ignore_impl {
+  using type = aux::type_list<T>;
+};
+
+template <class T>
+struct ignore_impl<T, T> {
+  using type = aux::type_list<>;
+};
+
+template <class E, class... Ts>
+struct ignore<E, aux::type_list<Ts...>> {
+  using type = aux::join_t<typename ignore_impl<E, Ts>::type...>;
+};
+
 template <class T, class E, class = void>
 struct get_deps {
-  using type = args_t<T, E>;
+  using type = typename ignore<aux::remove_qualifiers_t<E>, args_t<T, E>>::type;
 };
 
 template <class T, class E>
@@ -751,38 +769,8 @@ struct transition<state_impl<S1>, transition<state_impl<S2>, transition<event_im
       : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A>{s1, t.s2, t.e, t.g, t.a} {}
 };
 
-template <bool, class T>
-struct ignore_impl {
-  using type = aux::type_list<T>;
-};
-
-template <class T>
-struct ignore_impl<true, T> {
-  using type = aux::type_list<>;
-};
-
-template <class, class>
-struct ignore;
-
-template <class T, class TEvent>
-using is_event = aux::integral_constant<bool, aux::is_base_of<event_base, aux::remove_qualifiers_t<TEvent>>::value>;
-//||
-// aux::is_same<aux::none_type,
-// decltype(aux::declval<T>().template get<aux::remove_qualifiers_t<TEvent>>())>::value>;
-
-template <class... TEvents, class... TDeps>
-struct ignore<aux::type_list<TEvents...>, aux::type_list<TDeps...>> {
-  using type =
-      aux::apply_t<aux::pool,
-                   aux::join_t<typename ignore_impl<is_event<aux::pool<TEvents...>, TDeps>::value, TDeps>::type...>>;
-};
-
-template <class TEvents, class TDeps>
-using ignore_t = typename ignore<TEvents, TDeps>::type;
-
 template <class... Ts>
-using merge_deps =
-    ignore_t<aux::unique_t<typename Ts::event...>, aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>>;
+using merge_deps = aux::apply_t<aux::pool, aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>>;
 
 template <class... Ts>
 using init_states_nr = aux::apply_t<

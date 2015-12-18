@@ -47,13 +47,13 @@ test transition = [] {
   sm.process_event(e1{});
 };
 
-/*test action_with_event = [] {*/
+// test action_with_event = [] {
 // struct c {
 // auto configure() noexcept {
 // using namespace msm;
 // init_state<> idle;
 // state<> s1;
-// auto action = [](const e1&){};
+// auto action = [](const e1&) {};
 
 // return make_transition_table(idle == s1 + event<e1> / action);
 //}
@@ -61,4 +61,4 @@ test transition = [] {
 
 // msm::sm<c> sm{c{}};
 // sm.process_event(e1{});
-/*};*/
+//};
