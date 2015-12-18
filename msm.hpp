@@ -237,9 +237,9 @@ struct anonymous {
   static constexpr auto id = -1;
   anonymous(...) {}
 };
-struct otherwise {
+struct not_handled {
   static constexpr auto id = -2;
-  otherwise(...) {}
+  not_handled(...) {}
 };
 struct on_entry {
   static constexpr auto id = -3;
@@ -261,6 +261,13 @@ auto make_transition_table(Ts... ts) noexcept {
   return aux::pool<Ts...>{ts...};
 }
 
+template <class, class>
+class sm_impl;
+template <class T>
+struct sm__ : T {
+  using T::process_event__;
+};
+
 template <class...>
 struct transition;
 template <class, class>
@@ -271,10 +278,22 @@ template <class, class>
 struct transition_eg;
 template <class, class>
 struct transition_ea;
+
+template <class T>
+struct inherit {
+  using type = T;
+};
+template <class... Ts>
+struct inherit<sm_impl<Ts...>> {
+  using type = aux::none_type;
+};
+template <class T>
+using inherit_t = typename inherit<T>::type;
+
 template <class>
 struct state_properties {};
 template <template <class...> class TState, class... Ts>
-struct state_properties<TState<Ts...>> : Ts... {};
+struct state_properties<TState<Ts...>> : inherit_t<Ts>... {};
 
 template <class TState>
 struct state_impl : state_properties<TState>, state_base {
@@ -539,6 +558,21 @@ template <class T>
 auto operator!(const T &t) noexcept {
   return not_<T>(t);
 }
+template <class T>
+struct get_state {
+  using type = T;
+};
+template <class T>
+struct get_state<state<T>> {
+  using type = T;
+};
+template <class T>
+using get_state_t = typename get_state<T>::type;
+
+template <class>
+struct is_sm_state : aux::false_type {};
+template <class... Ts>
+struct is_sm_state<sm_impl<Ts...>> : aux::true_type {};
 
 template <class S1, class S2, class E, class G, class A>
 struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
@@ -554,18 +588,34 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
     cs[i++] = &s1;
   }
 
-  template <class TEvent, class TDeps, class T, std::enable_if_t<!std::is_same<TEvent, E>::value, int> = 0>
-  void process_event(const state_base **, const TEvent &, TDeps &, T &, bool &) const noexcept {}
-
   template <class TEvent, class TDeps, class T, std::enable_if_t<std::is_same<TEvent, E>::value, int> = 0>
   void process_event(const state_base **state, const TEvent &event, TDeps &deps, T &sm, bool &handled) const noexcept {
-    if (!handled && *state == &s1 && call(g, event, deps)) {
-      call(a, event, deps);
-      sm.process_event__(on_entry{});
-      *state = &s2;
-      sm.process_event__(on_exit{});
+    if (!handled && *state == &s1) {
+      if (!process_event_via_sub_sm(event, is_sm_state<get_state_t<S1>>{}) && call(g, event, deps)) {
+        call(a, event, deps);
+        sm.process_event__(on_entry{});
+        *state = &s2;
+        sm.process_event__(on_exit{});
+        handled = true;
+      }
+    }
+  }
+
+  template <class TEvent, class TDeps, class T, std::enable_if_t<!std::is_same<TEvent, E>::value, int> = 0>
+  void process_event(const state_base **state, const TEvent &event, TDeps &, T &, bool &handled) const noexcept {
+    if (!handled && *state == &s1 && process_event_via_sub_sm(event, is_sm_state<get_state_t<S1>>{})) {
       handled = true;
     }
+  }
+
+  template <class TEvent>
+  auto process_event_via_sub_sm(const TEvent &event, const aux::true_type &) const noexcept {
+    return ((sm__<get_state_t<S1>> &)s1).process_event__(event);
+  }
+
+  template <class TEvent>
+  auto process_event_via_sub_sm(const TEvent &, const aux::false_type &) const noexcept {
+    return false;
   }
 
   template <class TVisitor>
@@ -690,15 +740,8 @@ using init_states_nr = aux::apply_t<
 template <class... Ts>
 using get_event = aux::type_list<typename Ts::event...>;
 
-template <class T>
-struct sm__ : T {
-  using T::process_event__;
-};
-
-template <class, class>
-class sm_impl;
 template <class T, class... TDeps>
-class sm_impl<T, aux::pool<TDeps...>> {
+class sm_impl<T, aux::pool<TDeps...>> : public state_impl<state<sm_impl<T, aux::pool<TDeps...>>>> {
   using transitions_t = decltype(aux::declval<T>().configure());
   using indexes_t = aux::make_index_sequence<aux::get_size<transitions_t>::value>;
   static constexpr auto regions_nr = aux::apply_t<init_states_nr, transitions_t>::value;
@@ -708,14 +751,16 @@ class sm_impl<T, aux::pool<TDeps...>> {
 
   explicit sm_impl(const T &fsm, TDeps... deps) noexcept : fsm_(fsm), deps_{deps...}, transitions_(fsm_.configure()) {
     init_states(indexes_t{});
+    process_event_impl(indexes_t{}, anonymous{});
+    process_event_impl(indexes_t{}, on_entry{});
   }
 
-  void start() noexcept { process_event_impl(indexes_t{}, anonymous{}); }
+  ~sm_impl() noexcept { process_event_impl(indexes_t{}, on_exit{}); }
 
   template <class TEvent>
   void process_event(const TEvent &event) noexcept {
     if (!process_event_impl(indexes_t{}, event)) {
-      process_event_impl(indexes_t{}, otherwise{});
+      process_event_impl(indexes_t{}, not_handled{});
     }
   }
 
@@ -726,8 +771,8 @@ class sm_impl<T, aux::pool<TDeps...>> {
 
  protected:
   template <class TEvent>
-  void process_event__(const TEvent &event) noexcept {
-    process_event_impl(indexes_t{}, event);
+  auto process_event__(const TEvent &event) noexcept {
+    return process_event_impl(indexes_t{}, event);
   }
 
  private:
@@ -739,7 +784,7 @@ class sm_impl<T, aux::pool<TDeps...>> {
   }
 
   template <int... Ns, class TEvent>
-  bool process_event_impl(const aux::index_sequence<Ns...> &, const TEvent &event) noexcept {
+  auto process_event_impl(const aux::index_sequence<Ns...> &, const TEvent &event) noexcept {
     auto handled = false;
     for (auto i = 0; i < regions_nr; ++i) {
       int _[]{0, (transitions_.template get<Ns - 1>().process_event(&current_states_[i], event, deps_,

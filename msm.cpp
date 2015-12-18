@@ -17,6 +17,7 @@ struct e1 {
 };
 struct e2 {};
 struct e3 {};
+struct e4 {};
 
 auto guard1 = [](auto, int i) {
   std::cout << "guard1: " << i << std::endl;
@@ -43,9 +44,29 @@ struct game_over {};
 
 auto is_key = [](int v) { return [=] { return guard3(v); }; };
 
+class sub {
+ public:
+  auto configure() noexcept {
+    using namespace msm;
+    init_state<> idle;
+    state<> s1, s2;
+
+    // clang-format off
+    return make_transition_table(
+     // +-----------------------------------------------------------------+
+       idle == s1 + event<e3> / [] { std::cout << "in SUB" << std::endl; }
+     , s1 == s2 + event<e4> / [] { std::cout << "again in SUB sm" << std::endl; }
+     //+-----------------------------------------------------------------+
+    );
+    // clang-format on
+  }
+};
+
 class controller {
  public:
-  controller(int i, double d) { std::cout << "i:" << i << "d:" << d << std::endl; }
+  /*  controller(int i, double d, const msm::sm<sub>& sub) : sub_(sub) {*/
+  // std::cout << "i:" << i << "d:" << d << std::endl;
+  /*}*/
 
   auto configure() noexcept {
     using namespace msm;
@@ -56,7 +77,10 @@ class controller {
     // clang-format off
     return make_transition_table(
      // +-----------------------------------------------------------------+
-       idle == s1 + event<e1> [ guard1 && is_key(77) ] / (action1, f)
+       idle == sub_ + event<e1> [ guard1 && is_key(77) ] / (action1, f)
+     , sub_ == s1 + event<e2> / ([] { std::cout << "SUB exit" << std::endl; })
+	 //, _ + event<not_handled> / [] { std::cout << "not handled"; }
+     // +-----------------------------------------------------------------+
 	 , idle == s1
 	 , s1 == s2 [guard1 && guard1 && f2]
      , s3 == s2 [guard1]
@@ -79,6 +103,8 @@ class controller {
     );
     // clang-format on
   }
+
+  const msm::sm<sub> &sub_;
 };
 
 namespace di = boost::di;
@@ -86,7 +112,9 @@ namespace di = boost::di;
 int main() {
   auto injector = di::make_injector(di::bind<int>().to(42));
   auto sm = injector.create<msm::sm<controller>>();
-  std::cout << typeid(decltype(sm)::events).name() << std::endl;
-  sm.start();
+  // std::cout << typeid(decltype(sm)::events).name() << std::endl;
   sm.process_event(e1(77));
+  sm.process_event(e3());
+  sm.process_event(e4());
+  sm.process_event(e2());
 }
