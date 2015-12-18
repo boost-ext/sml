@@ -32,6 +32,7 @@ auto action1 = [] { std::cout << "action1" << std::endl; };
 auto action2 = [](double, float &) { std::cout << "action2" << std::endl; };
 
 void f(int i, double) { std::cout << "f" << i << std::endl; }
+auto f2(float &) { return true; }
 
 struct q {
   bool operator()(const e1 &) { return true; }
@@ -55,9 +56,9 @@ public:
     // clang-format off
     return make_transition_table(
      // +-----------------------------------------------------------------+
-       idle == s1 + event<e1> [ guard1] / action1
+       idle == s1 + event<e1> [ guard1] / (action1, f)
 	 , idle == s1
-	 , s1 == s2 [guard1 && guard1]
+	 , s1 == s2 [guard1 && guard1 && f2]
      , s3 == s2 [guard1]
      , s2 == s3 [guard1 && !guard2]
      , s3 == s4 [guard1] / action1

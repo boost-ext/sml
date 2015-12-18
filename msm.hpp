@@ -99,7 +99,11 @@ template <template <class...> class T, class D>
 using apply_t = typename apply<T, D>::type;
 template <int, class T> struct pool_type {
   using type = T;
-  T object;
+  type object;
+};
+template <int N, class R, class... Ts> struct pool_type<N, R(Ts...)> {
+  using type = R (*)(Ts...);
+  type object;
 };
 template <class, class...> struct pool_impl;
 template <int... Ns, class... Ts>
