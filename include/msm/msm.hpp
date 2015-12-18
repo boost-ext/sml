@@ -616,7 +616,7 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
     cs[i++] = &s1;
   }
 
-  template <class TEvent, class TDeps, class SM, std::enable_if_t<std::is_same<TEvent, E>::value, int> = 0>
+  template <class TEvent, class TDeps, class SM, aux::enable_if_t<aux::is_same<TEvent, E>::value, int> = 0>
   void process_event(const state_base **state, const TEvent &event, TDeps &deps, SM &sm, bool &handled) const noexcept {
     if (!handled && match<get_state_t<S1>>(*state, &s1)) {
       if (!process_event_via_sub_sm(event, is_sm_state<get_state_t<S1>>{}) && call(g, event, deps, sm)) {
@@ -629,7 +629,7 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
     }
   }
 
-  template <class TEvent, class TDeps, class SM, std::enable_if_t<!std::is_same<TEvent, E>::value, int> = 0>
+  template <class TEvent, class TDeps, class SM, aux::enable_if_t<!aux::is_same<TEvent, E>::value, int> = 0>
   void process_event(const state_base **state, const TEvent &event, TDeps &, SM &, bool &handled) const noexcept {
     if (!handled && match<get_state_t<S1>>(*state, &s1) &&
         process_event_via_sub_sm(event, is_sm_state<get_state_t<S1>>{})) {
