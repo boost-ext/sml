@@ -1,20 +1,16 @@
 //
-// Copyright (c) 2012-2015 Krzysztof Jusiak (krzysztof at jusiak dot net)
+// Copyright (c) 2015 Krzysztof Jusiak (krzysztof at jusiak dot net)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-
-//[msm
-//<-
 #include <cassert>
 #include <iostream>
 #include <typeinfo>
 #include "msm.hpp"
 #include "boost/di.hpp"
 
-//->
 struct e1 {
   e1(int i) : i(i) {}
   int i = 0;
@@ -22,12 +18,16 @@ struct e1 {
 struct e2 {};
 struct e3 {};
 
-auto guard1 = [](auto e, int i) {
+auto guard1 = [](auto, int i) {
   std::cout << "guard1: " << i << std::endl;
   return true;
 };
 
 auto guard2 = [](auto) { return true; };
+auto guard3 = [](int i) {
+  std::cout << "guard3: " << i << std::endl;
+  return true;
+};
 auto action1 = [] { std::cout << "action1" << std::endl; };
 auto action2 = [](double, float &) { std::cout << "action2" << std::endl; };
 
@@ -41,11 +41,11 @@ struct q {
 
 struct game_over {};
 
+auto is_key = [](int v) { return [=] { return guard3(v); }; };
+
 class controller {
-public:
-  controller(int i, double d) {
-    std::cout << "i:" << i << "d:" << d << std::endl;
-  }
+ public:
+  controller(int i, double d) { std::cout << "i:" << i << "d:" << d << std::endl; }
 
   auto configure() noexcept {
     using namespace msm;
@@ -56,7 +56,7 @@ public:
     // clang-format off
     return make_transition_table(
      // +-----------------------------------------------------------------+
-       idle == s1 + event<e1> [ guard1] / (action1, f)
+       idle == s1 + event<e1> [ guard1 && is_key(77) ] / (action1, f)
 	 , idle == s1
 	 , s1 == s2 [guard1 && guard1 && f2]
      , s3 == s2 [guard1]
@@ -90,5 +90,3 @@ int main() {
   sm.start();
   sm.process_event(e1(77));
 }
-
-//]

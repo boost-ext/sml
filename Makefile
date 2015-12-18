@@ -1,7 +1,7 @@
 all test:
-	clang++ msm.cpp -I ../boost/libs/di/include/ -I. -std=c++1y && ./a.out
+	clang++ msm.cpp -I ../boost/libs/di/include/ -I. -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors && ./a.out
 	@echo ---------
-	g++ msm.cpp -I ../boost/libs/di/include/ -I. -std=c++1y && ./a.out
+	g++ msm.cpp -I ../boost/libs/di/include/ -I. -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors && ./a.out
 
 clean:
 	rm -f a.out
