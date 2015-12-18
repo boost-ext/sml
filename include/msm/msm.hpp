@@ -669,12 +669,12 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
   template <class TVisitor>
   void visit_state(const state_base *state, const TVisitor &visitor, bool &visited) const noexcept {
     if (!visited && match<get_state_t<S1>>(&s1, state)) {
-      visitor(S1{});
+      visitor(static_cast<const S1 &>(s1));
       visited = true;
     }
 
     if (!visited && match<get_state_t<S2>>(&s2, state)) {
-      visitor(S2{});
+      visitor(static_cast<const S2 &>(s2));
       visited = true;
     }
   }
@@ -834,6 +834,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<state<sm_impl<T, aux::
     }
   }
 
+ public:  // TODO remove
   T fsm_;
   aux::pool<TDeps...> deps_;
   transitions_t transitions_;

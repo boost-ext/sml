@@ -11,6 +11,10 @@
 
 struct e1 {};
 
+auto expect_state = [](auto& sm, const auto& state) {
+  sm.visit_current_states([&](const auto& s) { expect(static_cast<const msm::state_base*>(&s) == state); });
+};
+
 test empty = [] {
   struct c {
     auto configure() noexcept {
@@ -32,19 +36,15 @@ test transition = [] {
 
     auto configure() noexcept {
       using namespace msm;
-      // std::cout << static_cast<const msm::state_base*>(&idle) << std::endl;
       return make_transition_table(idle == s1 + event<e1>);
     }
   };
 
   c c_;
   msm::sm<c> sm{c_};
-  sm.visit_current_states([&](const auto&) {
-    // std::cout << static_cast<const msm::state_base*>(&s) << std::endl;
-    // std::cout << static_cast<const msm::state_base*>(&c_.idle) << std::endl;
-    // expect(static_cast<const msm::state_base*>(&s) == &c_.idle); }
-  });
+  expect_state(sm, &sm.fsm_.idle);
   sm.process_event(e1{});
+  expect_state(sm, &sm.fsm_.s1);
 };
 
 test action_with_event = [] {
