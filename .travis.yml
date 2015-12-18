@@ -1,0 +1,66 @@
+#
+# Copyright (c) 2015 Krzysztof Jusiak (krzysztof at jusiak dot net)
+#
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
+sudo: false
+
+matrix:
+  fast_finish: true
+  include:
+  - os: linux
+    env: CXX=/usr/local/clang-3.4/bin/clang++
+    addons:
+      apt:
+        packages: ["clang-3.4", "valgrind"]
+        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.4"]
+  - os: linux
+    env: CXX=clang++-3.5
+    addons:
+      apt:
+        packages: ["clang-3.5", "valgrind"]
+        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.5"]
+  - os: linux
+    env: CXX=clang++-3.6
+    addons:
+      apt:
+        packages: ["clang-3.6", "valgrind"]
+        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"]
+  - os: linux
+    env: CXX=clang++-3.7
+    addons:
+      apt:
+        packages: ["clang-3.7", "valgrind"]
+        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"]
+  - os: linux
+    env: CXX=clang++-3.8
+    addons:
+      apt:
+        packages: ["clang-3.8", "valgrind"]
+        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise"]
+  - os: linux
+    env: CXX=g++-5
+    addons:
+      apt:
+        packages: ["g++-5", "valgrind"]
+        sources: ["ubuntu-toolchain-r-test"]
+  - os: osx
+    osx_image: xcode6.1
+    env: CXX=clang++
+  - os: osx
+    osx_image: xcode6.4
+    env: CXX=clang++
+  - os: osx
+    osx_image: xcode7
+    env: CXX=clang++
+  - os: osx
+    osx_image: xcode7.1
+    env: CXX=clang++
+  - os: osx
+    osx_image: xcode7.2b1
+    env: CXX=clang++
+
+script:
+  - if [ "${CXX}" != "" ]; then (travis_wait make test); fi
+
