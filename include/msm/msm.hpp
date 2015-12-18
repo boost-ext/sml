@@ -203,9 +203,19 @@ class pool_impl<index_sequence<Ns...>, Ts...> : pool_type<Ns, Ts>... {
     return static_cast<pool_type<N, T> &>(*object).object;
   }
 
+  template <int>
+  auto get_impl_nr(...) noexcept {
+    return none_type{};
+  }
+
   template <class T, int N>
   decltype(auto) get_impl_type(pool_type<N, T> *object) noexcept {
     return static_cast<pool_type<N, T> &>(*object).object;
+  }
+
+  template <class>
+  auto get_impl_type(...) noexcept {
+    return none_type{};
   }
 };
 template <class... Ts>
