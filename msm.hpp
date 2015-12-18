@@ -487,30 +487,28 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
   A a;
 };
 
-template <class S1, template <class...> class Transition, class S2, class G,
-          class A>
-struct transition<state_impl<S1>, Transition<state_impl<S2>, G, A>>
+template <class S1, class S2, class G, class A>
+struct transition<state_impl<S1>, transition<state_impl<S2>, G, A>>
     : transition<state_impl<S1>, state_impl<S2>, event_impl<anonymous>, G, A> {
   transition(const state_impl<S1> &s1,
-             const Transition<state_impl<S2>, G, A> &t)
+             const transition<state_impl<S2>, G, A> &t)
       : transition<state_impl<S1>, state_impl<S2>, event_impl<anonymous>, G, A>{
             s1, t.s2, event_impl<anonymous>{}, t.g, t.a} {}
 };
 
-template <class S1, template <class...> class Transition, class E, class G,
-          class A>
-struct transition<state_impl<S1>, Transition<event_impl<E>, G, A>>
+template <class S1, class E, class G, class A>
+struct transition<state_impl<S1>, transition<event_impl<E>, G, A>>
     : transition<state_impl<S1>, state_impl<S1>, event_impl<E>, G, A> {
-  transition(const state_impl<S1> &s1, const Transition<event_impl<E>, G, A> &t)
+  transition(const state_impl<S1> &s1, const transition<event_impl<E>, G, A> &t)
       : transition<state_impl<S1>, state_impl<S1>, event_impl<E>, G, A>{
             s1, s1, t.e, t.g, t.a} {}
 };
 
-template <class S1, template <class...> class Transition, class S2, class E>
-struct transition<state_impl<S1>, Transition<state_impl<S2>, event_impl<E>>>
+template <class S1, class S2, class E>
+struct transition<state_impl<S1>, transition<state_impl<S2>, event_impl<E>>>
     : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, always, none> {
   transition(const state_impl<S1> &s1,
-             const Transition<state_impl<S2>, event_impl<E>> &t)
+             const transition<state_impl<S2>, event_impl<E>> &t)
       : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, always, none>{
             s1, t.s2, t.e, always{}, none{}} {}
 };
@@ -546,14 +544,13 @@ struct transition<state_impl<S2>, transition_eg<event_impl<E>, G>> {
   G g;
 };
 
-template <class S1, template <class...> class Transition, class S2, class E,
-          class G>
+template <class S1, class S2, class E, class G>
 struct transition<state_impl<S1>,
-                  Transition<state_impl<S2>, transition_eg<event_impl<E>, G>>>
+                  transition<state_impl<S2>, transition_eg<event_impl<E>, G>>>
     : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, none> {
   transition(
       const state_impl<S1> &s1,
-      const Transition<state_impl<S2>, transition_eg<event_impl<E>, G>> &t)
+      const transition<state_impl<S2>, transition_eg<event_impl<E>, G>> &t)
       : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, none>{
             s1, t.s2, t.e, t.g, none{}} {}
 };
@@ -568,26 +565,24 @@ struct transition<state_impl<S2>, transition_ea<event_impl<E>, A>> {
   A a;
 };
 
-template <class S1, template <class...> class Transition, class S2, class E,
-          class A>
+template <class S1, class S2, class E, class A>
 struct transition<state_impl<S1>,
-                  Transition<state_impl<S2>, transition_ea<event_impl<E>, A>>>
+                  transition<state_impl<S2>, transition_ea<event_impl<E>, A>>>
     : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, always, A> {
   transition(
       const state_impl<S1> &s1,
-      const Transition<state_impl<S2>, transition_ea<event_impl<E>, A>> &t)
+      const transition<state_impl<S2>, transition_ea<event_impl<E>, A>> &t)
       : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, always, A>{
             s1, t.s2, t.e, always{}, t.a} {}
 };
 
-template <class S1, template <class...> class Transition, class S2, class E,
-          class G, class A>
+template <class S1, class S2, class E, class G, class A>
 struct transition<state_impl<S1>,
-                  Transition<state_impl<S2>, Transition<event_impl<E>, G, A>>>
+                  transition<state_impl<S2>, transition<event_impl<E>, G, A>>>
     : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
   transition(
       const state_impl<S1> &s1,
-      const Transition<state_impl<S2>, Transition<event_impl<E>, G, A>> &t)
+      const transition<state_impl<S2>, transition<event_impl<E>, G, A>> &t)
       : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A>{
             s1, t.s2, t.e, t.g, t.a} {}
 };
