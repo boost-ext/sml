@@ -243,7 +243,6 @@ struct type_op {};
 struct state_base {};
 struct init_state_base {};
 struct sm_base {};
-struct event_base {};
 struct anonymous {
   static constexpr auto id = -1;
   anonymous(...) {}
@@ -337,7 +336,7 @@ struct any_state : state_impl<any_state> {
 } _;
 
 template <class TEvent>
-struct event_impl : event_base {
+struct event_impl {
   template <class T>
   auto operator[](const T &t) const noexcept {
     return transition_eg<event_impl, T>{*this, t};
@@ -446,24 +445,15 @@ using args_t = decltype(args__<T, E>(0));
 template <class, class>
 struct ignore;
 
-template <class, class T>
-struct ignore_impl {
-  using type = aux::type_list<T>;
-};
-
-template <class T>
-struct ignore_impl<T, T> {
-  using type = aux::type_list<>;
-};
-
 template <class E, class... Ts>
 struct ignore<E, aux::type_list<Ts...>> {
-  using type = aux::join_t<typename ignore_impl<E, Ts>::type...>;
+  using type = aux::join_t<aux::conditional_t<aux::is_same<E, aux::remove_qualifiers_t<Ts>>::value, aux::type_list<>,
+                                              aux::type_list<Ts>>...>;
 };
 
 template <class T, class E, class = void>
 struct get_deps {
-  using type = typename ignore<aux::remove_qualifiers_t<E>, args_t<T, E>>::type;
+  using type = typename ignore<E, args_t<T, E>>::type;
 };
 
 template <class T, class E>
@@ -636,7 +626,7 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
   using src_state = S1;
   using dst_state = S2;
   using event = E;
-  using deps = aux::apply_t<aux::unique_t, aux::join_t<get_deps_t<G, event_impl<E>>, get_deps_t<A, event_impl<E>>>>;
+  using deps = aux::apply_t<aux::unique_t, aux::join_t<get_deps_t<G, E>, get_deps_t<A, E>>>;
 
   void init_state(const state_base *cs[], int &i) const noexcept { init_state_impl(S1{}, cs, i); }
   void init_state_impl(...) const noexcept {}
