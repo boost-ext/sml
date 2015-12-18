@@ -8,7 +8,7 @@
 #include <cassert>
 #include <iostream>
 #include <typeinfo>
-#include "msm.hpp"
+#include "msm/msm.hpp"
 #include "boost/di.hpp"
 
 struct e1 {
@@ -118,7 +118,7 @@ class controller {
 
 namespace di = boost::di;
 
-int main() {
+test main_test = [] {
   auto injector = di::make_injector(di::bind<int>().to(42));
   auto sm = injector.create<msm::sm<controller>>();
   // std::cout << typeid(decltype(sm)::events).name() << std::endl;
@@ -128,4 +128,4 @@ int main() {
   sm.process_event(e2());
   sm.process_event(e4());
   // sm.process_event(e5());
-}
+};

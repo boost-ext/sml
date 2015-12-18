@@ -1,7 +1,9 @@
+.PHONY: clean test
+
 all test:
-	clang++ msm.cpp -I ../boost/libs/di/include/ -I. -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors && ./a.out
+	clang++ test/ft.cpp -I include -I ../boost/libs/di/include/ -I. -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors -include test/common/test.hpp && ./a.out
 	@echo ---------
-	g++ msm.cpp -I ../boost/libs/di/include/ -I. -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors && ./a.out
+	g++ test/ft.cpp -I include -I ../boost/libs/di/include/ -I. -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors -include test/common/test.hpp && ./a.out
 
 clean:
 	rm -f a.out
