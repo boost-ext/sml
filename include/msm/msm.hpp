@@ -751,22 +751,38 @@ struct transition<state_impl<S1>, transition<state_impl<S2>, transition<event_im
       : transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A>{s1, t.s2, t.e, t.g, t.a} {}
 };
 
-template <class T, class = void>
-struct ignore {
+template <bool, class T>
+struct ignore_impl {
   using type = aux::type_list<T>;
 };
 
 template <class T>
-struct ignore<T, aux::enable_if_t<aux::is_base_of<event_base, aux::remove_qualifiers_t<T>>::value>> {
+struct ignore_impl<true, T> {
   using type = aux::type_list<>;
 };
 
-template <class... Ts>
-using ignore_t = aux::join_t<typename ignore<Ts>::type...>;
+template <class, class>
+struct ignore;
+
+template <class T, class TEvent>
+using is_event = aux::integral_constant<bool, aux::is_base_of<event_base, aux::remove_qualifiers_t<TEvent>>::value>;
+//||
+// aux::is_same<aux::none_type,
+// decltype(aux::declval<T>().template get<aux::remove_qualifiers_t<TEvent>>())>::value>;
+
+template <class... TEvents, class... TDeps>
+struct ignore<aux::type_list<TEvents...>, aux::type_list<TDeps...>> {
+  using type =
+      aux::apply_t<aux::pool,
+                   aux::join_t<typename ignore_impl<is_event<aux::pool<TEvents...>, TDeps>::value, TDeps>::type...>>;
+};
+
+template <class TEvents, class TDeps>
+using ignore_t = typename ignore<TEvents, TDeps>::type;
 
 template <class... Ts>
 using merge_deps =
-    aux::apply_t<aux::pool, aux::apply_t<ignore_t, aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>>>;
+    ignore_t<aux::unique_t<typename Ts::event...>, aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>>;
 
 template <class... Ts>
 using init_states_nr = aux::apply_t<
