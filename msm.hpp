@@ -629,8 +629,10 @@ public:
   using events =
       aux::apply_t<aux::unique_t, aux::apply_t<get_event, transitions_t>>;
 
-  explicit sm_impl(TDeps... deps) noexcept : deps_{deps...},
-                                             transitions_(T{}.configure()) {
+  explicit sm_impl(const T &fsm, TDeps... deps) noexcept
+      : fsm_(fsm),
+        deps_{deps...},
+        transitions_(fsm_.configure()) {
     init_states(indexes_t{});
   }
 
@@ -688,6 +690,7 @@ private:
     }
   }
 
+  T fsm_;
   aux::pool<TDeps...> deps_;
   transitions_t transitions_;
   const state_base *current_states_[regions_nr];

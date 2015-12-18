@@ -42,6 +42,10 @@ struct game_over {};
 
 class controller {
 public:
+  controller(int i, double d) {
+    std::cout << "i:" << i << "d:" << d << std::endl;
+  }
+
   auto configure() noexcept {
     using namespace msm;
     init_state<> idle;
