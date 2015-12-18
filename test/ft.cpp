@@ -129,3 +129,5 @@ test main_test = [] {
   sm.process_event(e4());
   // sm.process_event(e5());
 };
+
+test basic = [] {};
