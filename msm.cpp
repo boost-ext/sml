@@ -18,6 +18,7 @@ struct e1 {
 struct e2 {};
 struct e3 {};
 struct e4 {};
+struct e5 {};
 
 auto guard1 = [](auto, int i) {
   std::cout << "guard1: " << i << std::endl;
@@ -79,9 +80,16 @@ class controller {
      // +-----------------------------------------------------------------+
        idle == sub_ + event<e1> [ guard1 && is_key(77) ] / (action1, f)
      , sub_ == s1 + event<e2> / ([] { std::cout << "SUB exit" << std::endl; })
-	 //, _ + event<not_handled> / [] { std::cout << "not handled"; }
+	 , _ + event<not_handled> / [] { std::cout << "not handled" << std::endl; }
      // +-----------------------------------------------------------------+
-	 , idle == s1
+	 //, s1 / [] {}
+	 //, s1 [guard1]
+	 //, s1 [guard1] / action1
+	 //, s1 + event<not_handled> / action1
+	 //, idle == s1
+     // +-----------------------------------------------------------------+
+	 , s3 + event<not_handled> / [] { std::cout << "fdsa"; }
+	 , s3 + event<not_handled> [guard1] / action1
 	 , s1 == s2 [guard1 && guard1 && f2]
      , s3 == s2 [guard1]
      , s2 == s3 [guard1 && !guard2]
@@ -117,4 +125,5 @@ int main() {
   sm.process_event(e3());
   sm.process_event(e4());
   sm.process_event(e2());
+  sm.process_event(e5());
 }

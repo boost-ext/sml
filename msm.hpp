@@ -228,7 +228,6 @@ template <>
 struct sum_up<> : aux::integral_constant<int, 0> {};
 }  // aux
 
-struct _ {};
 struct type_op {};
 struct state_base {};
 struct init_state_base {};
@@ -320,9 +319,10 @@ struct state_impl : state_properties<TState>, state_base {
 
 template <class... Ts>
 struct state : state_impl<state<Ts...>> {};
-
 template <class... Ts>
 struct init_state : state_impl<init_state<Ts...>>, init_state_base {};
+struct any_state : state_impl<any_state> {
+} _;
 
 template <class TEvent>
 struct event_impl : event_base {
@@ -358,10 +358,10 @@ struct transition<event_impl<E>, G, A> {
 };
 
 template <class S2, class G, class A>
-struct transition<state_impl<S2>, G, A> {
-  const state_impl<S2> &s2;
-  G g;
-  A a;
+struct transition<state_impl<S2>, G, A> : transition<state_impl<S2>, state_impl<S2>, event_impl<anonymous>, G, A> {
+  transition(const state_impl<S2> &s2, const G &g, const A &a)
+      : transition<state_impl<S2>, state_impl<S2>, event_impl<anonymous>, G, A>{s2, s2, event_impl<anonymous>{}, g, a} {
+  }
 };
 
 template <class S1, class... Ts>
@@ -373,19 +373,26 @@ struct transition<state_impl<S1>, state<Ts...>>
 };
 
 template <class S2, class G>
-struct transition_sg<state_impl<S2>, G> {
+struct transition_sg<state_impl<S2>, G> : transition<state_impl<S2>, state_impl<S2>, event_impl<anonymous>, G, none> {
+  using transition_t = transition<state_impl<S2>, state_impl<S2>, event_impl<anonymous>, G, none>;
+  using transition_t::s2;
+  using transition_t::g;
+
+  transition_sg(const state_impl<S2> &s2, const G &g)
+      : transition<state_impl<S2>, state_impl<S2>, event_impl<anonymous>, G, none>{s2, s2, event_impl<anonymous>{}, g,
+                                                                                   none{}} {}
+
   template <class T>
   auto operator/(const T &t) const noexcept {
     return transition<state_impl<S2>, G, T>{s2, g, t};
   }
-  const state_impl<S2> &s2;
-  G g;
 };
 
 template <class S2, class A>
-struct transition_sa<state_impl<S2>, A> {
-  const state_impl<S2> &s2;
-  A a;
+struct transition_sa<state_impl<S2>, A> : transition<state_impl<S2>, state_impl<S2>, event_impl<anonymous>, always, A> {
+  transition_sa(const state_impl<S2> &s2, const A &a)
+      : transition<state_impl<S2>, state_impl<S2>, event_impl<anonymous>, always, A>{s2, s2, event_impl<anonymous>{},
+                                                                                     always{}, a} {}
 };
 
 template <class S2, class E>
@@ -574,6 +581,15 @@ struct is_sm_state : aux::false_type {};
 template <class... Ts>
 struct is_sm_state<sm_impl<Ts...>> : aux::true_type {};
 
+template <class T>
+auto match(const state_base *s1, const state_base *s2) {
+  return s1 == s2;
+}
+template <>
+auto match<any_state>(const state_base *, const state_base *) {
+  return true;
+}
+
 template <class S1, class S2, class E, class G, class A>
 struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
   using src_state = S1;
@@ -590,7 +606,7 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
 
   template <class TEvent, class TDeps, class T, std::enable_if_t<std::is_same<TEvent, E>::value, int> = 0>
   void process_event(const state_base **state, const TEvent &event, TDeps &deps, T &sm, bool &handled) const noexcept {
-    if (!handled && *state == &s1) {
+    if (!handled && match<get_state_t<S1>>(*state, &s1)) {
       if (!process_event_via_sub_sm(event, is_sm_state<get_state_t<S1>>{}) && call(g, event, deps)) {
         call(a, event, deps);
         sm.process_event__(on_entry{});
@@ -603,7 +619,8 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
 
   template <class TEvent, class TDeps, class T, std::enable_if_t<!std::is_same<TEvent, E>::value, int> = 0>
   void process_event(const state_base **state, const TEvent &event, TDeps &, T &, bool &handled) const noexcept {
-    if (!handled && *state == &s1 && process_event_via_sub_sm(event, is_sm_state<get_state_t<S1>>{})) {
+    if (!handled && match<get_state_t<S1>>(*state, &s1) &&
+        process_event_via_sub_sm(event, is_sm_state<get_state_t<S1>>{})) {
       handled = true;
     }
   }
@@ -620,12 +637,12 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
 
   template <class TVisitor>
   void visit_state(const state_base *state, const TVisitor &visitor, bool &visited) const noexcept {
-    if (!visited && &s1 == state) {
+    if (!visited && match<get_state_t<S1>>(&s1, state)) {
       visitor(S1{});
       visited = true;
     }
 
-    if (!visited && &s2 == state) {
+    if (!visited && match<get_state_t<S2>>(&s2, state)) {
       visitor(S2{});
       visited = true;
     }
@@ -677,12 +694,10 @@ struct transition<state_impl<S1>, transition_sa<state_impl<S2>, A>>
 };
 
 template <class S2, class E, class G>
-struct transition<state_impl<S2>, transition_eg<event_impl<E>, G>> {
-  transition(const state_impl<S2> &s2, const transition_eg<event_impl<E>, G> &t) : s2(s2), e(t.e), g(t.g) {}
-
-  const state_impl<S2> &s2;
-  event_impl<E> e;
-  G g;
+struct transition<state_impl<S2>, transition_eg<event_impl<E>, G>>
+    : transition<state_impl<S2>, state_impl<S2>, event_impl<E>, G, none> {
+  transition(const state_impl<S2> &s2, const transition_eg<event_impl<E>, G> &t)
+      : transition<state_impl<S2>, state_impl<S2>, event_impl<E>, G, none>{s2, s2, t.e, t.g, none{}} {}
 };
 
 template <class S1, class S2, class E, class G>
@@ -693,12 +708,10 @@ struct transition<state_impl<S1>, transition<state_impl<S2>, transition_eg<event
 };
 
 template <class S2, class E, class A>
-struct transition<state_impl<S2>, transition_ea<event_impl<E>, A>> {
-  transition(const state_impl<S2> &s2, const transition_ea<event_impl<E>, A> &t) : s2(s2), e(t.e), a(t.a) {}
-
-  const state_impl<S2> &s2;
-  event_impl<E> e;
-  A a;
+struct transition<state_impl<S2>, transition_ea<event_impl<E>, A>>
+    : transition<state_impl<S2>, state_impl<S2>, event_impl<E>, always, A> {
+  transition(const state_impl<S2> &s2, const transition_ea<event_impl<E>, A> &t)
+      : transition<state_impl<S2>, state_impl<S2>, event_impl<E>, always, A>{s2, s2, t.e, always{}, t.a} {}
 };
 
 template <class S1, class S2, class E, class A>
