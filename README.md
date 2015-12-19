@@ -8,3 +8,5 @@
 msm-lite: C++14 Meta State Machine Library
 ===============================================
 
+[![Join the chat at https://gitter.im/krzysztof-jusiak/msm-lite](https://badges.gitter.im/krzysztof-jusiak/msm-lite.svg)](https://gitter.im/krzysztof-jusiak/msm-lite?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
