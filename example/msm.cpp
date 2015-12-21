@@ -49,13 +49,12 @@ class sub {
  public:
   auto configure() const noexcept {
     using namespace msm;
-    init_state<> idle;
-    state<> s1, s2;
+    state<> idle, s1, s2;
 
     // clang-format off
     return make_transition_table(
      // +-----------------------------------------------------------------+
-       idle == s1 + event<e3> / [] { std::cout << "in SUB" << std::endl; }
+       idle(init) == s1 + event<e3> / [] { std::cout << "in SUB" << std::endl; }
      , s1 == s2 + event<e4> / [] { std::cout << "again in SUB sm" << std::endl; }
      //+-----------------------------------------------------------------+
     );
@@ -71,14 +70,13 @@ class controller {
 
   auto configure() const noexcept {
     using namespace msm;
-    init_state<> idle;
-    state<> s1, s2, s3, s4, s5;
+    state<> idle, s1, s2, s3, s4, s5;
     state<game_over> end;
 
     // clang-format off
     return make_transition_table(
      // +-----------------------------------------------------------------+
-       idle == sub_ + event<e1> [ guard1 && is_key(77) ] / (action1, f)
+       idle(init) == sub_ + event<e1> [ guard1 && is_key(77) ] / (action1, f)
      , sub_ == s1 + event<e2> / ([] { std::cout << "SUB exit" << std::endl; })
 	 , s1 == s2 + event<e4> / process_event(e5{})
 	 , _ + event<not_handled> / [] { std::cout << "not handled" << std::endl; }
