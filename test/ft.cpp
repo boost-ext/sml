@@ -163,33 +163,34 @@ struct g2 {
 };
 
 test basic = [] {
-  class sub {
-   public:
-    auto configure() const noexcept {
-      using namespace msm;
-      state<> idle, s1, s2;
+  /* class sub {*/
+  // public:
+  // auto configure() const noexcept {
+  // using namespace msm;
+  // state<> idle, s1, s2;
 
-      // clang-format off
-		return make_transition_table(
-		 // +-----------------------------------------------------------------+
-		   idle(init) == s1 + event<e3> / [] { std::cout << "in SUB" << std::endl; }
-		 , s1 == s2 + event<e4> / [] { std::cout << "again in SUB sm" << std::endl; }
-		 //+-----------------------------------------------------------------+
-		);
-      // clang-format on
-    }
-  };
+  //// clang-format off
+  // return make_transition_table(
+  //// +-----------------------------------------------------------------+
+  // idle(init) == s1 + event<e3> / [] { std::cout << "in SUB" << std::endl; }
+  //, s1 == s2 + event<e4> / [] { std::cout << "again in SUB sm" << std::endl; }
+  ////+-----------------------------------------------------------------+
+  //);
+  //// clang-format on
+  //}
+  /*};*/
 
   struct c {
     auto configure() const noexcept {
       using namespace msm;
-      state<> idle, s1;  //, s2, s3, s4, s5, s6, s7;
+      state<> idle, s1, s2, s3;  //, s4, s5, s6, s7;
 
       // clang-format off
 	  return make_transition_table(
-		idle(init) == sub_ + event<e1> [g2{}] / action
-	  , sub_ == s1 + event<e2> [g1{}]  / []{ std::cout << "exit subfsm" << std::endl; }
-	  , sub_ == s1 + event<e3> [g2{}] / [] { std::cout << "exit subfsm2" << std::endl; }
+		idle(init) == s2 + event<e1> [g2{}] / action
+	  , s2 == s1 + event<e3> [g2{}] / [] { std::cout << "exit subfsm2" << std::endl; }
+	  , s3 == s1 + event<e2> [g1{}]  / []{ std::cout << "exit subfsm" << std::endl; }
+	  , s2 == s3 + event<e1> [g1{}]  / []{ std::cout << "exit subfsm" << std::endl; }
 	  //, s1 == s2 + event<e2> [g1{}] / action
 	  //, s1 == s3 + event<e2> [g1{}] / action
 	  //, s1 == s4 + event<e2> [g2{}] / action
@@ -199,18 +200,20 @@ test basic = [] {
       // clang-format on
     }
 
-    const msm::sm<sub>& sub_;
+    // const msm::sm<sub> &sub_;
   };
 
-  sub sub_;
-  msm::sm<sub> s{sub_};
-  c c_{s};
+  /*  sub sub_;*/
+  /*msm::sm<sub> s{sub_};*/
+  // c c_{s};
+  c c_;
   msm::sm<c> sm{c_, 42};
   sm.process_event(e1());
 
-  sm.process_event(e3());
+  sm.process_event(e1());
+  // sm.process_event(e2());
 
-  sm.process_event(e2());
+  // sm.process_event(e2());
   // sm.process_event(e3());
   // sm.process_event(e4());
   // std::cout << "---------" << std::endl;
