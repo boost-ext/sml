@@ -10,16 +10,11 @@
 #include <typeinfo>
 #include "msm/msm.hpp"
 
-struct e1 {
-  static constexpr auto id = 0;
-};
-struct e2 {
-  static constexpr auto id = 1;
-};
+struct e1 {};
+struct e2 {};
 
-struct e3 {
-  static constexpr auto id = 2;
-};
+struct e3 {};
+struct e4 {};
 
 // auto expect_state = [](auto& sm, const auto& state) {
 // sm.visit_current_states([&](const auto& s) { expect(static_cast<const msm::state_base*>(&s) == &state); });
@@ -147,7 +142,10 @@ struct e3 {
 // expect_state(sm, c_.s1);
 //};
 
-auto guard = [] { return true; };
+auto guard = [] {
+  std::cout << "guard" << std::endl;
+  return true;
+};
 auto action = [](int i) { std::cout << "action: " << i << std::endl; };
 
 struct g1 {
@@ -165,26 +163,62 @@ struct g2 {
 };
 
 test basic = [] {
-
-  struct c {
+  class sub {
+   public:
     auto configure() const noexcept {
       using namespace msm;
-      state<> idle, s1, s2, s3;
+      state<> idle, s1, s2;
 
       // clang-format off
-	  return make_transition_table(
-		idle(init) == s1 + event<e1> [g2{}] / action
-	  , s1 == s2 + event<e2> [g1{}] / action
-	  , s1 == idle + event<e2> [g1{}] / action
-	  , s1 == s3 + event<e2> [g2{}] / action
-  	  );
+		return make_transition_table(
+		 // +-----------------------------------------------------------------+
+		   idle(init) == s1 + event<e3> / [] { std::cout << "in SUB" << std::endl; }
+		 , s1 == s2 + event<e4> / [] { std::cout << "again in SUB sm" << std::endl; }
+		 //+-----------------------------------------------------------------+
+		);
       // clang-format on
     }
   };
 
-  c c_;
+  struct c {
+    auto configure() const noexcept {
+      using namespace msm;
+      state<> idle, s1;  //, s2, s3, s4, s5, s6, s7;
+
+      // clang-format off
+	  return make_transition_table(
+		idle(init) == sub_ + event<e1> [g2{}] / action
+	  , sub_ == s1 + event<e2> [g1{}]  / []{ std::cout << "exit subfsm" << std::endl; }
+	  , sub_ == s1 + event<e3> [g2{}] / [] { std::cout << "exit subfsm2" << std::endl; }
+	  //, s1 == s2 + event<e2> [g1{}] / action
+	  //, s1 == s3 + event<e2> [g1{}] / action
+	  //, s1 == s4 + event<e2> [g2{}] / action
+	  //, s5(init) == s6 + event<e3> [guard] / action
+	  //, s6 == s7 + event<e4> [guard] / []{std::cout << "hey" << std::endl;}
+  	  );
+      // clang-format on
+    }
+
+    const msm::sm<sub>& sub_;
+  };
+
+  sub sub_;
+  msm::sm<sub> s{sub_};
+  c c_{s};
   msm::sm<c> sm{c_, 42};
   sm.process_event(e1());
+
   sm.process_event(e3());
+
   sm.process_event(e2());
+  // sm.process_event(e3());
+  // sm.process_event(e4());
+  // std::cout << "---------" << std::endl;
+  // sm.process_event(e2());
+  // sm.process_event(e1());
+  // sm.process_event(e2());
+  // sm.process_event(42);
+
+  // sm.visit_current_states([]{});
+
 };
