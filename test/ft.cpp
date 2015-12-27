@@ -185,12 +185,19 @@ test basic = [] {
       using namespace msm;
       state<> idle, s1, s2, s3;  //, s4, s5, s6, s7;
 
+      // 0 0
+      // 2 0
+      // 0 3
+      // 1 3
+      // 0 2
+      // 1 2
       // clang-format off
 	  return make_transition_table(
-		idle(init) == s2 + event<e1> [g2{}] / action
-	  , s2 == s1 + event<e3> [g2{}] / [] { std::cout << "exit subfsm2" << std::endl; }
-	  , s3 == s1 + event<e2> [g1{}]  / []{ std::cout << "exit subfsm" << std::endl; }
-	  , s2 == s3 + event<e1> [g1{}]  / []{ std::cout << "exit subfsm" << std::endl; }
+		idle(init) == s1 + event<e1> [g2{}] / action
+	  , s2 == s1 + event<e1> [g1{}]  / []{ std::cout << "exit subfsm" << std::endl; }
+	  , s1 == s2 + event<e3> [g2{}] / [] { std::cout << "exit subfsm2" << std::endl; }
+	  , s1 == s3 + event<e2> [g1{}]  / []{ std::cout << "exit subfsm" << std::endl; }
+      //, _ == s5(terminate) + event<not_handled>
 	  //, s1 == s2 + event<e2> [g1{}] / action
 	  //, s1 == s3 + event<e2> [g1{}] / action
 	  //, s1 == s4 + event<e2> [g2{}] / action
@@ -210,7 +217,7 @@ test basic = [] {
   msm::sm<c> sm{c_, 42};
   sm.process_event(e1());
 
-  sm.process_event(e1());
+  // sm.process_event(e3());
   // sm.process_event(e2());
 
   // sm.process_event(e2());
