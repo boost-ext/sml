@@ -792,7 +792,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<state<sm_impl<T, aux::
   }
 
   static auto no_transition(sm_impl &, int, void *, int, int) noexcept {
-    // std::cout << "no transition" << std::endl;
+    std::cout << "no transition" << std::endl;
     return false;
   }
 
@@ -857,7 +857,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<state<sm_impl<T, aux::
       // visit_current_states_ = &sm_impl::template visit_current_states_impl<N>;
       // process_sub_fsm = &sm_impl::template process_event_sub_impl<N>;
       self.current_state[r] = N;
-      // std::cout << typeid(typename decltype(aux::get<N>(self.transitions_))::dst_state).name() << std::endl;
+      std::cout << typeid(typename decltype(aux::get<N>(self.transitions_))::dst_state).name() << std::endl;
       // std::cout << "transition to: " << N << std::endl;
       return true;
     }
