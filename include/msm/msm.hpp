@@ -746,24 +746,9 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<state<sm_impl<T, aux::
   void init(const aux::index_sequence<Ns...> &) noexcept {
     auto slot = 1;
     auto region = 0;
-    const state_base *states[transitions_nr + 1] = {};
-    dispatch_table_[0] = &sm_impl::no_transition;
-    int _[]{0, (init_state<Ns - 1>(region, states), 0)...};
-    (void)_;
+    const state_base *states[transitions_nr] = {&aux::get<Ns - 1>(transitions_).s2...};
     int __[]{0, (init_impl<Ns - 1>(slot, states), 0)...};
     (void)__;
-  }
-
-  template <int N>
-  void init_state(int &region, const state_base *states[]) noexcept {
-    using Transition = decltype(aux::get<N>(transitions_));
-    const auto &transition = aux::get<N>(transitions_);
-    // if (aux::is_base_of<init_state_base, typename Transition::src_state>::value) {
-    // states[N] = &aux::get<N>(transitions_).s1;
-    // current_state[region++] = N;
-    //} else {
-    states[N] = &aux::get<N>(transitions_).s2;
-    //}
   }
 
   template <int N>
@@ -772,7 +757,12 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<state<sm_impl<T, aux::
     constexpr auto id = aux::get_id<events_ids_t, events_nr - 1, typename Transition::event>();
     const auto &transition = aux::get<N>(transitions_);
 
-    for (auto i = 0; i < transitions_nr + 1; ++i) {
+    if (aux::is_base_of<init_state_base, typename Transition::src_state>::value) {
+      update_dispatch_table<N>(transitions_nr, id, slot);
+      current_state[0] = transitions_nr;
+    }
+
+    for (auto i = 0; i < transitions_nr; ++i) {
       if (&transition.s1 == states[i]) {
         update_dispatch_table<N>(i, id, slot);
       }
@@ -834,7 +824,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<state<sm_impl<T, aux::
   auto process_event__(const TEvent &event, const aux::integral_constant<int, N> &) {
     // auto handled = false;  //(this->*process_sub_fsm)((void *)&event, N);
     // for (auto r = 0; r < regions_nr; ++r) {
-    // std::cout << "xx process_event: [" << current_state[0] << "][" << N << "][0]" << std::endl;
+    // std::cout << "xx process_event: [" << (int)current_state[0] << "][" << N << "][0]" << std::endl;
     // handled |= (this->*dispatch_table_[dispatch_table_mappings_[current_state[r]][N][0]])(r, (void *)&event, N, 0);
     //}
 
@@ -851,14 +841,15 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<state<sm_impl<T, aux::
     const auto &transition = aux::get<N>(self.transitions_);
     const auto &event = *static_cast<const typename type::event *>(e);
 
-    // std::cout << "process_event: [" << current_state[r] << "][" << id << "][" << next << "]" << std::endl;
+    // std::cout << "process_event: [" << (int)self.current_state[r] << "][" << id << "][" << next << "]" << std::endl;
     if (call(transition.g, event, self.deps_, self)) {
       call(transition.a, event, self.deps_, self);
       // visit_current_states_ = &sm_impl::template visit_current_states_impl<N>;
       // process_sub_fsm = &sm_impl::template process_event_sub_impl<N>;
       self.current_state[r] = N;
-      std::cout << typeid(typename decltype(aux::get<N>(self.transitions_))::dst_state).name() << std::endl;
-      // std::cout << "transition to: " << N << std::endl;
+      std::cout << typeid(typename decltype(aux::get<N>(self.transitions_))::src_state).name() << ":"
+                << typeid(typename decltype(aux::get<N>(self.transitions_))::dst_state).name() << std::endl;
+      /*std::cout << "transition to: " << N << std::endl;*/
       return true;
     }
 
@@ -869,8 +860,8 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<state<sm_impl<T, aux::
   const T &fsm_;
   aux::pool<TDeps...> deps_;
   transitions_t transitions_;
-  process_event_ptr dispatch_table_[transitions_nr + 1];
-  aux::byte dispatch_table_mappings_[transitions_nr + 1][events_nr][1 /*max transitions per event*/] = {};
+  process_event_ptr dispatch_table_[transitions_nr + 1] = {&sm_impl::no_transition};
+  aux::byte dispatch_table_mappings_[transitions_nr + regions_nr + 1][events_nr][1 /*max transitions per event*/] = {};
   aux::byte current_state[regions_nr] = {};
 };
 
