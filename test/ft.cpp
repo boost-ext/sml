@@ -185,12 +185,6 @@ test basic = [] {
       using namespace msm;
       state<> idle, s1, s2, s3;  //, s4, s5, s6, s7;
 
-      // 0 0
-      // 2 0
-      // 0 3
-      // 1 3
-      // 0 2
-      // 1 2
       // clang-format off
 	  return make_transition_table(
 		idle(init) == s1 + event<e1> [g2{}] / action

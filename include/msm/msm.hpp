@@ -212,6 +212,7 @@ decltype(auto) get(TPool &p) noexcept {
 template <class... Ts>
 struct pool : pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {
   using type = pool;
+  using underlying_type = pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
   using pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...>::pool_impl;
 };
 template <int, class T>
@@ -697,12 +698,19 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
 template <class... Ts>
 using merge_deps = aux::apply_t<aux::pool, aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>>;
 
-template <class... Ts>
-struct init_states_nr {
-  using type = init_states_nr;
-  static constexpr auto value = sizeof(
-      aux::inherit<aux::conditional_t<aux::is_base_of<init_state_base, Ts>::value, aux::object<Ts>, aux::type<Ts>>...>);
+template <class, class...>
+struct init_states_nr_impl;
+
+template <int... Ns, class... Ts>
+struct init_states_nr_impl<aux::pool_impl<aux::index_sequence<Ns...>, Ts...>> {
+  static constexpr auto value =
+      sizeof(aux::inherit<aux::conditional_t<aux::is_base_of<init_state_base, Ts>::value,
+                                             aux::object<Ts, aux::integral_constant<int, Ns>>,
+                                             aux::type<Ts, aux::integral_constant<int, Ns>>>...>);
 };
+
+template <class T>
+using init_states_nr = init_states_nr_impl<typename T::underlying_type>;
 
 template <class TState, class TEvent>
 struct get_events_ {
@@ -726,7 +734,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<state<sm_impl<T, aux::
 
   static constexpr auto events_nr = aux::get_size<events_t>::value;
   static constexpr auto transitions_nr = aux::get_size<transitions_t>::value;
-  static constexpr auto regions_nr = aux::apply_t<init_states_nr, transitions_t>::value;
+  static constexpr auto regions_nr = init_states_nr<transitions_t>::value;
 
  public:
   using events = events_t;
@@ -763,6 +771,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<state<sm_impl<T, aux::
     }
 
     for (auto i = 0; i < transitions_nr; ++i) {
+      // std::cout << &transition.s1 << " " << states[i] << std::endl;
       if (&transition.s1 == states[i]) {
         update_dispatch_table<N>(i, id, slot);
       }
