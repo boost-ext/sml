@@ -15,6 +15,7 @@ struct e2 {};
 
 struct e3 {};
 struct e4 {};
+struct e5 {};
 
 // auto expect_state = [](auto& sm, const auto& state) {
 // sm.visit_current_states([&](const auto& s) { expect(static_cast<const msm::state_base*>(&s) == &state); });
@@ -189,7 +190,7 @@ test basic = [] {
 	  return make_transition_table(
 		idle(initial) == s1 + event<e1> [g2{}] / action
 	  , s1 == sub_ + event<e2> [g2{}]  / []{ std::cout << "enter subfsm" << std::endl; }
-	  , sub_ == s2 + event<e4> [g2{}] / [] { std::cout << "exit subfsm2" << std::endl; }
+	  , sub_ == s2 + event<e5> [g2{}] / [] { std::cout << "exit subfsm2" << std::endl; }
       //, _ == s5(terminate) + event<not_handled>
 	  //, s1 == s2 + event<e2> [g1{}] / action
 	  //, s1 == s3 + event<e2> [g1{}] / action
@@ -211,6 +212,8 @@ test basic = [] {
   sm.process_event(e1());
   sm.process_event(e2());
   sm.process_event(e3());
+  sm.process_event(e4());
+  sm.process_event(e5());
 
   // sm.process_event(e3());
 
