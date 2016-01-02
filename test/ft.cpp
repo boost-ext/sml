@@ -191,11 +191,11 @@ test sub_sm = [] {
       state idle, s1, s2;
 
       // clang-format off
-	  return make_transition_table(
-		idle(initial) == s1 + event<e1> [guard2{}] / [this] { a_initial = true; }
-	  , s1 == sub_ + event<e2> [guard]  / [this]{ a_enter_sub_sm = true; }
-	  , sub_ == s2(the_end) + event<e5> [guard2{}] / [this] { a_exit_sub_sm = true; }
-  	  );
+      return make_transition_table(
+        idle(initial) == s1 + event<e1> [guard2{}] / [this] { a_initial = true; }
+      , s1 == sub_ + event<e2> [guard]  / [this]{ a_enter_sub_sm = true; }
+      , sub_ == s2(the_end) + event<e5> [guard2{}] / [this] { a_exit_sub_sm = true; }
+        );
       // clang-format on
     }
 
