@@ -754,7 +754,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
   static constexpr int regions_nr = initial_states_nr<transitions_t>::value;
 
   template <class...>
-  friend class transition;
+  friend struct transition;
 
   template <class, class>
   friend class sm_impl;
