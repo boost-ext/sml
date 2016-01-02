@@ -163,6 +163,8 @@ struct g2 {
   }
 };
 
+auto the_end = [] {};
+
 test basic = [] {
   class sub {
    public:
@@ -190,7 +192,7 @@ test basic = [] {
 	  return make_transition_table(
 		idle(initial) == s1 + event<e1> [g2{}] / action
 	  , s1 == sub_ + event<e2> [g2{}]  / []{ std::cout << "enter subfsm" << std::endl; }
-	  , sub_ == s2 + event<e5> [g2{}] / [] { std::cout << "exit subfsm2" << std::endl; }
+	  , sub_ == s2(the_end) + event<e5> [g2{}] / [] { std::cout << "exit subfsm2" << std::endl; }
       //, _ == s5(terminate) + event<not_handled>
 	  //, s1 == s2 + event<e2> [g1{}] / action
 	  //, s1 == s3 + event<e2> [g1{}] / action
@@ -214,6 +216,7 @@ test basic = [] {
   sm.process_event(e3());
   sm.process_event(e4());
   sm.process_event(e5());
+  std::cout << sm.is(the_end) << std::endl;
 
   // sm.process_event(e3());
 

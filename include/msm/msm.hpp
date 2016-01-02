@@ -315,8 +315,9 @@ struct state_impl : state_base {
     return transition_sa<state_impl, T>{*this, t};
   }
 
-  const auto &operator()(const initial_state_base &) const noexcept {
-    return *((state_impl<initial_state_base> *)this);
+  template <class T>
+  const auto &operator()(const T &) const noexcept {
+    return *((state_impl<T> *)this);
   }
 };
 
@@ -683,6 +684,26 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
   A a;
 };
 
+template <class S1, class S2, class E, class A>
+struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, always, A> {
+  using src_state = S1;
+  using dst_state = S2;
+  using event = E;
+  using deps = aux::apply_t<aux::unique_t, get_deps_t<A, E>>;
+
+  template <class SM>
+  auto execute(void *e, SM &sm) noexcept {
+    call(a, *static_cast<const E *>(e), sm.deps_, sm);
+    return true;
+  }
+
+  const state_impl<S1> &s1;
+  const state_impl<S2> &s2;
+  event_impl<E> e;
+  always g;
+  A a;
+};
+
 template <class... Ts>
 using merge_deps = aux::apply_t<aux::pool, aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>>;
 
@@ -750,6 +771,11 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
   auto process_event(const TEvent &event) noexcept {
     // std::cout << "here" << (int)dispatch_table_mappings_[0][0][0] << std::endl;
     return process_event__(event, aux::integral_constant<int, aux::get_id<events_ids_t, -1, TEvent>()>{});
+  }
+
+  template <class TFlag>
+  auto is(const TFlag &) const noexcept {
+    return is__<TFlag>(aux::make_index_sequence<transitions_nr>{});
   }
 
  private:
@@ -880,6 +906,22 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
 
     return self.dispatch_table_[self.dispatch_table_mappings_[self.current_state[r]][id][next + 1]](self, r, event, id,
                                                                                                     next + 1);
+  }
+
+  template <class TFlag, int... Ns>
+  auto is__(const aux::index_sequence<Ns...> &) const noexcept {
+    using is_ptr = bool (*)(const sm_impl &);
+    is_ptr dispatch_table[sizeof...(Ns)] = {&sm_impl::template is_impl<TFlag, Ns - 1>...};
+    auto is_flag = false;
+    for (auto r = 0; r < regions_nr; ++r) {
+      is_flag |= dispatch_table[current_state[r]](*this);
+    }
+    return is_flag;
+  }
+
+  template <class TFlag, int N>
+  static auto is_impl(const sm_impl &) noexcept {
+    return aux::is_same<TFlag, typename decltype(aux::get<N>(transitions_))::dst_state>::value;
   }
 
   const T &fsm_;
