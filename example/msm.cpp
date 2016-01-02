@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Krzysztof Jusiak (krzysztof at jusiak dot net)
+// Copyright (c) 2016 Krzysztof Jusiak (krzysztof at jusiak dot net)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
@@ -41,7 +41,8 @@ struct q {
   // bool operator()(const e2 &) { return false; }
 };
 
-struct game_over {};
+struct {
+} game_over;
 
 auto is_key = [](int v) { return [=] { return guard3(v); }; };
 
@@ -49,12 +50,12 @@ class sub {
  public:
   auto configure() const noexcept {
     using namespace msm;
-    state<> idle, s1, s2;
+    state idle, s1, s2;
 
     // clang-format off
     return make_transition_table(
      // +-----------------------------------------------------------------+
-       idle(init) == s1 + event<e3> / [] { std::cout << "in SUB" << std::endl; }
+       idle(initial) == s1 + event<e3> / [] { std::cout << "in SUB" << std::endl; }
      , s1 == s2 + event<e4> / [] { std::cout << "again in SUB sm" << std::endl; }
      //+-----------------------------------------------------------------+
     );
@@ -70,16 +71,15 @@ class controller {
 
   auto configure() const noexcept {
     using namespace msm;
-    state<> idle, s1, s2, s3, s4, s5;
-    state<game_over> end;
+    state idle, s1, s2, s3, s4, s5, end;
 
     // clang-format off
     return make_transition_table(
      // +-----------------------------------------------------------------+
-       idle(init) == sub_ + event<e1> [ guard1 && is_key(77) ] / (action1, f)
+       idle(initial) == sub_ + event<e1> [ guard1 && is_key(77) ] / (action1, f)
      , sub_ == s1 + event<e2> / ([] { std::cout << "SUB exit" << std::endl; })
 	 , s1 == s2 + event<e4> / process_event(e5{})
-	 , _ + event<not_handled> / [] { std::cout << "not handled" << std::endl; }
+	 //, _ + event<not_handled> / [] { std::cout << "not handled" << std::endl; }
      // +-----------------------------------------------------------------+
 	 //, s1 / [] {}
 	 //, s1 [guard1]
@@ -94,7 +94,7 @@ class controller {
      , s2 == s3 [guard1 && !guard2]
      , s3 == s4 [guard1] / action1
      , s4 == s5 / action1
-     , s5 == end / (action1, action2)
+     , s5 == end(game_over) / (action1, action2)
      , idle == s1 + event<e1>
      , idle == s1 + event<e1> [q{} && guard1]
      , idle == s1 + event<e1> [guard1] / action1

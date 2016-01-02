@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Krzysztof Jusiak (krzysztof at jusiak dot net)
+// Copyright (c) 2016 Krzysztof Jusiak (krzysztof at jusiak dot net)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
@@ -111,7 +111,7 @@ struct e100 {};
 auto guard = [] { return true; };
 auto action = [] {};
 
-test transitions_table = [] {
+int main() {
   struct c {
     auto configure() const noexcept {
       using namespace msm;
