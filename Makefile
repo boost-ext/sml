@@ -16,11 +16,15 @@ benchmarks_%:
 	time $(CXX) benchmarks/$*/sc.cpp -O2 -I include -I. -std=c++1y && ./a.out
 	time $(CXX) benchmarks/$*/euml.cpp -O2 -I include -I. -std=c++1y && ./a.out
 
-test:
-	$(CXX) test/ft.cpp -I include -I. -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors -include test/test.hpp && ./a.out
+test: test_ft test_ut
 
-example:
-	$(CXX) example/msm.cpp -I include -I ../boost/libs/di/include/ -I. -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors && ./a.out
+test_%:
+	$(CXX) test/$*.cpp -I include -I. -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors -include test/test.hpp && ./a.out
+
+example: $(shell find example -iname *.cpp -printf "example_%f\n")
+
+example_%:
+	$(CXX) example/$* -I include -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors && ./a.out
 
 clean:
 	rm -f a.out

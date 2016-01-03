@@ -62,5 +62,5 @@ matrix:
     env: CXX=clang++
 
 script:
-  - if [ "${CXX}" != "" ]; then (travis_wait make test); fi
+  - if [ "${CXX}" != "" ]; then (travis_wait make test example); fi
 

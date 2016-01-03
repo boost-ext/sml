@@ -343,6 +343,19 @@ struct state_impl : state_base {
 
 using state = state_impl<state_base>;
 
+template <char...>
+struct string {};
+
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
+#endif
+
+template <class T, T... Chars>
+auto &operator""_s() {
+  static auto state = state_impl<string<Chars...>>{};
+  return state;
+}
+
 template <class TEvent>
 struct event_impl {
   template <class T>
@@ -694,7 +707,6 @@ struct transition<state_impl<S1>, state_impl<S2>, event_impl<E>, G, A> {
     const auto &event = *static_cast<const E *>(e);
     if (call(g, event, sm.deps_, sm)) {
       call(a, event, sm.deps_, sm);
-      // std::cout << typeid(src_state).name() << ":" << typeid(dst_state).name() << std::endl;
       return true;
     }
     return false;
@@ -799,18 +811,20 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
  public:
   using events = events_t;
 
-  explicit sm_impl(const T &fsm, TDeps... deps) noexcept : fsm_(fsm), deps_{deps...}, transitions_(fsm_.configure()) {
+  explicit sm_impl(const T &fsm = {}, TDeps... deps) noexcept : fsm_(fsm),
+                                                                deps_{deps...},
+                                                                transitions_(fsm_.configure()) {
     init(aux::make_index_sequence<transitions_nr>{});
   }
 
   template <class TEvent>
-  auto process_event(const TEvent &event) noexcept {
+  bool process_event(const TEvent &event) noexcept {
     // std::cout << "here" << (int)dispatch_table_mappings_[0][0][0] << std::endl;
     return process_event__(event, aux::integral_constant<int, aux::get_id<events_ids_t, -1, TEvent>()>{});
   }
 
   template <class TFlag, class... TBools>
-  auto is(const TFlag &, TBools... expected) const noexcept {
+  bool is(const TFlag &, TBools... expected) const noexcept {
     return is__<TFlag>(aux::make_index_sequence<transitions_nr>{}, aux::make_index_sequence<regions_nr>{},
                        get_initial_states_t<transitions_t>{}, expected...);
   }

@@ -21,7 +21,7 @@ test empty = [] {
     }
   };
 
-  msm::sm<c> sm{c{}};
+  msm::sm<c> sm;
 };
 
 test minimal = [] {
@@ -29,7 +29,6 @@ test minimal = [] {
     auto configure() const noexcept {
       using namespace msm;
       state idle;
-
       return make_transition_table(idle + event<e1> / [] {});
     }
   };
@@ -190,6 +189,66 @@ test transitions = [] {
   expect(sm.is(msm::terminate));
 };
 
+test transitions_states = [] {
+  struct c {
+    auto configure() const noexcept {
+      using namespace msm;
+      auto yes = [] { return true; };
+      auto no = [] { return false; };
+
+      // clang-format off
+      return make_transition_table(
+        "idle"_s(initial) == "s1"_s + event<e1>
+      , "s1"_s == "s2"_s + event<e2>
+      , "s2"_s == "s3"_s + event<e3> [no]
+      , "s2"_s == "s4"_s(terminate) + event<e3> [yes]
+      );
+      // clang-format on
+    }
+  };
+
+  c c_;
+  msm::sm<c> sm{c_};
+  sm.process_event(e1{});
+  sm.process_event(e2{});
+  sm.process_event(e3{});
+  expect(sm.is(msm::terminate));
+};
+
+test transition_overload = [] {
+  static auto int_ = [] {};
+  static auto float_ = [] {};
+
+  struct c {
+    auto configure() const noexcept {
+      using namespace msm;
+      state idle, s1, s2;
+
+      // clang-format off
+      return make_transition_table(
+        idle(initial) == s1 + event<e1>
+      , s1 == s2(int_) + event<int>
+      , s1 == s2(float_) + event<float>
+      );
+      // clang-format on
+    }
+  };
+
+  {
+    msm::sm<c> sm;
+    sm.process_event(e1{});
+    sm.process_event(42);
+    expect(sm.is(int_));
+  }
+
+  {
+    msm::sm<c> sm;
+    sm.process_event(e1{});
+    sm.process_event(42.f);
+    expect(sm.is(float_));
+  }
+};
+
 void f_action(int, double) {}
 auto f_guard(float &) { return true; }
 
@@ -279,16 +338,20 @@ test orthogonal_regions = [] {
   msm::sm<c> sm{c_};
   expect(sm.is(msm::initial, true, true));
   sm.process_event(e1{});
+  expect(sm.is(msm::initial, false, true));
   expect(sm.is(msm::terminate, false, false));
   sm.process_event(e2{});
+  expect(sm.is(msm::initial, false, true));
   expect(sm.is(msm::terminate, true, false));
   sm.process_event(e3{});
+  expect(sm.is(msm::initial, false, false));
   expect(sm.is(msm::terminate, true, false));
   sm.process_event(e4{});
+  expect(sm.is(msm::initial, false, false));
   expect(sm.is(msm::terminate, true, true));
 };
 
-test sub_sm = [] {
+test composite = [] {
   static auto guard = [](int i) {
     expect(42 == i);
     return true;
@@ -310,10 +373,8 @@ test sub_sm = [] {
 
       // clang-format off
       return make_transition_table(
-      // +-----------------------------------------------------------------+
         idle(initial) == s1 + event<e3> / [this] { a_in_sub++; }
       , s1 == s2 + event<e4> / [this] { a_in_sub++; }
-      //+-----------------------------------------------------------------+
       );
       // clang-format on
     }
