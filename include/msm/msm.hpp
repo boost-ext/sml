@@ -803,9 +803,11 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
  public:
   using events = events_t;
 
-  explicit sm_impl(const T &fsm = {}, TDeps... deps) noexcept : fsm_(fsm),
-                                                                deps_{deps...},
-                                                                transitions_(fsm_.configure()) {
+  explicit sm_impl(TDeps... deps) noexcept : deps_{deps...}, transitions_(T{}.configure()) {
+    init(aux::make_index_sequence<transitions_nr>{});
+  }
+
+  explicit sm_impl(const T &fsm, TDeps... deps) noexcept : deps_{deps...}, transitions_(fsm.configure()) {
     init(aux::make_index_sequence<transitions_nr>{});
   }
 
@@ -985,7 +987,6 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
     return aux::is_same<TFlag, typename decltype(aux::get<N>(transitions_))::src_state>::value;
   }
 
-  const T &fsm_;
   aux::pool<TDeps...> deps_;
   transitions_t transitions_;
   process_event_ptr dispatch_table_[transitions_nr + 1 + 1 /*subfsm*/] = {&sm_impl::no_transition};

@@ -33,7 +33,7 @@ test minimal = [] {
     }
   };
 
-  msm::sm<c> sm{c{}};
+  msm::sm<c> sm;
   expect(sm.process_event(e1{}));
 };
 
@@ -46,10 +46,33 @@ test transition = [] {
     }
   };
 
-  c c_;
-  msm::sm<c> sm{c_};
+  msm::sm<c> sm;
   expect(sm.is(msm::initial));
   expect(sm.process_event(e1{}));
+  expect(sm.is(msm::terminate));
+};
+
+test internal_transition = [] {
+  struct c {
+    auto configure() const noexcept {
+      using namespace msm;
+      state idle, s1, s2;
+      // clang-format off
+      return make_transition_table(
+        idle(initial) == s1 + event<e1>
+      , s1 + event<e2> / [] {}
+      , s1 == s2(terminate) + event<e3>
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  expect(sm.is(msm::initial));
+  expect(sm.process_event(e1{}));
+  expect(sm.process_event(e2{}));
+  expect(!sm.is(msm::terminate));
+  expect(sm.process_event(e3{}));
   expect(sm.is(msm::terminate));
 };
 
@@ -62,8 +85,7 @@ test no_transition = [] {
     }
   };
 
-  c c_;
-  msm::sm<c> sm{c_};
+  msm::sm<c> sm;
   expect(sm.is(msm::initial));
   expect(!sm.process_event(e2{}));
   expect(sm.is(msm::initial));
