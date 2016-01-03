@@ -255,14 +255,6 @@ struct not_handled {
   static constexpr auto id = -2;
   not_handled(...) {}
 };
-struct on_entry {
-  static constexpr auto id = -3;
-  on_entry(...) {}
-};
-struct on_exit {
-  static constexpr auto id = -4;
-  on_exit(...) {}
-};
 struct always {
   auto operator()() { return true; }
 };
@@ -819,7 +811,6 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
 
   template <class TEvent>
   bool process_event(const TEvent &event) noexcept {
-    // std::cout << "here" << (int)dispatch_table_mappings_[0][0][0] << std::endl;
     return process_event__(event, aux::integral_constant<int, aux::get_id<events_ids_t, -1, TEvent>()>{});
   }
 
@@ -857,7 +848,6 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
 
   template <int N>
   void init_sm(const aux::true_type &) noexcept {
-    // std::cout << "set sm: [" << N << "]" << transitions_nr << std::endl;
     update_dispatch_table<N>(transitions_nr + 1);
     dispatch_table_[transitions_nr + 1] = &sm_impl::template process_event_sm_impl<N>;
   }
@@ -866,7 +856,6 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
   void init_dispatch_table(int id, int &slot, const state_base *states[]) noexcept {
     const auto &transition = aux::get<N>(transitions_);
     for (auto i = 0; i < transitions_nr; ++i) {
-      // std::cout << &transition.s1 << " " << states[i] << std::endl;
       if (&transition.s1 == states[i]) {
         update_dispatch_table<N>(i, id, slot);
       }
@@ -901,14 +890,10 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
     }
   }
 
-  static auto no_transition(sm_impl &, int, void *, int, int) noexcept {
-    // std::cout << "no transition" << std::endl;
-    return false;
-  }
+  static auto no_transition(sm_impl &, int, void *, int, int) noexcept { return false; }
 
   template <class TEvent>
   auto process_event__(const TEvent &, const aux::integral_constant<int, -1> &) noexcept {
-    // std::cout << "no transition__" << std::endl;
     return false;
   }
 
@@ -927,22 +912,15 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
     for (auto r = 0; r < R; ++r) {
       handled |= dispatch_table_[dispatch_table_mappings_[current_state[r]][id][0]](*this, r, event, id, 0);
     }
-
-    if (!handled) {
-      // std::cout << "no transition" << std::endl;
-    }
     return handled;
   }
 
   template <int N>
   static auto process_event_impl(sm_impl &self, int r, void *event, int id, int next) noexcept {
     if (aux::get<N>(self.transitions_).execute(event, self)) {
-      // on_exit
       self.current_state[r] = N;
-      // on_entry
       return true;
     }
-
     return self.dispatch_table_[self.dispatch_table_mappings_[self.current_state[r]][id][next + 1]](self, r, event, id,
                                                                                                     next + 1);
   }

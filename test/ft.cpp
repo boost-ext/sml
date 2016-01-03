@@ -34,7 +34,7 @@ test minimal = [] {
   };
 
   msm::sm<c> sm{c{}};
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
 };
 
 test transition = [] {
@@ -49,8 +49,24 @@ test transition = [] {
   c c_;
   msm::sm<c> sm{c_};
   expect(sm.is(msm::initial));
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
   expect(sm.is(msm::terminate));
+};
+
+test no_transition = [] {
+  struct c {
+    auto configure() const noexcept {
+      using namespace msm;
+      state idle, s1;
+      return make_transition_table(idle(initial) == s1(terminate) + event<e1>);
+    }
+  };
+
+  c c_;
+  msm::sm<c> sm{c_};
+  expect(sm.is(msm::initial));
+  expect(!sm.process_event(e2{}));
+  expect(sm.is(msm::initial));
 };
 
 test transition_with_action_with_event = [] {
@@ -67,7 +83,7 @@ test transition_with_action_with_event = [] {
 
   c c_;
   msm::sm<c> sm{c_};
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
   expect(c_.called);
   expect(sm.is(msm::terminate));
 };
@@ -89,7 +105,7 @@ test transition_with_action_with_parameter = [] {
 
   c c_;
   msm::sm<c> sm{c_, 42};
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
   expect(c_.called);
   expect(sm.is(msm::terminate));
 };
@@ -120,7 +136,7 @@ test transition_with_action_and_guad_with_parameter = [] {
 
   c c_;
   msm::sm<c> sm{c_, 87.0, 42};
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
   expect(c_.g_called);
   expect(c_.a_called);
   expect(sm.is(msm::terminate));
@@ -156,7 +172,7 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
   c c_;
   float f = 12.0;
   msm::sm<c> sm{c_, 42, 87.0, f};
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
   expect(c_.g_called);
   expect(c_.a_called);
   expect(sm.is(msm::terminate));
@@ -183,9 +199,36 @@ test transitions = [] {
 
   c c_;
   msm::sm<c> sm{c_};
-  sm.process_event(e1{});
-  sm.process_event(e2{});
-  sm.process_event(e3{});
+  expect(sm.process_event(e1{}));
+  expect(sm.process_event(e2{}));
+  expect(sm.process_event(e3{}));
+  expect(sm.is(msm::terminate));
+};
+
+test no_transitions = [] {
+  struct c {
+    auto configure() const noexcept {
+      using namespace msm;
+      state idle, s1, s2;
+      auto yes = [] { return true; };
+      auto no = [] { return false; };
+
+      // clang-format off
+      return make_transition_table(
+        idle(initial) == s1 + event<e1>
+      , s1 == s2(terminate) + event<e2> [no]
+      , s1 == s2(terminate) + event<e2> [yes]
+      );
+      // clang-format on
+    }
+  };
+
+  c c_;
+  msm::sm<c> sm{c_};
+  expect(sm.process_event(e1{}));
+  expect(!sm.process_event(e3{}));
+  expect(sm.process_event(e2{}));
+  expect(!sm.process_event(e1{}));
   expect(sm.is(msm::terminate));
 };
 
@@ -209,9 +252,9 @@ test transitions_states = [] {
 
   c c_;
   msm::sm<c> sm{c_};
-  sm.process_event(e1{});
-  sm.process_event(e2{});
-  sm.process_event(e3{});
+  expect(sm.process_event(e1{}));
+  expect(sm.process_event(e2{}));
+  expect(sm.process_event(e3{}));
   expect(sm.is(msm::terminate));
 };
 
@@ -236,15 +279,15 @@ test transition_overload = [] {
 
   {
     msm::sm<c> sm;
-    sm.process_event(e1{});
-    sm.process_event(42);
+    expect(sm.process_event(e1{}));
+    expect(sm.process_event(42));
     expect(sm.is(int_));
   }
 
   {
     msm::sm<c> sm;
-    sm.process_event(e1{});
-    sm.process_event(42.f);
+    expect(sm.process_event(e1{}));
+    expect(sm.process_event(42.f));
     expect(sm.is(float_));
   }
 };
@@ -337,16 +380,16 @@ test orthogonal_regions = [] {
   c c_;
   msm::sm<c> sm{c_};
   expect(sm.is(msm::initial, true, true));
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
   expect(sm.is(msm::initial, false, true));
   expect(sm.is(msm::terminate, false, false));
-  sm.process_event(e2{});
+  expect(sm.process_event(e2{}));
   expect(sm.is(msm::initial, false, true));
   expect(sm.is(msm::terminate, true, false));
-  sm.process_event(e3{});
+  expect(sm.process_event(e3{}));
   expect(sm.is(msm::initial, false, false));
   expect(sm.is(msm::terminate, true, false));
-  sm.process_event(e4{});
+  expect(sm.process_event(e4{}));
   expect(sm.is(msm::initial, false, false));
   expect(sm.is(msm::terminate, true, true));
 };

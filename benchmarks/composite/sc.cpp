@@ -12,12 +12,12 @@
 #include <boost/statechart/state_machine.hpp>
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/transition.hpp>
+#include "boost/mpl/list.hpp"
 
 namespace sc = boost::statechart;
 namespace mpl = boost::mpl;
 
 namespace test_sc {
-
 // events
 struct play : sc::event<play> {};
 struct end_pause : sc::event<end_pause> {};
@@ -25,6 +25,8 @@ struct stop : sc::event<stop> {};
 struct pause : sc::event<pause> {};
 struct open_close : sc::event<open_close> {};
 struct cd_detected : sc::event<cd_detected> {};
+struct NextSong : sc::event<NextSong> {};
+struct PreviousSong : sc::event<PreviousSong> {};
 
 struct Empty;
 struct Open;
@@ -33,23 +35,23 @@ struct Playing;
 struct Paused;
 // SM
 struct player : sc::state_machine<player, Empty> {
-  void open_drawer(open_close const &) { /*std::cout << "player::open_drawer\n";*/
+  void open_drawer(open_close const&) { /*std::cout << "player::open_drawer\n";*/
   }
-  void store_cd_info(cd_detected const &cd) { /*std::cout << "player::store_cd_info\n";*/
+  void store_cd_info(cd_detected const& cd) { /*std::cout << "player::store_cd_info\n";*/
   }
-  void close_drawer(open_close const &) { /*std::cout << "player::close_drawer\n";*/
+  void close_drawer(open_close const&) { /*std::cout << "player::close_drawer\n";*/
   }
-  void start_playback(play const &) { /*std::cout << "player::start_playback\n";*/
+  void start_playback(play const&) { /*std::cout << "player::start_playback\n";*/
   }
-  void stopped_again(stop const &) { /*std::cout << "player::stopped_again\n";*/
+  void stopped_again(stop const&) { /*std::cout << "player::stopped_again\n";*/
   }
-  void stop_playback(stop const &) { /*std::cout << "player::stop_playback\n";*/
+  void stop_playback(stop const&) { /*std::cout << "player::stop_playback\n";*/
   }
-  void pause_playback(pause const &) { /*std::cout << "player::pause_playback\n"; */
+  void pause_playback(pause const&) { /*std::cout << "player::pause_playback\n"; */
   }
-  void stop_and_open(open_close const &) { /*std::cout << "player::stop_and_open\n";*/
+  void stop_and_open(open_close const&) { /*std::cout << "player::stop_and_open\n";*/
   }
-  void resume_playback(end_pause const &) { /*std::cout << "player::resume_playback\n";*/
+  void resume_playback(end_pause const&) { /*std::cout << "player::resume_playback\n";*/
   }
 };
 
@@ -77,7 +79,8 @@ struct Stopped : sc::simple_state<Stopped, player> {
                     sc::transition<open_close, Open, player, &player::open_drawer>,
                     sc::transition<stop, Stopped, player, &player::stopped_again>> reactions;
 };
-struct Playing : sc::simple_state<Playing, player> {
+struct Song1;
+struct Playing : sc::simple_state<Playing, player, Song1> {
   Playing() {  /*std::cout << "entering Playing" << std::endl;*/
   }            // entry
   ~Playing() { /*std::cout << "leaving Playing" << std::endl;*/
@@ -85,6 +88,34 @@ struct Playing : sc::simple_state<Playing, player> {
   typedef mpl::list<sc::transition<stop, Stopped, player, &player::stop_playback>,
                     sc::transition<pause, Paused, player, &player::pause_playback>,
                     sc::transition<open_close, Open, player, &player::stop_and_open>> reactions;
+  void start_next_song(NextSong const&) { /*std::cout << "Playing::start_next_song\n";*/
+  }
+  void start_prev_song(PreviousSong const&) { /*std::cout << "Playing::start_prev_song\n";*/
+  }
+};
+struct Song2;
+struct Song1 : sc::simple_state<Song1, Playing> {
+  Song1() {  /*std::cout << "entering Song1" << std::endl;*/
+  }          // entry
+  ~Song1() { /*std::cout << "leaving Song1" << std::endl;*/
+  }          // exit
+  typedef sc::transition<NextSong, Song2, Playing, &Playing::start_next_song> reactions;
+};
+struct Song3;
+struct Song2 : sc::simple_state<Song2, Playing> {
+  Song2() {  /*std::cout << "entering Song2" << std::endl;*/
+  }          // entry
+  ~Song2() { /*std::cout << "leaving Song2" << std::endl;*/
+  }          // exit
+  typedef mpl::list<sc::transition<NextSong, Song3, Playing, &Playing::start_next_song>,
+                    sc::transition<PreviousSong, Song1, Playing, &Playing::start_prev_song>> reactions;
+};
+struct Song3 : sc::simple_state<Song3, Playing> {
+  Song3() {  /*std::cout << "entering Song3" << std::endl;*/
+  }          // entry
+  ~Song3() { /*std::cout << "leaving Song3" << std::endl;*/
+  }          // exit
+  typedef sc::transition<PreviousSong, Song2, Playing, &Playing::start_prev_song> reactions;
 };
 struct Paused : sc::simple_state<Paused, player> {
   Paused() {  /*std::cout << "entering Paused" << std::endl;*/
@@ -102,11 +133,18 @@ int main() {
   p.initiate();
 
   benchmark([&] {
-    for (auto i = 0; i < 1'000'000; ++i) {
+    for (auto i = 0; i < 1'000; ++i) {
       p.process_event(test_sc::open_close());
       p.process_event(test_sc::open_close());
       p.process_event(test_sc::cd_detected());
       p.process_event(test_sc::play());
+      for (auto j = 0; j < 1'000; ++j) {
+        p.process_event(test_sc::NextSong());
+        p.process_event(test_sc::NextSong());
+        p.process_event(test_sc::PreviousSong());
+        p.process_event(test_sc::PreviousSong());
+      }
+
       p.process_event(test_sc::pause());
       // go back to Playing
       p.process_event(test_sc::end_pause());
