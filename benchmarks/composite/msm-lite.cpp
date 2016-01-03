@@ -77,7 +77,7 @@ struct player {
       Playing == Open + event<open_close> / stop_and_open,
       Paused == Playing + event<end_pause> / resume_playback,
       Paused == Stopped + event<stop> / stop_playback,
-      Paused ==  Open + event<open_close> / stop_and_open
+      Paused == Open + event<open_close> / stop_and_open
     );
     // clang-format on
   }
