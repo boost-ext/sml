@@ -89,6 +89,26 @@ test internal_transition = [] {
   expect(sm.is(msm::terminate));
 };
 
+test anonymous_transition = [] {
+  struct c {
+    auto configure() const noexcept {
+      using namespace msm;
+      state idle, s1;
+      // clang-format off
+      return make_transition_table(
+        idle(initial) == s1(terminate) / [this] { a_called = true; }
+      );
+      // clang-format on
+    }
+    mutable bool a_called = false;
+  };
+
+  c c_;
+  msm::sm<c> sm{c_};
+  expect(sm.is(msm::terminate));
+  expect(c_.a_called);
+};
+
 test no_transition = [] {
   struct c {
     auto configure() const noexcept {
