@@ -25,7 +25,7 @@ test_%:
 example: $(shell find example -iname *.cpp -printf "example_%f\n")
 
 example_%:
-	$(CXX) example/$* -I include -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors -o $*.out && $($(MEMCHECK))./$*.out
+	$(CXX) example/$* -I include -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors -o $*.out && $($(MEMCHECK)) ./$*.out
 
 clean:
 	@rm -f *.out
