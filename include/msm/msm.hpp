@@ -269,6 +269,24 @@ struct always {
 struct none {
   void operator()() {}
 };
+struct process_event_impl {
+  template <class TEvent>
+  struct process_impl {
+    void call_operator_args__(self);
+
+    template <class SM>
+    void operator()(SM &sm, ...) noexcept {
+      sm.process_event(event);
+    }
+
+    TEvent event;
+  };
+
+  template <class TEvent>
+  auto operator()(const TEvent &event) noexcept {
+    return process_impl<TEvent>{event};
+  }
+} process_event;
 
 template <class... Ts>
 auto make_transition_table(Ts... ts) noexcept {
@@ -438,8 +456,9 @@ struct ignore;
 
 template <class E, class... Ts>
 struct ignore<E, aux::type_list<Ts...>> {
-  using type = aux::join_t<aux::conditional_t<aux::is_same<E, aux::remove_qualifiers_t<Ts>>::value, aux::type_list<>,
-                                              aux::type_list<Ts>>...>;
+  using type = aux::join_t<aux::conditional_t<aux::is_same<E, aux::remove_qualifiers_t<Ts>>::value ||
+                                                  aux::is_same<Ts, aux::remove_qualifiers_t<self>>::value,
+                                              aux::type_list<>, aux::type_list<Ts>>...>;
 };
 
 template <class T, class E, class = void>
@@ -531,7 +550,8 @@ class and_ : operator_base {
   template <int... Ns, class TEvent, class TDeps, class SM>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
     auto result = true;
-    for (auto r : {call(aux::get<Ns - 1>(g), event, deps, sm)...}) result &= r;
+    bool calls[sizeof...(Ns)] = {call(aux::get<Ns - 1>(g), event, deps, sm)...};
+    for (auto r : calls) result &= r;
     return result;
   }
 
@@ -557,7 +577,8 @@ class or_ : operator_base {
   template <int... Ns, class TEvent, class TDeps, class SM>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
     auto result = false;
-    for (auto r : {call(aux::get<Ns - 1>(g), event, deps, sm)...}) result |= r;
+    bool calls[sizeof...(Ns)] = {call(aux::get<Ns - 1>(g), event, deps, sm)...};
+    for (auto r : calls) result |= r;
     return result;
   }
 
@@ -723,6 +744,22 @@ struct initial_states_nr_impl<aux::pool_impl<aux::index_sequence<Ns...>, Ts...>>
 template <class T>
 using initial_states_nr = initial_states_nr_impl<typename T::underlying_type>;
 
+template <class, int>
+struct get_initial_state : aux::type_list<> {};
+
+template <int N>
+struct get_initial_state<initial_state_base, N> : aux::type_list<aux::integral_constant<int, N - 1>> {};
+
+template <class, class...>
+struct get_initial_states;
+
+template <int... Ns, class... Ts>
+struct get_initial_states<aux::pool_impl<aux::index_sequence<Ns...>, Ts...>>
+    : aux::join_t<typename get_initial_state<typename Ts::src_state, Ns>::type...> {};
+
+template <class T>
+using get_initial_states_t = typename get_initial_states<typename T::underlying_type>::type;
+
 template <class TState, class TEvent>
 struct get_events_ {
   using type = aux::type_list<TEvent>;
@@ -766,18 +803,16 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
     init(aux::make_index_sequence<transitions_nr>{});
   }
 
-  void start() noexcept {}
-  void stop() noexcept {}
-
   template <class TEvent>
   auto process_event(const TEvent &event) noexcept {
     // std::cout << "here" << (int)dispatch_table_mappings_[0][0][0] << std::endl;
     return process_event__(event, aux::integral_constant<int, aux::get_id<events_ids_t, -1, TEvent>()>{});
   }
 
-  template <class TFlag>
-  auto is(const TFlag &) const noexcept {
-    return is__<TFlag>(aux::make_index_sequence<transitions_nr>{}, aux::make_index_sequence<regions_nr>{});
+  template <class TFlag, class... TBools>
+  auto is(const TFlag &, TBools... expected) const noexcept {
+    return is__<TFlag>(aux::make_index_sequence<transitions_nr>{}, aux::make_index_sequence<regions_nr>{},
+                       get_initial_states_t<transitions_t>{}, expected...);
   }
 
  private:
@@ -785,8 +820,11 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
   void init(const aux::index_sequence<Ns...> &) noexcept {
     auto slot = 1;
     auto region = 0;
-    const state_base *states[transitions_nr] = {&aux::get<Ns - 1>(transitions_).s2...};
+    const state_base *states[!transitions_nr ? 1 : transitions_nr] = {&aux::get<Ns - 1>(transitions_).s2...};
     int _[]{0, (init_impl<Ns - 1>(region, slot, states), 0)...};
+    (void)slot;
+    (void)region;
+    (void)states;
     (void)_;
   }
 
@@ -862,14 +900,18 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
 
   template <class TEvent, int N>
   auto process_event__(const TEvent &event, const aux::integral_constant<int, N> &) noexcept {
-    return process_event__((void *)&event, N);
+    return process_event__((void *)&event, N, aux::integral_constant<int, regions_nr>{});
   }
 
-  auto process_event__(void *event, int id) noexcept {
+  auto process_event__(void *event, int id, const aux::integral_constant<int, 1> &) noexcept {
+    return dispatch_table_[dispatch_table_mappings_[current_state[0]][id][0]](*this, 0, event, id, 0);
+  }
+
+  template <int R>
+  auto process_event__(void *event, int id, const aux::integral_constant<int, R> &) noexcept {
     auto handled = false;
-    for (auto r = 0; r < regions_nr; ++r) {
-      // std::cout << "xx process_event: [" << (int)current_state[0] << "][" << N << "][0]" << std::endl;
-      handled |= dispatch_table_[dispatch_table_mappings_[current_state[0]][id][0]](*this, 0, event, id, 0);
+    for (auto r = 0; r < R; ++r) {
+      handled |= dispatch_table_[dispatch_table_mappings_[current_state[r]][id][0]](*this, r, event, id, 0);
     }
 
     if (!handled) {
@@ -903,7 +945,9 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
     using SM = typename Transition::dst_state;
 
     auto i = id__<SM>(id, events{});
-    if (i != -1 && ((SM &)aux::get<N>(self.transitions_).s2).process_event__(event, i)) {
+    if (i != -1 &&
+        ((SM &)aux::get<N>(self.transitions_).s2)
+            .process_event__(event, i, aux::integral_constant<int, SM::regions_nr>{})) {
       return true;
     }
 
@@ -911,16 +955,32 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
                                                                                                     next + 1);
   }
 
-  template <class TFlag, int... Ns, int... Rs>
-  auto is__(const aux::index_sequence<Ns...> &, const aux::index_sequence<Rs...> &) const noexcept {
+  template <class TFlag, int... Ns, int... Rs, class... Is, class... TBools>
+  auto is__(const aux::index_sequence<Ns...> &, const aux::index_sequence<Rs...> &, const aux::type_list<Is...> &,
+            TBools... expected) const noexcept {
     using is_ptr = bool (*)(const sm_impl &);
-    is_ptr dispatch_table[sizeof...(Ns) + sizeof...(Rs)] = {&sm_impl::template is_impl<TFlag, Ns - 1>...,
-                                                            &sm_impl::template is_init_impl<TFlag, Rs - 1>...};
-    auto is_flag = false;
-    for (auto r = 0; r < regions_nr; ++r) {
-      is_flag |= dispatch_table[current_state[r]](*this);
+    is_ptr dispatch_table[sizeof...(Ns) + sizeof...(Is)] = {&sm_impl::template is_impl<TFlag, Ns - 1>...,
+                                                            &sm_impl::template is_init_impl<TFlag, Is::value>...};
+    bool expected_calls[sizeof...(Rs)] = {expected...};
+    bool is_calls[sizeof...(Rs)] = {dispatch_table[current_state[Rs - 1]](*this)...};
+    for (auto i = 0u; i < sizeof...(Is); ++i) {
+      if (expected_calls[i] != is_calls[i]) return false;
     }
-    return is_flag;
+    return true;
+  }
+
+  template <class TFlag, int... Ns, int... Rs, class... Is>
+  auto is__(const aux::index_sequence<Ns...> &, const aux::index_sequence<Rs...> &, const aux::type_list<Is...> &) const
+      noexcept {
+    using is_ptr = bool (*)(const sm_impl &);
+    is_ptr dispatch_table[sizeof...(Ns) + sizeof...(Is)] = {&sm_impl::template is_impl<TFlag, Ns - 1>...,
+                                                            &sm_impl::template is_init_impl<TFlag, Is::value>...};
+    for (auto r = 0u; r < sizeof...(Rs); ++r) {
+      if (dispatch_table[current_state[r]](*this)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   template <class TFlag, int N>
@@ -937,32 +997,14 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
   aux::pool<TDeps...> deps_;
   transitions_t transitions_;
   process_event_ptr dispatch_table_[transitions_nr + 1 + 1 /*subfsm*/] = {&sm_impl::no_transition};
-  aux::byte dispatch_table_mappings_[transitions_nr + regions_nr + 1][events_nr][1 /*max transitions per event*/ +
-                                                                                 1 /*subfsm*/] = {};
+  aux::byte dispatch_table_mappings_[transitions_nr + regions_nr +
+                                     1][!events_nr ? 1 : events_nr][1 /*max transitions per event*/ + 1 /*subfsm*/] =
+      {};
   aux::byte current_state[regions_nr] = {};
 };
 
 template <class T>
 using sm = sm_impl<T, aux::apply_t<merge_deps, decltype(aux::declval<T>().configure())>>;
-
-struct process_event_impl {
-  template <class TEvent>
-  struct process_impl {
-    void call_operator_args__(self);
-
-    template <class SM>
-    void operator()(SM &sm, ...) noexcept {
-      sm.process_event(event);
-    }
-
-    TEvent event;
-  };
-
-  template <class TEvent>
-  auto operator()(const TEvent &event) noexcept {
-    return process_impl<TEvent>{event};
-  }
-} process_event;
 
 template <class TEvent, class TConfig>
 struct dispatcher {
