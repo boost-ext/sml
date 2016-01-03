@@ -37,6 +37,19 @@ test minimal = [] {
   expect(sm.process_event(e1{}));
 };
 
+test minimal_with_dependency = [] {
+  struct c {
+    auto configure() const noexcept {
+      using namespace msm;
+      state idle;
+      return make_transition_table(idle + event<e1> / [](int i) { expect(42 == i); });
+    }
+  };
+
+  msm::sm<c> sm{42};
+  expect(sm.process_event(e1{}));
+};
+
 test transition = [] {
   struct c {
     auto configure() const noexcept {
