@@ -806,8 +806,9 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
   explicit sm_impl(TDeps... deps) noexcept : sm_impl(T{}, deps...) {}
   explicit sm_impl(const T &fsm, TDeps... deps) noexcept : deps_{deps...}, transitions_(fsm.configure()) {
     init(aux::make_index_sequence<transitions_nr>{});
-    process_event(anonymous{});
   }
+
+  void start() noexcept { process_event(anonymous{}); }
 
   template <class TEvent>
   bool process_event(const TEvent &event) noexcept {
