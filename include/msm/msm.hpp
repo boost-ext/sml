@@ -251,10 +251,6 @@ struct anonymous {
   static constexpr auto id = -1;
   anonymous(...) {}
 };
-struct not_handled {
-  static constexpr auto id = -2;
-  not_handled(...) {}
-};
 struct always {
   auto operator()() { return true; }
 };
@@ -938,13 +934,10 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
     using SM = typename Transition::dst_state;
 
     auto i = id__<SM>(id, events{});
-    if (i != -1 &&
+    return (i != -1 &&
         ((SM &)aux::get<N>(self.transitions_).s2)
-            .process_event__(event, i, aux::integral_constant<int, SM::regions_nr>{})) {
-      return true;
-    }
-
-    return self.dispatch_table_[self.dispatch_table_mappings_[self.current_state[r]][id][next + 1]](self, r, event, id,
+            .process_event__(event, i, aux::integral_constant<int, SM::regions_nr>{})) ? true :
+    self.dispatch_table_[self.dispatch_table_mappings_[self.current_state[r]][id][next + 1]](self, r, event, id,
                                                                                                     next + 1);
   }
 
@@ -990,7 +983,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
   transitions_t transitions_;
   process_event_ptr dispatch_table_[transitions_nr + 1 + 1 /*subfsm*/] = {&sm_impl::no_transition};
   aux::byte dispatch_table_mappings_[transitions_nr + regions_nr +
-                                     1][!events_nr ? 1 : events_nr][1 /*max transitions per event*/ + 1 /*subfsm*/] =
+                                     1][!events_nr ? 1 : events_nr][5 /*max transitions per event*/ + 1 /*subfsm*/] =
       {};
   aux::byte current_state[regions_nr] = {};
 };

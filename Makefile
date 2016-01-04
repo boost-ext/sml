@@ -22,7 +22,7 @@ test: test_ut test_ft
 test_%:
 	$(CXX) test/$*.cpp -I include -I. -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors -include test/test.hpp -o $*.out && $($(MEMCHECK)) ./$*.out
 
-example: $(shell find example -iname *.cpp -printf "example_%f\n")
+example: $(patsubst %.cpp, example_%.cpp, $(shell find example -iname *.cpp -exec basename {} \;))
 
 example_%:
 	$(CXX) example/$* -I include -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors -o $*.out && $($(MEMCHECK)) ./$*.out

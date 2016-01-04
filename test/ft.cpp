@@ -235,6 +235,18 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
   expect(sm.is(msm::terminate));
 };
 
+//test dispatcher = [] {
+//};
+
+//test terminate = [] {
+//};
+
+//test operators = [] {
+//};
+
+//test initial_transitions = [] {
+//};
+
 test transitions = [] {
   struct c {
     auto configure() const noexcept {
