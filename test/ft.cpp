@@ -397,10 +397,10 @@ test transition_types = [] {
          , s1 / [] {}
          , s1 [guard1 && guard3(42)]
          , s1 [guard1] / action1
-         , s1 + event<not_handled> / action1
+         , s1 + event<e3> / action1
          , idle == s1
-         , s3 + event<not_handled> / [] { }
-         , s3 + event<not_handled> [guard1] / action1
+         , s3 + event<e4> / [] { }
+         , s3 + event<e5> [guard1] / action1
          , s1 == s2 [guard1 && guard1 && f_guard]
          , s3(initial) == s2 [guard1]
          , s2 == s3 [guard1 && !guard2]
