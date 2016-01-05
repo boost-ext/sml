@@ -551,7 +551,7 @@ class and_ : operator_base {
   template <int... Ns, class TEvent, class TDeps, class SM>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
     auto result = true;
-    bool calls[sizeof...(Ns)] = {call(aux::get<Ns - 1>(g), event, deps, sm)...};
+    bool calls[] = {call(aux::get<Ns - 1>(g), event, deps, sm)...};
     for (auto r : calls) result &= r;
     return result;
   }
@@ -578,7 +578,7 @@ class or_ : operator_base {
   template <int... Ns, class TEvent, class TDeps, class SM>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
     auto result = false;
-    bool calls[sizeof...(Ns)] = {call(aux::get<Ns - 1>(g), event, deps, sm)...};
+    bool calls[] = {call(aux::get<Ns - 1>(g), event, deps, sm)...};
     for (auto r : calls) result |= r;
     return result;
   }
@@ -924,7 +924,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
 
   template <class SM, class... TEvents>
   static auto id__(int id, const aux::type_list<TEvents...> &) noexcept {
-    int events_mapping[sizeof...(TEvents)] = {aux::get_id<typename SM::events_ids_t, -1, TEvents>()...};
+    int events_mapping[] = {aux::get_id<typename SM::events_ids_t, -1, TEvents>()...};
     return events_mapping[id];
   }
 
@@ -935,20 +935,21 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
 
     auto i = id__<SM>(id, events{});
     return (i != -1 &&
-        ((SM &)aux::get<N>(self.transitions_).s2)
-            .process_event__(event, i, aux::integral_constant<int, SM::regions_nr>{})) ? true :
-    self.dispatch_table_[self.dispatch_table_mappings_[self.current_state[r]][id][next + 1]](self, r, event, id,
-                                                                                                    next + 1);
+            ((SM &)aux::get<N>(self.transitions_).s2)
+                .process_event__(event, i, aux::integral_constant<int, SM::regions_nr>{}))
+               ? true
+               : self.dispatch_table_[self.dispatch_table_mappings_[self.current_state[r]][id][next + 1]](
+                     self, r, event, id, next + 1);
   }
 
   template <class TFlag, int... Ns, int... Rs, class... Is, class... TBools>
   auto is__(const aux::index_sequence<Ns...> &, const aux::index_sequence<Rs...> &, const aux::type_list<Is...> &,
             TBools... expected) const noexcept {
     using is_ptr = bool (*)(const sm_impl &);
-    is_ptr dispatch_table[sizeof...(Ns) + sizeof...(Is)] = {&sm_impl::template is_impl<TFlag, Ns - 1>...,
-                                                            &sm_impl::template is_init_impl<TFlag, Is::value>...};
-    bool expected_calls[sizeof...(Rs)] = {expected...};
-    bool is_calls[sizeof...(Rs)] = {dispatch_table[current_state[Rs - 1]](*this)...};
+    is_ptr dispatch_table[] = {&sm_impl::template is_impl<TFlag, Ns - 1>...,
+                               &sm_impl::template is_init_impl<TFlag, Is::value>...};
+    bool expected_calls[] = {expected...};
+    bool is_calls[] = {dispatch_table[current_state[Rs - 1]](*this)...};
     for (auto i = 0u; i < sizeof...(Is); ++i) {
       if (expected_calls[i] != is_calls[i]) return false;
     }
@@ -959,8 +960,8 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
   auto is__(const aux::index_sequence<Ns...> &, const aux::index_sequence<Rs...> &, const aux::type_list<Is...> &) const
       noexcept {
     using is_ptr = bool (*)(const sm_impl &);
-    is_ptr dispatch_table[sizeof...(Ns) + sizeof...(Is)] = {&sm_impl::template is_impl<TFlag, Ns - 1>...,
-                                                            &sm_impl::template is_init_impl<TFlag, Is::value>...};
+    is_ptr dispatch_table[] = {&sm_impl::template is_impl<TFlag, Ns - 1>...,
+                               &sm_impl::template is_init_impl<TFlag, Is::value>...};
     for (auto r = 0u; r < sizeof...(Rs); ++r) {
       if (dispatch_table[current_state[r]](*this)) {
         return true;
