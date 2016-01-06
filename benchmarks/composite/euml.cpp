@@ -126,24 +126,30 @@ struct player_ : public msm::front::state_machine_def<player_> {
   typedef player_ p;  // makes transition table cleaner
 
   // Transition table for player
+  // clang-format off
   struct transition_table
       : mpl::vector<
             //    Start     Event         Next      Action                 Guard
             //    +---------+-------------+---------+---------------------+----------------------+
-            a_row<Stopped, play, Playing, &p::start_playback>, a_row<Stopped, open_close, Open, &p::open_drawer>,
+            a_row<Stopped, play, Playing, &p::start_playback>,
+            a_row<Stopped, open_close, Open, &p::open_drawer>,
             a_row<Stopped, stop, Stopped, &p::stopped_again>,
             //    +---------+-------------+---------+---------------------+----------------------+
             a_row<Open, open_close, Empty, &p::close_drawer>,
             //    +---------+-------------+---------+---------------------+----------------------+
-            a_row<Empty, open_close, Open, &p::open_drawer>, a_row<Empty, cd_detected, Stopped, &p::store_cd_info>,
+            a_row<Empty, open_close, Open, &p::open_drawer>,
+            a_row<Empty, cd_detected, Stopped, &p::store_cd_info>,
             //    +---------+-------------+---------+---------------------+----------------------+
-            a_row<Playing, stop, Stopped, &p::stop_playback>, a_row<Playing, pause, Paused, &p::pause_playback>,
+            a_row<Playing, stop, Stopped, &p::stop_playback>,
+            a_row<Playing, pause, Paused, &p::pause_playback>,
             a_row<Playing, open_close, Open, &p::stop_and_open>,
             //    +---------+-------------+---------+---------------------+----------------------+
-            a_row<Paused, end_pause, Playing, &p::resume_playback>, a_row<Paused, stop, Stopped, &p::stop_playback>,
+            a_row<Paused, end_pause, Playing, &p::resume_playback>,
+            a_row<Paused, stop, Stopped, &p::stop_playback>,
             a_row<Paused, open_close, Open, &p::stop_and_open>
             //    +---------+-------------+---------+---------------------+----------------------+
             > {};
+  // clang-format on
 
   // Replaces the default no-transition response.
   template <class FSM, class Event>

@@ -6,8 +6,6 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "benchmark.hpp"
-#include <typeinfo>
-#include <cassert>
 #include "msm/msm.hpp"
 
 struct play {};
@@ -68,6 +66,7 @@ struct player {
     // clang-format off
     return make_transition_table(
       Stopped == Playing + event<play> / start_playback,
+      Stopped == Open + event<open_close> / open_drawer,
       Stopped == Stopped + event<stop> / stopped_again,
       Open == Empty + event<open_close> / close_drawer,
       Empty(initial) == Open + event<open_close> / open_drawer,
@@ -94,9 +93,8 @@ int main() {
       sm.process_event(play());
 
       for (auto j = 0; j < 1'000; ++j) {
-        assert(sm.process_event(NextSong()));
-        assert(sm.process_event(NextSong()));
-        assert(sm.process_event(PreviousSong()));
+        sm.process_event(NextSong());
+        sm.process_event(NextSong());
         sm.process_event(PreviousSong());
         sm.process_event(PreviousSong());
       }
