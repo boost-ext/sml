@@ -8,184 +8,161 @@
 // file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 #include "benchmark.hpp"
+// back-end
+#include <boost/msm/back/state_machine.hpp>
+// front-end
 #include <boost/msm/back/state_machine.hpp>
 #include <boost/msm/front/state_machine_def.hpp>
+#include <boost/msm/front/euml/euml.hpp>
+#include <boost/msm/front/euml/stl.hpp>
 
 namespace msm = boost::msm;
 namespace mpl = boost::mpl;
+using namespace boost::msm::front::euml;
 
-namespace test_fsm  // Concrete FSM implementation
-    {
-// events
-struct play {};
-struct end_pause {};
-struct stop {};
-struct pause {};
-struct open_close {};
-struct cd_detected {};
-struct NextSong {};
-struct PreviousSong {};
+BOOST_MSM_EUML_EVENT(play)
+BOOST_MSM_EUML_EVENT(end_pause)
+BOOST_MSM_EUML_EVENT(stop)
+BOOST_MSM_EUML_EVENT(pause_)
+BOOST_MSM_EUML_EVENT(open_close)
+BOOST_MSM_EUML_EVENT(cd_detected)
+BOOST_MSM_EUML_EVENT(previous_song)
+BOOST_MSM_EUML_EVENT(next_song)
 
-// Concrete FSM implementation
-struct player_ : public msm::front::state_machine_def<player_> {
-  // no need for exception handling or message queue
-  typedef int no_exception_thrown;
-  typedef int no_message_queue;
+BOOST_MSM_EUML_ACTION(start_next_song){
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
+                                                                                          SourceState &,
+                                                                                          TargetState &){}};
+BOOST_MSM_EUML_ACTION(start_prev_song){
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
+                                                                                          SourceState &,
+                                                                                          TargetState &){}};
+BOOST_MSM_EUML_ACTION(start_playback){
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
+                                                                                          SourceState &,
+                                                                                          TargetState &){}};
+BOOST_MSM_EUML_ACTION(open_drawer){
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
+                                                                                          SourceState &,
+                                                                                          TargetState &){}};
+BOOST_MSM_EUML_ACTION(close_drawer){
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
+                                                                                          SourceState &,
+                                                                                          TargetState &){}};
+BOOST_MSM_EUML_ACTION(store_cd_info){
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
+                                                                                          SourceState &,
+                                                                                          TargetState &){}};
+BOOST_MSM_EUML_ACTION(stop_playback){
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
+                                                                                          SourceState &,
+                                                                                          TargetState &){}};
+BOOST_MSM_EUML_ACTION(pause_playback){
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
+                                                                                          SourceState &,
+                                                                                          TargetState &){}};
+BOOST_MSM_EUML_ACTION(resume_playback){
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
+                                                                                          SourceState &,
+                                                                                          TargetState &){}};
+BOOST_MSM_EUML_ACTION(stop_and_open){
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
+                                                                                          SourceState &,
+                                                                                          TargetState &){}};
+BOOST_MSM_EUML_ACTION(stopped_again){
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
+                                                                                          SourceState &,
+                                                                                          TargetState &){}};
 
-  // The list of FSM states
-  struct Empty : public msm::front::state<> {
-    // optional entry/exit methods
-    template <class Event, class FSM>
-    void on_entry(Event const&, FSM&) { /*std::cout << "entering: Empty" << std::endl;*/
-    }
-    template <class Event, class FSM>
-    void on_exit(Event const&, FSM&) { /*std::cout << "leaving: Empty" << std::endl;*/
-    }
-  };
-  struct Open : public msm::front::state<> {
-    template <class Event, class FSM>
-    void on_entry(Event const&, FSM&) { /*std::cout << "entering: Open" << std::endl;*/
-    }
-    template <class Event, class FSM>
-    void on_exit(Event const&, FSM&) { /*std::cout << "leaving: Open" << std::endl;*/
-    }
-  };
+BOOST_MSM_EUML_ACTION(Log_No_Transition){
+    template <class FSM, class Event> void operator()(Event const &e, FSM &, int state){}};
 
-  struct Stopped : public msm::front::state<> {
-    // when stopped, the CD is loaded
-    template <class Event, class FSM>
-    void on_entry(Event const&, FSM&) { /*std::cout << "entering: Stopped" << std::endl;*/
-    }
-    template <class Event, class FSM>
-    void on_exit(Event const&, FSM&) { /*std::cout << "leaving: Stopped" << std::endl;*/
-    }
-  };
+BOOST_MSM_EUML_STATE((), Song1)
+BOOST_MSM_EUML_STATE((), Song2)
+BOOST_MSM_EUML_STATE((), Song3)
 
-  struct Playing_ : public msm::front::state_machine_def<Playing_> {
-    // no need for exception handling or message queue
-    typedef int no_exception_thrown;
-    typedef int no_message_queue;
+// clang-format off
+BOOST_MSM_EUML_TRANSITION_TABLE((
+        Song2         == Song1          + next_song       / start_next_song,
+        Song1         == Song2          + previous_song   / start_prev_song,
+        Song3         == Song2          + next_song       / start_next_song,
+        Song2         == Song3          + previous_song   / start_prev_song
+    ),transition_table_playing )
+// clang-format on
 
-    // The list of FSM states
-    struct Song1 : public msm::front::state<> {};
-    struct Song2 : public msm::front::state<> {};
-    struct Song3 : public msm::front::state<> {};
-    // the initial state. Must be defined
-    typedef Song1 initial_state;
-    // transition actions
-    void start_next_song(NextSong const&) { /*std::cout << "Playing::start_next_song\n";*/
-    }
-    void start_prev_song(PreviousSong const&) { /*std::cout << "Playing::start_prev_song\n"; */
-    }
-    // guard conditions
+// create a state machine "on the fly"
+BOOST_MSM_EUML_DECLARE_STATE_MACHINE((transition_table_playing,                    // STT
+                                      init_ << Song1,                              // Init State
+                                      no_action,                                   // Entry
+                                      no_action,                                   // Exit
+                                      attributes_ << no_attributes_,               // Attributes
+                                      configure_ << no_exception << no_msg_queue,  // configuration
+                                      Log_No_Transition                            // no_transition handler
+                                      ),
+                                     playing_)  // fsm name
 
-    typedef Playing_ pl;  // makes transition table cleaner
-    // Transition table for Playing
-    struct transition_table : mpl::vector4<
-                                  //    Start     Event         Next      Action                 Guard
-                                  //    +---------+-------------+---------+---------------------+----------------------+
-                                  a_row<Song1, NextSong, Song2, &pl::start_next_song>,
-                                  a_row<Song2, PreviousSong, Song1, &pl::start_prev_song>,
-                                  a_row<Song2, NextSong, Song3, &pl::start_next_song>,
-                                  a_row<Song3, PreviousSong, Song2, &pl::start_prev_song>
-                                  //    +---------+-------------+---------+---------------------+----------------------+
-                                  > {};
-    // Replaces the default no-transition response.
-    template <class FSM, class Event>
-    void no_transition(Event const& e, FSM&, int state) {
-      std::cout << "no transition from state " << state << " on event " << typeid(e).name() << std::endl;
-    }
-  };
-  typedef msm::back::state_machine<Playing_> Playing;
+BOOST_MSM_EUML_STATE((), Empty)
+BOOST_MSM_EUML_STATE((), Open)
+BOOST_MSM_EUML_STATE((), Stopped)
+msm::back::state_machine<playing_> Playing;
+BOOST_MSM_EUML_STATE((), Paused)
 
-  // state not defining any entry or exit
-  struct Paused : public msm::front::state<> {
-    template <class Event, class FSM>
-    void on_entry(Event const&, FSM&) { /*std::cout << "entering: Paused" << std::endl;*/
-    }
-    template <class Event, class FSM>
-    void on_exit(Event const&, FSM&) { /*std::cout << "leaving: Paused" << std::endl;*/
-    }
-  };
+// clang-format off
+BOOST_MSM_EUML_TRANSITION_TABLE((
+    Playing ==  Stopped + play        / start_playback ,
+    Open    ==  Stopped + open_close  / open_drawer    ,
+    Stopped ==  Stopped + stop        / stopped_again  ,
+    Empty   ==  Open    + open_close  / close_drawer   ,
+    Open    ==  Empty   + open_close  / open_drawer    ,
+    Stopped ==  Empty   + cd_detected / store_cd_info  ,
+    Stopped ==  Playing + stop        / stop_playback  ,
+    Paused  ==  Playing + pause_       / pause_playback ,
+    Open    ==  Playing + open_close  / stop_and_open  ,
+    Playing ==  Paused  + end_pause   / resume_playback,
+    Stopped ==  Paused  + stop        / stop_playback  ,
+    Open    == Paused  + open_close   / stop_and_open
+),transition_table)
+// clang-format on
 
-  // the initial state of the player SM. Must be defined
-  typedef Empty initial_state;
+// create a state machine "on the fly"
+BOOST_MSM_EUML_DECLARE_STATE_MACHINE((transition_table,                            // STT
+                                      init_ << Empty,                              // Init State
+                                      no_action,                                   // Entry
+                                      no_action,                                   // Exit
+                                      attributes_ << no_attributes_,               // Attributes
+                                      configure_ << no_exception << no_msg_queue,  // configuration
+                                      Log_No_Transition                            // no_transition handler
+                                      ),
+                                     player_)  // fsm name
 
-  // transition actions
-  void start_playback(play const&) {}
-  void open_drawer(open_close const&) {}
-  void close_drawer(open_close const&) {}
-  void store_cd_info(cd_detected const& cd) {}
-  void stop_playback(stop const&) {}
-  void pause_playback(pause const&) {}
-  void resume_playback(end_pause const&) {}
-  void stop_and_open(open_close const&) {}
-  void stopped_again(stop const&) {}
-  // guard conditions
-
-  typedef player_ p;  // makes transition table cleaner
-
-  // Transition table for player
-  // clang-format off
-  struct transition_table
-      : mpl::vector<
-            //    Start     Event         Next      Action                 Guard
-            //    +---------+-------------+---------+---------------------+----------------------+
-            a_row<Stopped, play, Playing, &p::start_playback>,
-            a_row<Stopped, open_close, Open, &p::open_drawer>,
-            a_row<Stopped, stop, Stopped, &p::stopped_again>,
-            //    +---------+-------------+---------+---------------------+----------------------+
-            a_row<Open, open_close, Empty, &p::close_drawer>,
-            //    +---------+-------------+---------+---------------------+----------------------+
-            a_row<Empty, open_close, Open, &p::open_drawer>,
-            a_row<Empty, cd_detected, Stopped, &p::store_cd_info>,
-            //    +---------+-------------+---------+---------------------+----------------------+
-            a_row<Playing, stop, Stopped, &p::stop_playback>,
-            a_row<Playing, pause, Paused, &p::pause_playback>,
-            a_row<Playing, open_close, Open, &p::stop_and_open>,
-            //    +---------+-------------+---------+---------------------+----------------------+
-            a_row<Paused, end_pause, Playing, &p::resume_playback>,
-            a_row<Paused, stop, Stopped, &p::stop_playback>,
-            a_row<Paused, open_close, Open, &p::stop_and_open>
-            //    +---------+-------------+---------+---------------------+----------------------+
-            > {};
-  // clang-format on
-
-  // Replaces the default no-transition response.
-  template <class FSM, class Event>
-  void no_transition(Event const& e, FSM&, int state) {
-    std::cout << "no transition from state " << state << " on event " << typeid(e).name() << std::endl;
-  }
-};
 typedef msm::back::state_machine<player_> player;
-}
 
 int main() {
-  test_fsm::player p2;
+  player p2;
   p2.start();
 
   benchmark([&] {
     for (auto i = 0; i < 1'000; ++i) {
-      p2.process_event(test_fsm::open_close());
-      p2.process_event(test_fsm::open_close());
-      p2.process_event(test_fsm::cd_detected());
-      p2.process_event(test_fsm::play());
+      p2.process_event(open_close);
+      p2.process_event(open_close);
+      p2.process_event(cd_detected);
+      p2.process_event(play);
       for (auto j = 0; j < 1'000; ++j) {
-        p2.process_event(test_fsm::NextSong());
-        p2.process_event(test_fsm::NextSong());
-        p2.process_event(test_fsm::PreviousSong());
-        p2.process_event(test_fsm::PreviousSong());
+        p2.process_event(next_song);
+        p2.process_event(next_song);
+        p2.process_event(previous_song);
+        p2.process_event(previous_song);
       }
 
-      p2.process_event(test_fsm::pause());
+      p2.process_event(pause_);
       // go back to Playing
-      p2.process_event(test_fsm::end_pause());
-      p2.process_event(test_fsm::pause());
-      p2.process_event(test_fsm::stop());
+      p2.process_event(end_pause);
+      p2.process_event(pause_);
+      p2.process_event(stop);
       // event leading to the same state
-      p2.process_event(test_fsm::stop());
-      p2.process_event(test_fsm::open_close());
-      p2.process_event(test_fsm::open_close());
+      p2.process_event(stop);
+      p2.process_event(open_close);
+      p2.process_event(open_close);
     }
   });
 }

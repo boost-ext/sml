@@ -68,29 +68,26 @@ BOOST_MSM_EUML_STATE((), Stopped)
 BOOST_MSM_EUML_STATE((), Playing)
 BOOST_MSM_EUML_STATE((), pause_d)
 
-// replaces the old transition table
+// clang-format off
 BOOST_MSM_EUML_TRANSITION_TABLE(
-    (Playing == Stopped + play / start_playback, Playing == pause_d + end_pause_ / resume_playback,
-     //  +------------------------------------------------------------------------------+
+    (Playing == Stopped + play / start_playback,
+     Playing == pause_d + end_pause_ / resume_playback,
      Empty == Open + open_close / close_drawer,
-     //  +------------------------------------------------------------------------------+
-     Open == Empty + open_close / open_drawer, Open == pause_d + open_close / stop_and_open,
-     Open == Stopped + open_close / open_drawer, Open == Playing + open_close / stop_and_open,
-     //  +------------------------------------------------------------------------------+
+     Open == Empty + open_close / open_drawer,
+     Open == pause_d + open_close / stop_and_open,
+     Open == Stopped + open_close / open_drawer,
+     Open == Playing + open_close / stop_and_open,
      pause_d == Playing + pause_ / pause__playback,
-     //  +------------------------------------------------------------------------------+
-     Stopped == Playing + stop / stop_playback, Stopped == pause_d + stop / stop_playback,
-     Stopped == Empty + cd_detected / store_cd_info, Stopped == Stopped + stop / stopped_again
-     //  +------------------------------------------------------------------------------+
+     Stopped == Playing + stop / stop_playback,
+     Stopped == pause_d + stop / stop_playback,
+     Stopped == Empty + cd_detected / store_cd_info,
+     Stopped == Stopped + stop / stopped_again
      ),
     transition_table)
+// clang-format on
 
 BOOST_MSM_EUML_ACTION(Log_No_Transition){
-    template <class FSM, class Event> void operator()(Event const &e, FSM &, int state){
-        std::cout << "no transition from state " << state << " on event " << typeid(e).name() << std::endl;
-}
-}
-;
+    template <class FSM, class Event> void operator()(Event const &, FSM &, int state){}};
 
 // create a state machine "on the fly"
 BOOST_MSM_EUML_DECLARE_STATE_MACHINE((transition_table,                            // STT
