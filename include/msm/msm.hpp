@@ -840,12 +840,12 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
     ++region;
   }
 
-  template <int>
+  template <int, class>
   void init_sm(...) noexcept {}
 
-  template <int N>
+  template <int N, class SM>
   void init_sm(const aux::true_type &) noexcept {
-    update_dispatch_table<N>(transitions_nr + 1);
+    update_dispatch_table<N, SM>(transitions_nr + 1, events{});
     dispatch_table_[transitions_nr + 1] = &sm_impl::template process_event_sm_impl<N>;
   }
 
@@ -864,13 +864,13 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
     using Transition = decltype(aux::get<N>(transitions_));
     constexpr auto id = aux::get_id<events_ids_t, events_nr - 1, typename Transition::event>();
     init_initial<N>(region, slot, id, aux::is_same<initial_state_base, typename Transition::src_state>{});
-    init_sm<N>(is_sm<typename Transition::dst_state>{});
+    init_sm<N, typename Transition::dst_state>(is_sm<typename Transition::dst_state>{});
     init_dispatch_table<N>(id, slot, states);
     dispatch_table_[slot++] = &sm_impl::template process_event_impl<N>;
   }
 
   template <int N>
-  void update_dispatch_table(int i, int id, int slot) {
+  void update_dispatch_table(int i, int id, int slot) noexcept {
     for (auto x = 0; x < 5 /*max number per event*/; ++x) {
       if (!dispatch_table_mappings_[i][id][x]) {
         dispatch_table_mappings_[i][id][x] = slot;
@@ -880,12 +880,22 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
     }
   }
 
-  template <int N>
-  void update_dispatch_table(int slot) {
-    for (auto id = 0; id < events_nr; ++id) {
-      update_dispatch_table<N>(N, id, slot);
-    }
+  template <int N, class SM, class... TEvents>
+  void update_dispatch_table(int slot, const aux::type_list<TEvents...> &) noexcept {
+    int _[]{0, (update_dispatch_table_impl<N, TEvents>(
+                    slot, aux::integral_constant<int, aux::get_id<typename SM::events_ids_t, -1, TEvents>()>{}),
+                0)...};
+
+    (void)_;
   }
+
+  template <int N, class TEvent, int TId>
+  void update_dispatch_table_impl(int slot, const aux::integral_constant<int, TId> &) noexcept {
+    update_dispatch_table<N>(N, aux::get_id<events_ids_t, -1, TEvent>(), slot);
+  }
+
+  template <int, class>
+  void update_dispatch_table_impl(int, const aux::integral_constant<int, -1> &) noexcept {}
 
   static auto no_transition(sm_impl &, int, void *, int, int) noexcept { return false; }
 
@@ -933,10 +943,8 @@ class sm_impl<T, aux::pool<TDeps...>> : public state_impl<sm_impl<T, aux::pool<T
     using Transition = decltype(aux::get<N>(self.transitions_));
     using SM = typename Transition::dst_state;
 
-    auto i = id__<SM>(id, events{});
-    return (i != -1 &&
-            ((SM &)aux::get<N>(self.transitions_).s2)
-                .process_event__(event, i, aux::integral_constant<int, SM::regions_nr>{}))
+    return ((SM &)aux::get<N>(self.transitions_).s2)
+                   .process_event__(event, id__<SM>(id, events{}), aux::integral_constant<int, SM::regions_nr>{})
                ? true
                : self.dispatch_table_[self.dispatch_table_mappings_[self.current_state[r]][id][next + 1]](
                      self, r, event, id, next + 1);
