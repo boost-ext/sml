@@ -116,11 +116,106 @@ int main() {
   struct c {
     auto configure() const noexcept {
       using namespace msm;
-      state idle, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22,
-          s23, s24, s25, s26, s27, s28, s29, s30, s31, s32, s33, s34, s35, s36, s37, s38, s39, s40, s41, s42, s43, s44,
-          s45, s46, s47, s48, s49, s50, s51, s52, s53, s54, s55, s56, s57, s58, s59, s60, s61, s62, s63, s64, s65, s66,
-          s67, s68, s69, s70, s71, s72, s73, s74, s75, s76, s77, s78, s79, s80, s81, s82, s83, s84, s85, s86, s87, s88,
-          s89, s90, s91, s92, s93, s94, s95, s96, s97, s98, s99, s100;
+      state<class idle> idle;
+      state<class s1> s1;
+      state<class s2> s2;
+      state<class s3> s3;
+      state<class s4> s4;
+      state<class s5> s5;
+      state<class s6> s6;
+      state<class s7> s7;
+      state<class s8> s8;
+      state<class s9> s9;
+      state<class s10> s10;
+      state<class s11> s11;
+      state<class s12> s12;
+      state<class s13> s13;
+      state<class s14> s14;
+      state<class s15> s15;
+      state<class s16> s16;
+      state<class s17> s17;
+      state<class s18> s18;
+      state<class s19> s19;
+      state<class s20> s20;
+      state<class s21> s21;
+      state<class s22> s22;
+      state<class s23> s23;
+      state<class s24> s24;
+      state<class s25> s25;
+      state<class s26> s26;
+      state<class s27> s27;
+      state<class s28> s28;
+      state<class s29> s29;
+      state<class s30> s30;
+      state<class s31> s31;
+      state<class s32> s32;
+      state<class s33> s33;
+      state<class s34> s34;
+      state<class s35> s35;
+      state<class s36> s36;
+      state<class s37> s37;
+      state<class s38> s38;
+      state<class s39> s39;
+      state<class s40> s40;
+      state<class s41> s41;
+      state<class s42> s42;
+      state<class s43> s43;
+      state<class s44> s44;
+      state<class s45> s45;
+      state<class s46> s46;
+      state<class s47> s47;
+      state<class s48> s48;
+      state<class s49> s49;
+      state<class s50> s50;
+      state<class s51> s51;
+      state<class s52> s52;
+      state<class s53> s53;
+      state<class s54> s54;
+      state<class s55> s55;
+      state<class s56> s56;
+      state<class s57> s57;
+      state<class s58> s58;
+      state<class s59> s59;
+      state<class s60> s60;
+      state<class s61> s61;
+      state<class s62> s62;
+      state<class s63> s63;
+      state<class s64> s64;
+      state<class s65> s65;
+      state<class s66> s66;
+      state<class s67> s67;
+      state<class s68> s68;
+      state<class s69> s69;
+      state<class s70> s70;
+      state<class s71> s71;
+      state<class s72> s72;
+      state<class s73> s73;
+      state<class s74> s74;
+      state<class s75> s75;
+      state<class s76> s76;
+      state<class s77> s77;
+      state<class s78> s78;
+      state<class s79> s79;
+      state<class s80> s80;
+      state<class s81> s81;
+      state<class s82> s82;
+      state<class s83> s83;
+      state<class s84> s84;
+      state<class s85> s85;
+      state<class s86> s86;
+      state<class s87> s87;
+      state<class s88> s88;
+      state<class s89> s89;
+      state<class s90> s90;
+      state<class s91> s91;
+      state<class s92> s92;
+      state<class s93> s93;
+      state<class s94> s94;
+      state<class s95> s95;
+      state<class s96> s96;
+      state<class s97> s97;
+      state<class s98> s98;
+      state<class s99> s99;
 
       // clang-format off
     return make_transition_table(
@@ -223,7 +318,7 @@ int main() {
 	 , s96 == s97 + event<e97> [guard] / action
 	 , s97 == s98 + event<e98> [guard] / action
 	 , s98 == s99 + event<e99> [guard] / action
-	 , s99 == s100 + event<e100> [guard] / action
+	 , s99 == s1 + event<e100> [guard] / action
     );
       // clang-format on
     }
@@ -232,7 +327,7 @@ int main() {
   msm::sm<c> sm;
 
   benchmark([&] {
-    for (auto i = 0; i < 1'000'000; ++i) {
+    for (auto i = 0; i < 2; ++i) {
       sm.process_event(e1());
       sm.process_event(e2());
       sm.process_event(e3());
