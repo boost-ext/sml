@@ -468,79 +468,75 @@ test orthogonal_regions = [] {
   expect_states(sm, s2, s4);
 };
 
-// test composite = [] {
-// static auto guard = [](int i) {
-// expect(42 == i);
-// return true;
-//};
+test composite = [] {
+  static auto guard = [](int i) {
+    expect(42 == i);
+    return true;
+  };
 
-// struct guard2 {
-// bool operator()(double d) const {
-// expect(87.0 == d);
-// return true;
-//}
-//};
+  struct guard2 {
+    bool operator()(double d) const {
+      expect(87.0 == d);
+      return true;
+    }
+  };
 
-// static auto the_end = [] {};
+  struct sub {
+    auto configure() const noexcept {
+      using namespace msm;
 
-// struct sub {
-// auto configure() const noexcept {
-// using namespace msm;
-// state idle, s1, s2;
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e3> / [this] { a_in_sub++; }
+        , s1 == s2 + event<e4> / [this] { a_in_sub++; }
+      );
+      // clang-format on
+    }
 
-//// clang-format off
-// return make_transition_table(
-// idle(initial) == s1 + event<e3> / [this] { a_in_sub++; }
-//, s1 == s2 + event<e4> / [this] { a_in_sub++; }
-//);
-//// clang-format on
-//}
+    mutable int a_in_sub = 0;
+  };
 
-// mutable int a_in_sub = 0;
-//};
+  struct c {
+    auto configure() const noexcept {
+      using namespace msm;
 
-// struct c {
-// auto configure() const noexcept {
-// using namespace msm;
-// state idle, s1, s2;
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1> [guard2{}] / [this] { a_initial = true; }
+        , s1 == sub_ + event<e2> [guard]  / [this]{ a_enter_sub_sm = true; }
+        , sub_ == s2(terminate) + event<e5> [guard2{}] / [this] { a_exit_sub_sm = true; }
+      );
+      // clang-format on
+    }
 
-//// clang-format off
-// return make_transition_table(
-// idle(initial) == s1 + event<e1> [guard2{}] / [this] { a_initial = true; }
-//, s1 == sub_ + event<e2> [guard]  / [this]{ a_enter_sub_sm = true; }
-//, sub_ == s2(the_end) + event<e5> [guard2{}] / [this] { a_exit_sub_sm = true; }
-//);
-//// clang-format on
-//}
+    const msm::sm<sub> &sub_;
 
-// const msm::sm<sub> &sub_;
+    mutable bool a_initial = false;
+    mutable bool a_enter_sub_sm = false;
+    mutable bool a_exit_sub_sm = false;
+  };
 
-// mutable bool a_initial = false;
-// mutable bool a_enter_sub_sm = false;
-// mutable bool a_exit_sub_sm = false;
-//};
+  sub sub_;
+  msm::sm<sub> s{sub_};
+  c c_{s};
+  msm::sm<c> sm{c_, 87.0, 42};
 
-// sub sub_;
-// msm::sm<sub> s{sub_};
-// c c_{s};
-// msm::sm<c> sm{c_, 87.0, 42};
+  expect_states(sm, idle);
+  sm.process_event(e1());
+  expect(c_.a_initial);
 
-// expect(sm.is(msm::initial));
-// sm.process_event(e1());
-// expect(c_.a_initial);
+  sm.process_event(e2());
+  expect(c_.a_enter_sub_sm);
+  expect(0 == sub_.a_in_sub);
 
-// sm.process_event(e2());
-// expect(c_.a_enter_sub_sm);
-// expect(0 == sub_.a_in_sub);
+  sm.process_event(e3());
+  /*  expect(1 == sub_.a_in_sub);*/
 
-// sm.process_event(e3());
-// expect(1 == sub_.a_in_sub);
+  // sm.process_event(e4());
+  // expect(2 == sub_.a_in_sub);
 
-// sm.process_event(e4());
-// expect(2 == sub_.a_in_sub);
-
-// sm.process_event(e5());
-// expect(2 == sub_.a_in_sub);
-// expect(c_.a_exit_sub_sm);
-// expect(sm.is(the_end));
-//};
+  // sm.process_event(e5());
+  // expect(2 == sub_.a_in_sub);
+  // expect(c_.a_exit_sub_sm);
+  /*expect_states(sm, s2);*/
+};

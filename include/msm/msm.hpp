@@ -349,6 +349,12 @@ template <class TState>
 struct is_initial<aux::type<TState, initial_state>> : aux::true_type {};
 
 template <class>
+struct is_sm : aux::false_type {};
+
+template <class... Ts>
+struct is_sm<sm_impl<Ts...>> : aux::true_type {};
+
+template <class>
 struct event {
   template <class T>
   auto operator[](const T &t) const noexcept {
@@ -885,13 +891,10 @@ template <class... Ts>
 using get_states = aux::join_t<aux::type_list<typename Ts::src_state, typename Ts::dst_state>...>;
 
 template <class... Ts>
-using count_initial_states = aux::count<is_initial, typename Ts::initial_state...>;
-
-template <class>
-struct is_sm : aux::false_type {};
+using get_composite_states = aux::join_t<aux::conditional_t<is_sm<Ts>::value, aux::type_list<Ts>, aux::type_list<>>...>;
 
 template <class... Ts>
-struct is_sm<sm_impl<Ts...>> : aux::true_type {};
+using count_initial_states = aux::count<is_initial, typename Ts::initial_state...>;
 
 template <class T, class... TDeps>
 class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps...>>> {
@@ -899,6 +902,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
   using mappings_t = detail::mappings_t<transitions_t>;
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
+  using composite_states_t = aux::apply_t<get_composite_states, states_t>;
   static constexpr auto regions =
       aux::get_size<transitions_t>::value > 0 ? aux::apply_t<count_initial_states, transitions_t>::value : 1;
 
@@ -966,6 +970,22 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
     int _[]{0, (handled |= dispatch_table[current_state_[Ns - 1]](*this, event, current_state_[Ns - 1]), 0)...};
     (void)_;
     return handled;
+  }
+
+  template <class TEvent, class... TStates>
+  auto process_event_composite(const TEvent &event, const aux::type_list<TStates...> &) noexcept {
+    static bool (*dispatch_table[])(const TEvent &) = {&sm_impl::process_event_composite_impl<TEvent, TStates>...};
+    return dispatch_table[current_state_[0]](event);
+  }
+
+  template <class TEvent, class TState, aux::enable_if_t<!is_sm<TState>::value, int> = 0>
+  static auto process_event_composite_impl(const TEvent &) noexcept {
+    return false;
+  }
+
+  template <class TEvent, class TState, aux::enable_if_t<is_sm<TState>::value, int> = 0>
+  static auto process_event_composite_impl(const TEvent &event) noexcept {
+    return TState{}.process_event(event);
   }
 
   template <class TVisitor, class... TStates>

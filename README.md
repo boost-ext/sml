@@ -9,3 +9,52 @@
 msm-lite: C++14 Meta State Machine Library
 ===============================================
 
+* Benchmarks
+
+* Simple / 1'000'000 / clang++3.7 -O2 -s
+|                  | msm-lite |  boost.msm-eUML | boost.statechart |
+|------------------|----------|-----------------|------------------|
+| Compilation time | 0.467s   | 5.363s          | 1.550s           |
+| Execution time   | 17ms     | 20ms            | 1838ms           |
+| Memory usage     | 14b      | 32b             | 200b             |
+| Executable size  | 11K      | 91K             | 59K              |
+
+* Simple / 1'000'000 / gcc-6.0 -O2 -s
+|                  | msm-lite |  boost.msm-eUML | boost.statechart |
+|------------------|----------|-----------------|------------------|
+| Compilation time | 0.534s   | 11.442s         | 2.819s           |
+| Execution time   | 18ms     | 21ms            | 1431ms           |
+| Memory usage     | 14b      | 32b             | 224b             |
+| Executable size  | 11K      | 67K             | 67K              |
+
+* Composite / 1'000'000 / clang++3.7 -O2 -s
+|                  | msm-lite |  boost.msm-eUML | boost.statechart |
+|------------------|----------|-----------------|------------------|
+| Compilation time | 0.467s   | 5.363s          | 1.550s           |
+| Execution time   | 17ms     | 20ms            | 1838ms           |
+| Memory usage     | 14b      | 32b             | 200b             |
+| Executable size  | 11K      | 91K             | 59K              |
+
+* Composite / 1'000'000 / gcc-6.0 -O2 -s
+|                  | msm-lite |  boost.msm-eUML | boost.statechart |
+|------------------|----------|-----------------|------------------|
+| Compilation time | 0.534s   | 11.442s         | 2.819s           |
+| Execution time   | 18ms     | 21ms            | 1431ms           |
+| Memory usage     | 14b      | 32b             | 224b             |
+| Executable size  | 11K      | 67K             | 67K              |
+
+* Complex / 1'000'000 / clang++3.7 -O2 -s
+|                  | msm-lite |  boost.msm-eUML | boost.statechart |
+|------------------|----------|-----------------|------------------|
+| Compilation time | 2.483s   |                 |                  |
+| Execution time   | 164ms    |                 |                  |
+| Memory usage     | 202b     |                 |                  |
+| Executable size  | 103K     |                 |                  |
+
+* Complex / 1'000'000 / gcc-6.0 -O2 -s
+|                  | msm-lite |  boost.msm-eUML | boost.statechart |
+|------------------|----------|-----------------|------------------|
+| Compilation time | 3.594s   |                 |                  |
+| Execution time   | 159ms    |                 |                  |
+| Memory usage     | 202b     |                 |                  |
+| Executable size  | 99K      |                 |                  |
