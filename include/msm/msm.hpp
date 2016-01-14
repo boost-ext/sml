@@ -921,11 +921,8 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
  public:
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
 
-  explicit sm_impl(TDeps... deps) noexcept : sm_impl(T{}, deps...) {
-    initialize(aux::make_index_sequence<aux::get_size<transitions_t>::value>{});
-  }
-
-  explicit sm_impl(const T &fsm, TDeps... deps) noexcept : deps_{deps...}, transitions_(fsm.configure()) {
+  explicit sm_impl(TDeps... deps) noexcept : sm_impl(T{}, deps...) {}
+  explicit sm_impl(const T &sm, TDeps... deps) noexcept : deps_{deps...}, transitions_(sm.configure()) {
     initialize(aux::make_index_sequence<aux::get_size<transitions_t>::value>{});
   }
 
@@ -945,7 +942,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
     int _[]{0,
             (region = i, current_state_[region] =
                              is_initial<typename decltype(aux::get<Ns - 1>(transitions_))::initial_state>::value ? i++,
-             Ns - 1 : 0, 0)...};
+             aux::get_id<states_ids_t, 0, typename decltype(aux::get<Ns - 1>(transitions_))::src_state>() : 0, 0)...};
     (void)_;
   }
 
@@ -958,7 +955,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
 
   aux::pool<TDeps...> deps_;
   transitions_t transitions_;
-  aux::byte current_state_[regions] = {};
+  aux::byte current_state_[regions];
 };
 
 }  // detail
