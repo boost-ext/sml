@@ -101,7 +101,7 @@ int main() {
   test_sc::player p;
   p.initiate();
 
-  benchmark([&] {
+  benchmark_execution_speed([&] {
     for (auto i = 0; i < 1'000'000; ++i) {
       p.process_event(test_sc::open_close());
       p.process_event(test_sc::open_close());
@@ -118,4 +118,5 @@ int main() {
       p.process_event(test_sc::open_close());
     }
   });
+  benchmark_memory_usage(p);
 }

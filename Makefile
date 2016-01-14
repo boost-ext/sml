@@ -13,9 +13,9 @@ all: test example benchmarks
 benchmarks: benchmarks_header benchmarks_simple benchmarks_complex
 
 benchmarks_%:
-	time $(CXX) benchmarks/$*/msm-lite.cpp -O2 -I include -I benchmarks -std=c++1y && ./a.out && ls -lh a.out
-	time $(CXX) benchmarks/$*/sc.cpp -O2 -I include -I benchmarks -std=c++1y && ./a.out && ls -lh a.out
-	time $(CXX) benchmarks/$*/euml.cpp -O2 -I include -I benchmarks -std=c++1y && ./a.out && ls -lh a.out
+	time $(CXX) benchmarks/$*/msm-lite.cpp -O2 -s -I include -I benchmarks -std=c++1y && ./a.out && ls -lh a.out
+	time $(CXX) benchmarks/$*/sc.cpp -O2 -s -I include -I benchmarks -std=c++1y && ./a.out && ls -lh a.out
+	time $(CXX) benchmarks/$*/euml.cpp -O2 -s -I include -I benchmarks -std=c++1y && ./a.out && ls -lh a.out
 
 test: test_ut test_ft
 
