@@ -348,17 +348,6 @@ struct is_initial : aux::false_type {};
 template <class TState>
 struct is_initial<aux::type<TState, initial_state>> : aux::true_type {};
 
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
-#endif
-
-#if !defined(_MSC_VER)
-template <class T, T... Chars>
-auto operator""_s() {
-  return state<aux::string<Chars...>>{};
-}
-#endif
-
 template <class>
 struct event {
   template <class T>
@@ -544,36 +533,33 @@ struct transition<event<E>, G, A> {
 
 template <class S2, class G, class A>
 struct transition<state<S2>, G, A> : transition<state<S2>, state<S2>, event<anonymous>, G, A> {
-  transition(const state<S2> &s2, const G &g, const A &a)
-      : transition<state<S2>, state<S2>, event<anonymous>, G, A>{s2, s2, event<anonymous>{}, g, a} {}
+  transition(const G &g, const A &a) : transition<state<S2>, state<S2>, event<anonymous>, G, A>{g, a} {}
 };
 
 template <class S1, class S2>
 struct transition<state<S1>, state<S2>> : transition<state<S1>, state<S2>, event<anonymous>, always, none> {
-  transition(const state<S1> &s1, const state<S2> &s2)
-      : transition<state<S1>, state<S2>, event<anonymous>, always, none>{s1, s2, event<anonymous>{}, always{}, none{}} {
-  }
+  transition(const state<S1> &, const state<S2> &)
+      : transition<state<S1>, state<S2>, event<anonymous>, always, none>{always{}, none{}} {}
 };
 
 template <class S2, class G>
 struct transition_sg<state<S2>, G> : transition<state<S2>, state<S2>, event<anonymous>, G, none> {
   using transition_t = transition<state<S2>, state<S2>, event<anonymous>, G, none>;
-  using transition_t::s2;
   using transition_t::g;
 
-  transition_sg(const state<S2> &s2, const G &g)
-      : transition<state<S2>, state<S2>, event<anonymous>, G, none>{s2, s2, event<anonymous>{}, g, none{}} {}
+  transition_sg(const state<S2> &, const G &g)
+      : transition<state<S2>, state<S2>, event<anonymous>, G, none>{g, none{}} {}
 
   template <class T>
   auto operator/(const T &t) const noexcept {
-    return transition<state<S2>, G, T>{s2, g, t};
+    return transition<state<S2>, G, T>{g, t};
   }
 };
 
 template <class S2, class A>
 struct transition_sa<state<S2>, A> : transition<state<S2>, state<S2>, event<anonymous>, always, A> {
-  transition_sa(const state<S2> &s2, const A &a)
-      : transition<state<S2>, state<S2>, event<anonymous>, always, A>{s2, s2, event<anonymous>{}, always{}, a} {}
+  transition_sa(const state<S2> &, const A &a)
+      : transition<state<S2>, state<S2>, event<anonymous>, always, A>{always{}, a} {}
 };
 
 template <class S2, class E>
@@ -675,10 +661,10 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> {
   transition(G g, A a) : g(g), a(a) {}
 
   template <class SM>
-  auto execute(SM &self, const E &event) noexcept {
+  auto execute(SM &self, const E &event, aux::byte &current_state) noexcept {
     if (call(g, event, self.deps_, self)) {
       call(a, event, self.deps_, self);
-      self.current_state_[0] = aux::get_id<typename SM::states_ids_t, -1, dst_state>();
+      current_state = aux::get_id<typename SM::states_ids_t, -1, dst_state>();
       return true;
     }
     return false;
@@ -699,9 +685,9 @@ struct transition<state<S1>, state<S2>, event<E>, always, A> {
   transition(always, A a) : a(a) {}
 
   template <class SM>
-  auto execute(SM &self, const E &event) noexcept {
+  auto execute(SM &self, const E &event, aux::byte &current_state) noexcept {
     call(a, event, self.deps_, self);
-    self.current_state_[0] = aux::get_id<typename SM::states_ids_t, -1, dst_state>();
+    current_state = aux::get_id<typename SM::states_ids_t, -1, dst_state>();
     return true;
   }
 
@@ -719,9 +705,9 @@ struct transition<state<S1>, state<S2>, event<E>, G, none> {
   transition(G g, none) : g(g) {}
 
   template <class SM>
-  auto execute(SM &self, const E &event) noexcept {
+  auto execute(SM &self, const E &event, aux::byte &current_state) noexcept {
     if (call(g, event, self.deps_, self)) {
-      self.current_state_[0] = aux::get_id<typename SM::states_ids_t, -1, dst_state>();
+      current_state = aux::get_id<typename SM::states_ids_t, -1, dst_state>();
       return true;
     }
     return false;
@@ -741,8 +727,8 @@ struct transition<state<S1>, state<S2>, event<E>, always, none> {
   transition(always, none) {}
 
   template <class SM>
-  auto execute(SM &self, const E &) noexcept {
-    self.current_state_[0] = aux::get_id<typename SM::states_ids_t, -1, dst_state>();
+  auto execute(SM &, const E &, aux::byte &current_state) noexcept {
+    current_state = aux::get_id<typename SM::states_ids_t, -1, dst_state>();
     return true;
   }
 };
@@ -754,11 +740,11 @@ template <class T, class... Ts>
 struct transition_impl<T, Ts...> {
   using type = transition_impl;
   template <class SM, class TEvent>
-  static bool execute(SM &self, const TEvent &event) noexcept {
-    if (aux::get<T::value>(self.transitions_).execute(self, event)) {
+  static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
+    if (aux::get<T::value>(self.transitions_).execute(self, event, current_state)) {
       return true;
     }
-    return transition_impl<Ts...>::execute(self, event);
+    return transition_impl<Ts...>::execute(self, event, current_state);
   }
 };
 
@@ -766,8 +752,8 @@ template <class T>
 struct transition_impl<T> {
   using type = transition_impl;
   template <class SM, class TEvent>
-  static bool execute(SM &self, const TEvent &event) noexcept {
-    return aux::get<T::value>(self.transitions_).execute(self, event);
+  static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
+    return aux::get<T::value>(self.transitions_).execute(self, event, current_state);
   }
 };
 
@@ -775,7 +761,7 @@ template <>
 struct transition_impl<> {
   using type = transition_impl;
   template <class SM, class TEvent>
-  static bool execute(SM &, const TEvent &) noexcept {
+  static bool execute(SM &, const TEvent &, aux::byte &) noexcept {
     return false;
   }
 };
@@ -966,18 +952,18 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
   template <class TMappings, class TEvent, class... TStates>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &,
                           const aux::index_sequence<1> &) noexcept {
-    static bool (*dispatch_table[])(
-        sm_impl &, const TEvent &) = {&get_mapping_t<TStates, TMappings>::template execute<sm_impl, TEvent>...};
-    return dispatch_table[current_state_[0]](*this, event);
+    static bool (*dispatch_table[])(sm_impl &, const TEvent &, aux::byte &) = {
+        &get_mapping_t<TStates, TMappings>::template execute<sm_impl, TEvent>...};
+    return dispatch_table[current_state_[0]](*this, event, current_state_[0]);
   }
 
   template <class TMappings, class TEvent, class... TStates, int... Ns>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &,
                           const aux::index_sequence<Ns...> &) noexcept {
-    static bool (*dispatch_table[])(
-        sm_impl &, const TEvent &) = {&get_mapping_t<TStates, TMappings>::template execute<sm_impl, TEvent>...};
+    static bool (*dispatch_table[])(sm_impl &, const TEvent &, aux::byte &) = {
+        &get_mapping_t<TStates, TMappings>::template execute<sm_impl, TEvent>...};
     auto handled = false;
-    int _[]{0, (handled |= dispatch_table[current_state_[Ns - 1]](*this, event), 0)...};
+    int _[]{0, (handled |= dispatch_table[current_state_[Ns - 1]](*this, event, current_state_[Ns - 1]), 0)...};
     (void)_;
     return handled;
   }
@@ -985,21 +971,21 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
   template <class TVisitor, class... TStates>
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<1> &) const noexcept {
-    static bool (*dispatch_table[])(const TVisitor &) = {&sm_impl::visit_state<TVisitor, TStates>...};
+    static void (*dispatch_table[])(const TVisitor &) = {&sm_impl::visit_state<TVisitor, TStates>...};
     dispatch_table[current_state_[0]](visitor);
   }
 
   template <class TVisitor, class... TStates, int... Ns>
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<Ns...> &) const noexcept {
-    static bool (*dispatch_table[])(const TVisitor &) = {&sm_impl::visit_state<TVisitor, TStates>...};
+    static void (*dispatch_table[])(const TVisitor &) = {&sm_impl::visit_state<TVisitor, TStates>...};
     int _[]{0, (dispatch_table[current_state_[Ns - 1]](visitor), 0)...};
     (void)_;
   }
 
   template <class TVisitor, class TState>
   static void visit_state(const TVisitor &visitor) noexcept {
-    visitor(TState{});
+    visitor(state<TState>{});
   }
 
   aux::pool<TDeps...> deps_;
@@ -1034,6 +1020,17 @@ detail::event<TEvent> event{};
 
 template <class T>
 using state = detail::state<T>;
+
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
+#endif
+
+#if !defined(_MSC_VER)
+template <class T, T... Chars>
+auto operator""_s() {
+  return state<aux::string<Chars...>>{};
+}
+#endif
 
 detail::initial_state initial;
 detail::terminate_state terminate;
