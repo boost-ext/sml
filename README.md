@@ -9,7 +9,7 @@
 msm-lite: C++14 Meta State Machine Library
 ===============================================
 
-** Benchmarks **
+**Benchmarks**
 
 * Simple / 1'000'000 / clang++3.7 -O2 -s
 
