@@ -931,6 +931,8 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
   explicit sm_impl(const T &sm, TDeps... deps) noexcept : deps_{deps...}, transitions_(sm.configure()) {
     initialize(aux::make_index_sequence<aux::get_size<transitions_t>::value>{});
   }
+  sm_impl(const sm_impl &) = delete;
+  sm_impl(sm_impl &&) = default;
 
   void start() noexcept { process_event(anonymous{}); }
   void stop() noexcept {}
@@ -938,7 +940,13 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
   template <class TEvent>
   bool process_event(const TEvent &event) noexcept {
     // std::cout << (int)current_state_[0] << std::endl;
-    return process_event<get_mapping_t<TEvent, mappings_t>>(event, states_t{});
+    return process_event_impl<get_mapping_t<TEvent, mappings_t>>(event, states_t{},
+                                                                 aux::make_index_sequence<regions>{});
+  }
+
+  template <class TVisitor>
+  void visit_current_states(const TVisitor &visitor) const noexcept {
+    visit_current_states_impl(visitor, states_t{}, aux::make_index_sequence<regions>{});
   }
 
  private:
@@ -953,10 +961,42 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
   }
 
   template <class TMappings, class TEvent, class... TStates>
-  auto process_event(const TEvent &event, const aux::type_list<TStates...> &) noexcept {
+  auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &,
+                          const aux::index_sequence<1> &) noexcept {
     static bool (*dispatch_table[])(
         sm_impl &, const TEvent &) = {&get_mapping_t<TStates, TMappings>::template execute<sm_impl, TEvent>...};
     return dispatch_table[current_state_[0]](*this, event);
+  }
+
+  template <class TMappings, class TEvent, class... TStates, int... Ns>
+  auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &,
+                          const aux::index_sequence<Ns...> &) noexcept {
+    static bool (*dispatch_table[])(
+        sm_impl &, const TEvent &) = {&get_mapping_t<TStates, TMappings>::template execute<sm_impl, TEvent>...};
+    auto handled = false;
+    int _[]{0, (handled |= dispatch_table[current_state_[Ns - 1]](*this, event), 0)...};
+    (void)_;
+    return handled;
+  }
+
+  template <class TVisitor, class... TStates>
+  void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
+                                 const aux::index_sequence<1> &) const noexcept {
+    static bool (*dispatch_table[])(const TVisitor &) = {&sm_impl::visit_state<TVisitor, TStates>...};
+    dispatch_table[current_state_[0]](visitor);
+  }
+
+  template <class TVisitor, class... TStates, int... Ns>
+  void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
+                                 const aux::index_sequence<Ns...> &) const noexcept {
+    static bool (*dispatch_table[])(const TVisitor &) = {&sm_impl::visit_state<TVisitor, TStates>...};
+    int _[]{0, (dispatch_table[current_state_[Ns - 1]](visitor), 0)...};
+    (void)_;
+  }
+
+  template <class TVisitor, class TState>
+  static void visit_state(const TVisitor &visitor) noexcept {
+    visitor(TState{});
   }
 
   aux::pool<TDeps...> deps_;
