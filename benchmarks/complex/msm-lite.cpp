@@ -218,7 +218,7 @@ int main() {
       state<class s99> s99;
 
       // clang-format off
-    return make_transition_table(
+      return make_transition_table(
 	   idle(initial) == s1 + event<e1> [guard] / action
 	 , s1 == s2 + event<e2> [guard] / action
 	 , s2 == s3 + event<e3> [guard] / action
