@@ -257,6 +257,19 @@ struct get_size<T<Ts...>> {
 
 namespace detail {
 
+template <class, class>
+class sm_impl;
+template <class...>
+struct transition;
+template <class, class>
+struct transition_sg;
+template <class, class>
+struct transition_sa;
+template <class, class>
+struct transition_eg;
+template <class, class>
+struct transition_ea;
+
 struct operator_base {};
 struct self {};
 struct anonymous {};
@@ -284,20 +297,6 @@ struct process_event {
     return process_impl<TEvent>{event};
   }
 };
-
-template <class, class>
-class sm_impl;
-
-template <class...>
-struct transition;
-template <class, class>
-struct transition_sg;
-template <class, class>
-struct transition_sa;
-template <class, class>
-struct transition_eg;
-template <class, class>
-struct transition_ea;
 
 struct initial_state {};
 struct terminate_state {};
@@ -330,6 +329,25 @@ struct state {
   }
 };
 
+template <class TState>
+struct get_state {
+  using type = TState;
+};
+
+template <class TState, class T>
+struct get_state<aux::type<TState, T>> {
+  using type = TState;
+};
+
+template <class T>
+using get_state_t = typename get_state<T>::type;
+
+template <class>
+struct is_initial : aux::false_type {};
+
+template <class TState>
+struct is_initial<aux::type<TState, initial_state>> : aux::true_type {};
+
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
 #endif
@@ -352,79 +370,6 @@ struct event {
   auto operator/(const T &t) const noexcept {
     return transition_ea<event, T>{*this, t};
   }
-};
-
-template <class E, class G>
-struct transition<event<E>, G> {
-  template <class T>
-  auto operator/(const T &t) const noexcept {
-    return transition<event<E>, G, T>{e, g, t};
-  }
-  event<E> e;
-  G g;
-};
-
-template <class E, class G, class A>
-struct transition<event<E>, G, A> {
-  event<E> e;
-  G g;
-  A a;
-};
-
-template <class S2, class G, class A>
-struct transition<state<S2>, G, A> : transition<state<S2>, state<S2>, event<anonymous>, G, A> {
-  transition(const state<S2> &s2, const G &g, const A &a)
-      : transition<state<S2>, state<S2>, event<anonymous>, G, A>{s2, s2, event<anonymous>{}, g, a} {}
-};
-
-template <class S1, class S2>
-struct transition<state<S1>, state<S2>> : transition<state<S1>, state<S2>, event<anonymous>, always, none> {
-  transition(const state<S1> &s1, const state<S2> &s2)
-      : transition<state<S1>, state<S2>, event<anonymous>, always, none>{s1, s2, event<anonymous>{}, always{}, none{}} {
-  }
-};
-
-template <class S2, class G>
-struct transition_sg<state<S2>, G> : transition<state<S2>, state<S2>, event<anonymous>, G, none> {
-  using transition_t = transition<state<S2>, state<S2>, event<anonymous>, G, none>;
-  using transition_t::s2;
-  using transition_t::g;
-
-  transition_sg(const state<S2> &s2, const G &g)
-      : transition<state<S2>, state<S2>, event<anonymous>, G, none>{s2, s2, event<anonymous>{}, g, none{}} {}
-
-  template <class T>
-  auto operator/(const T &t) const noexcept {
-    return transition<state<S2>, G, T>{s2, g, t};
-  }
-};
-
-template <class S2, class A>
-struct transition_sa<state<S2>, A> : transition<state<S2>, state<S2>, event<anonymous>, always, A> {
-  transition_sa(const state<S2> &s2, const A &a)
-      : transition<state<S2>, state<S2>, event<anonymous>, always, A>{s2, s2, event<anonymous>{}, always{}, a} {}
-};
-
-template <class S2, class E>
-struct transition<state<S2>, event<E>> {
-  const state<S2> &s2;
-  event<E> e;
-};
-
-template <class E, class G>
-struct transition_eg<event<E>, G> {
-  template <class T>
-  auto operator/(const T &t) const noexcept {
-    return transition<event<E>, G, T>{e, g, t};
-  }
-  event<E> e;
-  G g;
-};
-
-template <class E, class A>
-struct transition_ea<event<E>, A> {
-  event<E> e;
-  A a;
 };
 
 template <class, class>
@@ -580,6 +525,79 @@ class not_ : operator_base {
   T g;
 };
 
+template <class E, class G>
+struct transition<event<E>, G> {
+  template <class T>
+  auto operator/(const T &t) const noexcept {
+    return transition<event<E>, G, T>{e, g, t};
+  }
+  event<E> e;
+  G g;
+};
+
+template <class E, class G, class A>
+struct transition<event<E>, G, A> {
+  event<E> e;
+  G g;
+  A a;
+};
+
+template <class S2, class G, class A>
+struct transition<state<S2>, G, A> : transition<state<S2>, state<S2>, event<anonymous>, G, A> {
+  transition(const state<S2> &s2, const G &g, const A &a)
+      : transition<state<S2>, state<S2>, event<anonymous>, G, A>{s2, s2, event<anonymous>{}, g, a} {}
+};
+
+template <class S1, class S2>
+struct transition<state<S1>, state<S2>> : transition<state<S1>, state<S2>, event<anonymous>, always, none> {
+  transition(const state<S1> &s1, const state<S2> &s2)
+      : transition<state<S1>, state<S2>, event<anonymous>, always, none>{s1, s2, event<anonymous>{}, always{}, none{}} {
+  }
+};
+
+template <class S2, class G>
+struct transition_sg<state<S2>, G> : transition<state<S2>, state<S2>, event<anonymous>, G, none> {
+  using transition_t = transition<state<S2>, state<S2>, event<anonymous>, G, none>;
+  using transition_t::s2;
+  using transition_t::g;
+
+  transition_sg(const state<S2> &s2, const G &g)
+      : transition<state<S2>, state<S2>, event<anonymous>, G, none>{s2, s2, event<anonymous>{}, g, none{}} {}
+
+  template <class T>
+  auto operator/(const T &t) const noexcept {
+    return transition<state<S2>, G, T>{s2, g, t};
+  }
+};
+
+template <class S2, class A>
+struct transition_sa<state<S2>, A> : transition<state<S2>, state<S2>, event<anonymous>, always, A> {
+  transition_sa(const state<S2> &s2, const A &a)
+      : transition<state<S2>, state<S2>, event<anonymous>, always, A>{s2, s2, event<anonymous>{}, always{}, a} {}
+};
+
+template <class S2, class E>
+struct transition<state<S2>, event<E>> {
+  const state<S2> &s2;
+  event<E> e;
+};
+
+template <class E, class G>
+struct transition_eg<event<E>, G> {
+  template <class T>
+  auto operator/(const T &t) const noexcept {
+    return transition<event<E>, G, T>{e, g, t};
+  }
+  event<E> e;
+  G g;
+};
+
+template <class E, class A>
+struct transition_ea<event<E>, A> {
+  event<E> e;
+  A a;
+};
+
 template <class S1, class S2, class G, class A>
 struct transition<state<S1>, transition<state<S2>, G, A>> : transition<state<S1>, state<S2>, event<anonymous>, G, A> {
   transition(const state<S1> &s1, const transition<state<S2>, G, A> &t)
@@ -645,19 +663,6 @@ struct transition<state<S1>, transition<state<S2>, transition<event<E>, G, A>>>
   transition(const state<S1> &s1, const transition<state<S2>, transition<event<E>, G, A>> &t)
       : transition<state<S1>, state<S2>, event<E>, G, A>{t.g, t.a} {}
 };
-
-template <class TState>
-struct get_state {
-  using type = TState;
-};
-
-template <class TState, class T>
-struct get_state<aux::type<TState, T>> {
-  using type = TState;
-};
-
-template <class T>
-using get_state_t = typename get_state<T>::type;
 
 template <class S1, class S2, class E, class G, class A>
 struct transition<state<S1>, state<S2>, event<E>, G, A> {
@@ -778,6 +783,7 @@ struct transition_impl<> {
 
 template <class, class>
 struct state_mappings;
+
 template <class S, class... Ts>
 struct state_mappings<S, aux::type_list<Ts...>> {
   using element_type = state<S>;
@@ -786,6 +792,7 @@ struct state_mappings<S, aux::type_list<Ts...>> {
 
 template <class, class>
 struct event_mappings;
+
 template <class E, class... Ts>
 struct event_mappings<E, aux::inherit<Ts...>> {
   using element_type = event<E>;
@@ -794,8 +801,10 @@ struct event_mappings<E, aux::inherit<Ts...>> {
 
 template <class...>
 struct unique_mappings;
+
 template <class, class...>
 struct unique_mappings_impl;
+
 template <class... Ts>
 using unique_mappings_t = typename unique_mappings<Ts...>::type;
 
@@ -861,10 +870,13 @@ using mappings_t = typename mappings<typename T::underlying_type>::type;
 
 template <class>
 transition_impl<> get_mapping_impl(...);
+
 template <class T, class R>
 R get_mapping_impl(event_mappings<T, R> *);
+
 template <class T, class R>
 aux::apply_t<transition_impl, R> get_mapping_impl(state_mappings<T, R> *);
+
 template <class T, class U>
 using get_mapping_t = decltype(get_mapping_impl<T>((U *)0));
 
@@ -887,20 +899,14 @@ using get_events = aux::join_t<typename get_events_impl<typename Ts::src_state, 
 template <class... Ts>
 using get_states = aux::join_t<aux::type_list<typename Ts::src_state, typename Ts::dst_state>...>;
 
+template <class... Ts>
+using count_initial_states = aux::count<is_initial, typename Ts::initial_state...>;
+
 template <class>
 struct is_sm : aux::false_type {};
 
 template <class... Ts>
 struct is_sm<sm_impl<Ts...>> : aux::true_type {};
-
-template <class>
-struct is_initial : aux::false_type {};
-
-template <class TState>
-struct is_initial<aux::type<TState, initial_state>> : aux::true_type {};
-
-template <class... Ts>
-using count_initial_states = aux::count<is_initial, typename Ts::initial_state...>;
 
 template <class T, class... TDeps>
 class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps...>>> {
@@ -980,15 +986,15 @@ auto operator, (const T1 &t1, const T2 &t2) noexcept {
   return detail::seq_<T1, T2>(t1, t2);
 }
 
+template <class TEvent>
+detail::event<TEvent> event{};
+
 template <class T>
 using state = detail::state<T>;
 
 detail::initial_state initial;
 detail::terminate_state terminate;
 detail::process_event process_event;
-
-template <class TEvent>
-detail::event<TEvent> event{};
 
 template <class... Ts>
 auto make_transition_table(Ts... ts) noexcept {
@@ -1017,5 +1023,5 @@ struct dispatcher {
   template <class T>
   static void dispatch_event(const TEvent &, T &, const aux::type_list<> &) noexcept {}
 };
-}
+}  // v_1_0_0
 }  // msm
