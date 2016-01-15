@@ -879,7 +879,7 @@ template <class... Ts>
 using get_composite_states = aux::join_t<aux::conditional_t<is_sm<Ts>::value, aux::type_list<Ts>, aux::type_list<>>...>;
 
 template <class... Ts>
-using count_initial_states = aux::count<is_initial, typename Ts::src_state...>;
+using count_initial_states = aux::count<is_initial, Ts...>;
 
 template <class T, class... TDeps>
 class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps...>>> {
@@ -889,7 +889,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
   using composite_states_t = aux::apply_t<get_composite_states, states_t>;
   static constexpr auto regions =
-      aux::get_size<transitions_t>::value > 0 ? aux::apply_t<count_initial_states, transitions_t>::value : 1;
+      aux::get_size<transitions_t>::value > 0 ? aux::apply_t<count_initial_states, states_t>::value : 1;
 
   static_assert(regions > 0, "At least one initial state is required");
 
