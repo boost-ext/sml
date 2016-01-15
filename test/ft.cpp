@@ -55,7 +55,8 @@ test ctor = [] {
   };
 
   msm::sm<c> sm;
-  msm::sm<c> sm_v{static_cast<msm::sm<c> &&>(sm)};
+  msm::sm<c> sm_{static_cast<msm::sm<c> &&>(sm)};
+  (void)sm_;
 };
 
 test minimal = [] {
