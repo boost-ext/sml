@@ -8,6 +8,14 @@
 
 msm-lite: C++14 Meta State Machine Library
 ===============================================
+http://www.uml.org
+http://www.omg.org/spec/UML/2.5/ (14 - State machines)
+
+UML Short Guide
+http://www.boost.org/doc/libs/1\_60\_0/libs/msm/doc/HTML/ch02.html
+
+http://www.boost.org/doc/libs/1\_60\_0/libs/msm/doc/HTML/ch03s04.html
+http://theboostcpplibraries.com/boost.msm
 
 **Benchmarks**
 
