@@ -12,6 +12,8 @@
 struct e1 {};
 struct e2 {};
 struct e3 {};
+struct {
+} terminate;
 
 auto guard = [] {
   std::cout << "guard" << std::endl;
@@ -23,7 +25,10 @@ auto action = [] { std::cout << "action" << std::endl; };
 struct hello_world {
   auto configure() const noexcept {
     using namespace msm;
-    state idle, s1, s2, s3;
+    state<class idle> idle;
+    state<class s1> s1;
+    state<class s2> s2;
+    state<class s3> s3;
 
     // clang-format off
     return make_transition_table(
@@ -40,5 +45,5 @@ int main() {
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
-  assert(sm.is(msm::terminate));
+  assert(sm.is(terminate));
 }

@@ -22,13 +22,6 @@ auto s4 = msm::state<class s4>{};
 auto s5 = msm::state<class s5>{};
 auto end = msm::state<class end>{};
 
-template <class SM, class... TStates>
-void expect_states(const SM &sm, const TStates &... states) noexcept {
-  auto r = 0;
-  int _[]{0, (expect_state(sm, states, r++), 0)...};
-  (void)_;
-}
-
 template <class SM, class TState>
 void expect_state(const SM &sm, const TState &, int r = 0) noexcept {
   auto result = false;
@@ -39,6 +32,13 @@ void expect_state(const SM &sm, const TState &, int r = 0) noexcept {
     }
   });
   expect(result);
+}
+
+template <class SM, class... TStates>
+void expect_states(const SM &sm, const TStates &... states) noexcept {
+  auto r = 0;
+  int _[]{0, (expect_state(sm, states, r++), 0)...};
+  (void)_;
 }
 
 test empty = [] {
@@ -266,6 +266,7 @@ test flags = [] {
       return make_transition_table(
           idle(initial) == s1 + event<e1>
         , s1 == s2(flag{}) + event<e2>
+        , s2(flag{}) == s3 + event<e3>
       );
       // clang-format on
     }
@@ -282,6 +283,8 @@ test flags = [] {
   expect_states(sm, s2(flag{}));
   expect(!sm.is(msm::initial));
   expect(sm.is(flag{}));
+  expect(sm.process_event(e3{}));
+  expect_states(sm, s3);
 };
 
 test transitions = [] {

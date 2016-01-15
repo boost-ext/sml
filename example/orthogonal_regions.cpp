@@ -12,11 +12,18 @@ struct e1 {};
 struct e2 {};
 struct e3 {};
 struct e4 {};
+struct {
+} terminate;
 
 struct orthogonal_regions {
   auto configure() const noexcept {
     using namespace msm;
-    state idle, idle2, s1, s2, s3, s4;
+    state<class idle> idle;
+    state<class idle2> idle2;
+    state<class s1> s1;
+    state<class s2> s2;
+    state<class s3> s3;
+    state<class s4> s4;
 
     // clang-format off
     return make_transition_table(
@@ -32,11 +39,13 @@ struct orthogonal_regions {
 
 int main() {
   msm::sm<orthogonal_regions> sm;
-  assert(sm.is(msm::initial, true, true));
+  assert(sm.is(msm::initial));
   sm.process_event(e1{});
   sm.process_event(e2{});
-  assert(sm.is(msm::terminate, true, false));
+  assert(sm.is(terminate));
+  assert(sm.is(msm::initial));
   sm.process_event(e3{});
   sm.process_event(e4{});
-  assert(sm.is(msm::terminate, true, true));
+  assert(sm.is(terminate));
+  assert(!sm.is(msm::initial));
 }

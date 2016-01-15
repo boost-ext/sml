@@ -5,6 +5,9 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#if 1
+int main() {}
+#else
 #include "msm/msm.hpp"
 #include <iostream>
 #include <cassert>
@@ -14,11 +17,15 @@ struct e2 {};
 struct e3 {};
 struct e4 {};
 struct e5 {};
+struct {
+} terminate;
 
 struct sub {
   auto configure() const noexcept {
     using namespace msm;
-    state idle, s1, s2;
+    state<class idle> idle;
+    state<class s1> s1;
+    state<class s2> s2;
 
     // clang-format off
       return make_transition_table(
@@ -32,7 +39,9 @@ struct sub {
 struct composite {
   auto configure() const noexcept {
     using namespace msm;
-    state idle, s1, s2;
+    state<class idle> idle;
+    state<class s1> s1;
+    state<class s2> s2;
 
     // clang-format off
       return make_transition_table(
@@ -57,5 +66,6 @@ int main() {
   sm.process_event(e3{});  // in sub sm
   sm.process_event(e4{});  // finish sub sm
   sm.process_event(e5{});  // exit sub sm
-  assert(sm.is(msm::terminate));
+  assert(sm.is(terminate));
 }
+#endif

@@ -11,6 +11,8 @@
 struct e1 {};
 struct e2 {};
 struct e3 {};
+struct {
+} terminate;
 
 struct events {
   auto configure() const noexcept {
@@ -31,5 +33,5 @@ int main() {
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
-  assert(sm.is(msm::terminate));
+  assert(sm.is(terminate));
 }

@@ -12,11 +12,15 @@
 struct e1 {};
 struct e2 {};
 struct e3 {};
+struct {
+} terminate;
 
 struct transitions {
   auto configure() const noexcept {
     using namespace msm;
-    state idle, s1, s2;
+    state<class idle> idle;
+    state<class s1> s1;
+    state<class s2> s2;
 
     // clang-format off
     return make_transition_table(
@@ -30,10 +34,8 @@ struct transitions {
 
 int main() {
   msm::sm<transitions> sm;
-  assert(sm.is(msm::initial));
-  sm.start();
   assert(!sm.is(msm::initial));
   sm.process_event(e1{});
   sm.process_event(e2{});
-  assert(sm.is(msm::terminate));
+  assert(sm.is(terminate));
 }
