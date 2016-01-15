@@ -908,13 +908,6 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
   sm_impl(const sm_impl &) = delete;
   sm_impl(sm_impl &&) = default;
 
-  void start() noexcept { /*restore current states*/
-    process_event(anonymous{});
-  }
-  void stop() noexcept { /*backup current states*/
-    current_state_ = {};
-  }
-
   template <class TEvent>
   bool process_event(const TEvent &event) noexcept {
     return process_event_impl<get_mapping_t<TEvent, mappings_t>>(event, states_t{},
@@ -942,7 +935,10 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
                              is_initial<typename decltype(aux::get<Ns - 1>(transitions_))::src_state>::value ? i++,
              aux::get_id<states_ids_t, 0, typename decltype(aux::get<Ns - 1>(transitions_))::src_state>() : 0, 0)...};
     (void)_;
+    process_event(anonymous{});
   }
+
+  void initialize(const aux::index_sequence<> &) noexcept {}
 
   template <class TMappings, class TEvent, class... TStates>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &,

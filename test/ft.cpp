@@ -133,8 +133,6 @@ test anonymous_transition = [] {
 
   c c_;
   msm::sm<c> sm{c_};
-  expect_states(sm, idle(msm::initial));
-  sm.start();
   expect_states(sm, s1);
   expect(c_.a_called);
 };
