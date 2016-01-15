@@ -299,7 +299,6 @@ struct process_event {
 };
 
 struct initial_state {};
-struct terminate_state {};
 
 template <class TState>
 struct state {
@@ -1053,7 +1052,6 @@ auto operator""_s() {
 #endif
 
 detail::initial_state initial;
-detail::terminate_state terminate;
 detail::process_event process_event;
 
 template <class... Ts>
