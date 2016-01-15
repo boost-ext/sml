@@ -43,13 +43,19 @@ void expect_states(const SM &sm, const TStates &... states) noexcept {
 
 test empty = [] {
   struct c {
-    auto configure() noexcept {
-      using namespace msm;
-      return make_transition_table();
-    }
+    auto configure() noexcept { return msm::make_transition_table(); }
   };
 
   msm::sm<c> sm;
+};
+
+test ctor = [] {
+  struct c {
+    auto configure() noexcept { return msm::make_transition_table(); }
+  };
+
+  msm::sm<c> sm;
+  msm::sm<c> sm_v{static_cast<msm::sm<c> &&>(sm)};
 };
 
 test minimal = [] {
@@ -99,7 +105,7 @@ test internal_transition = [] {
 
       // clang-format off
       return make_transition_table(
-        idle(initial) == s1 + event<e1>
+          idle(initial) == s1 + event<e1>
         , s1 + event<e2> / [] {}
         , s1 == s2 + event<e3>
       );
@@ -257,36 +263,6 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
   expect_states(sm, s1);
 };
 
-test flags = [] {
-  struct flag {};
-  struct c {
-    auto configure() noexcept {
-      using namespace msm;
-      // clang-format off
-      return make_transition_table(
-          idle(initial) == s1 + event<e1>
-        , s1 == s2(flag{}) + event<e2>
-        , s2(flag{}) == s3 + event<e3>
-      );
-      // clang-format on
-    }
-  };
-
-  c c_;
-  msm::sm<c> sm{c_};
-  expect(sm.is(msm::initial));
-  expect(!sm.is(flag{}));
-  expect_states(sm, idle(msm::initial));
-  expect(sm.process_event(e1{}));
-  expect_states(sm, s1);
-  expect(sm.process_event(e2{}));
-  expect_states(sm, s2(flag{}));
-  expect(!sm.is(msm::initial));
-  expect(sm.is(flag{}));
-  expect(sm.process_event(e3{}));
-  expect_states(sm, s3);
-};
-
 test transitions = [] {
   struct c {
     auto configure() noexcept {
@@ -296,7 +272,7 @@ test transitions = [] {
 
       // clang-format off
       return make_transition_table(
-        idle(initial) == s1 + event<e1>
+          idle(initial) == s1 + event<e1>
         , s1 == s2 + event<e2>
         , s2 == s3 + event<e3> [no]
         , s2 == s4 + event<e3> [yes]
@@ -322,7 +298,7 @@ test no_transitions = [] {
 
       // clang-format off
       return make_transition_table(
-        idle(initial) == s1 + event<e1>
+          idle(initial) == s1 + event<e1>
         , s1 == s2 + event<e2> [no]
         , s1 == s2 + event<e2> [yes]
       );
@@ -373,7 +349,7 @@ test transition_overload = [] {
 
       // clang-format off
       return make_transition_table(
-        idle(initial) == s1 + event<e1>
+          idle(initial) == s1 + event<e1>
         , s1 == s2 + event<int>
         , s1 == s3 + event<float>
       );
@@ -393,6 +369,33 @@ test transition_overload = [] {
     expect(sm.process_event(e1{}));
     expect(sm.process_event(42.f));
     expect_states(sm, s3);
+  }
+};
+
+test initial_transition_overload = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1>
+        , idle(initial) == s2 + event<e2>
+      );
+      // clang-format on
+    }
+  };
+
+  {
+    msm::sm<c> sm;
+    expect(sm.process_event(e1{}));
+    expect_states(sm, s1);
+  }
+
+  {
+    msm::sm<c> sm;
+    expect(sm.process_event(e2{}));
+    expect_states(sm, s2);
   }
 };
 
@@ -461,6 +464,36 @@ test transition_types = [] {
   c c_;
   float f = 12.0;
   msm::sm<c> sm{c_, f, 42, 87.0, 0.0};
+};
+
+test flags = [] {
+  struct flag {};
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1>
+        , s1 == s2(flag{}) + event<e2>
+        , s2(flag{}) == s3 + event<e3>
+      );
+      // clang-format on
+    }
+  };
+
+  c c_;
+  msm::sm<c> sm{c_};
+  expect(sm.is(msm::initial));
+  expect(!sm.is(flag{}));
+  expect_states(sm, idle(msm::initial));
+  expect(sm.process_event(e1{}));
+  expect_states(sm, s1);
+  expect(sm.process_event(e2{}));
+  expect_states(sm, s2(flag{}));
+  expect(!sm.is(msm::initial));
+  expect(sm.is(flag{}));
+  expect(sm.process_event(e3{}));
+  expect_states(sm, s3);
 };
 
 test orthogonal_regions = [] {
@@ -566,8 +599,4 @@ test composite = [] {
   /*expect_states(sm, s2);*/
 };
 
-// test ctor
 // test dispatcher = [] {};
-// test terminate = [] {};
-// test operators = [] {};
-// test initial_transitions = [] {};
