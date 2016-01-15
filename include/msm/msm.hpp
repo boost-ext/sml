@@ -301,27 +301,30 @@ struct process_event {
 struct initial_state {};
 
 template <class TState>
-struct state {
+struct state_impl {
   template <class T>
   auto operator==(const T &t) const noexcept {
-    return transition<state, T>{*this, t};
+    return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
 
   template <class T>
   auto operator+(const T &t) const noexcept {
-    return transition<state, T>{*this, t};
+    return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
 
   template <class T>
   auto operator[](const T &t) const noexcept {
-    return transition_sg<state, T>{*this, t};
+    return transition_sg<TState, T>{static_cast<const TState &>(*this), t};
   }
 
   template <class T>
   auto operator/(const T &t) const noexcept {
-    return transition_sa<state, T>{*this, t};
+    return transition_sa<TState, T>{static_cast<const TState &>(*this), t};
   }
+};
 
+template <class TState>
+struct state : state_impl<state<TState>> {
   template <class T>
   auto operator()(const T &) const noexcept {
     return state<TState(T)>{};
@@ -329,27 +332,7 @@ struct state {
 };
 
 template <class TState, class TBase>
-struct state<TState(TBase)> : TBase {
-  template <class T>
-  auto operator==(const T &t) const noexcept {
-    return transition<state, T>{*this, t};
-  }
-
-  template <class T>
-  auto operator+(const T &t) const noexcept {
-    return transition<state, T>{*this, t};
-  }
-
-  template <class T>
-  auto operator[](const T &t) const noexcept {
-    return transition_sg<state, T>{*this, t};
-  }
-
-  template <class T>
-  auto operator/(const T &t) const noexcept {
-    return transition_sa<state, T>{*this, t};
-  }
-};
+struct state<TState(TBase)> : state_impl<state<TState(TBase)>>, TBase {};
 
 template <class TState>
 using is_initial = aux::is_base_of<initial_state, TState>;
