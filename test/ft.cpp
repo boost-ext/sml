@@ -43,7 +43,7 @@ void expect_state(const SM &sm, const TState &, int r = 0) noexcept {
 
 test empty = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
       return make_transition_table();
     }
@@ -54,7 +54,7 @@ test empty = [] {
 
 test minimal = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
       return make_transition_table(idle(initial) + event<e1> / [] {});
     }
@@ -68,7 +68,7 @@ test minimal = [] {
 
 test minimal_with_dependency = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
       return make_transition_table(idle(initial) + event<e1> / [](int i) { expect(42 == i); });
     }
@@ -83,7 +83,7 @@ test minimal_with_dependency = [] {
 test transition = [] {
   using namespace msm;
   struct c {
-    auto configure() const noexcept { return make_transition_table(idle(initial) == s1 + event<e1>); }
+    auto configure() noexcept { return make_transition_table(idle(initial) == s1 + event<e1>); }
   };
 
   msm::sm<c> sm;
@@ -94,7 +94,7 @@ test transition = [] {
 
 test internal_transition = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
 
       // clang-format off
@@ -120,7 +120,7 @@ test internal_transition = [] {
 
 test anonymous_transition = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
       // clang-format off
       return make_transition_table(
@@ -128,7 +128,7 @@ test anonymous_transition = [] {
       );
       // clang-format on
     }
-    mutable bool a_called = false;
+    bool a_called = false;
   };
 
   c c_;
@@ -141,7 +141,7 @@ test anonymous_transition = [] {
 
 test no_transition = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
       return make_transition_table(idle(initial) == s1 + event<e1>);
     }
@@ -155,13 +155,13 @@ test no_transition = [] {
 
 test transition_with_action_with_event = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
       auto action = [this](const e1 &) { called = true; };
       return make_transition_table(idle(initial) == s1 + event<e1> / action);
     }
 
-    mutable bool called = false;
+    bool called = false;
   };
 
   c c_;
@@ -174,7 +174,7 @@ test transition_with_action_with_event = [] {
 
 test transition_with_action_with_parameter = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
       auto action = [this](int i) {
         called = true;
@@ -183,7 +183,7 @@ test transition_with_action_with_parameter = [] {
       return make_transition_table(idle(initial) == s1 + event<e1> / action);
     }
 
-    mutable bool called = false;
+    bool called = false;
   };
 
   c c_;
@@ -195,7 +195,7 @@ test transition_with_action_with_parameter = [] {
 
 test transition_with_action_and_guad_with_parameter = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
 
       auto guard = [this](double d) {
@@ -212,8 +212,8 @@ test transition_with_action_and_guad_with_parameter = [] {
       return make_transition_table(idle(initial) == s1 + event<e1>[guard] / action);
     }
 
-    mutable bool a_called = false;
-    mutable bool g_called = false;
+    bool a_called = false;
+    bool g_called = false;
   };
 
   c c_;
@@ -226,7 +226,7 @@ test transition_with_action_and_guad_with_parameter = [] {
 
 test transition_with_action_and_guad_with_parameters_and_event = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
 
       auto guard = [this](int i, auto e, double d) {
@@ -246,8 +246,8 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
       return make_transition_table(idle(initial) == s1 + event<e1>[guard] / action);
     }
 
-    mutable bool a_called = false;
-    mutable bool g_called = false;
+    bool a_called = false;
+    bool g_called = false;
   };
 
   c c_;
@@ -262,7 +262,7 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
 test flags = [] {
   struct flag {};
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
       // clang-format off
       return make_transition_table(
@@ -288,7 +288,7 @@ test flags = [] {
 
 test transitions = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
       auto yes = [] { return true; };
       auto no = [] { return false; };
@@ -314,7 +314,7 @@ test transitions = [] {
 
 test no_transitions = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
       auto yes = [] { return true; };
       auto no = [] { return false; };
@@ -340,7 +340,7 @@ test no_transitions = [] {
 
 test transitions_states = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
       auto yes = [] { return true; };
       auto no = [] { return false; };
@@ -367,7 +367,7 @@ test transitions_states = [] {
 
 test transition_overload = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
 
       // clang-format off
@@ -412,7 +412,7 @@ struct c_action {
 
 test transition_types = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
       struct {
       } flag;
@@ -464,7 +464,7 @@ test transition_types = [] {
 
 test orthogonal_regions = [] {
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
 
       // clang-format off
@@ -506,7 +506,7 @@ test composite = [] {
   };
 
   struct sub {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
 
       // clang-format off
@@ -517,11 +517,11 @@ test composite = [] {
       // clang-format on
     }
 
-    mutable int a_in_sub = 0;
+    int a_in_sub = 0;
   };
 
   struct c {
-    auto configure() const noexcept {
+    auto configure() noexcept {
       using namespace msm;
 
       // clang-format off
@@ -535,9 +535,9 @@ test composite = [] {
 
     const msm::sm<sub> &sub_;
 
-    mutable bool a_initial = false;
-    mutable bool a_enter_sub_sm = false;
-    mutable bool a_exit_sub_sm = false;
+    bool a_initial = false;
+    bool a_enter_sub_sm = false;
+    bool a_exit_sub_sm = false;
   };
 
   sub sub_;

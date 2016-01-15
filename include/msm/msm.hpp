@@ -899,8 +899,10 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
  public:
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
 
-  explicit sm_impl(TDeps... deps) noexcept : sm_impl(T{}, deps...) {}
-  explicit sm_impl(const T &sm, TDeps... deps) noexcept : deps_{deps...}, transitions_(sm.configure()) {
+  explicit sm_impl(TDeps... deps) noexcept : deps_{deps...}, transitions_(T{}.configure()) {
+    initialize(aux::make_index_sequence<aux::get_size<transitions_t>::value>{});
+  }
+  explicit sm_impl(T &sm, TDeps... deps) noexcept : deps_{deps...}, transitions_(sm.configure()) {
     initialize(aux::make_index_sequence<aux::get_size<transitions_t>::value>{});
   }
   sm_impl(const sm_impl &) = delete;
