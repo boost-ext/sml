@@ -55,7 +55,7 @@ Yours scalable C++14 one header(1k lines) eUML-like meta state machine library w
     * No dependencies / one header
     * Functional programming support using lamda expressions
 
-* Add new functionality
+* Add a new functionality
  
    * Dependency injection support for guards/actions (see DI)
    * Logging support (TBD)
