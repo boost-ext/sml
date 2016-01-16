@@ -279,8 +279,27 @@ struct process_event {
 
 struct initial_state {};
 
+template <class>
+struct state;
+
+template <class>
+struct state_str {
+  auto c_str() const noexcept { return __PRETTY_FUNCTION__; }
+};
+
+template <char... Chrs>
+struct state_str<state<aux::string<Chrs...>>> {
+  auto c_str() const noexcept {
+    static char str[] = {Chrs..., 0};
+    return str;
+  }
+};
+
+template <char... Chrs, class T>
+struct state_str<state<aux::string<Chrs...>(T)>> : state_str<state<aux::string<Chrs...>>> {};
+
 template <class TState>
-struct state_impl {
+struct state_impl : state_str<TState> {
   template <class T>
   auto operator==(const T &t) const noexcept {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
@@ -835,9 +854,6 @@ aux::apply_t<transition_impl, R> get_mapping_impl(state_mappings<T, R> *);
 template <class T, class U>
 using get_mapping_t = decltype(get_mapping_impl<T>((U *)0));
 
-template <class... Ts>
-using merge_deps = aux::apply_t<aux::pool, aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>>;
-
 template <class, class TEvent>
 struct get_events_impl {
   using type = aux::type_list<TEvent>;
@@ -859,6 +875,9 @@ using get_sub_states = aux::join_t<aux::conditional_t<is_sm<Ts>::value, aux::typ
 
 template <class... Ts>
 using count_initial_states = aux::count<is_initial, Ts...>;
+
+template <class... Ts>
+using merge_deps = aux::apply_t<aux::pool, aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>>;
 
 template <class T>
 class sm : public state<sm<T>> {
@@ -882,8 +901,9 @@ class sm : public state<sm<T>> {
  public:
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
 
-  sm(const sm &) = delete;
   sm(sm &&) = default;
+  sm(const sm &) = delete;
+  sm &operator=(const sm &) = delete;
 
   template <class... TDeps>
   explicit sm(TDeps &&... deps) noexcept : deps_{deps...}, transitions_(T{}.configure()) {
@@ -901,7 +921,7 @@ class sm : public state<sm<T>> {
   }
 
   template <class TVisitor>
-  void visit_current_states(const TVisitor &visitor) const noexcept {
+  void visit_current_states(const TVisitor &visitor) const noexcept(noexcept(visitor(state<initial_state>{}))) {
     visit_current_states_impl(visitor, states_t{}, aux::make_index_sequence<regions>{});
   }
 
@@ -1024,9 +1044,9 @@ using state = detail::state<T>;
 #endif
 
 #if !defined(_MSC_VER)
-template <class T, T... Chars>
+template <class T, T... Chrs>
 auto operator""_s() {
-  return state<aux::string<Chars...>>{};
+  return state<aux::string<Chrs...>>{};
 }
 #endif
 

@@ -6,6 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "msm/msm.hpp"
+#include <string>
 
 struct e1 {};
 struct e2 {};
@@ -482,8 +483,7 @@ test flags = [] {
     }
   };
 
-  c c_;
-  msm::sm<c> sm{c_};
+  msm::sm<c> sm;
   expect(sm.is(msm::initial));
   expect(!sm.is(flag{}));
   expect_states(sm, idle(msm::initial));
@@ -514,8 +514,7 @@ test orthogonal_regions = [] {
     }
   };
 
-  c c_;
-  msm::sm<c> sm{c_};
+  msm::sm<c> sm;
   expect_states(sm, idle(msm::initial), idle2(msm::initial));
   expect(sm.process_event(e1{}));
   expect_states(sm, s1, idle2(msm::initial));
@@ -525,6 +524,52 @@ test orthogonal_regions = [] {
   expect_states(sm, s2, s3);
   expect(sm.process_event(e4{}));
   expect_states(sm, s2, s4);
+};
+
+test orthogonal_regions_event_consumed_by_all_regions = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1>
+        , s1 == s2 + event<e2>
+
+        , idle2(initial) == s3 + event<e3>
+        , s3 == s4 + event<e2>
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  expect_states(sm, idle(msm::initial), idle2(msm::initial));
+  expect(sm.process_event(e1{}));
+  expect_states(sm, s1, idle2(msm::initial));
+  expect(sm.process_event(e3{}));
+  expect_states(sm, s1, s3);
+  expect(sm.process_event(e2{}));  // consume by both regions
+  expect_states(sm, s2, s4);
+};
+
+test state_names = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+          "idle"_s(initial) == "s1"_s + event<e1>
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  sm.visit_current_states([](auto state) { expect(std::string{"idle"} == std::string{state.c_str()}); });
+  sm.process_event(e1{});
+  sm.visit_current_states([](auto state) { expect(std::string{"s1"} == std::string{state.c_str()}); });
 };
 
 test composite = [] {
