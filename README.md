@@ -276,13 +276,13 @@ namespace msm {
       sm_impl(const sm &) = delete;
       sm_impl(sm &&) = default;
 
-      template <class TEvent> // none requirements
+      template <class TEvent> // none requirements, returns whether event was handled or not
       bool process_event(const TEvent &) noexcept;
 
       template <class TVisitor> // requires TVisitor to be callable with auto
-      void visit_current_states(const TVisitor &);
+      void visit_current_states(const TVisitor &) noexcept;
 
-      template <class TFlag> // none requirements
+      template <class TFlag> // none requirements, returns whether active state has TFlag or not
       bool is(const TFlag &) const noexcept;
     };
 
@@ -298,7 +298,7 @@ namespace msm {
     using state;
 
     template <class T, T...>
-    state<T...> operator""_s();
+    state<T...> operator""_s(); // create a state, ex. "idle"_s
 
     state initial;
 
