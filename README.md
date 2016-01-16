@@ -314,6 +314,7 @@ namespace msm {
     template <class T1, class T2> // requires T1, T2 to be callable
     auto operator, (const T1 &t1, const T2 &t2) noexcept;
 }
+```
 
 <a id="configuration"></a>
 * Configuration
