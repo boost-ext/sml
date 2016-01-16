@@ -103,6 +103,7 @@ Yours scalable C++14 one header(1k lines) eUML-like meta state machine library w
 * GCC-5.2+
 
 > **Hello world example**
+
 ```cpp
 #include "msm.hpp"
 
@@ -157,6 +158,7 @@ int main() {
 | state + event<e> [ guard ] | internal transition on event e when guard |
 
 > **Data dependencies introduction**
+
 ```cpp
                              /---- event 
                             |
@@ -173,10 +175,12 @@ sm<...> s{42, 87.0};
 ```
 
 > **Error messages**
+
 ```cpp
 ```
 
 > **Boost.MSM - eUML emulation**
+
 ```cpp
 ```
 
