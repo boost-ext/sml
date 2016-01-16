@@ -9,16 +9,16 @@
 msm-lite: C++14 Meta State Machine Library
 ===============================================
 
-> Yours scalable C++14 one header(1k lines) eUML-like meta state machine library with no dependencies
+Yours scalable C++14 one header(1k lines) eUML-like meta state machine library with no dependencies
 
-**Introduction**
+> **Introduction**
 
 * [UML](http://www.uml.org)
 * [UML2 Specification - State Machines](http://www.omg.org/spec/UML/2.5)
 * [Boost.MSM - UML Short Guide](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch02.html)
 * [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)
 
-**Why msm-lite?**
+> **Why msm-lite?**
 
 * Boost.MSM - eUML is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
   msm-lite, therefore, is trying to address those issues.
@@ -36,7 +36,7 @@ msm-lite: C++14 Meta State Machine Library
 * Huge complexity may overwhelm in the beginning
 * A lot of Boost dependencies
 
-**msm-lite design goals**
+> **msm-lite design goals**
 
 * Keep the Boost.MSM - eUML goodies
 
@@ -244,7 +244,7 @@ sm<...> s{42, 87.0};
 
 Macro                                   | Description
 ----------------------------------------|-----------------------------------------
-MSM\_POLICY\_STATES_\DST\_SRC           | dst\_state == src\_state (same as in eUML)
+MSM\_POLICY\_STATES\_DST\_SRC           | dst\_state == src\_state (same as in eUML)
 
 **TODO**
 
