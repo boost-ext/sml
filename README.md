@@ -158,37 +158,44 @@ int main() {
         |------------------|----------|
         | BOOST_MSM_EUML_EVENT(play) | struct play {}; |
 
+    * Events
+
+        | Boost.MSM - eUML | msm-lite |
+        |------------------|----------|
+        | BOOST_MSM_EUML_ACTION(action){ template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &, TargetState &){}}; | auto action = []{} | 
+
+
 * DSL introduction
 
-| Expression | Description |
-|------------|-------------|
-| src\_state == dst\_state + event<e> [ guard && (![]{return true;} && guard2) ] / (action, action2, []{}) | transition from src\_state to dst\_state on event e with guard and action |
-| src\_state == dst\_state + event<e> [ guard ] / action | transition from src\_state to dst\_state on event e with guard and action |
-| src\_state == dst\_state / [] {} | anonymous transition with action |
-| src\_state == dst\_state + event<e> | transition on event e without guard or action |
-| state + event<e> [ guard ] | internal transition on event e when guard |
+    | Expression | Description |
+    |------------|-------------|
+    | src\_state == dst\_state + event<e> [ guard && (![]{return true;} && guard2) ] / (action, action2, []{}) | transition from src\_state to dst\_state on event e with guard and action |
+    | src\_state == dst\_state + event<e> [ guard ] / action | transition from src\_state to dst\_state on event e with guard and action |
+    | src\_state == dst\_state / [] {} | anonymous transition with action |
+    | src\_state == dst\_state + event<e> | transition on event e without guard or action |
+    | state + event<e> [ guard ] | internal transition on event e when guard |
 
 * Data dependencies introduction
 
-```cpp
-                             /---- event 
-                            |
-auto guard = [](double d, auto event) { return true; }
-                   |
-                   \-------\
-                           |
-auto action = [](int i){}  |
-                 |         |
-                 |         |
-            /---/  /------/
-           |      /
-sm<...> s{42, 87.0};
-```
+    ```cpp
+                                 /---- event 
+                                |
+    auto guard = [](double d, auto event) { return true; }
+                       |
+                       \-------\
+                               |
+    auto action = [](int i){}  |
+                     |         |
+                     |         |
+                /---/  /------/
+               |      /
+    sm<...> s{42, 87.0};
+    ```
 
 * Error messages
 
-```cpp
-```
+    ```cpp
+    ```
 
 * API reference
 
@@ -196,14 +203,9 @@ sm<...> s{42, 87.0};
 <a id="configuration"></a>
 * Configuration
 
-Macro                                   | Description
-----------------------------------------|-----------------------------------------
-MSM\_POLICY\_STATES\_DST\_SRC           | dst\_state == src\_state (same as in eUML)
-
-> **Boost.MSM - eUML emulation**
-
-```cpp
-```
+    Macro                                   | Description
+    ----------------------------------------|-----------------------------------------
+    MSM\_POLICY\_STATES\_DST\_SRC           | dst\_state == src\_state (same as in eUML)
 
 > **Benchmarks**
 
