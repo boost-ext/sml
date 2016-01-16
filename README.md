@@ -100,7 +100,7 @@ Yours scalable C++14 one header(1k lines) eUML-like meta state machine library w
 > **Supported/tested compilers**
 
 * Clang-3.4+
-* GCC-5.2+
+* g++-5.2+
 
 > **Hello world example**
 
@@ -329,8 +329,6 @@ namespace msm {
 
 > **Benchmarks**
 
-* Header
-
 * Simple / 1'000'000 / clang++3.7 -O2 -s
 
 |                  | msm-lite |  boost.msm-eUML | boost.statechart |
@@ -340,7 +338,7 @@ namespace msm {
 | Memory usage     | 14b      | 32b             | 200b             |
 | Executable size  | 11K      | 91K             | 59K              |
 
-* Simple / 1'000'000 / gcc-6.0 -O2 -s
+* Simple / 1'000'000 / g++-6.0 -O2 -s
 
 |                  | msm-lite |  boost.msm-eUML | boost.statechart |
 |------------------|----------|-----------------|------------------|
@@ -358,7 +356,7 @@ namespace msm {
 | Memory usage     | 14b      | 32b             | 200b             |
 | Executable size  | 11K      | 91K             | 59K              |
 
-* Composite / 1'000'000 / gcc-6.0 -O2 -s
+* Composite / 1'000'000 / g++-6.0 -O2 -s
 
 |                  | msm-lite |  boost.msm-eUML | boost.statechart |
 |------------------|----------|-----------------|------------------|
@@ -376,7 +374,7 @@ namespace msm {
 | Memory usage     | 202b     |                 |                  |
 | Executable size  | 103K     |                 |                  |
 
-* Complex / 1'000'000 / gcc-6.0 -O2 -s
+* Complex / 1'000'000 / g++-6.0 -O2 -s
 
 |                  | msm-lite |  boost.msm-eUML | boost.statechart |
 |------------------|----------|-----------------|------------------|
@@ -384,6 +382,18 @@ namespace msm {
 | Execution time   | 159ms    |                 |                  |
 | Memory usage     | 202b     |                 |                  |
 | Executable size  | 99K      |                 |                  |
+
+* Include / clang++3.7
+
+|                  | msm-lite |  boost.msm-eUML | boost.statechart |
+|------------------|----------|-----------------|------------------|
+| Compilation time | 0.067s   | 3.072s          | 0.847s           |
+
+* Include / g++-6.0
+
+|                  | msm-lite |  boost.msm-eUML | boost.statechart |
+|------------------|----------|-----------------|------------------|
+| Compilation time | 0.080s   | 4.817s          | 1.362s           |
 
 > **TODO**
 
