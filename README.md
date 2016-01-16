@@ -20,8 +20,8 @@ msm-lite: C++14 Meta State Machine Library
 
 **Why msm-lite?**
 
-* Boost.MSM - eUML is awesome, however it has a few huge limitations which stop it from using it in a larger scale;
-  msm-lite is trying to address those issues.
+* Boost.MSM - eUML is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
+  msm-lite, therefore, is trying to address those issues.
 
 **Problems with Boost.MSM - eUML**
     
@@ -103,7 +103,7 @@ msm-lite: C++14 Meta State Machine Library
 * Clang-3.4+
 * GCC-5.2+
 
-**Hello world**
+**Hello world example**
 ```cpp
 #include "msm.hpp"
 
@@ -151,7 +151,7 @@ int main() {
 
 | Expression | Description |
 |------------|-------------|
-| src\_state == dst\_state + event<e> [ guard && (![]{return true;} || guard2) ] / (action, action2, []{}) | transition from src\_state to dst\_state on event e with guard and action |
+| src\_state == dst\_state + event<e> [ guard && (![]{return true;} && guard2) ] / (action, action2, []{}) | transition from src\_state to dst\_state on event e with guard and action |
 | src\_state == dst\_state + event<e> [ guard ] / action | transition from src\_state to dst\_state on event e with guard and action |
 | src\_state == dst\_state / [] {} | anonymous transition with action |
 | src\_state == dst\_state + event<e> | transition on event e without guard or action |
