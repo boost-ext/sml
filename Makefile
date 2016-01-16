@@ -6,6 +6,7 @@
 #
 .PHONY: all clean test example benchmarks
 CXX?=clang++
+CXXFLAGS:=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -fno-exceptions
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
 
 all: test example benchmarks
@@ -20,12 +21,12 @@ benchmarks_%:
 test: test_ut test_ft
 
 test_%:
-	$(CXX) test/$*.cpp -I include -I. -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors -include test/test.hpp -o $*.out && $($(MEMCHECK)) ./$*.out
+	$(CXX) test/$*.cpp $(CXXFLAGS) -I include -I. -include test/test.hpp -o $*.out && $($(MEMCHECK)) ./$*.out
 
 example: $(patsubst %.cpp, example_%.cpp, $(shell find example -iname *.cpp -exec basename {} \;))
 
 example_%:
-	$(CXX) example/$* -I include -std=c++1y -Wall -Wextra -pedantic -fno-exceptions -Werror -pedantic-errors -o $*.out && $($(MEMCHECK)) ./$*.out
+	$(CXX) example/$* $(CXXFLAGS) -I include -o $*.out && $($(MEMCHECK)) ./$*.out
 
 clean:
 	@rm -f *.out

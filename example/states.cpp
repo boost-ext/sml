@@ -14,10 +14,9 @@ struct e3 {};
 struct {
 } terminate;
 
-struct events {
+struct states {
   auto configure() const noexcept {
     using namespace msm;
-
     // clang-format off
     return make_transition_table(
         "idle"_s(initial) == "s1"_s + event<e1>
@@ -29,7 +28,7 @@ struct events {
 };
 
 int main() {
-  msm::sm<events> sm;
+  msm::sm<states> sm;
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});

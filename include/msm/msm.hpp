@@ -5,6 +5,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 #pragma once
+#define MSM_VERSION 1'0'0
 namespace msm {
 inline namespace v_1_0_0 {
 namespace aux {
@@ -253,6 +254,10 @@ template <template <class...> class T, class... Ts>
 struct get_size<T<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
+template <class>
+struct is_empty : true_type {};
+template <template <class...> class T, class... Ts>
+struct is_empty<T<Ts...>> : false_type {};
 }  // aux
 
 namespace detail {
@@ -876,7 +881,7 @@ template <class... Ts>
 using get_states = aux::join_t<aux::type_list<typename Ts::src_state, typename Ts::dst_state>...>;
 
 template <class... Ts>
-using get_composite_states = aux::join_t<aux::conditional_t<is_sm<Ts>::value, aux::type_list<Ts>, aux::type_list<>>...>;
+using get_sub_states = aux::join_t<aux::conditional_t<is_sm<Ts>::value, aux::type_list<Ts>, aux::type_list<>>...>;
 
 template <class... Ts>
 using count_initial_states = aux::count<is_initial, Ts...>;
@@ -887,7 +892,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
   using mappings_t = detail::mappings_t<transitions_t>;
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
-  using composite_states_t = aux::apply_t<get_composite_states, states_t>;
+  using sub_states_t = aux::apply_t<get_sub_states, states_t>;
   static constexpr auto regions =
       aux::get_size<transitions_t>::value > 0 ? aux::apply_t<count_initial_states, states_t>::value : 1;
 
@@ -911,8 +916,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
 
   template <class TEvent>
   bool process_event(const TEvent &event) noexcept {
-    return process_event_impl<get_mapping_t<TEvent, mappings_t>>(event, states_t{},
-                                                                 aux::make_index_sequence<regions>{});
+    return process_event_impl(event, states_t{}, aux::is_empty<sub_states_t>{});
   }
 
   template <class TVisitor>
@@ -939,8 +943,32 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
 
   void initialize(const aux::type_list<> &) noexcept {}
 
+  template <class TEvent, class... TStates>
+  auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &states,
+                          const aux::false_type &) noexcept {
+    return process_event_self<get_mapping_t<TEvent, mappings_t>>(event, states, aux::make_index_sequence<regions>{});
+  }
+
+  template <class TEvent, class... TStates>
+  auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &states,
+                          const aux::true_type &) noexcept {
+    static bool (*dispatch_table[])(const TEvent &) = {&sm_impl::process_event_sub<TEvent, TStates>...};
+    return dispatch_table[current_state_[0]](event) ? true : process_event_self<get_mapping_t<TEvent, mappings_t>>(
+                                                                 event, states, aux::make_index_sequence<regions>{});
+  }
+
+  template <class TEvent, class TState, aux::enable_if_t<!is_sm<TState>::value, int> = 0>
+  static auto process_event_sub(const TEvent &) noexcept {
+    return false;
+  }
+
+  template <class TEvent, class TState, aux::enable_if_t<is_sm<TState>::value, int> = 0>
+  static auto process_event_sub(const TEvent &event) noexcept {
+    return TState{}.process_event(event);
+  }
+
   template <class TMappings, class TEvent, class... TStates>
-  auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &,
+  auto process_event_self(const TEvent &event, const aux::type_list<TStates...> &,
                           const aux::index_sequence<1> &) noexcept {
     static bool (*dispatch_table[])(sm_impl &, const TEvent &, aux::byte &) = {
         &get_mapping_t<TStates, TMappings>::template execute<sm_impl, TEvent>...};
@@ -948,7 +976,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
   }
 
   template <class TMappings, class TEvent, class... TStates, int... Ns>
-  auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &,
+  auto process_event_self(const TEvent &event, const aux::type_list<TStates...> &,
                           const aux::index_sequence<Ns...> &) noexcept {
     static bool (*dispatch_table[])(sm_impl &, const TEvent &, aux::byte &) = {
         &get_mapping_t<TStates, TMappings>::template execute<sm_impl, TEvent>...};
@@ -956,22 +984,6 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
     int _[]{0, (handled |= dispatch_table[current_state_[Ns - 1]](*this, event, current_state_[Ns - 1]), 0)...};
     (void)_;
     return handled;
-  }
-
-  template <class TEvent, class... TStates>
-  auto process_event_composite(const TEvent &event, const aux::type_list<TStates...> &) noexcept {
-    static bool (*dispatch_table[])(const TEvent &) = {&sm_impl::process_event_composite_impl<TEvent, TStates>...};
-    return dispatch_table[current_state_[0]](event);
-  }
-
-  template <class TEvent, class TState, aux::enable_if_t<!is_sm<TState>::value, int> = 0>
-  static auto process_event_composite_impl(const TEvent &) noexcept {
-    return false;
-  }
-
-  template <class TEvent, class TState, aux::enable_if_t<is_sm<TState>::value, int> = 0>
-  static auto process_event_composite_impl(const TEvent &event) noexcept {
-    return TState{}.process_event(event);
   }
 
   template <class TVisitor, class... TStates>
