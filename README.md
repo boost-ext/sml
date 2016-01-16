@@ -286,7 +286,11 @@ namespace msm {
       bool is(const TFlag &) const noexcept;
     };
 
-    template <class... Ts> // requires Ts to have Ts::src_state, Ts::dst_state, Ts::event, Ts::deps, Ts.execute(...)
+    template <class... Ts> // requires Ts to have Ts::src_state
+                                                , Ts::dst_state
+                                                , Ts::event
+                                                , Ts::deps
+                                                , Ts.execute(...)
     auto make_transition_table(Ts...) noexcept;
 
     action process_event;
