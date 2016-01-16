@@ -464,7 +464,7 @@ test transition_types = [] {
 
   c c_;
   float f = 12.0;
-  msm::sm<c> sm{c_, f, 42, 87.0, 0.0};
+  msm::sm<c> sm{c_, f, 42, 87.0, 0.0f};
 };
 
 test flags = [] {

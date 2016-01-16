@@ -262,8 +262,8 @@ struct is_empty<T<Ts...>> : false_type {};
 
 namespace detail {
 
-template <class, class>
-class sm_impl;
+template <class>
+class sm;
 template <class...>
 struct transition;
 template <class, class>
@@ -345,8 +345,8 @@ using is_initial = aux::is_base_of<initial_state, TState>;
 template <class>
 struct is_sm : aux::false_type {};
 
-template <class... Ts>
-struct is_sm<state<sm_impl<Ts...>>> : aux::true_type {};
+template <class T>
+struct is_sm<state<sm<T>>> : aux::true_type {};
 
 template <class>
 struct event {
@@ -869,9 +869,9 @@ struct get_events_impl {
   using type = aux::type_list<TEvent>;
 };
 
-template <class... Ts, class TEvent>
-struct get_events_impl<state<sm_impl<Ts...>>, TEvent> {
-  using type = aux::join_t<aux::type_list<TEvent>, typename sm_impl<Ts...>::events>;
+template <class T, class TEvent>
+struct get_events_impl<state<sm<T>>, TEvent> {
+  using type = aux::join_t<aux::type_list<TEvent>, typename sm<T>::events>;
 };
 
 template <class... Ts>
@@ -886,9 +886,10 @@ using get_sub_states = aux::join_t<aux::conditional_t<is_sm<Ts>::value, aux::typ
 template <class... Ts>
 using count_initial_states = aux::count<is_initial, Ts...>;
 
-template <class T, class... TDeps>
-class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps...>>> {
+template <class T>
+class sm : public state<sm<T>> {
   using transitions_t = decltype(aux::declval<T>().configure());
+  using deps_t = aux::apply_t<aux::pool, aux::apply_t<detail::merge_deps, transitions_t>>;
   using mappings_t = detail::mappings_t<transitions_t>;
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
@@ -907,12 +908,18 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
  public:
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
 
-  explicit sm_impl(TDeps... deps) noexcept : deps_{deps...}, transitions_(T{}.configure()) { initialize(states_t{}); }
-  explicit sm_impl(T &sm, TDeps... deps) noexcept : deps_{deps...}, transitions_(sm.configure()) {
+  template <class... TDeps>
+  explicit sm(TDeps... deps) noexcept : deps_{deps...}, transitions_(T{}.configure()) {
     initialize(states_t{});
   }
-  sm_impl(const sm_impl &) = delete;
-  sm_impl(sm_impl &&) = default;
+
+  template <class... TDeps>
+  explicit sm(T &sm, TDeps... deps) noexcept : deps_{deps...}, transitions_(sm.configure()) {
+    initialize(states_t{});
+  }
+
+  sm(const sm &) = delete;
+  sm(sm &&) = default;
 
   template <class TEvent>
   bool process_event(const TEvent &event) noexcept {
@@ -952,7 +959,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
   template <class TEvent, class... TStates>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &states,
                           const aux::true_type &) noexcept {
-    static bool (*dispatch_table[])(const TEvent &) = {&sm_impl::process_event_sub<TEvent, TStates>...};
+    static bool (*dispatch_table[])(const TEvent &) = {&sm::process_event_sub<TEvent, TStates>...};
     return dispatch_table[current_state_[0]](event) ? true : process_event_self<get_mapping_t<TEvent, mappings_t>>(
                                                                  event, states, aux::make_index_sequence<regions>{});
   }
@@ -970,16 +977,16 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
   template <class TMappings, class TEvent, class... TStates>
   auto process_event_self(const TEvent &event, const aux::type_list<TStates...> &,
                           const aux::index_sequence<1> &) noexcept {
-    static bool (*dispatch_table[])(sm_impl &, const TEvent &, aux::byte &) = {
-        &get_mapping_t<TStates, TMappings>::template execute<sm_impl, TEvent>...};
+    static bool (*dispatch_table[])(
+        sm &, const TEvent &, aux::byte &) = {&get_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     return dispatch_table[current_state_[0]](*this, event, current_state_[0]);
   }
 
   template <class TMappings, class TEvent, class... TStates, int... Ns>
   auto process_event_self(const TEvent &event, const aux::type_list<TStates...> &,
                           const aux::index_sequence<Ns...> &) noexcept {
-    static bool (*dispatch_table[])(sm_impl &, const TEvent &, aux::byte &) = {
-        &get_mapping_t<TStates, TMappings>::template execute<sm_impl, TEvent>...};
+    static bool (*dispatch_table[])(
+        sm &, const TEvent &, aux::byte &) = {&get_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     auto handled = false;
     int _[]{0, (handled |= dispatch_table[current_state_[Ns - 1]](*this, event, current_state_[Ns - 1]), 0)...};
     (void)_;
@@ -989,14 +996,14 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
   template <class TVisitor, class... TStates>
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<1> &) const noexcept {
-    static void (*dispatch_table[])(const TVisitor &) = {&sm_impl::visit_state<TVisitor, TStates>...};
+    static void (*dispatch_table[])(const TVisitor &) = {&sm::visit_state<TVisitor, TStates>...};
     dispatch_table[current_state_[0]](visitor);
   }
 
   template <class TVisitor, class... TStates, int... Ns>
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<Ns...> &) const noexcept {
-    static void (*dispatch_table[])(const TVisitor &) = {&sm_impl::visit_state<TVisitor, TStates>...};
+    static void (*dispatch_table[])(const TVisitor &) = {&sm::visit_state<TVisitor, TStates>...};
     int _[]{0, (dispatch_table[current_state_[Ns - 1]](visitor), 0)...};
     (void)_;
   }
@@ -1006,7 +1013,7 @@ class sm_impl<T, aux::pool<TDeps...>> : public state<sm_impl<T, aux::pool<TDeps.
     visitor(TState{});
   }
 
-  aux::pool<TDeps...> deps_;
+  deps_t deps_;
   transitions_t transitions_;
   aux::byte current_state_[regions];
 };
@@ -1059,7 +1066,7 @@ auto make_transition_table(Ts... ts) noexcept {
 }
 
 template <class T>
-using sm = detail::sm_impl<T, aux::apply_t<detail::merge_deps, decltype(aux::declval<T>().configure())>>;
+using sm = detail::sm<T>;
 
 template <class TEvent, class TConfig>
 struct dispatcher {
