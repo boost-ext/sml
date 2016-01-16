@@ -14,7 +14,7 @@ msm-lite: C++14 Meta State Machine Library
 **Introduction**
 
 * [UML](http://www.uml.org)
-* [State Machine](http://www.omg.org/spec/UML/2.5) (14 - State machines)
+* [UML2 Specification - State Machines](http://www.omg.org/spec/UML/2.5)
 * [Boost.MSM - UML Short Guide](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch02.html)
 * [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)
 
@@ -38,7 +38,7 @@ msm-lite: C++14 Meta State Machine Library
 
 **msm-lite design goals**
 
-*keep the Boost.MSM - eUML goodies
+* Keep the Boost.MSM - eUML goodies
 
     * Performance (see Benchmarks)
     * Memory usage (see Benchmarks)
@@ -241,9 +241,10 @@ sm<...> s{42, 87.0};
 
 <a id="configuration"></a>
 **Configuration**
+
 Macro                                   | Description
 ----------------------------------------|-----------------------------------------
-MSM_POLICY_STATES_DST_SRC               | dst_state == src_state (same as in eUML)
+MSM\_POLICY\_STATES_\DST\_SRC           | dst\_state == src\_state (same as in eUML)
 
 **TODO**
 
