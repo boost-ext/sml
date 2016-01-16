@@ -97,7 +97,7 @@ Yours scalable C++14 one header(1k lines) eUML-like meta state machine library w
     $CXX -std=c++14 ...
 ```
 
-**Supported/tested compilers**
+> **Supported/tested compilers**
 
 * Clang-3.4+
 * GCC-5.2+
