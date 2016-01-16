@@ -152,7 +152,7 @@ int main() {
 
 * Boost.MSM - eUML vs msm-lite
 
-| Events                      |
+| Events           |          |
 |------------------|----------|
 | Boost.MSM - eUML | msm-lite |
 |------------------|----------|
