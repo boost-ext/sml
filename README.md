@@ -179,6 +179,13 @@ sm<...> s{42, 87.0};
 ```cpp
 ```
 
+<a id="configuration"></a>
+> **Configuration**
+
+Macro                                   | Description
+----------------------------------------|-----------------------------------------
+MSM\_POLICY\_STATES\_DST\_SRC           | dst\_state == src\_state (same as in eUML)
+
 > **Boost.MSM - eUML emulation**
 
 ```cpp
@@ -241,13 +248,6 @@ sm<...> s{42, 87.0};
 | Execution time   | 159ms    |                 |                  |
 | Memory usage     | 202b     |                 |                  |
 | Executable size  | 99K      |                 |                  |
-
-<a id="configuration"></a>
-> **Configuration**
-
-Macro                                   | Description
-----------------------------------------|-----------------------------------------
-MSM\_POLICY\_STATES\_DST\_SRC           | dst\_state == src\_state (same as in eUML)
 
 > **TODO**
 
