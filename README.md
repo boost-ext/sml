@@ -151,51 +151,56 @@ int main() {
 * [Boost.MSM - eUML Documentation](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)
 
 * Boost.MSM - eUML vs msm-lite
+```cpp
+// Boost.MSM - eUML
 
-    * Events
+#include <boost/msm/back/state_machine.hpp>
+#include <boost/msm/front/state_machine_def.hpp>
+#include <boost/msm/front/euml/euml.hpp>
 
-        | Boost.MSM - eUML | msm-lite |
-        |------------------|----------|
-        | BOOST_MSM_EUML_EVENT(play) | struct play {}; |
+namespace msm = boost::msm;
+namespace mpl = boost::mpl;
+using namespace boost::msm::front::euml;
 
-    * Guards/Actions
+BOOST_MSM_EUML_EVENT(open_close)
 
-        | Boost.MSM - eUML | msm-lite |
-        |------------------|----------|
-        | BOOST_MSM_EUML_ACTION(action){ template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &, TargetState &){}}; | auto action = []{} | 
+BOOST_MSM_EUML_ACTION(open_drawer){template <class FSM, class EVT, class SourceState, class TargetState> void
 
-    * State Machine
-    
-    ```cpp
-        BOOST_MSM_EUML_STATE((), Empty)
-        BOOST_MSM_EUML_STATE((), Open)
-        BOOST_MSM_EUML_STATE((), Stopped)
+                                   operator()(EVT const &, FSM &, SourceState &, TargetState &){}};
+BOOST_MSM_EUML_ACTION(close_drawer){
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
+                                                                                          SourceState &,
+                                                                                          TargetState &){}};
+BOOST_MSM_EUML_STATE((), Empty)
+BOOST_MSM_EUML_STATE((), Open)
 
-        BOOST_MSM_EUML_TRANSITION_TABLE(
-            (Empty == Open + open_close / close_drawer,
-             Open == Empty + open_close / open_drawer,
-             Open == Stopped + open_close / open_drawer,
-            ), transition_table)
+BOOST_MSM_EUML_TRANSITION_TABLE(
+    (
+     Open == Empty + open_close / open_drawer,
+     Empty == Open + open_close / close_drawer
+    ), transition_table)
 
-        BOOST_MSM_EUML_ACTION(Log_No_Transition){
-            template <class FSM, class Event> void operator()(Event const &, FSM &, int state){}};
+BOOST_MSM_EUML_ACTION(Log_No_Transition){
+    template <class FSM, class Event> void operator()(Event const &, FSM &, int state){}};
 
-        BOOST_MSM_EUML_DECLARE_STATE_MACHINE((transition_table,                            // STT
-                                              init_ << Empty,                              // Init State
-                                              no_action,                                   // Entry
-                                              no_action,                                   // Exit
-                                              attributes_ << no_attributes_,               // Attributes
-                                              configure_ << no_exception << no_msg_queue,  // configuration
-                                              Log_No_Transition                            // no_transition handler
-                                              ),
-                                             player_)  // fsm name
+BOOST_MSM_EUML_DECLARE_STATE_MACHINE((transition_table,                            // STT
+                                      init_ << Empty,                              // Init State
+                                      no_action,                                   // Entry
+                                      no_action,                                   // Exit
+                                      attributes_ << no_attributes_,               // Attributes
+                                      configure_ << no_exception << no_msg_queue,  // configuration
+                                      Log_No_Transition                            // no_transition handler
+                                      ),
+                                     player_)  // fsm name
 
-        typedef msm::back::state_machine<player_> player;
+typedef msm::back::state_machine<player_> player;
 
-        int main() {
-            player sm;
-        }
-    ```
+int main() {
+    player sm;
+    sm.process_event(open_close);
+    sm.process_event(open_close);
+}
+```
 
 * DSL introduction
 
