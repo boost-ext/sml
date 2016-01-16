@@ -57,47 +57,23 @@ struct is_same<T, T> : true_type {};
 template <class T, class U>
 struct is_base_of : integral_constant<bool, __is_base_of(T, U)> {};
 template <class T>
-struct remove_qualifiers {
+struct remove_reference {
   using type = T;
 };
 template <class T>
-struct remove_qualifiers<const T> {
+struct remove_reference<T &> {
   using type = T;
 };
 template <class T>
-struct remove_qualifiers<T &> {
+struct remove_reference<const T &> {
   using type = T;
 };
 template <class T>
-struct remove_qualifiers<const T &> {
+struct remove_reference<T &&> {
   using type = T;
 };
 template <class T>
-struct remove_qualifiers<T *> {
-  using type = T;
-};
-template <class T>
-struct remove_qualifiers<const T *> {
-  using type = T;
-};
-template <class T>
-struct remove_qualifiers<T *const &> {
-  using type = T;
-};
-template <class T>
-struct remove_qualifiers<T *const> {
-  using type = T;
-};
-template <class T>
-struct remove_qualifiers<const T *const> {
-  using type = T;
-};
-template <class T>
-struct remove_qualifiers<T &&> {
-  using type = T;
-};
-template <class T>
-using remove_qualifiers_t = typename remove_qualifiers<T>::type;
+using remove_reference_t = typename remove_reference<T>::type;
 template <class>
 struct function_traits;
 template <class R, class... TArgs>
@@ -379,8 +355,8 @@ struct ignore;
 
 template <class E, class... Ts>
 struct ignore<E, aux::type_list<Ts...>> {
-  using type = aux::join_t<aux::conditional_t<aux::is_same<E, aux::remove_qualifiers_t<Ts>>::value ||
-                                                  aux::is_same<Ts, aux::remove_qualifiers_t<self>>::value,
+  using type = aux::join_t<aux::conditional_t<aux::is_same<E, aux::remove_reference_t<Ts>>::value ||
+                                                  aux::is_same<Ts, aux::remove_reference_t<self>>::value,
                                               aux::type_list<>, aux::type_list<Ts>>...>;
 };
 
@@ -398,21 +374,21 @@ struct get_deps<T<Ts...>, E, aux::enable_if_t<aux::is_base_of<operator_base, T<T
 };
 
 template <class T, class TEvent, class TDeps, class SM,
-          aux::enable_if_t<!aux::is_same<TEvent, aux::remove_qualifiers_t<T>>::value &&
-                               !aux::is_same<self, aux::remove_qualifiers_t<T>>::value,
+          aux::enable_if_t<!aux::is_same<TEvent, aux::remove_reference_t<T>>::value &&
+                               !aux::is_same<self, aux::remove_reference_t<T>>::value,
                            int> = 0>
 decltype(auto) get_arg(const TEvent &, TDeps &deps, SM &) noexcept {
   return aux::get<T>(deps);
 }
 
 template <class T, class TEvent, class TDeps, class SM,
-          aux::enable_if_t<aux::is_same<TEvent, aux::remove_qualifiers_t<T>>::value, int> = 0>
+          aux::enable_if_t<aux::is_same<TEvent, aux::remove_reference_t<T>>::value, int> = 0>
 decltype(auto) get_arg(const TEvent &event, TDeps &, SM &) noexcept {
   return event;
 }
 
 template <class T, class TEvent, class TDeps, class SM,
-          aux::enable_if_t<aux::is_same<self, aux::remove_qualifiers_t<T>>::value, int> = 0>
+          aux::enable_if_t<aux::is_same<self, aux::remove_reference_t<T>>::value, int> = 0>
 decltype(auto) get_arg(const TEvent &, TDeps &, SM &sm) noexcept {
   return sm;
 }

@@ -11,11 +11,11 @@ namespace msm {
 inline namespace v_1_0_0 {
 namespace aux {
 
-test remove_qualifiers_types = [] {
-  static_expect(is_same<int, remove_qualifiers_t<int>>::value);
-  static_expect(is_same<int, remove_qualifiers_t<int&>>::value);
-  static_expect(is_same<int, remove_qualifiers_t<int*>>::value);
-  static_expect(is_same<int, remove_qualifiers_t<const int*>>::value);
+test remove_reference_types = [] {
+  static_expect(is_same<int, remove_reference_t<int>>::value);
+  static_expect(is_same<int, remove_reference_t<int&>>::value);
+  static_expect(is_same<int, remove_reference_t<const int&>>::value);
+  static_expect(is_same<int, remove_reference_t<int&&>>::value);
 };
 
 void f1() {}

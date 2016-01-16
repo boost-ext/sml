@@ -8,7 +8,7 @@
 
 msm-lite: C++14 Meta State Machine Library
 ===============================================
-Yours scalable C++14 one header(1k lines) eUML-like meta state machine library with no dependencies
+Yours scalable C++14 header only eUML-like meta state machine library with no dependencies
 
 > **Introduction**
 
@@ -52,7 +52,7 @@ Yours scalable C++14 one header(1k lines) eUML-like meta state machine library w
     * Short and informative error messages (see Error Messages)
     * Less boilerplate / no macros
     * Improve visibility by having all actions on transition table
-    * No dependencies / one header
+    * No dependencies / one header (1k lines)
     * Functional programming support using lamda expressions
 
 * Add a new functionality
