@@ -231,9 +231,11 @@ struct get_size<T<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
 template <class>
-struct is_empty : true_type {};
-template <template <class...> class T, class... Ts>
-struct is_empty<T<Ts...>> : false_type {};
+struct is_empty;
+template <template <class...> class T>
+struct is_empty<T<>> : true_type {};
+template <template <class...> class T, class U, class... Ts>
+struct is_empty<T<U, Ts...>> : false_type {};
 }  // aux
 namespace detail {
 template <class>
@@ -323,6 +325,7 @@ struct state_impl : state_str<TState> {
 
 template <class TState>
 struct state : state_impl<state<TState>> {
+  using type = TState;
   template <class T>
   auto operator()(const T &) const noexcept {
     return state<TState(T)>{};
@@ -330,16 +333,21 @@ struct state : state_impl<state<TState>> {
 };
 
 template <class TState, class TBase>
-struct state<TState(TBase)> : state_impl<state<TState(TBase)>>, TBase {};
+struct state<TState(TBase)> : state_impl<state<TState(TBase)>>, TBase {
+  using type = TState;
+};
 
 template <class TState>
 using is_initial = aux::is_base_of<initial_state, TState>;
 
+template <class T>
+decltype(aux::declval<T>().configure(), aux::true_type()) is_sm_impl(int);
+
 template <class>
-struct is_sm : aux::false_type {};
+aux::false_type is_sm_impl(...);
 
 template <class T>
-struct is_sm<state<sm<T>>> : aux::true_type {};
+struct is_sm : decltype(is_sm_impl<T>(0)) {};
 
 template <class>
 struct event {
@@ -871,7 +879,8 @@ template <class... Ts>
 using get_states = aux::join_t<aux::type_list<typename Ts::src_state, typename Ts::dst_state>...>;
 
 template <class... Ts>
-using get_sub_states = aux::join_t<aux::conditional_t<is_sm<Ts>::value, aux::type_list<Ts>, aux::type_list<>>...>;
+using get_sub_states = aux::join_t<
+    aux::conditional_t<is_sm<typename Ts::type>::value, aux::type_list<typename Ts::type>, aux::type_list<>>...>;
 
 template <class... Ts>
 using count_initial_states = aux::count<is_initial, Ts...>;
@@ -880,7 +889,7 @@ template <class... Ts>
 using merge_deps = aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>;
 
 template <class SM>
-class sm : public state<sm<SM>> {
+class sm {
   using transitions_t = decltype(aux::declval<SM>().configure());
   using mappings_t = detail::mappings_t<transitions_t>;
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
@@ -889,7 +898,8 @@ class sm : public state<sm<SM>> {
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
   using events_ids_t = aux::apply_t<aux::type_id, events_t>;
   using deps_t =
-      aux::apply_t<aux::pool, aux::join_t<aux::type_list<SM>, aux::apply_t<detail::merge_deps, transitions_t>>>;
+      aux::apply_t<aux::pool,
+                   aux::join_t<aux::type_list<SM>, sub_states_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
   static constexpr auto regions =
       aux::get_size<transitions_t>::value > 0 ? aux::apply_t<count_initial_states, states_t>::value : 1;
 
@@ -949,26 +959,28 @@ class sm : public state<sm<SM>> {
 
   template <class TEvent, class... TStates>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &states,
-                          const aux::false_type &) noexcept {
+                          const aux::true_type &) noexcept {
     return process_event_self<get_mapping_t<TEvent, mappings_t>>(event, states, aux::make_index_sequence<regions>{});
   }
 
   template <class TEvent, class... TStates>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &states,
-                          const aux::true_type &) noexcept {
-    static bool (*dispatch_table[])(const TEvent &) = {&sm::process_event_sub<TEvent, TStates>...};
-    return dispatch_table[current_state_[0]](event) ? true : process_event_self<get_mapping_t<TEvent, mappings_t>>(
+                          const aux::false_type &) noexcept {
+    static bool (*dispatch_table[])(sm &, const TEvent &) = {&sm::process_event_sub<TEvent, TStates>...};
+    return dispatch_table[current_state_[0]](*this, event) ? true
+                                                           : process_event_self<get_mapping_t<TEvent, mappings_t>>(
                                                                  event, states, aux::make_index_sequence<regions>{});
   }
 
-  template <class TEvent, class TState, aux::enable_if_t<!is_sm<TState>::value, int> = 0>
-  static auto process_event_sub(const TEvent &) noexcept {
+  template <class TEvent, class TState, aux::enable_if_t<!is_sm<typename TState::type>::value, int> = 0>
+  static auto process_event_sub(sm &, const TEvent &) noexcept {
     return false;
   }
 
-  template <class TEvent, class TState, aux::enable_if_t<is_sm<TState>::value, int> = 0>
-  static auto process_event_sub(const TEvent &event) noexcept {
-    return TState{}.process_event(event);
+  template <class TEvent, class TState, aux::enable_if_t<is_sm<typename TState::type>::value, int> = 0>
+  static auto process_event_sub(sm &self, const TEvent &event) noexcept {
+    using type = typename TState::type;
+    return sm<type>{aux::get<type>(self.deps_)}.process_event(event);
   }
 
   template <class TMappings, class TEvent, class... TStates>

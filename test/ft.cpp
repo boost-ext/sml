@@ -563,7 +563,6 @@ test state_names = [] {
   sm.visit_current_states([](auto state) { expect(std::string{"s1"} == std::string{state.c_str()}); });
 };
 
-#if 0
 test composite = [] {
   static auto guard = [](int i) {
     expect(42 == i);
@@ -595,47 +594,41 @@ test composite = [] {
   struct c {
     auto configure() noexcept {
       using namespace msm;
+      state<sub> sub_state;
 
       // clang-format off
       return make_transition_table(
           idle(initial) == s1 + event<e1> [guard2{}] / [this] { a_initial = true; }
-        , s1 == sub_ + event<e2> [guard]  / [this]{ a_enter_sub_sm = true; }
-        , sub_ == s2 + event<e5> [guard2{}] / [this] { a_exit_sub_sm = true; }
+        , s1 == sub_state + event<e2> [guard]  / [this]{ a_enter_sub_sm = true; }
+        , sub_state == s2 + event<e5> [guard2{}] / [this] { a_exit_sub_sm = true; }
       );
       // clang-format on
     }
-
-    const msm::sm<sub> &sub_;
 
     bool a_initial = false;
     bool a_enter_sub_sm = false;
     bool a_exit_sub_sm = false;
   };
 
-  sub sub_;
-  msm::sm<sub> s{sub_};
-  c c_{s};
-  msm::sm<c> sm{c_, 87.0, 42};
+  msm::sm<c> sm{c{}, sub{}, 87.0, 42};
 
   expect_states(sm, idle(msm::initial));
-  sm.process_event(e1());
-  // expect(c_.a_initial);
+  expect(sm.process_event(e1()));
+  expect(sm.get<c>().a_initial);
 
   sm.process_event(e2());
-  expect(c_.a_enter_sub_sm);
-  expect(0 == sub_.a_in_sub);
+  expect(sm.get<c>().a_enter_sub_sm);
+  expect(0 == sm.get<sub>().a_in_sub);
 
-  sm.process_event(e3());
-  /*  expect(1 == sub_.a_in_sub);*/
+  expect(sm.process_event(e3()));
+  // expect(1 == sm.get<sub>().a_in_sub);
 
-  // sm.process_event(e4());
-  // expect(2 == sub_.a_in_sub);
-
-  // sm.process_event(e5());
-  // expect(2 == sub_.a_in_sub);
-  // expect(c_.a_exit_sub_sm);
-  /*expect_states(sm, s2);*/
+  // expect(sm.process_event(e4()));
+  // expect(2 == sm.get<sub>().a_in_sub);
+  // expect(sm.process_event(e5()));
+  // expect(2 == sm.get<sub>().a_in_sub);
+  // expect(sm.get<c>().a_exit_sub_sm);
+  // expect_states(sm, s2);
 };
 
 // test dispatcher = [] {};
-#endif
