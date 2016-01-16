@@ -8,7 +8,6 @@
 
 msm-lite: C++14 Meta State Machine Library
 ===============================================
-
 Yours scalable C++14 one header(1k lines) eUML-like meta state machine library with no dependencies
 
 > **Introduction**
@@ -23,7 +22,7 @@ Yours scalable C++14 one header(1k lines) eUML-like meta state machine library w
 * Boost.MSM - eUML is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
   msm-lite, therefore, is trying to address those issues.
 
-**Problems with Boost.MSM - eUML**
+> **Problems with Boost.MSM - eUML**
     
 * Horrible compilation times (see Benchmarks)
 * Produces huge binaries (see Benchmarks)
@@ -62,14 +61,14 @@ Yours scalable C++14 one header(1k lines) eUML-like meta state machine library w
    * Logging support (TBD)
    * Testing support (TBD)
 
-**What 'lite' implies?**
+> **What 'lite' implies?**
 
 * Minimal learning curve
 * Only crucial features
 * Guaranteed performance and quick compilation times
 * No dependencies
 
-**Supported features by msm-lite**
+> **Supported features by msm-lite**
 
 * Transitions / internal transitions / anonymous transitions / no transition (see Example)
 * Guards / actions (see Example)
@@ -81,7 +80,7 @@ Yours scalable C++14 one header(1k lines) eUML-like meta state machine library w
 * Visit current states (see Example)
 * Proposed boost.di integration (see Example)
  
-**How to start**
+> **How to start**
 
 * Get msm.hpp header
 ```sh
@@ -103,7 +102,7 @@ Yours scalable C++14 one header(1k lines) eUML-like meta state machine library w
 * Clang-3.4+
 * GCC-5.2+
 
-**Hello world example**
+> **Hello world example**
 ```cpp
 #include "msm.hpp"
 
@@ -147,7 +146,7 @@ int main() {
 }
 ```
 
-**DSL introduction**
+> **DSL introduction**
 
 | Expression | Description |
 |------------|-------------|
@@ -157,7 +156,7 @@ int main() {
 | src\_state == dst\_state + event<e> | transition on event e without guard or action |
 | state + event<e> [ guard ] | internal transition on event e when guard |
 
-**Dependencies introduction**
+> **Data dependencies introduction**
 ```cpp
                              /---- event 
                             |
@@ -173,15 +172,15 @@ auto action = [](int i){}  |
 sm<...> s{42, 87.0};
 ```
 
-**Error messages**
+> **Error messages**
 ```cpp
 ```
 
-**Boost.MSM - eUML emulation**
+> **Boost.MSM - eUML emulation**
 ```cpp
 ```
 
-**Benchmarks**
+> **Benchmarks**
 
 * Header
 
@@ -240,13 +239,13 @@ sm<...> s{42, 87.0};
 | Executable size  | 99K      |                 |                  |
 
 <a id="configuration"></a>
-**Configuration**
+> **Configuration**
 
 Macro                                   | Description
 ----------------------------------------|-----------------------------------------
 MSM\_POLICY\_STATES\_DST\_SRC           | dst\_state == src\_state (same as in eUML)
 
-**TODO**
+> **TODO**
 
 * Policies
 
