@@ -259,9 +259,7 @@ struct is_empty : true_type {};
 template <template <class...> class T, class... Ts>
 struct is_empty<T<Ts...>> : false_type {};
 }  // aux
-
 namespace detail {
-
 template <class>
 class sm;
 template <class...>
@@ -914,7 +912,7 @@ class sm : public state<sm<T>> {
   }
 
   template <class... TDeps>
-  explicit sm(T &sm, TDeps... deps) noexcept : deps_{deps...}, transitions_(sm.configure()) {
+  explicit sm(T &sm, TDeps &&... deps) noexcept : deps_{deps...}, transitions_(sm.configure()) {
     initialize(states_t{});
   }
 
@@ -1017,7 +1015,6 @@ class sm : public state<sm<T>> {
   transitions_t transitions_;
   aux::byte current_state_[regions];
 };
-
 }  // detail
 
 template <class T>

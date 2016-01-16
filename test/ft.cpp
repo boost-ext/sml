@@ -245,7 +245,7 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
       auto action = [this](int i, float &f) {
         a_called = true;
         expect(i == 42);
-        expect(f == 12.0);
+        expect(f == 12.f);
       };
 
       return make_transition_table(idle(initial) == s1 + event<e1>[guard] / action);
@@ -256,7 +256,7 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
   };
 
   c c_;
-  float f = 12.0;
+  auto f = 12.f;
   msm::sm<c> sm{c_, 42, 87.0, f};
   expect(sm.process_event(e1{}));
   expect(c_.g_called);
