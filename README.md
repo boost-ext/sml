@@ -82,7 +82,7 @@ Yours scalable C++14 one header(1k lines) eUML-like meta state machine library w
  
 > **How to start**
 
-* Get msm.hpp header
+* Get [msm.hpp](https://raw.githubusercontent.com/krzysztof-jusiak/msm-lite/master/include/msm/msm.hpp) header
 ```sh
     wget https://raw.githubusercontent.com/krzysztof-jusiak/msm-lite/master/include/msm/msm.hpp
 ```
