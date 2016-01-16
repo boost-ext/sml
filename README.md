@@ -281,7 +281,7 @@ namespace msm {
       bool process_event(const TEvent &) noexcept;
 
       template <class TVisitor> // requires TVisitor to be callable with auto
-      void visit_current_states(const TVisitor &) noexcept;
+      void visit_current_states(const TVisitor &) const noexcept;
 
       template <class TFlag> // no requirements, returns whether active state has TFlag or not
       bool is(const TFlag &) const noexcept;

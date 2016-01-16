@@ -882,8 +882,11 @@ class sm : public state<sm<T>> {
  public:
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
 
+  sm(const sm &) = delete;
+  sm(sm &&) = default;
+
   template <class... TDeps>
-  explicit sm(TDeps... deps) noexcept : deps_{deps...}, transitions_(T{}.configure()) {
+  explicit sm(TDeps &&... deps) noexcept : deps_{deps...}, transitions_(T{}.configure()) {
     initialize(states_t{});
   }
 
@@ -891,9 +894,6 @@ class sm : public state<sm<T>> {
   explicit sm(T &sm, TDeps &&... deps) noexcept : deps_{deps...}, transitions_(sm.configure()) {
     initialize(states_t{});
   }
-
-  sm(const sm &) = delete;
-  sm(sm &&) = default;
 
   template <class TEvent>
   bool process_event(const TEvent &event) noexcept {
