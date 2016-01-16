@@ -243,28 +243,77 @@ int main() {
 
 * msm-lite data dependencies
 
-    ```cpp
-                                 /---- event 
-                                |
-    auto guard = [](double d, auto event) { return true; }
-                       |
-                       \-------\
-                               |
-    auto action = [](int i){}  |
-                     |         |
-                     |         |
-                /---/  /------/
-               |      /
-    sm<...> s{42, 87.0};
-    ```
+```cpp
+                             /---- event 
+                            |
+auto guard = [](double d, auto event) { return true; }
+                   |
+                   \-------\
+                           |
+auto action = [](int i){}  |
+                 |         |
+                 |         |
+            /---/  /------/
+           |      /
+sm<...> s{42, 87.0};
+```
 
 * Error messages
 
-    ```cpp
-    ```
+```cpp
+```
 
 * API reference
 
+```cpp    
+namespace msm {
+    template <class T> // requires T to be T.configure()
+    class sm {
+    public:
+      using events; // list of supported events 
+
+      explicit sm(TDeps...) noexcept; // action/guards dependencies 
+      sm_impl(const sm &) = delete;
+      sm_impl(sm &&) = default;
+
+      template <class TEvent> // none requirements
+      bool process_event(const TEvent &) noexcept;
+
+      template <class TVisitor> // requires TVisitor to be callable with auto
+      void visit_current_states(const TVisitor &);
+
+      template <class TFlag> // none requirements
+      bool is(const TFlag &) const noexcept;
+    };
+
+    template <class... Ts> // requires Ts to have Ts::src_state, Ts::dst_state, Ts::event, Ts::deps, Ts.execute(...)
+    auto make_transition_table(Ts...) noexcept;
+
+    action process_event;
+
+    template <class TEvent> // none requirements
+    auto event{};
+
+    template <class T> // none requirements
+    using state;
+
+    template <class T, T... Chars>
+    state<T...> operator""_s();
+
+    state initial;
+
+    template <class T> // requires T to be callable and returns bool
+    auto operator!(const T &) noexcept;
+
+    template <class T1, class T2> // requires T1, T2 to be callable and returns bool
+    auto operator&&(const T1 &, const T2 &) noexcept;
+
+    template <class T1, class T2> // requires T1, T2 to be callable and returns bool
+    auto operator||(const T1 &, const T2 &) noexcept;
+
+    template <class T1, class T2> // requires T1, T2 to be callable
+    auto operator, (const T1 &t1, const T2 &t2) noexcept;
+}
 
 <a id="configuration"></a>
 * Configuration
