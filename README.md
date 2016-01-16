@@ -146,8 +146,18 @@ int main() {
   );
 }
 ```
+> **User Guide**
 
-> **DSL introduction**
+* [Boost.MSM - eUML Documentation](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)
+
+* Boost.MSM - eUML vs msm-lite
+
+| Events |
+|-----------------------------|
+| Boost.MSM - eUML | msm-lite |
+|------------------|----------|
+
+* DSL introduction
 
 | Expression | Description |
 |------------|-------------|
@@ -157,7 +167,7 @@ int main() {
 | src\_state == dst\_state + event<e> | transition on event e without guard or action |
 | state + event<e> [ guard ] | internal transition on event e when guard |
 
-> **Data dependencies introduction**
+* Data dependencies introduction
 
 ```cpp
                              /---- event 
@@ -174,13 +184,16 @@ auto action = [](int i){}  |
 sm<...> s{42, 87.0};
 ```
 
-> **Error messages**
+* Error messages
 
 ```cpp
 ```
 
+* API reference
+
+
 <a id="configuration"></a>
-> **Configuration**
+* Configuration
 
 Macro                                   | Description
 ----------------------------------------|-----------------------------------------
