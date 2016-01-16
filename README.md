@@ -158,12 +158,44 @@ int main() {
         |------------------|----------|
         | BOOST_MSM_EUML_EVENT(play) | struct play {}; |
 
-    * Events
+    * Guards/Actions
 
         | Boost.MSM - eUML | msm-lite |
         |------------------|----------|
         | BOOST_MSM_EUML_ACTION(action){ template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &, TargetState &){}}; | auto action = []{} | 
 
+    * State Machine
+    
+    ```cpp
+        BOOST_MSM_EUML_STATE((), Empty)
+        BOOST_MSM_EUML_STATE((), Open)
+        BOOST_MSM_EUML_STATE((), Stopped)
+
+        BOOST_MSM_EUML_TRANSITION_TABLE(
+            (Empty == Open + open_close / close_drawer,
+             Open == Empty + open_close / open_drawer,
+             Open == Stopped + open_close / open_drawer,
+            ), transition_table)
+
+        BOOST_MSM_EUML_ACTION(Log_No_Transition){
+            template <class FSM, class Event> void operator()(Event const &, FSM &, int state){}};
+
+        BOOST_MSM_EUML_DECLARE_STATE_MACHINE((transition_table,                            // STT
+                                              init_ << Empty,                              // Init State
+                                              no_action,                                   // Entry
+                                              no_action,                                   // Exit
+                                              attributes_ << no_attributes_,               // Attributes
+                                              configure_ << no_exception << no_msg_queue,  // configuration
+                                              Log_No_Transition                            // no_transition handler
+                                              ),
+                                             player_)  // fsm name
+
+        typedef msm::back::state_machine<player_> player;
+
+        int main() {
+            player sm;
+        }
+    ```
 
 * DSL introduction
 
