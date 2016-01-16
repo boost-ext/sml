@@ -41,7 +41,7 @@ struct hello_world {
 };
 
 int main() {
-  msm::sm<hello_world> sm;
+  msm::sm<hello_world> sm{hello_world{}};
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});

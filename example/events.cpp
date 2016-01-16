@@ -13,8 +13,7 @@ struct e2 {
   bool value = true;
 };
 auto event2 = msm::event<e2>;
-struct {
-} terminate;
+struct { } terminate;
 
 auto guard = [](const e2& e) { return e.value; };
 
@@ -37,7 +36,7 @@ struct events {
 };
 
 int main() {
-  msm::sm<events> sm;
+  msm::sm<events> sm{events{}};
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(42);

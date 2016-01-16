@@ -38,7 +38,7 @@ struct orthogonal_regions {
 };
 
 int main() {
-  msm::sm<orthogonal_regions> sm;
+  msm::sm<orthogonal_regions> sm{orthogonal_regions{}};
   assert(sm.is(msm::initial));
   sm.process_event(e1{});
   sm.process_event(e2{});

@@ -36,7 +36,7 @@ struct flags {
 };
 
 int main() {
-  msm::sm<flags> sm;
+  msm::sm<flags> sm{flags{}};
   assert(sm.is(msm::initial));
 
   sm.process_event(e1{});

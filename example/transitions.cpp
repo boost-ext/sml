@@ -12,8 +12,7 @@
 struct e1 {};
 struct e2 {};
 struct e3 {};
-struct {
-} terminate;
+struct { } terminate;
 
 struct transitions {
   auto configure() const noexcept {
@@ -33,7 +32,7 @@ struct transitions {
 };
 
 int main() {
-  msm::sm<transitions> sm;
+  msm::sm<transitions> sm{transitions{}};
   assert(!sm.is(msm::initial));
   sm.process_event(e1{});
   sm.process_event(e2{});

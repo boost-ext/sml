@@ -324,7 +324,7 @@ int main() {
     }
   };
 
-  msm::sm<c> sm;
+  msm::sm<c> sm{c{}};
 
   benchmark_execution_speed([&] {
     for (auto i = 0; i < 1'000'000; ++i) {

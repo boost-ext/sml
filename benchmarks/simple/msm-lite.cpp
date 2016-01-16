@@ -54,24 +54,24 @@ struct player {
 };
 
 int main() {
-  msm::sm<player> player;
+  msm::sm<player> sm{player{}};
 
   benchmark_execution_speed([&] {
     for (auto i = 0; i < 1'000'000; ++i) {
-      player.process_event(open_close{});
-      player.process_event(open_close{});
-      player.process_event(cd_detected{});
-      player.process_event(play{});
-      player.process_event(pause{});
+      sm.process_event(open_close{});
+      sm.process_event(open_close{});
+      sm.process_event(cd_detected{});
+      sm.process_event(play{});
+      sm.process_event(pause{});
       // go back to Playing
-      player.process_event(end_pause{});
-      player.process_event(pause{});
-      player.process_event(stop{});
+      sm.process_event(end_pause{});
+      sm.process_event(pause{});
+      sm.process_event(stop{});
       // event leading to the same state
-      player.process_event(stop{});
-      player.process_event(open_close{});
-      player.process_event(open_close{});
+      sm.process_event(stop{});
+      sm.process_event(open_close{});
+      sm.process_event(open_close{});
     }
   });
-  benchmark_memory_usage(player);
+  benchmark_memory_usage(sm);
 }

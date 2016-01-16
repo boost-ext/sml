@@ -178,22 +178,22 @@ template <class, class...>
 struct pool_impl;
 template <int... Ns, class... Ts>
 struct pool_impl<index_sequence<Ns...>, Ts...> : pool_type<Ns, Ts>... {
-  explicit pool_impl(Ts... ts) : pool_type<Ns, Ts>{ts}... {}
+  explicit pool_impl(Ts... ts) noexcept : pool_type<Ns, Ts>{ts}... {}
 };
 template <int N, class T>
-decltype(auto) get_impl_nr(pool_type<N, T> *object) noexcept {
+auto &get_impl_nr(pool_type<N, T> *object) noexcept {
   return static_cast<pool_type<N, T> &>(*object).object;
 }
 template <int N, class TPool>
-decltype(auto) get(TPool &p) noexcept {
+auto &get(TPool &p) noexcept {
   return get_impl_nr<N + 1>(&p);
 }
 template <class T, int N>
-decltype(auto) get_impl_type(pool_type<N, T> *object) noexcept {
+auto &get_impl_type(pool_type<N, T> *object) noexcept {
   return static_cast<pool_type<N, T> &>(*object).object;
 }
 template <class T, class TPool>
-decltype(auto) get(TPool &p) noexcept {
+auto &get(TPool &p) noexcept {
   return get_impl_type<T>(&p);
 }
 template <class... Ts>
@@ -877,16 +877,19 @@ template <class... Ts>
 using count_initial_states = aux::count<is_initial, Ts...>;
 
 template <class... Ts>
-using merge_deps = aux::apply_t<aux::pool, aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>>;
+using merge_deps = aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>;
 
-template <class T>
-class sm : public state<sm<T>> {
-  using transitions_t = decltype(aux::declval<T>().configure());
-  using deps_t = aux::apply_t<aux::pool, aux::apply_t<detail::merge_deps, transitions_t>>;
+template <class SM>
+class sm : public state<sm<SM>> {
+  using transitions_t = decltype(aux::declval<SM>().configure());
   using mappings_t = detail::mappings_t<transitions_t>;
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
   using sub_states_t = aux::apply_t<get_sub_states, states_t>;
+  using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
+  using events_ids_t = aux::apply_t<aux::type_id, events_t>;
+  using deps_t =
+      aux::apply_t<aux::pool, aux::join_t<aux::type_list<SM>, aux::apply_t<detail::merge_deps, transitions_t>>>;
   static constexpr auto regions =
       aux::get_size<transitions_t>::value > 0 ? aux::apply_t<count_initial_states, states_t>::value : 1;
 
@@ -899,19 +902,14 @@ class sm : public state<sm<T>> {
   friend struct transition_impl;
 
  public:
-  using events = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
+  using events = events_t;
 
   sm(sm &&) = default;
   sm(const sm &) = delete;
   sm &operator=(const sm &) = delete;
 
   template <class... TDeps>
-  explicit sm(TDeps &&... deps) noexcept : deps_{deps...}, transitions_(T{}.configure()) {
-    initialize(states_t{});
-  }
-
-  template <class... TDeps>
-  explicit sm(T &sm, TDeps &&... deps) noexcept : deps_{deps...}, transitions_(sm.configure()) {
+  explicit sm(TDeps &&... deps) noexcept : deps_{deps...}, transitions_(aux::get<SM>(deps_).configure()) {
     initialize(states_t{});
   }
 
@@ -925,11 +923,16 @@ class sm : public state<sm<T>> {
     visit_current_states_impl(visitor, states_t{}, aux::make_index_sequence<regions>{});
   }
 
-  template <class TFlag>
-  bool is(const TFlag &) const noexcept {
+  template <class T>
+  bool is(const T &) const noexcept {
     auto result = false;
-    visit_current_states([&](auto state) { result |= aux::is_base_of<TFlag, decltype(state)>::value; });
+    visit_current_states([&](auto state) { result |= aux::is_base_of<T, decltype(state)>::value; });
     return result;
+  }
+
+  template <class T>
+  const T &get() noexcept {
+    return aux::get<T>(deps_);
   }
 
  private:

@@ -28,7 +28,7 @@ struct states {
 };
 
 int main() {
-  msm::sm<states> sm;
+  msm::sm<states> sm{states{}};
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
