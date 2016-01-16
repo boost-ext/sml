@@ -100,7 +100,7 @@ Yours scalable C++14 one header(1k lines) eUML-like meta state machine library w
 > **Supported/tested compilers**
 
 * Clang-3.4+
-* g++-5.2+
+* GCC-5.2+
 
 > **Hello world example**
 
@@ -272,17 +272,18 @@ namespace msm {
     public:
       using events; // list of supported events 
 
-      explicit sm(TDeps...) noexcept; // action/guards dependencies 
+      template<class... TDeps> // no requirements
+      explicit sm(TDeps&&...) noexcept; // action/guards dependencies 
       sm_impl(const sm &) = delete;
       sm_impl(sm &&) = default;
 
-      template <class TEvent> // none requirements, returns whether event was handled or not
+      template <class TEvent> // no requirements, returns whether event was handled or not
       bool process_event(const TEvent &) noexcept;
 
       template <class TVisitor> // requires TVisitor to be callable with auto
       void visit_current_states(const TVisitor &) noexcept;
 
-      template <class TFlag> // none requirements, returns whether active state has TFlag or not
+      template <class TFlag> // no requirements, returns whether active state has TFlag or not
       bool is(const TFlag &) const noexcept;
     };
 
@@ -295,10 +296,10 @@ namespace msm {
 
     action process_event;
 
-    template <class TEvent> // none requirements
+    template <class TEvent> // no requirements
     auto event{};
 
-    template <class T> // none requirements
+    template <class T> // no requirements
     using state;
 
     template <class T, T...>
