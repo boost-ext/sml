@@ -164,13 +164,16 @@ using namespace boost::msm::front::euml;
 
 BOOST_MSM_EUML_EVENT(open_close)
 
-BOOST_MSM_EUML_ACTION(open_drawer){template <class FSM, class EVT, class SourceState, class TargetState> void
+BOOST_MSM_EUML_ACTION(open_drawer){
+    template <class FSM, class EVT, class SourceState, class TargetState>
+    void operator()(EVT const &, FSM &, SourceState &, TargetState &){}
+};
 
-                                   operator()(EVT const &, FSM &, SourceState &, TargetState &){}};
 BOOST_MSM_EUML_ACTION(close_drawer){
-    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
-                                                                                          SourceState &,
-                                                                                          TargetState &){}};
+    template <class FSM, class EVT, class SourceState, class TargetState>
+    void operator()(EVT const &, FSM &, SourceState &, TargetState &){}
+};
+
 BOOST_MSM_EUML_STATE((), Empty)
 BOOST_MSM_EUML_STATE((), Open)
 
@@ -178,7 +181,8 @@ BOOST_MSM_EUML_TRANSITION_TABLE(
     (
      Open == Empty + open_close / open_drawer,
      Empty == Open + open_close / close_drawer
-    ), transition_table)
+    ), transition_table
+)
 
 BOOST_MSM_EUML_ACTION(Log_No_Transition){
     template <class FSM, class Event> void operator()(Event const &, FSM &, int state){}};
@@ -193,16 +197,41 @@ BOOST_MSM_EUML_DECLARE_STATE_MACHINE((transition_table,                         
                                       ),
                                      player_)  // fsm name
 
-typedef msm::back::state_machine<player_> player;
-
 int main() {
-    player sm;
+    msm::back::state_machine<player_> sm;
     sm.process_event(open_close);
     sm.process_event(open_close);
 }
 ```
 
-* DSL introduction
+```cpp
+// msm-lite
+
+#include "msm/msm.hpp"
+
+struct open_close {};
+
+auto open_drawer = [] {};
+auto close_drawer = [] {};
+
+struct player {
+  auto configure() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+        "Empty"_s(initial) == "Open"_s + event<open_close> / open_drawer,
+        "Open"_s == "Empty"_s + event<open_close> / close_drawer
+    );
+  }
+};
+
+int main() {
+  msm::sm<player> player;
+  player.process_event(open_close{});
+  player.process_event(open_close{});
+}
+```
+
+* msm-lite DSL
 
     | Expression | Description |
     |------------|-------------|
@@ -212,7 +241,7 @@ int main() {
     | src\_state == dst\_state + event<e> | transition on event e without guard or action |
     | state + event<e> [ guard ] | internal transition on event e when guard |
 
-* Data dependencies introduction
+* msm-lite data dependencies
 
     ```cpp
                                  /---- event 
