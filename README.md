@@ -267,7 +267,7 @@ sm<...> s{42, 87.0};
 
 ```cpp    
 namespace msm {
-    template <class T> // requires T to be T.configure()
+    template <class T> // requires T to have T.configure()
     class sm {
     public:
       using events; // list of supported events 
@@ -297,7 +297,7 @@ namespace msm {
     template <class T> // none requirements
     using state;
 
-    template <class T, T... Chars>
+    template <class T, T...>
     state<T...> operator""_s();
 
     state initial;
