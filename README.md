@@ -152,9 +152,10 @@ int main() {
 
 * Boost.MSM - eUML vs msm-lite
 
-| Events           |          |
-|------------------|----------|
+    * Events
+
 | Boost.MSM - eUML | msm-lite |
+|------------------|----------|
 | BOOST_MSM_EUML_EVENT(play) | struct play {}; |
 
 * DSL introduction
