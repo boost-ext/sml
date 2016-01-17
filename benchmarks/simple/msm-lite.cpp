@@ -54,7 +54,7 @@ struct player {
 };
 
 int main() {
-  msm::sm<player> sm{player{}};
+  msm::sm<player> sm;
 
   benchmark_execution_speed([&] {
     for (auto i = 0; i < 1'000'000; ++i) {

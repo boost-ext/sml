@@ -57,6 +57,10 @@ struct is_same<T, T> : true_type {};
 template <class T, class U>
 struct is_base_of : integral_constant<bool, __is_base_of(T, U)> {};
 template <class T>
+struct is_trivially_constructible : integral_constant<bool, __is_trivially_constructible(T)> {};
+template <class T>
+using is_trivially_constructible_t = typename is_trivially_constructible<T>::type;
+template <class T>
 struct remove_reference {
   using type = T;
 };
@@ -188,12 +192,16 @@ template <int N, class TPool>
 auto &get(TPool &p) noexcept {
   return get_impl_nr<N + 1>(&p);
 }
+template <class T>
+auto get_impl_type(...) noexcept {
+  return aux::remove_reference_t<T>{};
+}
 template <class T, int N>
 auto &get_impl_type(pool_type<N, T> *object) noexcept {
   return static_cast<pool_type<N, T> &>(*object).object;
 }
 template <class T, class TPool>
-auto &get(TPool &p) noexcept {
+decltype(auto) get(TPool &p) noexcept {
   return get_impl_type<T>(&p);
 }
 template <class... Ts>
@@ -340,14 +348,11 @@ struct state<TState(TBase)> : state_impl<state<TState(TBase)>>, TBase {
 template <class TState>
 using is_initial = aux::is_base_of<initial_state, TState>;
 
-template <class T>
-decltype(aux::declval<T>().configure(), aux::true_type()) is_sm_impl(int);
-
 template <class>
-aux::false_type is_sm_impl(...);
+struct is_sm : aux::false_type {};
 
 template <class T>
-struct is_sm : decltype(is_sm_impl<T>(0)) {};
+struct is_sm<state<sm<T>>> : aux::true_type {};
 
 template <class>
 struct event {
@@ -878,9 +883,17 @@ using get_events = aux::join_t<typename get_events_impl<typename Ts::src_state, 
 template <class... Ts>
 using get_states = aux::join_t<aux::type_list<typename Ts::src_state, typename Ts::dst_state>...>;
 
+template <class T, class U = T>
+using get_sm = aux::conditional_t<aux::is_trivially_constructible<T>::value, aux::type_list<>, aux::type_list<U &>>;
+
+template <class>
+struct get_sub_sm : aux::type_list<> {};
+
+template <class T>
+struct get_sub_sm<state<sm<T>>> : get_sm<T, sm<T>> {};
+
 template <class... Ts>
-using get_sub_states = aux::join_t<
-    aux::conditional_t<is_sm<typename Ts::type>::value, aux::type_list<typename Ts::type>, aux::type_list<>>...>;
+using get_sub_sms = aux::join_t<typename get_sub_sm<Ts>::type...>;
 
 template <class... Ts>
 using count_initial_states = aux::count<is_initial, Ts...>;
@@ -894,12 +907,11 @@ class sm {
   using mappings_t = detail::mappings_t<transitions_t>;
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
-  using sub_states_t = aux::apply_t<get_sub_states, states_t>;
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
   using events_ids_t = aux::apply_t<aux::type_id, events_t>;
-  using deps_t =
-      aux::apply_t<aux::pool,
-                   aux::join_t<aux::type_list<SM>, sub_states_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
+  using sm_t = get_sm<SM>;
+  using sub_sms_t = aux::apply_t<get_sub_sms, states_t>;
+  using deps_t = aux::apply_t<aux::pool, aux::join_t<sm_t, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
   static constexpr auto regions =
       aux::get_size<transitions_t>::value > 0 ? aux::apply_t<count_initial_states, states_t>::value : 1;
 
@@ -919,13 +931,13 @@ class sm {
   sm &operator=(const sm &) = delete;
 
   template <class... TDeps>
-  explicit sm(TDeps &&... deps) noexcept : deps_{deps...}, transitions_(aux::get<SM>(deps_).configure()) {
+  explicit sm(TDeps &&... deps) noexcept : deps_{deps...}, transitions_(aux::get<SM &>(deps_).configure()) {
     initialize(states_t{});
   }
 
   template <class TEvent>
   bool process_event(const TEvent &event) noexcept {
-    return process_event_impl(event, states_t{}, aux::is_empty<sub_states_t>{});
+    return process_event_impl(event, states_t{}, aux::is_empty<sub_sms_t>{});
   }
 
   template <class TVisitor>
@@ -938,11 +950,6 @@ class sm {
     auto result = false;
     visit_current_states([&](auto state) { result |= aux::is_base_of<T, decltype(state)>::value; });
     return result;
-  }
-
-  template <class T>
-  const T &get() noexcept {
-    return aux::get<T>(deps_);
   }
 
  private:
@@ -972,15 +979,14 @@ class sm {
                                                                  event, states, aux::make_index_sequence<regions>{});
   }
 
-  template <class TEvent, class TState, aux::enable_if_t<!is_sm<typename TState::type>::value, int> = 0>
+  template <class TEvent, class T, aux::enable_if_t<!is_sm<T>::value, int> = 0>
   static auto process_event_sub(sm &, const TEvent &) noexcept {
     return false;
   }
 
-  template <class TEvent, class TState, aux::enable_if_t<is_sm<typename TState::type>::value, int> = 0>
+  template <class TEvent, class T, aux::enable_if_t<is_sm<T>::value, int> = 0>
   static auto process_event_sub(sm &self, const TEvent &event) noexcept {
-    using type = typename TState::type;
-    return sm<type>{aux::get<type>(self.deps_)}.process_event(event);
+    return aux::get<typename T::type &>(self.deps_).process_event(event);
   }
 
   template <class TMappings, class TEvent, class... TStates>

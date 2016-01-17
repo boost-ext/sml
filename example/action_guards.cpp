@@ -58,7 +58,7 @@ struct action_guards {
 };
 
 int main() {
-  msm::sm<action_guards> sm{action_guards{}, 42};
+  msm::sm<action_guards> sm{42};
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
