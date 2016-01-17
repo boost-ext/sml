@@ -568,6 +568,32 @@ test state_names = [] {
   sm.visit_current_states([](auto state) { expect(std::string{"s1"} == std::string{state.c_str()}); });
 };
 
+test loop = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1>
+        , s1 == s2 + event<e2>
+        , s2 == idle + event<e3>
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  expect_states(sm, idle(msm::initial));
+  expect(sm.process_event(e1{}));
+  expect_states(sm, s1);
+  expect(sm.process_event(e2{}));
+  expect_states(sm, s2);
+  expect(sm.process_event(e3{}));
+  expect_states(sm, idle);
+  //expect(sm.process_event(e1{}));
+  //expect_states(sm, idle(msm::initial));
+};
+
 test composite = [] {
   static auto guard = [](int i) {
     expect(42 == i);
