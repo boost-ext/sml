@@ -6,6 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "benchmark.hpp"
+#include <cassert>
 #include "msm/msm.hpp"
 
 struct play {};
@@ -16,18 +17,6 @@ struct open_close {};
 struct cd_detected {};
 struct NextSong {};
 struct PreviousSong {};
-
-// void start_playback() {}
-// void open_drawer() {}
-// void close_drawer() {}
-// void store_cd_info() {}
-// void stop_playback() {}
-// void pause_playback() {}
-// void resume_playback() {}
-// void stop_and_open() {}
-// void stopped_again() {}
-// void start_next_song() {}
-// void start_prev_song() {}
 
 auto start_playback = [] {};
 auto open_drawer = [] {};
@@ -45,7 +34,9 @@ struct player {
   struct playing {
     auto configure() const noexcept {
       using namespace msm;
-      state Song1, Song2, Song3;
+      state<class Song1> Song1;
+      state<class Song2> Song2;
+      state<class Song3> Song3;
 
       // clang-format off
         return make_transition_table(
@@ -60,8 +51,11 @@ struct player {
 
   auto configure() const noexcept {
     using namespace msm;
-    state Empty, Open, Stopped, Paused;
-    sm<playing> Playing;
+    state<class Empty> Empty;
+    state<class Open> Open;
+    state<class Stopped> Stopped;
+    state<class Paused> Paused;
+    state<sm<playing>> Playing;
 
     // clang-format off
     return make_transition_table(
@@ -85,7 +79,7 @@ struct player {
 int main() {
   msm::sm<player> sm;
 
-  benchmark([&] {
+  benchmark_execution_speed([&] {
     for (auto i = 0; i < 1'000; ++i) {
       sm.process_event(open_close());
       sm.process_event(open_close());
@@ -93,7 +87,7 @@ int main() {
       sm.process_event(play());
 
       for (auto j = 0; j < 1'000; ++j) {
-        sm.process_event(NextSong());
+        assert(sm.process_event(NextSong()));
         sm.process_event(NextSong());
         sm.process_event(PreviousSong());
         sm.process_event(PreviousSong());
@@ -110,4 +104,5 @@ int main() {
       sm.process_event(open_close());
     }
   });
+  benchmark_memory_usage(sm);
 }

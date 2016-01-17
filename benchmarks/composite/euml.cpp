@@ -141,7 +141,7 @@ int main() {
   player p2;
   p2.start();
 
-  benchmark([&] {
+  benchmark_execution_speed([&] {
     for (auto i = 0; i < 1'000; ++i) {
       p2.process_event(open_close);
       p2.process_event(open_close);
@@ -165,4 +165,5 @@ int main() {
       p2.process_event(open_close);
     }
   });
+  benchmark_memory_usage(p2);
 }

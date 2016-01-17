@@ -238,12 +238,6 @@ template <template <class...> class T, class... Ts>
 struct get_size<T<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
-template <class>
-struct is_empty;
-template <template <class...> class T>
-struct is_empty<T<>> : true_type {};
-template <template <class...> class T, class U, class... Ts>
-struct is_empty<T<U, Ts...>> : false_type {};
 }  // aux
 namespace detail {
 template <class>
@@ -899,6 +893,9 @@ template <class... Ts>
 using count_initial_states = aux::count<is_initial, Ts...>;
 
 template <class... Ts>
+using count_sub_sms = aux::count<is_sm, Ts...>;
+
+template <class... Ts>
 using merge_deps = aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>;
 
 template <class SM>
@@ -912,6 +909,7 @@ class sm {
   using sm_t = get_sm<SM>;
   using sub_sms_t = aux::apply_t<get_sub_sms, states_t>;
   using deps_t = aux::apply_t<aux::pool, aux::join_t<sm_t, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
+  using sms_c = aux::apply_t<count_sub_sms, states_t>;
   static constexpr auto regions =
       aux::get_size<transitions_t>::value > 0 ? aux::apply_t<count_initial_states, states_t>::value : 1;
 
@@ -937,7 +935,7 @@ class sm {
 
   template <class TEvent>
   bool process_event(const TEvent &event) noexcept {
-    return process_event_impl(event, states_t{}, aux::is_empty<sub_sms_t>{});
+    return process_event_impl(event, states_t{}, aux::integral_constant<bool, !sms_c::value>{});
   }
 
   template <class TVisitor>
