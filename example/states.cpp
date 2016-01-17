@@ -29,8 +29,8 @@ struct states {
 
 int main() {
   msm::sm<states> sm;
-  sm.process_event(e1{});
-  sm.process_event(e2{});
-  sm.process_event(e3{});
+  assert(sm.process_event(e1{}));
+  assert(sm.process_event(e2{}));
+  assert(sm.process_event(e3{}));
   assert(sm.is(terminate));
 }

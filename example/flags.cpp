@@ -39,10 +39,10 @@ int main() {
   msm::sm<flags> sm;
   assert(sm.is(msm::initial));
 
-  sm.process_event(e1{});
+  assert(sm.process_event(e1{}));
   assert(!sm.is(msm::initial));
 
-  sm.process_event(e2{});
+  assert(sm.process_event(e2{}));
   assert(sm.is(custom_flag));
 
   assert(sm.process_event(e3{}));

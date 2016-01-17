@@ -38,8 +38,8 @@ struct events {
 
 int main() {
   msm::sm<events> sm;
-  sm.process_event(e1{});
-  sm.process_event(e2{});
-  sm.process_event(42);
+  assert(sm.process_event(e1{}));
+  assert(sm.process_event(e2{}));
+  assert(sm.process_event(42));
   assert(sm.is(terminate));
 }

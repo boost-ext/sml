@@ -5,9 +5,6 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#if 1
-int main() {}
-#else
 #include "msm/msm.hpp"
 #include <iostream>
 #include <cassert>
@@ -21,6 +18,7 @@ struct {
 } terminate;
 
 struct sub {
+  sub() {}
   auto configure() const noexcept {
     using namespace msm;
     state<class idle> idle;
@@ -37,11 +35,13 @@ struct sub {
 };
 
 struct composite {
+  composite() {}
   auto configure() const noexcept {
     using namespace msm;
     state<class idle> idle;
     state<class s1> s1;
     state<class s2> s2;
+    state<sm<sub>> sub_;
 
     // clang-format off
       return make_transition_table(
@@ -51,21 +51,18 @@ struct composite {
         );
     // clang-format on
   }
-
-  const msm::sm<sub> &sub_;
 };
 
 int main() {
   sub sub_;
   msm::sm<sub> sub_sm{sub_};
-  composite composite_{sub_sm};
-  msm::sm<composite> sm{composite_};
+  composite composite_;
+  msm::sm<composite> sm{composite_, sub_sm};
 
-  sm.process_event(e1{});
-  sm.process_event(e2{});  // enter sub sm
-  sm.process_event(e3{});  // in sub sm
-  sm.process_event(e4{});  // finish sub sm
-  sm.process_event(e5{});  // exit sub sm
+  assert(sm.process_event(e1{}));
+  assert(sm.process_event(e2{}));  // enter sub sm
+  assert(sm.process_event(e3{}));  // in sub sm
+  assert(sm.process_event(e4{}));  // finish sub sm
+  assert(sm.process_event(e5{}));  // exit sub sm
   assert(sm.is(terminate));
 }
-#endif

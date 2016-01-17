@@ -35,7 +35,7 @@ struct transitions {
 int main() {
   msm::sm<transitions> sm;
   assert(!sm.is(msm::initial));
-  sm.process_event(e1{});
-  sm.process_event(e2{});
+  assert(sm.process_event(e1{}));
+  assert(sm.process_event(e2{}));
   assert(sm.is(terminate));
 }

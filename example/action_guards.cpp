@@ -59,9 +59,9 @@ struct action_guards {
 
 int main() {
   msm::sm<action_guards> sm{42};
-  sm.process_event(e1{});
-  sm.process_event(e2{});
-  sm.process_event(e3{});
-  sm.process_event(e4{});
+  assert(sm.process_event(e1{}));
+  assert(sm.process_event(e2{}));
+  assert(sm.process_event(e3{}));
+  assert(sm.process_event(e4{}));
   assert(sm.is(terminate));
 }

@@ -40,12 +40,12 @@ struct orthogonal_regions {
 int main() {
   msm::sm<orthogonal_regions> sm;
   assert(sm.is(msm::initial));
-  sm.process_event(e1{});
-  sm.process_event(e2{});
+  assert(sm.process_event(e1{}));
+  assert(sm.process_event(e2{}));
   assert(sm.is(terminate));
   assert(sm.is(msm::initial));
-  sm.process_event(e3{});
-  sm.process_event(e4{});
+  assert(sm.process_event(e3{}));
+  assert(sm.process_event(e4{}));
   assert(sm.is(terminate));
   assert(!sm.is(msm::initial));
 }
