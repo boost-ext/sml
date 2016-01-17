@@ -6,7 +6,6 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "benchmark.hpp"
-#include <cassert>
 #include "msm/msm.hpp"
 
 struct play {};
@@ -87,7 +86,7 @@ int main() {
       sm.process_event(play());
 
       for (auto j = 0; j < 1'000; ++j) {
-        assert(sm.process_event(NextSong()));
+        sm.process_event(NextSong());
         sm.process_event(NextSong());
         sm.process_event(PreviousSong());
         sm.process_event(PreviousSong());
