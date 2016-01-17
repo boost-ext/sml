@@ -912,10 +912,10 @@ class sm {
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
   using events_ids_t = aux::apply_t<aux::type_id, events_t>;
-  using sm_t = get_sm<SM>;
   using sub_sms_t = aux::apply_t<get_sub_sms, states_t>;
-  using deps_t = aux::apply_t<aux::pool, aux::join_t<sm_t, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
-  using has_sub_sm = aux::integral_constant<bool, (aux::apply_t<count_sub_sms, states_t>::value > 0)>;
+  using deps_t =
+      aux::apply_t<aux::pool, aux::join_t<get_sm<SM>, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
+  using has_sub_sms = aux::integral_constant<bool, (aux::apply_t<count_sub_sms, states_t>::value > 0)>;
   static constexpr auto regions =
       aux::get_size<transitions_t>::value > 0 ? aux::apply_t<count_initial_states, states_t>::value : 1;
 
@@ -973,26 +973,26 @@ class sm {
 
   template <class TEvent>
   auto process_event_impl(const TEvent &event, const aux::true_type &) noexcept {
-    return process_event_impl<get_mapping_t<TEvent, mappings_t>>(event, states_t{},
-                                                                 aux::make_index_sequence<regions>{});
+    return process_event_self_impl<get_mapping_t<TEvent, mappings_t>>(event, states_t{},
+                                                                      aux::make_index_sequence<regions>{});
   }
 
   template <class TEvent>
   auto process_event_impl(const TEvent &event, const aux::false_type &) noexcept {
-    return process_event_sub_impl(event, states_t{}, has_sub_sm{});
+    return process_event_sub_impl(event, states_t{}, has_sub_sms{});
   }
 
   template <class TMappings, class TEvent, class... TStates>
-  auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &,
-                          const aux::index_sequence<1> &) noexcept {
+  auto process_event_self_impl(const TEvent &event, const aux::type_list<TStates...> &,
+                               const aux::index_sequence<1> &) noexcept {
     static bool (*dispatch_table[])(
         sm &, const TEvent &, aux::byte &) = {&get_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     return dispatch_table[current_state_[0]](*this, event, current_state_[0]);
   }
 
   template <class TMappings, class TEvent, class... TStates, int... Ns>
-  auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &,
-                          const aux::index_sequence<Ns...> &) noexcept {
+  auto process_event_self_impl(const TEvent &event, const aux::type_list<TStates...> &,
+                               const aux::index_sequence<Ns...> &) noexcept {
     static bool (*dispatch_table[])(
         sm &, const TEvent &, aux::byte &) = {&get_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     auto handled = false;

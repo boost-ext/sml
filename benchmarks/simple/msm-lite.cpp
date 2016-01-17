@@ -38,7 +38,7 @@ struct player {
     return make_transition_table(
         Stopped == Playing + event<play> / start_playback,
         Pause == Playing + event<end_pause> / resume_playback,
-        Open == Empty + event<open_close> / close_drawer,
+        Open == Empty(initial) + event<open_close> / close_drawer,
         Empty(initial) == Open + event<open_close> / open_drawer,
         Pause == Open + event<open_close> / stop_and_open,
         Stopped == Open + event<open_close> / open_drawer,
@@ -46,7 +46,7 @@ struct player {
         Playing == Pause + event<pause> / pause_playback,
         Playing == Stopped + event<stop> / stop_playback,
         Pause == Stopped + event<stop> / stop_playback,
-        Empty == Stopped + event<cd_detected> / store_cd_info,
+        Empty(initial) == Stopped + event<cd_detected> / store_cd_info,
         Stopped == Stopped + event<stop> / stopped_again
     );
     // clang-format on

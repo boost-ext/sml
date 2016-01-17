@@ -29,25 +29,27 @@ auto stopped_again = [] {};
 auto start_next_song = [] {};
 auto start_prev_song = [] {};
 
+struct playing {
+  playing() {}
+  auto configure() const noexcept {
+    using namespace msm;
+    state<class Song1> Song1;
+    state<class Song2> Song2;
+    state<class Song3> Song3;
+
+    // clang-format off
+    return make_transition_table(
+      Song1(initial) == Song2 + event<NextSong> / start_next_song,
+      Song2 == Song1(initial) + event<PreviousSong> / start_prev_song,
+      Song2 == Song3 + event<NextSong> / start_next_song,
+      Song3 == Song2 + event<PreviousSong> / start_prev_song
+    );
+    // clang-format on
+  }
+};
+
 struct player {
-  struct playing {
-    auto configure() const noexcept {
-      using namespace msm;
-      state<class Song1> Song1;
-      state<class Song2> Song2;
-      state<class Song3> Song3;
-
-      // clang-format off
-        return make_transition_table(
-          Song1(initial) == Song2 + event<NextSong> / start_next_song,
-          Song2 == Song1 + event<PreviousSong> / start_prev_song,
-          Song2 == Song3 + event<NextSong> / start_next_song,
-          Song3 == Song2 + event<PreviousSong> / start_prev_song
-        );
-      // clang-format on
-    }
-  };
-
+  player() {}
   auto configure() const noexcept {
     using namespace msm;
     state<class Empty> Empty;
@@ -61,9 +63,9 @@ struct player {
       Stopped == Playing + event<play> / start_playback,
       Stopped == Open + event<open_close> / open_drawer,
       Stopped == Stopped + event<stop> / stopped_again,
-      Open == Empty + event<open_close> / close_drawer,
+      Open == Empty(initial) + event<open_close> / close_drawer,
       Empty(initial) == Open + event<open_close> / open_drawer,
-      Empty == Stopped + event<cd_detected> / store_cd_info,
+      Empty(initial) == Stopped + event<cd_detected> / store_cd_info,
       Playing == Stopped + event<stop> / stop_playback,
       Playing == Paused + event<pause> / pause_playback,
       Playing == Open + event<open_close> / stop_and_open,
@@ -76,7 +78,10 @@ struct player {
 };
 
 int main() {
-  msm::sm<player> sm;
+  playing pl;
+  msm::sm<playing> sm_pl{pl};
+  player p;
+  msm::sm<player> sm{p, sm_pl};
 
   benchmark_execution_speed([&] {
     for (auto i = 0; i < 1'000; ++i) {
