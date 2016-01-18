@@ -242,8 +242,6 @@ struct get_size<T<Ts...>> {
 };
 }  // aux
 namespace detail {
-template <class>
-class sm;
 template <class...>
 struct transition;
 template <class, class>
@@ -255,22 +253,34 @@ struct transition_eg;
 template <class, class>
 struct transition_ea;
 
+template <class>
+class sm;
+
+template <class>
+struct is_sm : aux::false_type {};
+
+template <class T>
+struct is_sm<sm<T>> : aux::true_type {};
+
+struct sm_empty {
+  auto configure() noexcept { return aux::pool<>{}; }
+};
+
 struct operator_base {};
-struct self {};
 struct anonymous {};
 struct on_entry {};
 struct on_exit {};
 struct always {
-  auto operator()() { return true; }
+  auto operator()() const noexcept { return true; }
 };
 struct none {
-  void operator()() {}
+  void operator()() noexcept {}
 };
 struct process_event {
   template <class TEvent>
   struct process_impl {
     template <class SM>
-    void operator()(SM &sm, ...) noexcept {
+    void operator()(sm<SM> &sm, ...) noexcept {
       sm.process_event(event);
     }
 
@@ -341,12 +351,6 @@ struct state<TState(initial_state)> : state_impl<state<TState(initial_state)>> {
 };
 
 template <class>
-struct is_sm : aux::false_type {};
-
-template <class T>
-struct is_sm<sm<T>> : aux::true_type {};
-
-template <class>
 struct event {
   template <class T>
   auto operator[](const T &t) const noexcept {
@@ -369,8 +373,8 @@ template <class T, class>
 auto args_impl__(int) -> aux::function_traits_t<decltype(&T::operator())>;
 template <class T, class E>
 auto args__(...) -> decltype(args_impl__<T, E>(0));
-template <class T, class>
-auto args__(int) -> aux::function_traits_t<decltype(&T::call_operator_args__)>;  // TODO deduce sm
+template <class T, class E>
+auto args__(int) -> aux::function_traits_t<decltype(&T::template operator() < sm_empty, E > )>;
 template <class T, class E>
 using args_t = decltype(args__<T, E>(0));
 
@@ -380,7 +384,7 @@ struct ignore;
 template <class E, class... Ts>
 struct ignore<E, aux::type_list<Ts...>> {
   using type = aux::join_t<aux::conditional_t<aux::is_same<E, aux::remove_reference_t<Ts>>::value ||
-                                                  aux::is_same<Ts, aux::remove_reference_t<self>>::value,
+                                                  aux::is_same<sm<sm_empty>, aux::remove_reference_t<Ts>>::value,
                                               aux::type_list<>, aux::type_list<Ts>>...>;
 };
 
@@ -399,7 +403,7 @@ struct get_deps<T<Ts...>, E, aux::enable_if_t<aux::is_base_of<operator_base, T<T
 
 template <class T, class TEvent, class TDeps, class SM,
           aux::enable_if_t<!aux::is_same<TEvent, aux::remove_reference_t<T>>::value &&
-                               !aux::is_same<self, aux::remove_reference_t<T>>::value,
+                               !aux::is_same<sm<sm_empty>, aux::remove_reference_t<T>>::value,
                            int> = 0>
 decltype(auto) get_arg(const TEvent &, TDeps &deps, SM &) noexcept {
   return aux::get<T>(deps);
@@ -412,7 +416,7 @@ decltype(auto) get_arg(const TEvent &event, TDeps &, SM &) noexcept {
 }
 
 template <class T, class TEvent, class TDeps, class SM,
-          aux::enable_if_t<aux::is_same<self, aux::remove_reference_t<T>>::value, int> = 0>
+          aux::enable_if_t<aux::is_same<sm<sm_empty>, aux::remove_reference_t<T>>::value, int> = 0>
 decltype(auto) get_arg(const TEvent &, TDeps &, SM &sm) noexcept {
   return sm;
 }
