@@ -1072,6 +1072,9 @@ auto operator, (const T1 &t1, const T2 &t2) noexcept {
 template <class TEvent>
 detail::event<TEvent> event{};
 
+auto on_entry = event<detail::on_entry>;
+auto on_exit = event<detail::on_exit>;
+
 template <class T>
 using state = detail::state<T>;
 

@@ -491,6 +491,41 @@ test transition_types = [] {
   msm::sm<c> sm{f, 42, 87.0, 0.0f};
 };
 
+test entry_exit_actions = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      auto entry_action = [this] { a_entry_action++; };
+      auto exit_action = [this] { a_exit_action++; };
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1>
+        , s1 + msm::on_entry / entry_action
+        , s1 + msm::on_exit / exit_action
+        , s1 == s2 + event<e2>
+      );
+      // clang-format on
+    }
+
+    int a_entry_action = 0;
+    int a_exit_action = 0;
+  };
+
+  c c_;
+  msm::sm<c> sm{c_};
+  expect(!c_.a_entry_action);
+  expect(sm.is(idle));
+  expect(sm.process_event(e1{}));
+  expect(1 == c_.a_entry_action);
+  expect(sm.is(s1));
+  expect(0 == c_.a_exit_action);
+  expect(sm.process_event(e2{}));
+  expect(1 == c_.a_entry_action);
+  expect(1 == c_.a_exit_action);
+  expect(sm.is(s2));
+};
+
 test terminate_state = [] {
   struct c {
     auto configure() noexcept {
