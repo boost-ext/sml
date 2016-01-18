@@ -657,8 +657,16 @@ void update_current_state(SM &sm, aux::byte &current_state, const aux::byte &new
   sm.process_event(on_entry{});
 }
 
+template <class S1, class S2, class E>
+struct transition_base {
+  static_assert(aux::conditional_t<aux::is_same<on_entry, E>::value, aux::is_same<S1, S2>, aux::true_type>::value,
+                "on_entry event can't change the state");
+  static_assert(aux::conditional_t<aux::is_same<on_exit, E>::value, aux::is_same<S1, S2>, aux::true_type>::value,
+                "on_exit event can't change the state");
+};
+
 template <class S1, class S2, class E, class G, class A>
-struct transition<state<S1>, state<S2>, event<E>, G, A> {
+struct transition<state<S1>, state<S2>, event<E>, G, A> : transition_base<S1, S2, E> {
   static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
   using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
@@ -683,7 +691,7 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> {
 };
 
 template <class S1, class S2, class E, class A>
-struct transition<state<S1>, state<S2>, event<E>, always, A> {
+struct transition<state<S1>, state<S2>, event<E>, always, A> : transition_base<S1, S2, E> {
   static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
   using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
@@ -704,7 +712,7 @@ struct transition<state<S1>, state<S2>, event<E>, always, A> {
 };
 
 template <class S1, class S2, class E, class G>
-struct transition<state<S1>, state<S2>, event<E>, G, none> {
+struct transition<state<S1>, state<S2>, event<E>, G, none> : transition_base<S1, S2, E> {
   static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
   using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
@@ -727,7 +735,7 @@ struct transition<state<S1>, state<S2>, event<E>, G, none> {
 };
 
 template <class S1, class S2, class E>
-struct transition<state<S1>, state<S2>, event<E>, always, none> {
+struct transition<state<S1>, state<S2>, event<E>, always, none> : transition_base<S1, S2, E> {
   static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
   using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
@@ -928,7 +936,7 @@ class sm {
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
   using events_ids_t = aux::apply_t<aux::type_id, events_t>;
   using deps_t = aux::apply_t<aux::pool, aux::join_t<get_sm<SM>, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
-  static constexpr auto regions = aux::get_size<transitions_t>::value > 0 ? aux::get_size<initial_states_t>::value : 1;
+  static constexpr auto regions = aux::get_size<initial_states_t>::value > 0 ? aux::get_size<initial_states_t>::value : 1;
 
   static_assert(regions > 0, "At least one initial state is required");
 

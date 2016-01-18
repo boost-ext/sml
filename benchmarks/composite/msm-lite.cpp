@@ -30,7 +30,6 @@ auto start_next_song = [] {};
 auto start_prev_song = [] {};
 
 struct playing {
-  playing() {}
   auto configure() const noexcept {
     using namespace msm;
     state<class Song1> Song1;
@@ -49,7 +48,6 @@ struct playing {
 };
 
 struct player {
-  player() {}
   auto configure() const noexcept {
     using namespace msm;
     state<class Empty> Empty;

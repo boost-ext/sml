@@ -11,7 +11,7 @@ VALGRIND:=valgrind --leak-check=full --error-exitcode=1
 
 all: test example benchmarks
 
-benchmarks: benchmarks_header benchmarks_simple benchmarks_complex
+benchmarks: benchmarks_header benchmarks_simple benchmarks_composite benchmarks_complex
 
 benchmarks_%:
 	time $(CXX) benchmarks/$*/msm-lite.cpp -O2 -s -I include -I benchmarks -std=c++1y && ./a.out && ls -lh a.out
