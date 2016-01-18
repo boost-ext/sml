@@ -2,5 +2,5 @@
 Language:               Cpp
 Standard:               Cpp11
 BasedOnStyle:           Google
-ColumnLimit:            120
+ColumnLimit:            128
 ---

@@ -116,8 +116,7 @@ template <int... I1, int... I2>
 struct concat<index_sequence<I1...>, index_sequence<I2...>> : index_sequence<I1..., (sizeof...(I1) + I2)...> {};
 template <int N>
 struct make_index_sequence_impl
-    : concat<typename make_index_sequence_impl<N / 2>::type, typename make_index_sequence_impl<N - N / 2>::type>::type {
-};
+    : concat<typename make_index_sequence_impl<N / 2>::type, typename make_index_sequence_impl<N - N / 2>::type>::type {};
 template <>
 struct make_index_sequence_impl<0> : index_sequence<> {};
 template <>
@@ -546,8 +545,7 @@ struct transition_sg<state<S2>, G> : transition<state<S2>, state<S2>, event<anon
   using transition_t = transition<state<S2>, state<S2>, event<anonymous>, G, none>;
   using transition_t::g;
 
-  transition_sg(const state<S2> &, const G &g)
-      : transition<state<S2>, state<S2>, event<anonymous>, G, none>{g, none{}} {}
+  transition_sg(const state<S2> &, const G &g) : transition<state<S2>, state<S2>, event<anonymous>, G, none>{g, none{}} {}
 
   template <class T>
   auto operator/(const T &t) const noexcept {
@@ -557,8 +555,7 @@ struct transition_sg<state<S2>, G> : transition<state<S2>, state<S2>, event<anon
 
 template <class S2, class A>
 struct transition_sa<state<S2>, A> : transition<state<S2>, state<S2>, event<anonymous>, always, A> {
-  transition_sa(const state<S2> &, const A &a)
-      : transition<state<S2>, state<S2>, event<anonymous>, always, A>{always{}, a} {}
+  transition_sa(const state<S2> &, const A &a) : transition<state<S2>, state<S2>, event<anonymous>, always, A>{always{}, a} {}
 };
 
 template <class S2, class E>
@@ -596,22 +593,19 @@ struct transition<state<S1>, transition<event<E>, G, A>> : transition<state<S1>,
 };
 
 template <class S1, class S2, class E>
-struct transition<state<S1>, transition<state<S2>, event<E>>>
-    : transition<state<S1>, state<S2>, event<E>, always, none> {
+struct transition<state<S1>, transition<state<S2>, event<E>>> : transition<state<S1>, state<S2>, event<E>, always, none> {
   transition(const state<S1> &, const transition<state<S2>, event<E>> &)
       : transition<state<S1>, state<S2>, event<E>, always, none>{always{}, none{}} {}
 };
 
 template <class S1, class S2, class G>
-struct transition<state<S1>, transition_sg<state<S2>, G>>
-    : transition<state<S1>, state<S2>, event<anonymous>, G, none> {
+struct transition<state<S1>, transition_sg<state<S2>, G>> : transition<state<S1>, state<S2>, event<anonymous>, G, none> {
   transition(const state<S1> &, const transition_sg<state<S2>, G> &t)
       : transition<state<S1>, state<S2>, event<anonymous>, G, none>{t.g, none{}} {}
 };
 
 template <class S1, class S2, class A>
-struct transition<state<S1>, transition_sa<state<S2>, A>>
-    : transition<state<S1>, state<S2>, event<anonymous>, always, A> {
+struct transition<state<S1>, transition_sa<state<S2>, A>> : transition<state<S1>, state<S2>, event<anonymous>, always, A> {
   transition(const state<S1> &, const transition_sa<state<S2>, A> &t)
       : transition<state<S1>, state<S2>, event<anonymous>, always, A>{always{}, t.a} {}
 };
@@ -817,16 +811,15 @@ struct get_mapping : aux::type_list<R> {};
 
 template <class E, class T, class R>
 struct get_mapping<event<E>, event<E>, T, R>
-    : aux::type_list<
-          event_mappings<E, aux::apply_t<unique_mappings_t, aux::join_t<typename R::types, typename T::types>>>> {};
+    : aux::type_list<event_mappings<E, aux::apply_t<unique_mappings_t, aux::join_t<typename R::types, typename T::types>>>> {};
 
 template <class S, class T, class R>
 struct get_mapping<state<S>, state<S>, T, R>
     : aux::type_list<state_mappings<S, aux::join_t<typename R::types, typename T::types>>> {};
 
 template <class T, class... Ts>
-struct extend_mapping
-    : aux::join_t<typename get_mapping<typename T::element_type, typename Ts::element_type, T, Ts>::type...> {};
+struct extend_mapping : aux::join_t<typename get_mapping<typename T::element_type, typename Ts::element_type, T, Ts>::type...> {
+};
 
 template <class T, class... Ts>
 using extend_mapping_t = aux::apply_t<aux::inherit, typename extend_mapping<T, Ts...>::type>;
@@ -842,14 +835,13 @@ struct conditional_mapping<true, aux::type<T1, aux::inherit<Rs...>>, T2, Ts...> 
 template <class T1, class T2, class... Rs, class... Ts>
 struct conditional_mapping<false, aux::type<T1, aux::inherit<Rs...>>, T2, Ts...> {
   using type =
-      unique_mappings_impl<aux::type<aux::inherit<T1, aux::type<typename T2::element_type>>, aux::inherit<T2, Rs...>>,
-                           Ts...>;
+      unique_mappings_impl<aux::type<aux::inherit<T1, aux::type<typename T2::element_type>>, aux::inherit<T2, Rs...>>, Ts...>;
 };
 
 template <class T1, class T2, class... Rs, class... Ts>
 struct unique_mappings_impl<aux::type<T1, aux::inherit<Rs...>>, T2, Ts...>
-    : conditional_mapping<aux::is_base_of<aux::type<typename T2::element_type>, T1>::value,
-                          aux::type<T1, aux::inherit<Rs...>>, T2, Ts...>::type {};
+    : conditional_mapping<aux::is_base_of<aux::type<typename T2::element_type>, T1>::value, aux::type<T1, aux::inherit<Rs...>>,
+                          T2, Ts...>::type {};
 
 template <class T1, class Rs>
 struct unique_mappings_impl<aux::type<T1, Rs>> : aux::apply_t<aux::inherit, Rs> {};
@@ -866,8 +858,8 @@ struct mappings;
 template <int... Ns, class... Ts>
 struct mappings<aux::pool_impl<aux::index_sequence<Ns...>, Ts...>>
     : unique_mappings_t<event_mappings<
-          typename Ts::event, aux::inherit<state_mappings<typename Ts::src_state,
-                                                          aux::type_list<aux::integral_constant<int, Ns - 1>>>>>...> {};
+          typename Ts::event,
+          aux::inherit<state_mappings<typename Ts::src_state, aux::type_list<aux::integral_constant<int, Ns - 1>>>>>...> {};
 
 template <class T>
 using mappings_t = typename mappings<typename T::underlying_type>::type;
@@ -919,9 +911,7 @@ class sm {
   using sub_sms_t = aux::apply_t<get_sub_sms, states_t>;
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
   using events_ids_t = aux::apply_t<aux::type_id, events_t>;
-  using deps_t =
-      aux::apply_t<aux::pool, aux::join_t<get_sm<SM>, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
-  using has_sub_sms = aux::integral_constant<bool, (aux::get_size<sub_sms_t>::value > 0)>;
+  using deps_t = aux::apply_t<aux::pool, aux::join_t<get_sm<SM>, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
   static constexpr auto regions = aux::get_size<transitions_t>::value > 0 ? aux::get_size<initial_states_t>::value : 1;
 
   static_assert(regions > 0, "At least one initial state is required");
@@ -978,28 +968,27 @@ class sm {
 
   template <class TEvent>
   auto process_event_impl(const TEvent &event, const aux::true_type &) noexcept {
-    return process_event_self_impl<get_mapping_t<TEvent, mappings_t>>(event, states_t{},
-                                                                      aux::make_index_sequence<regions>{});
+    return process_event_self_impl<get_mapping_t<TEvent, mappings_t>>(event, states_t{}, aux::make_index_sequence<regions>{});
   }
 
   template <class TEvent>
   auto process_event_impl(const TEvent &event, const aux::false_type &) noexcept {
-    return process_event_sub_impl(event, states_t{}, has_sub_sms{});
+    return process_event_sub_impl(event, states_t{}, aux::integral_constant<bool, (aux::get_size<sub_sms_t>::value > 0)>{});
   }
 
   template <class TMappings, class TEvent, class... TStates>
   auto process_event_self_impl(const TEvent &event, const aux::type_list<TStates...> &,
                                const aux::index_sequence<1> &) noexcept {
-    static bool (*dispatch_table[])(
-        sm &, const TEvent &, aux::byte &) = {&get_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
+    static bool (*dispatch_table[])(sm &, const TEvent &,
+                                    aux::byte &) = {&get_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     return dispatch_table[current_state_[0]](*this, event, current_state_[0]);
   }
 
   template <class TMappings, class TEvent, class... TStates, int... Ns>
   auto process_event_self_impl(const TEvent &event, const aux::type_list<TStates...> &,
                                const aux::index_sequence<Ns...> &) noexcept {
-    static bool (*dispatch_table[])(
-        sm &, const TEvent &, aux::byte &) = {&get_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
+    static bool (*dispatch_table[])(sm &, const TEvent &,
+                                    aux::byte &) = {&get_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     auto handled = false;
     int _[]{0, (handled |= dispatch_table[current_state_[Ns - 1]](*this, event, current_state_[Ns - 1]), 0)...};
     (void)_;
@@ -1012,10 +1001,8 @@ class sm {
   }
 
   template <class TEvent, class... TStates>
-  auto process_event_sub_impl(const TEvent &event, const aux::type_list<TStates...> &,
-                              const aux::true_type &) noexcept {
-    static bool (*dispatch_table[])(
-        sm &, const TEvent &) = {&process_sub_event_impl<TStates>::template execute<sm, TEvent>...};
+  auto process_event_sub_impl(const TEvent &event, const aux::type_list<TStates...> &, const aux::true_type &) noexcept {
+    static bool (*dispatch_table[])(sm &, const TEvent &) = {&process_sub_event_impl<TStates>::template execute<sm, TEvent>...};
     // + orthogonal
     return dispatch_table[current_state_[0]](*this, event);
   }
