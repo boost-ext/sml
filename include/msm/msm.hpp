@@ -117,19 +117,6 @@ template <>
 struct make_index_sequence_impl<1> : index_sequence<1> {};
 template <int N>
 using make_index_sequence = typename make_index_sequence_impl<N>::type;
-// probably obsolete
-template <template <class> class T, typename... Ts>
-constexpr auto count_impl() noexcept {
-  auto value = 0;
-  int _[]{0, (T<Ts>::value ? value++ : value)...};
-  (void)_;
-  return value;
-}
-template <template <class> class T, typename... Ts>
-struct count {
-  using type = count;
-  static constexpr auto value = count_impl<T, Ts...>();
-};
 template <class...>
 struct join;
 template <>
@@ -180,13 +167,6 @@ struct pool_type<N, R(Ts...)> {
   using type = R (*)(Ts...);
   type object;
 };
-template <class, class...>
-struct pool_impl;
-template <int... Ns, class... Ts>
-struct pool_impl<index_sequence<Ns...>, Ts...> : pool_type<Ns, Ts>... {
-  explicit pool_impl(Ts... ts) noexcept : pool_type<Ns, Ts>{ts}... {}
-  // pool_impl(pool_impl); // get...
-};
 template <int N, class T>
 auto &get_impl_nr(pool_type<N, T> *object) noexcept {
   return static_cast<pool_type<N, T> &>(*object).object;
@@ -203,10 +183,23 @@ template <class T, int N>
 auto &get_impl_type(pool_type<N, T> *object) noexcept {
   return static_cast<pool_type<N, T> &>(*object).object;
 }
+template <class T, int N>
+auto &get_impl_type(pool_type<N, T &> *object) noexcept {
+  return static_cast<pool_type<N, T &> &>(*object).object;
+}
 template <class T, class TPool>
 decltype(auto) get(TPool &p) noexcept {
   return get_impl_type<T>(&p);
 }
+template <class, class...>
+struct pool_impl;
+template <int... Ns, class... Ts>
+struct pool_impl<index_sequence<Ns...>, Ts...> : pool_type<Ns, Ts>... {
+  explicit pool_impl(Ts... ts) noexcept : pool_type<Ns, Ts>{ts}... {}
+  template <class... TArgs>
+  explicit pool_impl(int, const pool_impl<TArgs...> &pool) noexcept
+      : pool_type<Ns, Ts>{aux::get<Ts>(const_cast<pool_impl<TArgs...> &>(pool))}... {}
+};
 // switch to using
 template <class... Ts>
 struct pool : pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {
@@ -783,7 +776,7 @@ template <class T>
 struct process_sub_event_impl<sm<T>> {
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event) noexcept {
-    return aux::get<sm<T> &>(self.deps_).process_event(event);
+    return aux::get<sm<T>>(self.deps_).process_event(event);
   }
 };
 
@@ -897,8 +890,7 @@ using get_initial_states =
     aux::join_t<aux::conditional_t<Ts::has_initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>...>;
 
 template <class T, class U = T>
-// U or U&
-using get_sm = aux::conditional_t<aux::is_trivially_constructible<T>::value, aux::type_list<>, aux::type_list<U &>>;
+using get_sm = aux::conditional_t<aux::is_trivially_constructible<T>::value, aux::type_list<U>, aux::type_list<U &>>;
 
 template <class>
 struct get_sub_sm : aux::type_list<> {};
@@ -908,9 +900,6 @@ struct get_sub_sm<sm<T>> : get_sm<T, sm<T>> {};
 
 template <class... Ts>
 using get_sub_sms = aux::join_t<typename get_sub_sm<Ts>::type...>;
-
-template <class... Ts>
-using count_sub_sms = aux::count<is_sm, Ts...>;
 
 template <class... Ts>
 using merge_deps = aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>;
@@ -927,9 +916,7 @@ class sm {
   using events_ids_t = aux::apply_t<aux::type_id, events_t>;
   using deps_t =
       aux::apply_t<aux::pool, aux::join_t<get_sm<SM>, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
-  // change to get_size
-  using has_sub_sms = aux::integral_constant<bool, (aux::apply_t<count_sub_sms, states_t>::value > 0)>;
-  // change to get_size of initials
+  using has_sub_sms = aux::integral_constant<bool, (aux::get_size<sub_sms_t>::value > 0)>;
   static constexpr auto regions = aux::get_size<transitions_t>::value > 0 ? aux::get_size<initial_states_t>::value : 1;
 
   static_assert(regions > 0, "At least one initial state is required");
@@ -950,11 +937,9 @@ class sm {
   sm(const sm &) = delete;
   sm &operator=(const sm &) = delete;
 
-  template <class>
-  struct q;
   template <class... TDeps>
-  explicit sm(TDeps &&... deps) noexcept : deps_{deps...}, transitions_(aux::get<SM &>(deps_).configure()) {
-    // deps{pool<TDeps...>{deps...}}
+  explicit sm(TDeps &&... deps) noexcept : deps_{0, aux::pool<TDeps...>{deps...}},
+                                           transitions_(aux::get<SM>(deps_).configure()) {
     initialize(initial_states_t{});
   }
 

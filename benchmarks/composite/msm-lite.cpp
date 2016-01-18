@@ -78,10 +78,7 @@ struct player {
 };
 
 int main() {
-  playing pl;
-  msm::sm<playing> sm_pl{pl};
-  player p;
-  msm::sm<player> sm{p, sm_pl};
+  msm::sm<player> sm;
 
   benchmark_execution_speed([&] {
     for (auto i = 0; i < 1'000; ++i) {

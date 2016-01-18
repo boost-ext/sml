@@ -613,6 +613,45 @@ test state_names = [] {
   sm.visit_current_states([](auto state) { expect(std::string{"s1"} == std::string{state.c_str()}); });
 };
 
+test dependencies = [] {
+  static constexpr auto i_ = 42;
+  static constexpr auto d_ = 87.0;
+
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      auto guard = [](int i) {
+        expect(i == i_);
+        return true;
+      };
+
+      auto action = [](double d, auto event) {
+        expect(d == d_);
+        expect(aux::is_same<e1, decltype(event)>::value);
+        return true;
+      };
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == terminate + event<e1> [ guard ] / action
+      );
+      // clang-format on
+    }
+  };
+
+  {
+    msm::sm<c> sm{(int)i_, (double)d_};
+    expect(sm.process_event(e1{}));
+    expect_states(sm, msm::terminate);
+  }
+
+  {
+    msm::sm<c> sm{(double)d_, (int)i_};
+    expect(sm.process_event(e1{}));
+    expect_states(sm, msm::terminate);
+  }
+};
+
 test composite = [] {
   static auto guard = [](int i) {
     expect(42 == i);
@@ -682,6 +721,135 @@ test composite = [] {
   expect(2 == sub_.a_in_sub);
   expect(c_.a_exit_sub_sm);
   expect_states(sm, s2);
+};
+
+test composite_def_ctor = [] {
+  static auto in_sub = 0;
+
+  struct sub {
+    auto configure() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e3> / [] { in_sub++; }
+        , s1 == s2 + event<e4> / [] { in_sub++; }
+      );
+      // clang-format on
+    }
+  };
+
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      state<sm<sub>> sub_state;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1>
+        , s1 == sub_state + event<e2>
+        , sub_state == s2 + event<e5>
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+
+  expect_states(sm, idle);
+  expect(sm.process_event(e1()));
+
+  sm.process_event(e2());
+  expect(0 == in_sub);
+
+  expect(sm.process_event(e3()));
+  expect(1 == in_sub);
+
+  expect(sm.process_event(e4()));
+  expect(2 == in_sub);
+  expect(sm.process_event(e5()));
+  expect(2 == in_sub);
+  expect_states(sm, s2);
+};
+
+test composite_custom_ctor = [] {
+  static auto in_sub = 0;
+
+  struct sub {
+    explicit sub(int i) : i(i) {}
+
+    auto configure() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e3> / [this] { in_sub+=i; }
+        , s1 == s2 + event<e4> / [this] { in_sub+=i; }
+      );
+      // clang-format on
+    }
+    int i = 0;
+  };
+
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      state<sm<sub>> sub_state;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1>
+        , s1 == sub_state + event<e2>
+        , sub_state == s2 + event<e5>
+      );
+      // clang-format on
+    }
+  };
+
+  constexpr auto i = 2;
+  auto test = [=](auto &&sm) {
+    expect_states(sm, idle);
+    expect(sm.process_event(e1()));
+
+    sm.process_event(e2());
+    expect(0 == in_sub);
+
+    expect(sm.process_event(e3()));
+    expect(1 * i == in_sub);
+
+    expect(sm.process_event(e4()));
+    expect(2 * i == in_sub);
+    expect(sm.process_event(e5()));
+    expect(2 * i == in_sub);
+    expect_states(sm, s2);
+  };
+
+  {
+    in_sub = 0;
+    sub sub_{i};
+    msm::sm<sub> subsm{sub_};
+    msm::sm<c> sm{subsm};
+    test(static_cast<decltype(sm) &&>(sm));
+  }
+
+  {
+    in_sub = 0;
+    sub sub_{i};
+    c c_;
+    msm::sm<sub> subsm{c_, sub_};
+    msm::sm<c> sm{subsm};
+    test(static_cast<decltype(sm) &&>(sm));
+  }
+
+  {
+    in_sub = 0;
+    sub sub_{i};
+    c c_;
+    msm::sm<sub> subsm{sub_, c_};
+    msm::sm<c> sm{subsm};
+    test(static_cast<decltype(sm) &&>(sm));
+  }
+
 };
 
 // test dispatcher = [] {};
