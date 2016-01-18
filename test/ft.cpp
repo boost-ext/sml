@@ -884,7 +884,60 @@ test composite_custom_ctor = [] {
     msm::sm<c> sm{subsm};
     test(static_cast<decltype(sm) &&>(sm));
   }
+};
 
+test composite_with_orthogonal_regions = [] {
+  struct sub {
+    sub() {}
+    auto configure() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e4>
+        , s1 == s2 + event<e4>
+      );
+      // clang-format on
+    }
+  };
+
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1>
+        , s1 == terminate + event<e2>
+        // ----------------------------------
+        , idle2(initial) == sub_state + event<e1>
+        , sub_state == terminate + event<e3>
+      );
+      // clang-format on
+    }
+
+    msm::state<msm::sm<sub>> sub_state;
+  };
+
+  c c_;
+  sub sub_;
+  msm::sm<sub> subsm{sub_};
+  msm::sm<c> sm{c_, subsm};
+
+  expect_states(sm, idle, idle2);
+  expect(sm.process_event(e1()));
+  expect_states(sm, s1, c_.sub_state);
+
+  expect_states(subsm, idle);
+  expect(sm.process_event(e4()));
+  expect_states(subsm, s1);
+  expect(sm.process_event(e4()));
+  expect_states(subsm, s2);
+
+  expect(sm.process_event(e2()));
+  expect(sm.process_event(e3()));
+  expect_states(subsm, s2);
+  expect_states(sm, msm::terminate, msm::terminate);
 };
 
 // test dispatcher = [] {};

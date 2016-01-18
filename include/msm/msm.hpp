@@ -372,7 +372,7 @@ auto args_impl__(int) -> aux::function_traits_t<decltype(&T::operator())>;
 template <class T, class E>
 auto args__(...) -> decltype(args_impl__<T, E>(0));
 template <class T, class>
-auto args__(int) -> aux::function_traits_t<decltype(&T::call_operator_args__)>;
+auto args__(int) -> aux::function_traits_t<decltype(&T::call_operator_args__)>;  // TODO deduce sm
 template <class T, class E>
 using args_t = decltype(args__<T, E>(0));
 
@@ -760,11 +760,11 @@ struct process_current_event_impl<T, Ts...> {
   using type = process_current_event_impl;
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
-    // if first process_sub_event
+    // TODO if first process_sub_event
     if (aux::get<T::value>(self.transitions_).execute(self, event, current_state)) {
       return true;
     }
-    // replace with execute_impl internal impl
+    // TODO replace with execute_impl internal impl
     return process_current_event_impl<Ts...>::execute(self, event, current_state);
   }
 };
@@ -972,6 +972,7 @@ class sm {
     visit_current_states_impl(visitor, states_t{}, aux::make_index_sequence<regions>{});
   }
 
+  // TODO is(idle, s1) for both
   template <class T>
   bool is(const T &) const noexcept {
     auto result = false;
@@ -1070,21 +1071,25 @@ class sm {
 };
 }  // detail
 
+// TODO callable T
 template <class T>
 auto operator!(const T &t) noexcept {
   return detail::not_<T>(t);
 }
 
+// TODO callable T...
 template <class T1, class T2>
 auto operator&&(const T1 &t1, const T2 &t2) noexcept {
   return detail::and_<T1, T2>(t1, t2);
 }
 
+// TODO callable T...
 template <class T1, class T2>
 auto operator||(const T1 &t1, const T2 &t2) noexcept {
   return detail::or_<T1, T2>(t1, t2);
 }
 
+// TODO callable T...
 template <class T1, class T2>
 auto operator, (const T1 &t1, const T2 &t2) noexcept {
   return detail::seq_<T1, T2>(t1, t2);
