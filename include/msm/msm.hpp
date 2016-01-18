@@ -269,8 +269,6 @@ struct none {
 struct process_event {
   template <class TEvent>
   struct process_impl {
-    void call_operator_args__(self);
-
     template <class SM>
     void operator()(SM &sm, ...) noexcept {
       sm.process_event(event);
