@@ -7,6 +7,13 @@
 #pragma once
 #include <iostream>
 #define MSM_VERSION 1'0'0
+#if defined(MSM_DSL_DST_STATE_FIRST)
+#define MSM_DSL_SRC_STATE(s1, s2) s2
+#define MSM_DSL_DST_STATE(s1, s2) s1
+#else
+#define MSM_DSL_SRC_STATE(s1, s2) s1
+#define MSM_DSL_DST_STATE(s1, s2) s2
+#endif
 namespace msm {
 inline namespace v_1_0_0 {
 namespace aux {
@@ -191,16 +198,15 @@ template <class T, class TPool>
 decltype(auto) get(TPool &p) noexcept {
   return get_impl_type<T>(&p);
 }
+struct init {};
 template <class, class...>
 struct pool_impl;
 template <int... Ns, class... Ts>
 struct pool_impl<index_sequence<Ns...>, Ts...> : pool_type<Ns, Ts>... {
   explicit pool_impl(Ts... ts) noexcept : pool_type<Ns, Ts>{ts}... {}
   template <class... TArgs>
-  explicit pool_impl(int, const pool_impl<TArgs...> &pool) noexcept
-      : pool_type<Ns, Ts>{aux::get<Ts>(const_cast<pool_impl<TArgs...> &>(pool))}... {}
+  pool_impl(init &&, pool_impl<TArgs...> &&pool) noexcept : pool_type<Ns, Ts>{aux::get<Ts>(pool)}... {}
 };
-// switch to using
 template <class... Ts>
 struct pool : pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {
   using type = pool;
@@ -645,10 +651,9 @@ struct transition<state<S1>, transition<state<S2>, transition<event<E>, G, A>>>
 
 template <class S1, class S2, class E, class G, class A>
 struct transition<state<S1>, state<S2>, event<E>, G, A> {
-  // SRC_STATE(S1, S2) // depending on setting
-  static constexpr auto has_initial = state<S1>::is_initial;
-  using src_state = typename state<S1>::type;
-  using dst_state = typename state<S2>::type;
+  static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
+  using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
+  using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
   using deps = aux::apply_t<aux::unique_t, aux::join_t<get_deps_t<G, E>, get_deps_t<A, E>>>;
 
@@ -672,9 +677,9 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> {
 
 template <class S1, class S2, class E, class A>
 struct transition<state<S1>, state<S2>, event<E>, always, A> {
-  static constexpr auto has_initial = state<S1>::is_initial;
-  using src_state = typename state<S1>::type;
-  using dst_state = typename state<S2>::type;
+  static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
+  using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
+  using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<A, E>>;
 
@@ -692,9 +697,9 @@ struct transition<state<S1>, state<S2>, event<E>, always, A> {
 
 template <class S1, class S2, class E, class G>
 struct transition<state<S1>, state<S2>, event<E>, G, none> {
-  static constexpr auto has_initial = state<S1>::is_initial;
-  using src_state = typename state<S1>::type;
-  using dst_state = typename state<S2>::type;
+  static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
+  using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
+  using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<G, E>>;
 
@@ -714,9 +719,9 @@ struct transition<state<S1>, state<S2>, event<E>, G, none> {
 
 template <class S1, class S2, class E>
 struct transition<state<S1>, state<S2>, event<E>, always, none> {
-  static constexpr auto has_initial = state<S1>::is_initial;
-  using src_state = typename state<S1>::type;
-  using dst_state = typename state<S2>::type;
+  static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
+  using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
+  using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
   using deps = aux::type_list<>;
 
@@ -938,7 +943,7 @@ class sm {
   sm &operator=(const sm &) = delete;
 
   template <class... TDeps>
-  explicit sm(TDeps &&... deps) noexcept : deps_{0, aux::pool<TDeps...>{deps...}},
+  explicit sm(TDeps &&... deps) noexcept : deps_{aux::init{}, aux::pool<TDeps...>{deps...}},
                                            transitions_(aux::get<SM>(deps_).configure()) {
     initialize(initial_states_t{});
   }
