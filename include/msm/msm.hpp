@@ -116,6 +116,7 @@ template <>
 struct make_index_sequence_impl<1> : index_sequence<1> {};
 template <int N>
 using make_index_sequence = typename make_index_sequence_impl<N>::type;
+// probably obsolete
 template <template <class> class T, typename... Ts>
 constexpr auto count_impl() noexcept {
   auto value = 0;
@@ -183,6 +184,7 @@ struct pool_impl;
 template <int... Ns, class... Ts>
 struct pool_impl<index_sequence<Ns...>, Ts...> : pool_type<Ns, Ts>... {
   explicit pool_impl(Ts... ts) noexcept : pool_type<Ns, Ts>{ts}... {}
+  // pool_impl(pool_impl); // get...
 };
 template <int N, class T>
 auto &get_impl_nr(pool_type<N, T> *object) noexcept {
@@ -204,6 +206,7 @@ template <class T, class TPool>
 decltype(auto) get(TPool &p) noexcept {
   return get_impl_type<T>(&p);
 }
+// switch to using
 template <class... Ts>
 struct pool : pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {
   using type = pool;
@@ -286,6 +289,8 @@ struct initial_state {};
 template <class>
 struct state;
 
+// state terminte
+
 template <class>
 struct state_str {
   auto c_str() const noexcept { return __PRETTY_FUNCTION__; }
@@ -334,11 +339,13 @@ struct state : state_impl<state<TState>> {
   }
 };
 
+// no bsae
 template <class TState, class TBase>
 struct state<TState(TBase)> : state_impl<state<TState(TBase)>>, TBase {
   using type = TState;
 };
 
+// obsolete
 template <class TState>
 using is_initial = aux::is_base_of<initial_state, TState>;
 
@@ -651,8 +658,12 @@ struct transition<state<S1>, transition<state<S2>, transition<event<E>, G, A>>>
 };
 
 template <class S1, class S2, class E, class G, class A>
+// struct transition<state<S1>, state<terminate>, event<E>, G, A> {
+// execute returns false
 struct transition<state<S1>, state<S2>, event<E>, G, A> {
-  using src_state = state<S1>;
+  // SRC_STATE(S1, S2) // depending on setting
+  // using is_initial = ();
+  using src_state = state<S1>;  // typename S1::type;
   using dst_state = state<S2>;
   using event = E;
   using deps = aux::apply_t<aux::unique_t, aux::join_t<get_deps_t<G, E>, get_deps_t<A, E>>>;
@@ -663,7 +674,9 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> {
   auto execute(SM &self, const E &event, aux::byte &current_state) noexcept {
     if (call(g, event, self.deps_, self)) {
       call(a, event, self.deps_, self);
+      // process_event(on_entry) -> not when S1==S2
       current_state = aux::get_id<typename SM::states_ids_t, -1, dst_state>();
+      // process_event(on_exit) -> not when S1==S2
       return true;
     }
     return false;
@@ -737,14 +750,17 @@ struct transition_impl<T, Ts...> {
   using type = transition_impl;
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
+    // if first process_sub_event
     if (aux::get<T::value>(self.transitions_).execute(self, event, current_state)) {
       return true;
     }
+    // replace with execute_impl internal impl
     return transition_impl<Ts...>::execute(self, event, current_state);
   }
 };
 
 template <class T>
+// change to process_current_event_impl
 struct transition_impl<T> {
   using type = transition_impl;
   template <class SM, class TEvent>
@@ -771,6 +787,7 @@ struct process_event_sub {
 };
 
 template <class T>
+// change to process_sub_event_impl
 struct process_event_sub<state<sm<T>>> {
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event) noexcept {
@@ -884,6 +901,7 @@ template <class... Ts>
 using get_states = aux::join_t<aux::type_list<typename Ts::src_state, typename Ts::dst_state>...>;
 
 template <class T, class U = T>
+// U or U&
 using get_sm = aux::conditional_t<aux::is_trivially_constructible<T>::value, aux::type_list<>, aux::type_list<U &>>;
 
 template <class>
@@ -896,6 +914,7 @@ template <class... Ts>
 using get_sub_sms = aux::join_t<typename get_sub_sm<Ts>::type...>;
 
 template <class... Ts>
+// obsolete
 using count_initial_states = aux::count<is_initial, Ts...>;
 
 template <class... Ts>
@@ -904,7 +923,7 @@ using count_sub_sms = aux::count<is_sm, Ts...>;
 template <class... Ts>
 using merge_deps = aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>;
 
-template <class SM>
+template <class SM>  // TPolies...
 class sm {
   using transitions_t = decltype(aux::declval<SM>().configure());
   using mappings_t = detail::mappings_t<transitions_t>;
@@ -913,9 +932,12 @@ class sm {
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
   using events_ids_t = aux::apply_t<aux::type_id, events_t>;
   using sub_sms_t = aux::apply_t<get_sub_sms, states_t>;
+  // initial states = transition::is_initial
   using deps_t =
       aux::apply_t<aux::pool, aux::join_t<get_sm<SM>, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
+  // change to get_size
   using has_sub_sms = aux::integral_constant<bool, (aux::apply_t<count_sub_sms, states_t>::value > 0)>;
+  // change to get_size of initials
   static constexpr auto regions =
       aux::get_size<transitions_t>::value > 0 ? aux::apply_t<count_initial_states, states_t>::value : 1;
 
@@ -939,6 +961,7 @@ class sm {
 
   template <class... TDeps>
   explicit sm(TDeps &&... deps) noexcept : deps_{deps...}, transitions_(aux::get<SM &>(deps_).configure()) {
+    // deps{pool<TDeps...>{deps...}}
     initialize(states_t{});
   }
 
@@ -1011,6 +1034,7 @@ class sm {
                               const aux::true_type &) noexcept {
     static bool (*dispatch_table[])(sm &,
                                     const TEvent &) = {&process_event_sub<TStates>::template execute<sm, TEvent>...};
+    // + orthogonal
     return dispatch_table[current_state_[0]](*this, event);
   }
 
