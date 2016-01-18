@@ -24,7 +24,7 @@ auto s5 = msm::state<class s5>{};
 auto end = msm::state<class end>{};
 
 template <class SM, class TState>
-void expect_state(const SM &sm, const TState &, int r = 0) noexcept {
+auto expect_state_impl(const SM &sm, const TState &, int r = 0) noexcept {
   auto result = false;
   auto i = 0;
   sm.visit_current_states([&](auto state) {
@@ -32,15 +32,19 @@ void expect_state(const SM &sm, const TState &, int r = 0) noexcept {
       result = msm::aux::is_same<decltype(state), TState>::value;
     }
   });
-  expect(result);
+  return result;
 }
 
 template <class SM, class... TStates>
-void expect_states(const SM &sm, const TStates &... states) noexcept {
+auto expect_states_impl(const SM &sm, const TStates &... states) noexcept {
+  auto result = true;
   auto r = 0;
-  int _[]{0, (expect_state(sm, states, r++), 0)...};
+  int _[]{0, (result &= expect_state_impl(sm, states, r++), 0)...};
   (void)_;
+  return result;
 }
+
+#define expect_states(...) expect(expect_states_impl(__VA_ARGS__))
 
 test empty = [] {
   struct c {
@@ -69,9 +73,9 @@ test minimal = [] {
   };
 
   msm::sm<c> sm;
-  expect_states(sm, idle(msm::initial));
+  expect_states(sm, idle);
   expect(sm.process_event(e1{}));
-  expect_states(sm, idle(msm::initial));
+  expect_states(sm, idle);
 };
 
 test minimal_with_dependency = [] {
@@ -83,9 +87,9 @@ test minimal_with_dependency = [] {
   };
 
   msm::sm<c> sm{42};
-  expect_states(sm, idle(msm::initial));
+  expect_states(sm, idle);
   expect(sm.process_event(e1{}));
-  expect_states(sm, idle(msm::initial));
+  expect_states(sm, idle);
 };
 
 test transition = [] {
@@ -95,7 +99,7 @@ test transition = [] {
   };
 
   msm::sm<c> sm;
-  expect_states(sm, idle(msm::initial));
+  expect_states(sm, idle);
   expect(sm.process_event(e1{}));
   expect_states(sm, s1);
 };
@@ -116,8 +120,7 @@ test internal_transition = [] {
   };
 
   msm::sm<c> sm;
-  expect(sm.is(msm::initial));
-  expect_states(sm, idle(msm::initial));
+  expect_states(sm, idle);
   expect(sm.process_event(e1{}));
   expect_states(sm, s1);
   expect(sm.process_event(e2{}));
@@ -154,9 +157,9 @@ test no_transition = [] {
   };
 
   msm::sm<c> sm;
-  expect_states(sm, idle(msm::initial));
+  expect_states(sm, idle);
   expect(!sm.process_event(e2{}));
-  expect_states(sm, idle(msm::initial));
+  expect_states(sm, idle);
 };
 
 test transition_with_action_with_event = [] {
@@ -172,7 +175,7 @@ test transition_with_action_with_event = [] {
 
   c c_;
   msm::sm<c> sm{c_};
-  expect_states(sm, idle(msm::initial));
+  expect_states(sm, idle);
   expect(sm.process_event(e1{}));
   expect(c_.called);
   expect_states(sm, s1);
@@ -290,6 +293,32 @@ test transitions = [] {
   expect_states(sm, s4);
 };
 
+test transition_loop = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1>
+        , s1 == s2 + event<e2>
+        , s2 == idle + event<e3>
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  expect_states(sm, idle);
+  expect(sm.process_event(e1{}));
+  expect_states(sm, s1);
+  expect(sm.process_event(e2{}));
+  expect_states(sm, s2);
+  expect(sm.process_event(e3{}));
+  expect_states(sm, idle);
+  expect(sm.process_event(e1{}));
+  expect_states(sm, s1);
+};
+
 test no_transitions = [] {
   struct c {
     auto configure() noexcept {
@@ -379,7 +408,7 @@ test initial_transition_overload = [] {
       // clang-format off
       return make_transition_table(
           idle(initial) == s1 + event<e1>
-        , idle(initial) == s2 + event<e2>
+        , idle == s2 + event<e2>
       );
       // clang-format on
     }
@@ -417,8 +446,6 @@ test transition_types = [] {
   struct c {
     auto configure() noexcept {
       using namespace msm;
-      struct {
-      } flag;
       auto guard1 = [] { return true; };
       auto guard2 = [](auto) { return false; };
       auto guard3 = [=](int v) { return [=] { return guard2(v); }; };
@@ -448,7 +475,7 @@ test transition_types = [] {
         , idle == s1 + event<e1> [guard1] / action1
         , idle == s1 + event<e1> / action1
         , idle == s1 + event<e1> / (action1, c_action{})
-        , idle == s1(flag) + event<e1> [guard1 && guard2] / (action1, action2)
+        , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2)
         , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2, []{})
         , idle == s1 + event<e1> [guard1 || !guard2] / (action1, action2, []{}, [](auto){})
         , idle == s1 + event<e2> [guard1 || guard2] / (action1, action2, []{}, [](int, auto, float){})
@@ -464,33 +491,51 @@ test transition_types = [] {
   msm::sm<c> sm{f, 42, 87.0, 0.0f};
 };
 
-test flags = [] {
-  struct flag {};
+test terminate_state = [] {
   struct c {
     auto configure() noexcept {
       using namespace msm;
       // clang-format off
       return make_transition_table(
           idle(initial) == s1 + event<e1>
-        , s1 == s2(flag{}) + event<e2>
-        , s2(flag{}) == s3 + event<e3>
+        , s1 == terminate + event<e2>
       );
       // clang-format on
     }
   };
 
   msm::sm<c> sm;
-  expect(sm.is(msm::initial));
-  expect(!sm.is(flag{}));
-  expect_states(sm, idle(msm::initial));
+  expect_states(sm, idle);
   expect(sm.process_event(e1{}));
   expect_states(sm, s1);
   expect(sm.process_event(e2{}));
-  expect_states(sm, s2(flag{}));
-  expect(!sm.is(msm::initial));
-  expect(sm.is(flag{}));
-  expect(sm.process_event(e3{}));
-  expect_states(sm, s3);
+  expect_states(sm, msm::terminate);
+  expect(!sm.process_event(e1{}));
+  expect(!sm.process_event(e2{}));
+  expect(!sm.process_event(e3{}));
+};
+
+test is_state = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1>
+        , s1 == s2 + event<e2>
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  expect(sm.is(idle));
+  expect(sm.process_event(e1{}));
+  expect(sm.is(s1));
+  expect(sm.process_event(e2{}));
+  expect(sm.is(s2));
+  expect(!sm.process_event(e3{}));
+  expect(sm.is(s2));
 };
 
 test orthogonal_regions = [] {
@@ -511,11 +556,11 @@ test orthogonal_regions = [] {
   };
 
   msm::sm<c> sm;
-  expect_states(sm, idle(msm::initial), idle2(msm::initial));
+  expect_states(sm, idle, idle2);
   expect(sm.process_event(e1{}));
-  expect_states(sm, s1, idle2(msm::initial));
+  expect_states(sm, s1, idle2);
   expect(sm.process_event(e2{}));
-  expect_states(sm, s2, idle2(msm::initial));
+  expect_states(sm, s2, idle2);
   expect(sm.process_event(e3{}));
   expect_states(sm, s2, s3);
   expect(sm.process_event(e4{}));
@@ -540,9 +585,9 @@ test orthogonal_regions_event_consumed_by_all_regions = [] {
   };
 
   msm::sm<c> sm;
-  expect_states(sm, idle(msm::initial), idle2(msm::initial));
+  expect_states(sm, idle, idle2);
   expect(sm.process_event(e1{}));
-  expect_states(sm, s1, idle2(msm::initial));
+  expect_states(sm, s1, idle2);
   expect(sm.process_event(e3{}));
   expect_states(sm, s1, s3);
   expect(sm.process_event(e2{}));  // consume by both regions
@@ -566,32 +611,6 @@ test state_names = [] {
   sm.visit_current_states([](auto state) { expect(std::string{"idle"} == std::string{state.c_str()}); });
   sm.process_event(e1{});
   sm.visit_current_states([](auto state) { expect(std::string{"s1"} == std::string{state.c_str()}); });
-};
-
-test loop = [] {
-  struct c {
-    auto configure() noexcept {
-      using namespace msm;
-      // clang-format off
-      return make_transition_table(
-          idle(initial) == s1 + event<e1>
-        , s1 == s2 + event<e2>
-        , s2 == idle + event<e3>
-      );
-      // clang-format on
-    }
-  };
-
-  msm::sm<c> sm;
-  expect_states(sm, idle(msm::initial));
-  expect(sm.process_event(e1{}));
-  expect_states(sm, s1);
-  expect(sm.process_event(e2{}));
-  expect_states(sm, s2);
-  expect(sm.process_event(e3{}));
-  expect_states(sm, idle);
-  //expect(sm.process_event(e1{}));
-  //expect_states(sm, idle(msm::initial));
 };
 
 test composite = [] {
@@ -646,7 +665,7 @@ test composite = [] {
   msm::sm<sub> subsm{sub_};
   msm::sm<c> sm{c_, subsm, 87.0, 42};
 
-  expect_states(sm, idle(msm::initial));
+  expect_states(sm, idle);
   expect(sm.process_event(e1()));
   expect(c_.a_initial);
 

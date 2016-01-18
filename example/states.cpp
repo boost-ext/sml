@@ -11,8 +11,6 @@
 struct e1 {};
 struct e2 {};
 struct e3 {};
-struct {
-} terminate;
 
 struct states {
   auto configure() const noexcept {
@@ -21,7 +19,7 @@ struct states {
     return make_transition_table(
         "idle"_s(initial) == "s1"_s + event<e1>
       , "s1"_s == "s2"_s + event<e2>
-      , "s2"_s == "s3"_s(terminate) + event<e3>
+      , "s2"_s == terminate + event<e3>
     );
     // clang-format on
   }
@@ -32,5 +30,5 @@ int main() {
   assert(sm.process_event(e1{}));
   assert(sm.process_event(e2{}));
   assert(sm.process_event(e3{}));
-  assert(sm.is(terminate));
+  assert(sm.is(msm::terminate));
 }

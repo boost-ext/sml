@@ -40,7 +40,7 @@ struct playing {
     // clang-format off
     return make_transition_table(
       Song1(initial) == Song2 + event<NextSong> / start_next_song,
-      Song2 == Song1(initial) + event<PreviousSong> / start_prev_song,
+      Song2 == Song1 + event<PreviousSong> / start_prev_song,
       Song2 == Song3 + event<NextSong> / start_next_song,
       Song3 == Song2 + event<PreviousSong> / start_prev_song
     );
@@ -63,9 +63,9 @@ struct player {
       Stopped == Playing + event<play> / start_playback,
       Stopped == Open + event<open_close> / open_drawer,
       Stopped == Stopped + event<stop> / stopped_again,
-      Open == Empty(initial) + event<open_close> / close_drawer,
+      Open == Empty + event<open_close> / close_drawer,
       Empty(initial) == Open + event<open_close> / open_drawer,
-      Empty(initial) == Stopped + event<cd_detected> / store_cd_info,
+      Empty == Stopped + event<cd_detected> / store_cd_info,
       Playing == Stopped + event<stop> / stop_playback,
       Playing == Paused + event<pause> / pause_playback,
       Playing == Open + event<open_close> / stop_and_open,

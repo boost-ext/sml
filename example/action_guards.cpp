@@ -14,8 +14,6 @@ struct e1 {};
 struct e2 {};
 struct e3 {};
 struct e4 {};
-struct {
-} terminate;
 
 auto guard1 = [] {
   std::cout << "guard1" << std::endl;
@@ -51,7 +49,7 @@ struct action_guards {
       , s1 == s2 + event<e2> [ guard1 ] / action1
       , s2 == s3 + event<e3> [ guard1 && ![] { return false;} ] / (action1, action2{})
       , s3 == s4 + event<e4> [ !guard1 || guard2 ] / (action1, [] { std::cout << "action3" << std::endl; })
-      , s3 == s4(terminate) + event<e4> [ guard1 ] / ([] { std::cout << "action4" << std::endl; })
+      , s3 == terminate + event<e4> [ guard1 ] / ([] { std::cout << "action4" << std::endl; })
     );
     // clang-format on
   }
@@ -63,5 +61,5 @@ int main() {
   assert(sm.process_event(e2{}));
   assert(sm.process_event(e3{}));
   assert(sm.process_event(e4{}));
-  assert(sm.is(terminate));
+  assert(sm.is(msm::terminate));
 }

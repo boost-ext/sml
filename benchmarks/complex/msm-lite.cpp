@@ -318,7 +318,7 @@ int main() {
 	 , s96 == s97 + event<e97> [guard] / action
 	 , s97 == s98 + event<e98> [guard] / action
 	 , s98 == s99 + event<e99> [guard] / action
-	 , s99 == idle(initial) + event<e100> [guard] / action
+	 , s99 == idle + event<e100> [guard] / action
     );
       // clang-format on
     }

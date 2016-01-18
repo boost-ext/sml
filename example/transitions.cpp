@@ -12,21 +12,18 @@
 struct e1 {};
 struct e2 {};
 struct e3 {};
-struct {
-} terminate;
 
 struct transitions {
   auto configure() const noexcept {
     using namespace msm;
     state<class idle> idle;
     state<class s1> s1;
-    state<class s2> s2;
 
     // clang-format off
     return make_transition_table(
         idle(initial) == s1  / [] { std::cout << "anonymous transition" << std::endl; }
       , s1 + event<e1> / [] { std::cout << "internal transition" << std::endl; }
-      , s1 == s2(terminate) + event<e2>
+      , s1 == terminate + event<e2>
     );
     // clang-format on
   }
@@ -34,8 +31,7 @@ struct transitions {
 
 int main() {
   msm::sm<transitions> sm;
-  assert(!sm.is(msm::initial));
   assert(sm.process_event(e1{}));
   assert(sm.process_event(e2{}));
-  assert(sm.is(terminate));
+  assert(sm.is(msm::terminate));
 }

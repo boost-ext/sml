@@ -13,8 +13,6 @@ struct e2 {
   bool value = true;
 };
 auto event2 = msm::event<e2>;
-struct {
-} terminate;
 
 auto guard = [](const e2& e) { return e.value; };
 
@@ -24,13 +22,12 @@ struct events {
     state<class idle> idle;
     state<class s1> s1;
     state<class s2> s2;
-    state<class s3> s3;
 
     // clang-format off
     return make_transition_table(
         idle(initial) == s1 + event<e1>
       , s1 == s2 + event2 [guard]
-      , s2 == s3(terminate) + event<int> / [] (int i) { assert(42 == i); }
+      , s2 == terminate + event<int> / [] (int i) { assert(42 == i); }
     );
     // clang-format on
   }
@@ -41,5 +38,5 @@ int main() {
   assert(sm.process_event(e1{}));
   assert(sm.process_event(e2{}));
   assert(sm.process_event(42));
-  assert(sm.is(terminate));
+  assert(sm.is(msm::terminate));
 }
