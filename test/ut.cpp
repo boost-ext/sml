@@ -131,6 +131,8 @@ test is_callable_types = [] {
   static_expect(is_callable<decltype(callf2<int>)>::value);
   static_expect(is_callable<decltype(calll1)>::value);
   static_expect(is_callable<decltype(calll2)>::value);
+  (void)calll1;
+  (void)calll2;
 };
 }  // aux
 }  // v_1_0_0

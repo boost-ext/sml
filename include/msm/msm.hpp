@@ -292,8 +292,8 @@ struct none {
 struct process_event {
   template <class TEvent>
   struct process_impl {
-    template <class SM>
-    void operator()(sm<SM> &sm, ...) noexcept {
+    template <class SM, class T>
+    void operator()(sm<SM> &sm, const T &) noexcept {
       sm.process_event(event);
     }
 
@@ -304,6 +304,10 @@ struct process_event {
   auto operator()(const TEvent &event) noexcept {
     return process_impl<TEvent>{event};
   }
+};
+struct defer {
+  template <class SM, class TEvent>
+  void operator()(sm<SM> &, const TEvent &) noexcept {}
 };
 
 template <class>
@@ -700,9 +704,9 @@ struct transition<state<S1>, state<S2>, event<E>, G, A>
   template <class SM>
   auto execute(SM &self, const E &event, aux::byte &current_state) noexcept {
     if (call(g, event, self.deps_, self)) {
-      call(a, event, self.deps_, self);
       update_current_state(self, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(),
                            aux::is_same<src_state, dst_state>{});
+      call(a, event, self.deps_, self);
       return true;
     }
     return false;
@@ -725,9 +729,9 @@ struct transition<state<S1>, state<S2>, event<E>, always, A>
 
   template <class SM>
   auto execute(SM &self, const E &event, aux::byte &current_state) noexcept {
-    call(a, event, self.deps_, self);
     update_current_state(self, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(),
                          aux::is_same<src_state, dst_state>{});
+    call(a, event, self.deps_, self);
     return true;
   }
 

@@ -404,6 +404,64 @@ test initial_transition_overload = [] {
   }
 };
 
+test transition_process_event = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1>
+        , s1 == s2 + event<e2> / process_event(e3{})
+        , s2 == terminate + event<e3>
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  expect(sm.is(idle));
+  expect(sm.process_event(e1{}));
+  expect(sm.is(s1));
+  expect(sm.process_event(e2{}));  // + process_event(e3{})
+  expect(sm.is(msm::terminate));
+};
+
+test transition_entry_exit_actions = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      auto entry_action = [this] { a_entry_action++; };
+      auto exit_action = [this] { a_exit_action++; };
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1>
+        , s1 + msm::on_entry / entry_action
+        , s1 + msm::on_exit / exit_action
+        , s1 == s2 + event<e2>
+      );
+      // clang-format on
+    }
+
+    int a_entry_action = 0;
+    int a_exit_action = 0;
+  };
+
+  c c_;
+  msm::sm<c> sm{c_};
+  expect(!c_.a_entry_action);
+  expect(sm.is(idle));
+  expect(sm.process_event(e1{}));
+  expect(1 == c_.a_entry_action);
+  expect(sm.is(s1));
+  expect(0 == c_.a_exit_action);
+  expect(sm.process_event(e2{}));
+  expect(1 == c_.a_entry_action);
+  expect(1 == c_.a_exit_action);
+  expect(sm.is(s2));
+};
+
 void f_action(int, double) {}
 auto f_guard(float &) { return true; }
 
@@ -466,41 +524,6 @@ test transition_types = [] {
 
   float f = 12.0;
   msm::sm<c> sm{f, 42, 87.0, 0.0f};
-};
-
-test entry_exit_actions = [] {
-  struct c {
-    auto configure() noexcept {
-      using namespace msm;
-      auto entry_action = [this] { a_entry_action++; };
-      auto exit_action = [this] { a_exit_action++; };
-
-      // clang-format off
-      return make_transition_table(
-          idle(initial) == s1 + event<e1>
-        , s1 + msm::on_entry / entry_action
-        , s1 + msm::on_exit / exit_action
-        , s1 == s2 + event<e2>
-      );
-      // clang-format on
-    }
-
-    int a_entry_action = 0;
-    int a_exit_action = 0;
-  };
-
-  c c_;
-  msm::sm<c> sm{c_};
-  expect(!c_.a_entry_action);
-  expect(sm.is(idle));
-  expect(sm.process_event(e1{}));
-  expect(1 == c_.a_entry_action);
-  expect(sm.is(s1));
-  expect(0 == c_.a_exit_action);
-  expect(sm.process_event(e2{}));
-  expect(1 == c_.a_entry_action);
-  expect(1 == c_.a_exit_action);
-  expect(sm.is(s2));
 };
 
 test terminate_state = [] {
@@ -918,4 +941,3 @@ test composite_with_orthogonal_regions = [] {
 };
 
 // test dispatcher = [] {};
-// test dsl_process_event = [] {};
