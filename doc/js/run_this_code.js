@@ -25,7 +25,6 @@ function toggle(id, file) {
 }
 
 function show(id, file) {
-    console.log("a");
     document.getElementById('run_it_btn_' + id).firstChild.data = 'Exit';
     document.getElementById("run_it_btn_" + id).onclick = function() { toggle(id, file); };
     document.getElementById("code_listing_" + id).style.display = 'none';
@@ -39,7 +38,7 @@ function show(id, file) {
     var compile_btn = document.createElement("BUTTON");
     var compile_txt = document.createTextNode("Compile & Run (Ctrl+Enter)");
     compile_btn.setAttribute("id", "compile_and_run_" + id);
-    compile_btn.setAttribute("class", "TryItBtn");
+    compile_btn.setAttribute("class", "btn btn-neutral float-right");
     compile_btn.appendChild(compile_txt);
     compile_btn.onclick = function() { compile_and_run(id) };
 
@@ -103,24 +102,18 @@ function show(id, file) {
     log_level_btn.setAttribute("class", "Option");
 	{
 	var option = document.createElement("OPTION");
-	option.text = "BOOST_DI_CFG_DIAGNOSTICS_LEVEL=0";
+	option.text = "";
 	option.value = "0";
 	log_level_btn.appendChild(option);
 	}
 	{
 	var option = document.createElement("OPTION");
-	option.text = "BOOST_DI_CFG_DIAGNOSTICS_LEVEL=1 (default)";
+	option.text = "MSM_DSL_DST_STATE_FIRST";
 	option.value = "1";
 	log_level_btn.appendChild(option);
 	}
-	{
-	var option = document.createElement("OPTION");
-	option.text = "BOOST_DI_CFG_DIAGNOSTICS_LEVEL=2";
-	option.value = "2";
-	log_level_btn.appendChild(option);
-	}
 
-	log_level_btn.selectedIndex = 1;
+	log_level_btn.selectedIndex = 0;
 
     log_level_btn.onclick = function() { };
 
@@ -130,13 +123,13 @@ function show(id, file) {
 	{
 	var option = document.createElement("OPTION");
 	option.text = "head";
-	option.value = "cpp14";
+	option.value = "master";
     version_btn.appendChild(option);
 	}
 	{
 	var option = document.createElement("OPTION");
-	option.text = "v0.5.0";
-	option.value = "v0.5.0";
+	option.text = "v1.0.0";
+	option.value = "v0.0.0";
     version_btn.appendChild(option);
 	}
     version_btn.onclick = function() { };
@@ -179,12 +172,12 @@ function compile_and_run(id) {
         JSON.stringify({
           "code" : cpp_code[id].getValue()
         , "codes" : [{
-              "file" : "boost/di.hpp"
-            , "code" : get_cpp_file("https://raw.githubusercontent.com/krzysztof-jusiak/di/" + document.getElementById("version_" + id).value + "/include/boost/di.hpp")
+              "file" : "msm/msm.hpp"
+            , "code" : get_cpp_file("https://raw.githubusercontent.com/krzysztof-jusiak/msm-lite/" + document.getElementById("version_" + id).value + "/include/msm/msm.hpp")
            }]
          , "options": "warning,cpp-pedantic-errors,optimize,boost-nothing,c++1y"
 		 , "compiler" : document.getElementById("compiler_" + id).value
-         , "compiler-option-raw": "-I." + "\n" + "-DBOOST_DI_CFG_DIAGNOSTICS_LEVEL=" + document.getElementById("log_level_" + id).value
+         , "compiler-option-raw": "-I." + "\n"
     }));
 }
 
@@ -196,7 +189,7 @@ function get_example(id, file) {
         mode: "text/x-c++src"
       });
 
-    cpp_code[id].setSize(1100, 500);
+    cpp_code[id].setSize(700, 500);
     cpp_code[id].addKeyMap({"Ctrl-Enter": function(cm){ compile_and_run(id); }});
 
     cpp_output[id] = CodeMirror.fromTextArea(document.getElementById("output_" + id), {
@@ -207,7 +200,7 @@ function get_example(id, file) {
         mode: "text/x-c++src"
       });
 
-    cpp_output[id].setSize(1100, 200);
+    cpp_output[id].setSize(700, 200);
     cpp_output[id].setOption("theme", 'mdn-like');
 
     cpp_code[id].setValue(get_cpp_file(file));
@@ -228,10 +221,7 @@ NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
 $(document).ready(function () {
     $('img[alt="CPP"]').each(function () {
         var id = $(this).attr('src');
-        var r='<button id="run_it_btn_1" onclick="show(1, \''+id+'\')">Run this code!</button><textarea style="display: none" id="code_1"></textarea><br /><textarea style="display: none" id="output_1"></textarea><div id="code_listing_1">blah</div>';
-    console.log("b");
-        $(this).replaceWith(r);
-    console.log("c");
+        $(this).replaceWith('<button class="btn btn-neutral float-right" id="run_it_btn_1" onclick="show(1, \''+id+'\')">Run this code!</button><textarea style="display: none" id="code_1"></textarea><br /><textarea style="display: none" id="output_1"></textarea><div id="code_listing_1"></div>');
     });
 });
 
