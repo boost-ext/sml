@@ -23,6 +23,8 @@ template <char...>
 struct string {};
 template <class...>
 struct type {};
+template <class T, T>
+struct non_type {};
 template <class...>
 struct type_list {
   using type = type_list;
@@ -68,6 +70,17 @@ template <class T>
 struct is_trivially_constructible : integral_constant<bool, __is_trivially_constructible(T)> {};
 template <class T>
 using is_trivially_constructible_t = typename is_trivially_constructible<T>::type;
+struct is_callable_fallback {
+  void operator()();
+};
+template <class T>
+false_type test_is_callable(non_type<void (is_callable_fallback::*)(), &T::operator()> *);
+template <class>
+true_type test_is_callable(...);
+template <class T>
+struct is_callable : decltype(test_is_callable<inherit<T, is_callable_fallback>>(0)) {};
+template <class T, class... TArgs>
+struct is_callable<T(TArgs...)> : std::true_type {};
 template <class T>
 struct remove_reference {
   using type = T;
@@ -294,6 +307,19 @@ struct process_event {
 };
 
 template <class>
+struct event {
+  template <class T, std::enable_if_t<aux::is_callable<T>::value, int> = 0>
+  auto operator[](const T &t) const noexcept {
+    return transition_eg<event, T>{*this, t};
+  }
+
+  template <class T, std::enable_if_t<aux::is_callable<T>::value, int> = 0>
+  auto operator/(const T &t) const noexcept {
+    return transition_ea<event, T>{*this, t};
+  }
+};
+
+template <class>
 struct state;
 
 template <class>
@@ -324,18 +350,19 @@ struct state_impl : state_str<TState> {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
 
-  template <class T>
+  template <class T, std::enable_if_t<aux::is_callable<T>::value, int> = 0>
   auto operator[](const T &t) const noexcept {
     return transition_sg<TState, T>{static_cast<const TState &>(*this), t};
   }
 
-  template <class T>
+  template <class T, std::enable_if_t<aux::is_callable<T>::value, int> = 0>
   auto operator/(const T &t) const noexcept {
     return transition_sa<TState, T>{static_cast<const TState &>(*this), t};
   }
 };
 
 struct initial_state {};
+struct terminate_state {};
 
 template <class TState>
 struct state : state_impl<state<TState>> {
@@ -348,19 +375,6 @@ template <class TState>
 struct state<TState(initial_state)> : state_impl<state<TState(initial_state)>> {
   using type = TState;
   static constexpr auto is_initial = true;
-};
-
-template <class>
-struct event {
-  template <class T>
-  auto operator[](const T &t) const noexcept {
-    return transition_eg<event, T>{*this, t};
-  }
-
-  template <class T>
-  auto operator/(const T &t) const noexcept {
-    return transition_ea<event, T>{*this, t};
-  }
 };
 
 template <class, class>
@@ -659,16 +673,22 @@ void update_current_state(SM &sm, aux::byte &current_state, const aux::byte &new
   sm.process_event(on_entry{});
 }
 
-template <class S1, class S2, class E>
-struct transition_base {
-  static_assert(aux::conditional_t<aux::is_same<on_entry, E>::value, aux::is_same<S1, S2>, aux::true_type>::value,
-                "on_entry event can't change the state");
-  static_assert(aux::conditional_t<aux::is_same<on_exit, E>::value, aux::is_same<S1, S2>, aux::true_type>::value,
-                "on_exit event can't change the state");
+template <class...>
+struct transition_concept_check {};
+
+template <class S1, class S2>
+struct transition_concept_check<S1, S2, on_entry> {
+  static_assert(aux::is_same<S1, S2>::value, "on_entry event can't change the state");
+};
+
+template <class S1, class S2>
+struct transition_concept_check<S1, S2, on_exit> {
+  static_assert(aux::is_same<S1, S2>::value, "on_exit event can't change the state");
 };
 
 template <class S1, class S2, class E, class G, class A>
-struct transition<state<S1>, state<S2>, event<E>, G, A> : transition_base<S1, S2, E> {
+struct transition<state<S1>, state<S2>, event<E>, G, A>
+    : transition_concept_check<MSM_DSL_SRC_STATE(S1, S2), MSM_DSL_DST_STATE(S1, S2), E> {
   static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
   using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
@@ -693,7 +713,8 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> : transition_base<S1, S2
 };
 
 template <class S1, class S2, class E, class A>
-struct transition<state<S1>, state<S2>, event<E>, always, A> : transition_base<S1, S2, E> {
+struct transition<state<S1>, state<S2>, event<E>, always, A>
+    : transition_concept_check<MSM_DSL_SRC_STATE(S1, S2), MSM_DSL_DST_STATE(S1, S2), E> {
   static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
   using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
@@ -714,7 +735,8 @@ struct transition<state<S1>, state<S2>, event<E>, always, A> : transition_base<S
 };
 
 template <class S1, class S2, class E, class G>
-struct transition<state<S1>, state<S2>, event<E>, G, none> : transition_base<S1, S2, E> {
+struct transition<state<S1>, state<S2>, event<E>, G, none>
+    : transition_concept_check<MSM_DSL_SRC_STATE(S1, S2), MSM_DSL_DST_STATE(S1, S2), E> {
   static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
   using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
@@ -737,7 +759,8 @@ struct transition<state<S1>, state<S2>, event<E>, G, none> : transition_base<S1,
 };
 
 template <class S1, class S2, class E>
-struct transition<state<S1>, state<S2>, event<E>, always, none> : transition_base<S1, S2, E> {
+struct transition<state<S1>, state<S2>, event<E>, always, none>
+    : transition_concept_check<MSM_DSL_SRC_STATE(S1, S2), MSM_DSL_DST_STATE(S1, S2), E> {
   static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
   using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
@@ -974,11 +997,20 @@ class sm {
     visit_current_states_impl(visitor, states_t{}, aux::make_index_sequence<regions>{});
   }
 
-  // TODO is(idle, s1) for both
   template <class T>
   bool is(const T &) const noexcept {
     auto result = false;
     visit_current_states([&](auto state) { result |= aux::is_same<T, decltype(state)>::value; });
+    return result;
+  }
+
+  template <class... TStates, std::enable_if_t<sizeof...(TStates) == regions, int> = 0>
+  bool is(const TStates &...) const noexcept {
+    auto result = true;
+    auto i = 0;
+    int state_ids[] = {aux::get_id<states_ids_t, 0, typename TStates::type>()...};
+    visit_current_states(
+        [&](auto state) { result &= (aux::get_id<states_ids_t, 0, typename decltype(state)::type>() == state_ids[i++]); });
     return result;
   }
 
@@ -1073,26 +1105,22 @@ class sm {
 };
 }  // detail
 
-// TODO callable T
-template <class T>
+template <class T, std::enable_if_t<aux::is_callable<T>::value, int> = 0>
 auto operator!(const T &t) noexcept {
   return detail::not_<T>(t);
 }
 
-// TODO callable T...
-template <class T1, class T2>
+template <class T1, class T2, std::enable_if_t<aux::is_callable<T1>::value && aux::is_callable<T2>::value, int> = 0>
 auto operator&&(const T1 &t1, const T2 &t2) noexcept {
   return detail::and_<T1, T2>(t1, t2);
 }
 
-// TODO callable T...
-template <class T1, class T2>
+template <class T1, class T2, std::enable_if_t<aux::is_callable<T1>::value && aux::is_callable<T2>::value, int> = 0>
 auto operator||(const T1 &t1, const T2 &t2) noexcept {
   return detail::or_<T1, T2>(t1, t2);
 }
 
-// TODO callable T...
-template <class T1, class T2>
+template <class T1, class T2, std::enable_if_t<aux::is_callable<T1>::value && aux::is_callable<T2>::value, int> = 0>
 auto operator, (const T1 &t1, const T2 &t2) noexcept {
   return detail::seq_<T1, T2>(t1, t2);
 }
@@ -1118,7 +1146,7 @@ auto operator""_s() {
 #endif
 
 detail::initial_state initial;
-detail::state<class terminate> terminate;
+detail::state<detail::terminate_state> terminate;
 detail::process_event process_event;
 
 template <class... Ts>

@@ -23,29 +23,6 @@ auto s4 = msm::state<class s4>{};
 auto s5 = msm::state<class s5>{};
 auto end = msm::state<class end>{};
 
-template <class SM, class TState>
-auto expect_state_impl(const SM &sm, const TState &, int r = 0) noexcept {
-  auto result = false;
-  auto i = 0;
-  sm.visit_current_states([&](auto state) {
-    if (r == i++) {
-      result = msm::aux::is_same<decltype(state), TState>::value;
-    }
-  });
-  return result;
-}
-
-template <class SM, class... TStates>
-auto expect_states_impl(const SM &sm, const TStates &... states) noexcept {
-  auto result = true;
-  auto r = 0;
-  int _[]{0, (result &= expect_state_impl(sm, states, r++), 0)...};
-  (void)_;
-  return result;
-}
-
-#define expect_states(...) expect(expect_states_impl(__VA_ARGS__))
-
 test empty = [] {
   struct c {
     auto configure() noexcept { return msm::make_transition_table(); }
@@ -73,9 +50,9 @@ test minimal = [] {
   };
 
   msm::sm<c> sm;
-  expect_states(sm, idle);
+  expect(sm.is(idle));
   expect(sm.process_event(e1{}));
-  expect_states(sm, idle);
+  expect(sm.is(idle));
 };
 
 test minimal_with_dependency = [] {
@@ -87,9 +64,9 @@ test minimal_with_dependency = [] {
   };
 
   msm::sm<c> sm{42};
-  expect_states(sm, idle);
+  expect(sm.is(idle));
   expect(sm.process_event(e1{}));
-  expect_states(sm, idle);
+  expect(sm.is(idle));
 };
 
 test transition = [] {
@@ -99,9 +76,9 @@ test transition = [] {
   };
 
   msm::sm<c> sm;
-  expect_states(sm, idle);
+  expect(sm.is(idle));
   expect(sm.process_event(e1{}));
-  expect_states(sm, s1);
+  expect(sm.is(s1));
 };
 
 test internal_transition = [] {
@@ -120,13 +97,13 @@ test internal_transition = [] {
   };
 
   msm::sm<c> sm;
-  expect_states(sm, idle);
+  expect(sm.is(idle));
   expect(sm.process_event(e1{}));
-  expect_states(sm, s1);
+  expect(sm.is(s1));
   expect(sm.process_event(e2{}));
-  expect_states(sm, s1);
+  expect(sm.is(s1));
   expect(sm.process_event(e3{}));
-  expect_states(sm, s2);
+  expect(sm.is(s2));
 };
 
 test anonymous_transition = [] {
@@ -144,7 +121,7 @@ test anonymous_transition = [] {
 
   c c_;
   msm::sm<c> sm{c_};
-  expect_states(sm, s1);
+  expect(sm.is(s1));
   expect(c_.a_called);
 };
 
@@ -157,9 +134,9 @@ test no_transition = [] {
   };
 
   msm::sm<c> sm;
-  expect_states(sm, idle);
+  expect(sm.is(idle));
   expect(!sm.process_event(e2{}));
-  expect_states(sm, idle);
+  expect(sm.is(idle));
 };
 
 test transition_with_action_with_event = [] {
@@ -175,10 +152,10 @@ test transition_with_action_with_event = [] {
 
   c c_;
   msm::sm<c> sm{c_};
-  expect_states(sm, idle);
+  expect(sm.is(idle));
   expect(sm.process_event(e1{}));
   expect(c_.called);
-  expect_states(sm, s1);
+  expect(sm.is(s1));
 };
 
 test transition_with_action_with_parameter = [] {
@@ -199,7 +176,7 @@ test transition_with_action_with_parameter = [] {
   msm::sm<c> sm{c_, 42};
   expect(sm.process_event(e1{}));
   expect(c_.called);
-  expect_states(sm, s1);
+  expect(sm.is(s1));
 };
 
 test transition_with_action_and_guad_with_parameter = [] {
@@ -230,7 +207,7 @@ test transition_with_action_and_guad_with_parameter = [] {
   expect(sm.process_event(e1{}));
   expect(c_.g_called);
   expect(c_.a_called);
-  expect_states(sm, s1);
+  expect(sm.is(s1));
 };
 
 test transition_with_action_and_guad_with_parameters_and_event = [] {
@@ -265,7 +242,7 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
   expect(sm.process_event(e1{}));
   expect(c_.g_called);
   expect(c_.a_called);
-  expect_states(sm, s1);
+  expect(sm.is(s1));
 };
 
 test transitions = [] {
@@ -290,7 +267,7 @@ test transitions = [] {
   expect(sm.process_event(e1{}));
   expect(sm.process_event(e2{}));
   expect(sm.process_event(e3{}));
-  expect_states(sm, s4);
+  expect(sm.is(s4));
 };
 
 test transition_loop = [] {
@@ -308,15 +285,15 @@ test transition_loop = [] {
   };
 
   msm::sm<c> sm;
-  expect_states(sm, idle);
+  expect(sm.is(idle));
   expect(sm.process_event(e1{}));
-  expect_states(sm, s1);
+  expect(sm.is(s1));
   expect(sm.process_event(e2{}));
-  expect_states(sm, s2);
+  expect(sm.is(s2));
   expect(sm.process_event(e3{}));
-  expect_states(sm, idle);
+  expect(sm.is(idle));
   expect(sm.process_event(e1{}));
-  expect_states(sm, s1);
+  expect(sm.is(s1));
 };
 
 test no_transitions = [] {
@@ -341,7 +318,7 @@ test no_transitions = [] {
   expect(!sm.process_event(e3{}));
   expect(sm.process_event(e2{}));
   expect(!sm.process_event(e1{}));
-  expect_states(sm, s2);
+  expect(sm.is(s2));
 };
 
 test transitions_states = [] {
@@ -367,7 +344,7 @@ test transitions_states = [] {
   expect(sm.process_event(e2{}));
   expect(sm.process_event(e3{}));
   using namespace msm;
-  expect_states(sm, "s4"_s);
+  expect(sm.is("s4"_s));
 };
 
 test transition_overload = [] {
@@ -389,14 +366,14 @@ test transition_overload = [] {
     msm::sm<c> sm;
     expect(sm.process_event(e1{}));
     expect(sm.process_event(42));
-    expect_states(sm, s2);
+    expect(sm.is(s2));
   }
 
   {
     msm::sm<c> sm;
     expect(sm.process_event(e1{}));
     expect(sm.process_event(42.f));
-    expect_states(sm, s3);
+    expect(sm.is(s3));
   }
 };
 
@@ -417,13 +394,13 @@ test initial_transition_overload = [] {
   {
     msm::sm<c> sm;
     expect(sm.process_event(e1{}));
-    expect_states(sm, s1);
+    expect(sm.is(s1));
   }
 
   {
     msm::sm<c> sm;
     expect(sm.process_event(e2{}));
-    expect_states(sm, s2);
+    expect(sm.is(s2));
   }
 };
 
@@ -540,11 +517,11 @@ test terminate_state = [] {
   };
 
   msm::sm<c> sm;
-  expect_states(sm, idle);
+  expect(sm.is(idle));
   expect(sm.process_event(e1{}));
-  expect_states(sm, s1);
+  expect(sm.is(s1));
   expect(sm.process_event(e2{}));
-  expect_states(sm, msm::terminate);
+  expect(sm.is(msm::terminate));
   expect(!sm.process_event(e1{}));
   expect(!sm.process_event(e2{}));
   expect(!sm.process_event(e3{}));
@@ -591,15 +568,15 @@ test orthogonal_regions = [] {
   };
 
   msm::sm<c> sm;
-  expect_states(sm, idle, idle2);
+  expect(sm.is(idle, idle2));
   expect(sm.process_event(e1{}));
-  expect_states(sm, s1, idle2);
+  expect(sm.is(s1, idle2));
   expect(sm.process_event(e2{}));
-  expect_states(sm, s2, idle2);
+  expect(sm.is(s2, idle2));
   expect(sm.process_event(e3{}));
-  expect_states(sm, s2, s3);
+  expect(sm.is(s2, s3));
   expect(sm.process_event(e4{}));
-  expect_states(sm, s2, s4);
+  expect(sm.is(s2, s4));
 };
 
 test orthogonal_regions_event_consumed_by_all_regions = [] {
@@ -620,13 +597,13 @@ test orthogonal_regions_event_consumed_by_all_regions = [] {
   };
 
   msm::sm<c> sm;
-  expect_states(sm, idle, idle2);
+  expect(sm.is(idle, idle2));
   expect(sm.process_event(e1{}));
-  expect_states(sm, s1, idle2);
+  expect(sm.is(s1, idle2));
   expect(sm.process_event(e3{}));
-  expect_states(sm, s1, s3);
+  expect(sm.is(s1, s3));
   expect(sm.process_event(e2{}));  // consume by both regions
-  expect_states(sm, s2, s4);
+  expect(sm.is(s2, s4));
 };
 
 test state_names = [] {
@@ -677,13 +654,13 @@ test dependencies = [] {
   {
     msm::sm<c> sm{(int)i_, (double)d_};
     expect(sm.process_event(e1{}));
-    expect_states(sm, msm::terminate);
+    expect(sm.is(msm::terminate));
   }
 
   {
     msm::sm<c> sm{(double)d_, (int)i_};
     expect(sm.process_event(e1{}));
-    expect_states(sm, msm::terminate);
+    expect(sm.is(msm::terminate));
   }
 };
 
@@ -739,7 +716,7 @@ test composite = [] {
   msm::sm<sub> subsm{sub_};
   msm::sm<c> sm{c_, subsm, 87.0, 42};
 
-  expect_states(sm, idle);
+  expect(sm.is(idle));
   expect(sm.process_event(e1()));
   expect(c_.a_initial);
 
@@ -755,7 +732,7 @@ test composite = [] {
   expect(sm.process_event(e5()));
   expect(2 == sub_.a_in_sub);
   expect(c_.a_exit_sub_sm);
-  expect_states(sm, s2);
+  expect(sm.is(s2));
 };
 
 test composite_def_ctor = [] {
@@ -791,7 +768,7 @@ test composite_def_ctor = [] {
 
   msm::sm<c> sm;
 
-  expect_states(sm, idle);
+  expect(sm.is(idle));
   expect(sm.process_event(e1()));
 
   sm.process_event(e2());
@@ -804,7 +781,7 @@ test composite_def_ctor = [] {
   expect(2 == in_sub);
   expect(sm.process_event(e5()));
   expect(2 == in_sub);
-  expect_states(sm, s2);
+  expect(sm.is(s2));
 };
 
 test composite_custom_ctor = [] {
@@ -843,7 +820,7 @@ test composite_custom_ctor = [] {
 
   constexpr auto i = 2;
   auto test = [=](auto &&sm) {
-    expect_states(sm, idle);
+    expect(sm.is(idle));
     expect(sm.process_event(e1()));
 
     sm.process_event(e2());
@@ -856,7 +833,7 @@ test composite_custom_ctor = [] {
     expect(2 * i == in_sub);
     expect(sm.process_event(e5()));
     expect(2 * i == in_sub);
-    expect_states(sm, s2);
+    expect(sm.is(s2));
   };
 
   {
@@ -924,20 +901,20 @@ test composite_with_orthogonal_regions = [] {
   msm::sm<sub> subsm{sub_};
   msm::sm<c> sm{c_, subsm};
 
-  expect_states(sm, idle, idle2);
+  expect(sm.is(idle, idle2));
   expect(sm.process_event(e1()));
-  expect_states(sm, s1, c_.sub_state);
+  expect(sm.is(s1, c_.sub_state));
 
-  expect_states(subsm, idle);
+  expect(subsm.is(idle));
   expect(sm.process_event(e4()));
-  expect_states(subsm, s1);
+  expect(subsm.is(s1));
   expect(sm.process_event(e4()));
-  expect_states(subsm, s2);
+  expect(subsm.is(s2));
 
   expect(sm.process_event(e2()));
   expect(sm.process_event(e3()));
-  expect_states(subsm, s2);
-  expect_states(sm, msm::terminate, msm::terminate);
+  expect(subsm.is(s2));
+  expect(sm.is(msm::terminate, msm::terminate));
 };
 
 // test dispatcher = [] {};

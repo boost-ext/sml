@@ -83,6 +83,55 @@ test join_types = [] {
   static_expect(is_same<type_list<int, float, double>, join_t<type_list<int>, type_list<float, double>>>::value);
   static_expect(is_same<type_list<float, double>, join_t<type_list<>, type_list<float, double>>>::value);
 };
+
+void callf() {}
+void callf1(int) {}
+template <class T>
+void callf2(T) {}
+
+struct call {};
+struct call1 {
+  void operator()();
+};
+struct call2 {
+  void operator()(int) const {}
+};
+struct call3 {
+  auto operator()(int) const { return true; }
+};
+struct call4 {
+  bool operator()(int) const noexcept { return true; }
+};
+struct call5 {
+  template <class T>
+  bool operator()(T) const noexcept {
+    return true;
+  }
+};
+struct call6 {
+  template <class T>
+  bool operator()(T&, int) const noexcept {
+    return true;
+  }
+};
+
+auto calll1 = [] {};
+auto calll2 = [](int) {};
+
+test is_callable_types = [] {
+  static_expect(!is_callable<call>::value);
+  static_expect(is_callable<call1>::value);
+  static_expect(is_callable<call2>::value);
+  static_expect(is_callable<call3>::value);
+  static_expect(is_callable<call4>::value);
+  static_expect(is_callable<call5>::value);
+  static_expect(is_callable<call6>::value);
+  static_expect(is_callable<decltype(callf)>::value);
+  static_expect(is_callable<decltype(callf1)>::value);
+  static_expect(is_callable<decltype(callf2<int>)>::value);
+  static_expect(is_callable<decltype(calll1)>::value);
+  static_expect(is_callable<decltype(calll2)>::value);
+};
 }  // aux
 }  // v_1_0_0
 }  // msm
