@@ -5,7 +5,6 @@
 // (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 #pragma once
-#include <iostream>
 #define MSM_VERSION 1'0'0
 #if defined(MSM_DSL_DST_STATE_FIRST)
 #define MSM_DSL_SRC_STATE(s1, s2) s2
@@ -80,7 +79,7 @@ true_type test_is_callable(...);
 template <class T>
 struct is_callable : decltype(test_is_callable<inherit<T, is_callable_fallback>>(0)) {};
 template <class T, class... TArgs>
-struct is_callable<T(TArgs...)> : std::true_type {};
+struct is_callable<T(TArgs...)> : true_type {};
 template <class T>
 struct remove_reference {
   using type = T;
@@ -312,12 +311,12 @@ struct defer {
 
 template <class>
 struct event {
-  template <class T, std::enable_if_t<aux::is_callable<T>::value, int> = 0>
+  template <class T, aux::enable_if_t<aux::is_callable<T>::value, int> = 0>
   auto operator[](const T &t) const noexcept {
     return transition_eg<event, T>{*this, t};
   }
 
-  template <class T, std::enable_if_t<aux::is_callable<T>::value, int> = 0>
+  template <class T, aux::enable_if_t<aux::is_callable<T>::value, int> = 0>
   auto operator/(const T &t) const noexcept {
     return transition_ea<event, T>{*this, t};
   }
@@ -354,12 +353,12 @@ struct state_impl : state_str<TState> {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
 
-  template <class T, std::enable_if_t<aux::is_callable<T>::value, int> = 0>
+  template <class T, aux::enable_if_t<aux::is_callable<T>::value, int> = 0>
   auto operator[](const T &t) const noexcept {
     return transition_sg<TState, T>{static_cast<const TState &>(*this), t};
   }
 
-  template <class T, std::enable_if_t<aux::is_callable<T>::value, int> = 0>
+  template <class T, aux::enable_if_t<aux::is_callable<T>::value, int> = 0>
   auto operator/(const T &t) const noexcept {
     return transition_sa<TState, T>{static_cast<const TState &>(*this), t};
   }
@@ -1008,7 +1007,7 @@ class sm {
     return result;
   }
 
-  template <class... TStates, std::enable_if_t<sizeof...(TStates) == regions, int> = 0>
+  template <class... TStates, aux::enable_if_t<sizeof...(TStates) == regions, int> = 0>
   bool is(const TStates &...) const noexcept {
     auto result = true;
     auto i = 0;
@@ -1109,22 +1108,22 @@ class sm {
 };
 }  // detail
 
-template <class T, std::enable_if_t<aux::is_callable<T>::value, int> = 0>
+template <class T, aux::enable_if_t<aux::is_callable<T>::value, int> = 0>
 auto operator!(const T &t) noexcept {
   return detail::not_<T>(t);
 }
 
-template <class T1, class T2, std::enable_if_t<aux::is_callable<T1>::value && aux::is_callable<T2>::value, int> = 0>
+template <class T1, class T2, aux::enable_if_t<aux::is_callable<T1>::value && aux::is_callable<T2>::value, int> = 0>
 auto operator&&(const T1 &t1, const T2 &t2) noexcept {
   return detail::and_<T1, T2>(t1, t2);
 }
 
-template <class T1, class T2, std::enable_if_t<aux::is_callable<T1>::value && aux::is_callable<T2>::value, int> = 0>
+template <class T1, class T2, aux::enable_if_t<aux::is_callable<T1>::value && aux::is_callable<T2>::value, int> = 0>
 auto operator||(const T1 &t1, const T2 &t2) noexcept {
   return detail::or_<T1, T2>(t1, t2);
 }
 
-template <class T1, class T2, std::enable_if_t<aux::is_callable<T1>::value && aux::is_callable<T2>::value, int> = 0>
+template <class T1, class T2, aux::enable_if_t<aux::is_callable<T1>::value && aux::is_callable<T2>::value, int> = 0>
 auto operator, (const T1 &t1, const T2 &t2) noexcept {
   return detail::seq_<T1, T2>(t1, t2);
 }
