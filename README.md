@@ -23,7 +23,7 @@ Yours scalable C++14 header only eUML-like meta state machine library with no de
   msm-lite, therefore, is trying to address those issues.
 
 > **Problems with Boost.MSM - eUML**
-    
+
 * Horrible compilation times (see Benchmarks)
 * Produces huge binaries (see Benchmarks)
 * Based on too many macros
@@ -43,7 +43,7 @@ Yours scalable C++14 header only eUML-like meta state machine library with no de
     * Memory usage (see Benchmarks)
     * eUML DSL (s1 == s2 + event [ guard ] / action)
     * UML standard compliant (As much as possible)
-    
+
 * Eliminate Boost.MSM - eUML problems
 
     * Compilation times (see Benchmarls)
@@ -56,7 +56,7 @@ Yours scalable C++14 header only eUML-like meta state machine library with no de
     * Functional programming support using lamda expressions
 
 * Add a new functionality
- 
+
    * Dependency injection support for guards/actions (see DI)
    * Logging support (TBD)
    * Testing support (TBD)
@@ -79,7 +79,7 @@ Yours scalable C++14 header only eUML-like meta state machine library with no de
 * Dispatcher (see Example)
 * Visit current states (see Example)
 * Proposed boost.di integration (see Example)
- 
+
 > **How to start**
 
 * Get [msm.hpp](https://raw.githubusercontent.com/krzysztof-jusiak/msm-lite/master/include/msm/msm.hpp) header
@@ -117,7 +117,7 @@ auto guard2 = [](int i, auto event) {
     return i == 42 && is_same<decltype(event), e1>::value;
 };
 auto action1 = [] { };
-auto action2 = [](const auto& event, int i) { 
+auto action2 = [](const auto& event, int i) {
     cout << i << " " << typeid(event).name() << endl;
 };
 
@@ -130,7 +130,7 @@ public:
       , "s1"_s == "s2"_s + event<e2> / [] { cout << "in place action" << endl; }
       , "s2"_s == "s3"_s + event<e3> / [ guard1 && !guard2 ] / (action1, action2)
       , "s2"_s == "game_over"_s + event<e4>
-      , 
+      ,
     );
   }
 };
@@ -244,7 +244,7 @@ int main() {
 * msm-lite data dependencies
 
 ```cpp
-                             /---- event 
+                             /---- event
                             |
 auto guard = [](double d, auto event) { return true; }
                    |
@@ -263,64 +263,6 @@ sm<...> s{42, 87.0};
 ```cpp
 ```
 
-* API reference
-
-```cpp    
-namespace msm {
-    template <class T> // requires T to have T.configure()
-    class sm {
-    public:
-      using events; // list of supported events 
-
-      template<class... TDeps> // no requirements
-      explicit sm(TDeps&&...) noexcept; // action/guards dependencies 
-      sm_impl(const sm &) = delete;
-      sm_impl(sm &&) = default;
-
-      template <class TEvent> // no requirements, returns whether event was handled or not
-      bool process_event(const TEvent &) noexcept;
-
-      template <class TVisitor> // requires TVisitor to be callable with auto
-      void visit_current_states(const TVisitor &) const noexcept;
-
-      template <class TFlag> // no requirements, returns whether active state has TFlag or not
-      bool is(const TFlag &) const noexcept;
-    };
-
-    template <class... Ts> // requires Ts to have Ts::src_state
-                           //                   , Ts::dst_state
-                           //                   , Ts::event
-                           //                   , Ts::deps
-                           //                   , Ts.execute(...)
-    auto make_transition_table(Ts...) noexcept;
-
-    action process_event;
-
-    template <class TEvent> // no requirements
-    auto event{};
-
-    template <class T> // no requirements
-    using state;
-
-    template <class T, T...>
-    state<T...> operator""_s(); // create a state, ex. "idle"_s
-
-    state initial;
-
-    template <class T> // requires T to be callable and returns bool
-    auto operator!(const T &) noexcept;
-
-    template <class T1, class T2> // requires T1, T2 to be callable and returns bool
-    auto operator&&(const T1 &, const T2 &) noexcept;
-
-    template <class T1, class T2> // requires T1, T2 to be callable and returns bool
-    auto operator||(const T1 &, const T2 &) noexcept;
-
-    template <class T1, class T2> // requires T1, T2 to be callable
-    auto operator, (const T1 &t1, const T2 &t2) noexcept;
-}
-```
-
 <a id="configuration"></a>
 * Configuration
 
@@ -329,72 +271,6 @@ namespace msm {
     MSM\_POLICY\_STATES\_DST\_SRC           | dst\_state == src\_state (same as in eUML)
 
 > **Benchmarks**
-
-* Simple / 1'000'000 / clang++3.7 -O2 -s
-
-|                  | msm-lite |  boost.msm-eUML | boost.statechart |
-|------------------|----------|-----------------|------------------|
-| Compilation time | 0.467s   | 5.363s          | 1.550s           |
-| Execution time   | 17ms     | 20ms            | 1838ms           |
-| Memory usage     | 14b      | 32b             | 200b             |
-| Executable size  | 11K      | 91K             | 59K              |
-
-* Simple / 1'000'000 / g++-6.0 -O2 -s
-
-|                  | msm-lite |  boost.msm-eUML | boost.statechart |
-|------------------|----------|-----------------|------------------|
-| Compilation time | 0.534s   | 11.442s         | 2.819s           |
-| Execution time   | 18ms     | 21ms            | 1431ms           |
-| Memory usage     | 14b      | 32b             | 224b             |
-| Executable size  | 11K      | 67K             | 67K              |
-
-* Composite / 1'000'000 / clang++3.7 -O2 -s
-
-|                  | msm-lite |  boost.msm-eUML | boost.statechart |
-|------------------|----------|-----------------|------------------|
-| Compilation time | 0.566s   | 6.716s          | 1.999s           |
-| Execution time   | 12ms     | 15ms            | 647ms            |
-| Memory usage     | 32b      | 60b             | 200b             |
-| Executable size  | 11K      | 111K            | 83K              |
-
-* Composite / 1'000'000 / g++-6.0 -O2 -s
-
-|                  | msm-lite |  boost.msm-eUML | boost.statechart |
-|------------------|----------|-----------------|------------------|
-| Compilation time | 0.652s   | 14.376s         | 3.308s           |
-| Execution time   | 9ms      | 14ms            | 612ms            |
-| Memory usage     | 32b      | 60b             | 224b             |
-| Executable size  | 11K      | 91K             | 83K              |
-
-* Complex / 1'000'000 / clang++3.7 -O2 -s
-
-|                  | msm-lite |  boost.msm-eUML | boost.statechart |
-|------------------|----------|-----------------|------------------|
-| Compilation time | 2.483s   |                 |                  |
-| Execution time   | 164ms    |                 |                  |
-| Memory usage     | 202b     |                 |                  |
-| Executable size  | 103K     |                 |                  |
-
-* Complex / 1'000'000 / g++-6.0 -O2 -s
-
-|                  | msm-lite |  boost.msm-eUML | boost.statechart |
-|------------------|----------|-----------------|------------------|
-| Compilation time | 3.594s   |                 |                  |
-| Execution time   | 159ms    |                 |                  |
-| Memory usage     | 202b     |                 |                  |
-| Executable size  | 99K      |                 |                  |
-
-* Include / clang++3.7
-
-|                  | msm-lite |  boost.msm-eUML | boost.statechart |
-|------------------|----------|-----------------|------------------|
-| Compilation time | 0.067s   | 3.072s          | 0.847s           |
-
-* Include / g++-6.0
-
-|                  | msm-lite |  boost.msm-eUML | boost.statechart |
-|------------------|----------|-----------------|------------------|
-| Compilation time | 0.080s   | 4.817s          | 1.362s           |
 
 > **TODO**
 

@@ -1,0 +1,15 @@
+copyright: Copyright &copy; 2016
+
+site_name: msm-lite
+site_url: http://www.mkdocs.org
+site_author: Krzysztof Jusiak
+repo_url: https://github.com/krzysztof-jusiak/msm-lite
+theme: readthedocs
+
+docs_dir: .
+pages:
+- Home: 'index.md'
+- User Guide: 'user_guide.md'
+#- Examples:
+    #- : user_guide.md
+- Benchmarks: 'benchmarks.md'
