@@ -4,7 +4,9 @@ site_name: msm-lite
 site_url: http://www.mkdocs.org
 site_author: Krzysztof Jusiak
 repo_url: https://github.com/krzysztof-jusiak/msm-lite
+use_directory_urls: false
 theme: readthedocs
+extra_javascript: [js/gitter.js]
 
 docs_dir: .
 pages:
