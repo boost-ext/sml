@@ -6,12 +6,12 @@ site_author: Krzysztof Jusiak
 repo_url: https://github.com/krzysztof-jusiak/msm-lite
 use_directory_urls: false
 theme: readthedocs
-extra_javascript: [js/gitter.js]
+extra_javascript: [js/gitter.js, js/run_this_code.js]
 
 docs_dir: .
 pages:
-- Home: 'index.md'
-- User Guide: 'user_guide.md'
+- Home: index.md
+- User Guide: user_guide.md
 #- Examples:
     #- : user_guide.md
-- Benchmarks: 'benchmarks.md'
+- Benchmarks: benchmarks.md
