@@ -83,7 +83,7 @@ function get_example(id, file) {
         mode: "text/x-c++src"
       });
 
-    cpp_code[id].setSize(800, 700);
+    cpp_code[id].setSize(930, 700);
     cpp_code[id].addKeyMap({"Ctrl-Enter": function(cm){ compile_and_run(id); }});
 
     cpp_output[id] = CodeMirror.fromTextArea(document.getElementById("output_" + id), {
@@ -94,7 +94,7 @@ function get_example(id, file) {
         mode: "text/x-c++src"
       });
 
-    cpp_output[id].setSize(800, 200);
+    cpp_output[id].setSize(930, 200);
     cpp_output[id].setOption("theme", 'mdn-like');
 
     cpp_code[id].setValue(get_cpp_file(file));
