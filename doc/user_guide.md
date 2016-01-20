@@ -1,4 +1,4 @@
-User Guide
+Documentation
 ============
 
 * [Boost.MSM - eUML Documentation](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)

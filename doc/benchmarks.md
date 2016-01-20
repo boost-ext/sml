@@ -1,5 +1,4 @@
-Benchmarks
-============
+*Benchmarks*
 
 * Simple / 1'000'000 / clang++3.7 -O2 -s
 
