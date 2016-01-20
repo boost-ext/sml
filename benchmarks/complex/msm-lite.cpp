@@ -58,56 +58,6 @@ struct e47 {};
 struct e48 {};
 struct e49 {};
 struct e50 {};
-struct e51 {};
-struct e52 {};
-struct e53 {};
-struct e54 {};
-struct e55 {};
-struct e56 {};
-struct e57 {};
-struct e58 {};
-struct e59 {};
-struct e60 {};
-struct e61 {};
-struct e62 {};
-struct e63 {};
-struct e64 {};
-struct e65 {};
-struct e66 {};
-struct e67 {};
-struct e68 {};
-struct e69 {};
-struct e70 {};
-struct e71 {};
-struct e72 {};
-struct e73 {};
-struct e74 {};
-struct e75 {};
-struct e76 {};
-struct e77 {};
-struct e78 {};
-struct e79 {};
-struct e80 {};
-struct e81 {};
-struct e82 {};
-struct e83 {};
-struct e84 {};
-struct e85 {};
-struct e86 {};
-struct e87 {};
-struct e88 {};
-struct e89 {};
-struct e90 {};
-struct e91 {};
-struct e92 {};
-struct e93 {};
-struct e94 {};
-struct e95 {};
-struct e96 {};
-struct e97 {};
-struct e98 {};
-struct e99 {};
-struct e100 {};
 
 auto guard = [] { return true; };
 auto action = [] {};
@@ -166,56 +116,6 @@ int main() {
       state<class s47> s47;
       state<class s48> s48;
       state<class s49> s49;
-      state<class s50> s50;
-      state<class s51> s51;
-      state<class s52> s52;
-      state<class s53> s53;
-      state<class s54> s54;
-      state<class s55> s55;
-      state<class s56> s56;
-      state<class s57> s57;
-      state<class s58> s58;
-      state<class s59> s59;
-      state<class s60> s60;
-      state<class s61> s61;
-      state<class s62> s62;
-      state<class s63> s63;
-      state<class s64> s64;
-      state<class s65> s65;
-      state<class s66> s66;
-      state<class s67> s67;
-      state<class s68> s68;
-      state<class s69> s69;
-      state<class s70> s70;
-      state<class s71> s71;
-      state<class s72> s72;
-      state<class s73> s73;
-      state<class s74> s74;
-      state<class s75> s75;
-      state<class s76> s76;
-      state<class s77> s77;
-      state<class s78> s78;
-      state<class s79> s79;
-      state<class s80> s80;
-      state<class s81> s81;
-      state<class s82> s82;
-      state<class s83> s83;
-      state<class s84> s84;
-      state<class s85> s85;
-      state<class s86> s86;
-      state<class s87> s87;
-      state<class s88> s88;
-      state<class s89> s89;
-      state<class s90> s90;
-      state<class s91> s91;
-      state<class s92> s92;
-      state<class s93> s93;
-      state<class s94> s94;
-      state<class s95> s95;
-      state<class s96> s96;
-      state<class s97> s97;
-      state<class s98> s98;
-      state<class s99> s99;
 
       // clang-format off
       return make_transition_table(
@@ -268,57 +168,7 @@ int main() {
 	 , s46 == s47 + event<e47> [guard] / action
 	 , s47 == s48 + event<e48> [guard] / action
 	 , s48 == s49 + event<e49> [guard] / action
-	 , s49 == s50 + event<e50> [guard] / action
-	 , s50 == s51 + event<e51> [guard] / action
-	 , s51 == s52 + event<e52> [guard] / action
-	 , s52 == s53 + event<e53> [guard] / action
-	 , s53 == s54 + event<e54> [guard] / action
-	 , s54 == s55 + event<e55> [guard] / action
-	 , s55 == s56 + event<e56> [guard] / action
-	 , s56 == s57 + event<e57> [guard] / action
-	 , s57 == s58 + event<e58> [guard] / action
-	 , s58 == s59 + event<e59> [guard] / action
-	 , s59 == s60 + event<e60> [guard] / action
-	 , s60 == s61 + event<e61> [guard] / action
-	 , s61 == s62 + event<e62> [guard] / action
-	 , s62 == s63 + event<e63> [guard] / action
-	 , s63 == s64 + event<e64> [guard] / action
-	 , s64 == s65 + event<e65> [guard] / action
-	 , s65 == s66 + event<e66> [guard] / action
-	 , s66 == s67 + event<e67> [guard] / action
-	 , s67 == s68 + event<e68> [guard] / action
-	 , s68 == s69 + event<e69> [guard] / action
-	 , s69 == s70 + event<e70> [guard] / action
-	 , s70 == s71 + event<e71> [guard] / action
-	 , s71 == s72 + event<e72> [guard] / action
-	 , s72 == s73 + event<e73> [guard] / action
-	 , s73 == s74 + event<e74> [guard] / action
-	 , s74 == s75 + event<e75> [guard] / action
-	 , s75 == s76 + event<e76> [guard] / action
-	 , s76 == s77 + event<e77> [guard] / action
-	 , s77 == s78 + event<e78> [guard] / action
-	 , s78 == s79 + event<e79> [guard] / action
-	 , s79 == s80 + event<e80> [guard] / action
-	 , s80 == s81 + event<e81> [guard] / action
-	 , s81 == s82 + event<e82> [guard] / action
-	 , s82 == s83 + event<e83> [guard] / action
-	 , s83 == s84 + event<e84> [guard] / action
-	 , s84 == s85 + event<e85> [guard] / action
-	 , s85 == s86 + event<e86> [guard] / action
-	 , s86 == s87 + event<e87> [guard] / action
-	 , s87 == s88 + event<e88> [guard] / action
-	 , s88 == s89 + event<e89> [guard] / action
-	 , s89 == s90 + event<e90> [guard] / action
-	 , s90 == s91 + event<e91> [guard] / action
-	 , s91 == s92 + event<e92> [guard] / action
-	 , s92 == s93 + event<e93> [guard] / action
-	 , s93 == s94 + event<e94> [guard] / action
-	 , s94 == s95 + event<e95> [guard] / action
-	 , s95 == s96 + event<e96> [guard] / action
-	 , s96 == s97 + event<e97> [guard] / action
-	 , s97 == s98 + event<e98> [guard] / action
-	 , s98 == s99 + event<e99> [guard] / action
-	 , s99 == idle + event<e100> [guard] / action
+	 , s49 == idle + event<e50> [guard] / action
     );
       // clang-format on
     }
@@ -378,56 +228,6 @@ int main() {
       sm.process_event(e48());
       sm.process_event(e49());
       sm.process_event(e50());
-      sm.process_event(e51());
-      sm.process_event(e52());
-      sm.process_event(e53());
-      sm.process_event(e54());
-      sm.process_event(e55());
-      sm.process_event(e56());
-      sm.process_event(e57());
-      sm.process_event(e58());
-      sm.process_event(e59());
-      sm.process_event(e60());
-      sm.process_event(e61());
-      sm.process_event(e62());
-      sm.process_event(e63());
-      sm.process_event(e64());
-      sm.process_event(e65());
-      sm.process_event(e66());
-      sm.process_event(e67());
-      sm.process_event(e68());
-      sm.process_event(e69());
-      sm.process_event(e70());
-      sm.process_event(e71());
-      sm.process_event(e72());
-      sm.process_event(e73());
-      sm.process_event(e74());
-      sm.process_event(e75());
-      sm.process_event(e76());
-      sm.process_event(e77());
-      sm.process_event(e78());
-      sm.process_event(e79());
-      sm.process_event(e80());
-      sm.process_event(e81());
-      sm.process_event(e82());
-      sm.process_event(e83());
-      sm.process_event(e84());
-      sm.process_event(e85());
-      sm.process_event(e86());
-      sm.process_event(e87());
-      sm.process_event(e88());
-      sm.process_event(e89());
-      sm.process_event(e90());
-      sm.process_event(e91());
-      sm.process_event(e92());
-      sm.process_event(e93());
-      sm.process_event(e94());
-      sm.process_event(e95());
-      sm.process_event(e96());
-      sm.process_event(e97());
-      sm.process_event(e98());
-      sm.process_event(e99());
-      sm.process_event(e100());
     }
   });
   benchmark_memory_usage(sm);
