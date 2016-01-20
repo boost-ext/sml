@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Krzysztof Jusiak">
+  
+  <title>Benchmarks - msm-lite</title>
+  
+
+  <link rel="shortcut icon" href="../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  <link href="../css/codemirror.css" rel="stylesheet">
+  <link href="../css/mdn-like.css" rel="stylesheet">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Benchmarks";
+    var mkdocs_page_input_path = "benchmarks.md";
+    var mkdocs_page_url = "/benchmarks/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script>
+  <script src="../js/theme.js"></script> 
+  <script src="../js/gitter.js"></script>
+  <script src="../js/cpp.js"></script>
+  <script src="../js/codemirror/codemirror.js"></script>
+  <script src="../js/codemirror/active-line.js"></script>
+  <script src="../js/codemirror/clike.js"></script>
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+<!--<a href="https://github.com/krzysztof-jusiak/di" target="_blank"><span class="inlinemediaobject"><img src="https://img.shields.io/badge/boost.di-github-blue.svg"></span></a>-->
+<!--<a href="http://www.boost.org/LICENSE_1_0.txt" target="_blank"><span class="inlinemediaobject"><img src="http://img.shields.io/badge/license-boost-blue.svg"></span></a>-->
+<!--<a href="https://github.com/krzysztof-jusiak/di/releases" target="_blank"><span class="inlinemediaobject"><img src="https://badge.fury.io/gh/krzysztof-jusiak%2Fdi.svg"></span></a>-->
+<!--<a href="https://github.com/krzysztof-jusiak/di/releases/latest" target="_blank"><span class="inlinemediaobject"><img src="http://img.shields.io/github/release/krzysztof-jusiak/di.svg"></span></a>-->
+<!--|-->
+<!--<a href="https://travis-ci.org/krzysztof-jusiak/di" target="_blank"><span class="inlinemediaobject"><img src="https://img.shields.io/travis/krzysztof-jusiak/di/cpp14.svg?label=linux/osx"></span></a>-->
+<!--<a href="https://ci.appveyor.com/project/krzysztof-jusiak/di" target="_blank"><span class="inlinemediaobject"><img src="https://img.shields.io/appveyor/ci/krzysztof-jusiak/di/cpp14.svg?label=windows"></span></a>-->
+<!--<a href="https://coveralls.io/r/krzysztof-jusiak/di?branch=cpp14" target="_blank"><span class="inlinemediaobject"><img src="http://img.shields.io/coveralls/krzysztof-jusiak/di/cpp14.svg"></span></a>-->
+<!--<a href="http://github.com/krzysztof-jusiak/di/issues" target="_blank"><span class="inlinemediaobject"><img src="https://img.shields.io/github/issues/krzysztof-jusiak/di.svg"></span></a>-->
+
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> msm-lite</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../index.html">Home</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../user_guide/index.html">User Guide</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Examples</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../example/hello_world/index.html">Hello World</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../example/transitions/index.html">Transitions</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../example/action_guards/index.html">Action Guards</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../example/states/index.html">States</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../example/events/index.html">Events</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../example/orthogonal_regions/index.html">Orthogonal Regions</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../example/composite/index.html">Composite</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../example/euml_emulation/index.html">eUML Emulation</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../example/di/index.html">Dependency Injection</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../example/dispatcher/index.html">Dispatcher</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <li class="toctree-l1 current">
+        <a class="current" href="index.html">Benchmarks</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#benchmarks">Benchmarks</a></li>
+                
+            
+            </ul>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../CHANGELOG/index.html">CHANGELOG</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">msm-lite</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Benchmarks</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="benchmarks">Benchmarks</h1>
+<ul>
+<li>Simple / 1'000'000 / clang++3.7 -O2 -s</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>msm-lite</th>
+<th>boost.msm-eUML</th>
+<th>boost.statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.467s</td>
+<td>5.363s</td>
+<td>1.550s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>17ms</td>
+<td>20ms</td>
+<td>1838ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>14b</td>
+<td>32b</td>
+<td>200b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>11K</td>
+<td>91K</td>
+<td>59K</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Simple / 1'000'000 / g++-6.0 -O2 -s</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>msm-lite</th>
+<th>boost.msm-eUML</th>
+<th>boost.statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.534s</td>
+<td>11.442s</td>
+<td>2.819s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>18ms</td>
+<td>21ms</td>
+<td>1431ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>14b</td>
+<td>32b</td>
+<td>224b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>11K</td>
+<td>67K</td>
+<td>67K</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Composite / 1'000'000 / clang++3.7 -O2 -s</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>msm-lite</th>
+<th>boost.msm-eUML</th>
+<th>boost.statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.566s</td>
+<td>6.716s</td>
+<td>1.999s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>12ms</td>
+<td>15ms</td>
+<td>647ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>32b</td>
+<td>60b</td>
+<td>200b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>11K</td>
+<td>111K</td>
+<td>83K</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Composite / 1'000'000 / g++-6.0 -O2 -s</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>msm-lite</th>
+<th>boost.msm-eUML</th>
+<th>boost.statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.652s</td>
+<td>14.376s</td>
+<td>3.308s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>9ms</td>
+<td>14ms</td>
+<td>612ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>32b</td>
+<td>60b</td>
+<td>224b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>11K</td>
+<td>91K</td>
+<td>83K</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Complex / 1'000'000 / clang++3.7 -O2 -s</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>msm-lite</th>
+<th>boost.msm-eUML</th>
+<th>boost.statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>2.483s</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>164ms</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>202b</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>103K</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Complex / 1'000'000 / g++-6.0 -O2 -s</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>msm-lite</th>
+<th>boost.msm-eUML</th>
+<th>boost.statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>3.594s</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>159ms</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>202b</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>99K</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Include / clang++3.7</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>msm-lite</th>
+<th>boost.msm-eUML</th>
+<th>boost.statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.067s</td>
+<td>3.072s</td>
+<td>0.847s</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Include / g++-6.0</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>msm-lite</th>
+<th>boost.msm-eUML</th>
+<th>boost.statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.080s</td>
+<td>4.817s</td>
+<td>1.362s</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../CHANGELOG/index.html" class="btn btn-neutral float-right" title="CHANGELOG">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../example/dispatcher/index.html" class="btn btn-neutral" title="Dispatcher"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+  /* * * CONFIGURATION VARIABLES * * */
+  var disqus_shortname = 'msm-lite';
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+      <p>Copyright &copy; 2016</p>
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../example/dispatcher/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../CHANGELOG/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>

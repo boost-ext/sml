@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+    
+    <url>
+     <loc>http://www.mkdocs.org/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>http://www.mkdocs.org/user_guide/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+        
+    <url>
+     <loc>http://www.mkdocs.org/example/hello_world/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>http://www.mkdocs.org/example/transitions/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>http://www.mkdocs.org/example/action_guards/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>http://www.mkdocs.org/example/states/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>http://www.mkdocs.org/example/events/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>http://www.mkdocs.org/example/orthogonal_regions/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>http://www.mkdocs.org/example/composite/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>http://www.mkdocs.org/example/euml_emulation/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>http://www.mkdocs.org/example/di/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>http://www.mkdocs.org/example/dispatcher/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
+    
+    <url>
+     <loc>http://www.mkdocs.org/benchmarks/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>http://www.mkdocs.org/CHANGELOG/index.html</loc>
+     <lastmod>2016-01-20</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+</urlset>
