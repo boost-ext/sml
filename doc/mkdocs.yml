@@ -25,3 +25,4 @@ pages:
     - Dependency Injection : example/di.md
     - Dispatcher : example/dispatcher.md
 - Benchmarks: benchmarks.md
+- CHANGELOG: CHANGELOG.md
