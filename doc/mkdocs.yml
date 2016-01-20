@@ -6,13 +6,22 @@ site_author: Krzysztof Jusiak
 repo_url: https://github.com/krzysztof-jusiak/msm-lite
 use_directory_urls: false
 theme: readthedocs
-extra_javascript: [js/gitter.js, js/run_this_code.js, js/codemirror/codemirror.js, js/codemirror/active-line.js, js/codemirror/clike.js]
+extra_javascript: [js/gitter.js, js/cpp.js, js/codemirror/codemirror.js, js/codemirror/active-line.js, js/codemirror/clike.js]
 extra_css: [css/codemirror.css, css/mdn-like.css]
 
 docs_dir: .
 pages:
 - Home: index.md
 - User Guide: user_guide.md
-#- Examples:
-    #- : user_guide.md
+- Examples:
+    - Hello World : example/hello_world.md
+    - Transitions : example/transitions.md
+    - Action Guards : example/action_guards.md
+    - States : example/states.md
+    - Events : example/events.md
+    - Orthogonal Regions : example/orthogonal_regions.md
+    - Composite : example/composite.md
+    - eUML Emulation : example/euml_emulation.md
+    - Dependency Injection : example/di.md
+    - Dispatcher : example/dispatcher.md
 - Benchmarks: benchmarks.md
