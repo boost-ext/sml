@@ -913,20 +913,39 @@ struct mappings<aux::pool_impl<aux::index_sequence<Ns...>, Ts...>>
 template <class T>
 using mappings_t = typename mappings<typename T::underlying_type>::type;
 
+template <class>
+transition_impl<> get_state_mapping_impl(...);
+
+template <class T, class... Ts>
+transition_impl<Ts...> get_state_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
+
 template <class S>
-aux::conditional_t<is_sm<S>::value, transition_sub_impl<S>, transition_impl<>> get_mapping_impl(...);
-
-template <class T, class R>
-R get_mapping_impl(event_mappings<T, R> *);
+transition_sub_impl<S> get_sub_state_mapping_impl(...);
 
 template <class T, class... Ts>
-transition_impl<Ts...> get_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
-
-template <class T, class... Ts>
-transition_sub_impl<T, Ts...> get_mapping_impl(state_mappings<sm<T>, aux::type_list<Ts...>> *);
+transition_sub_impl<T, Ts...> get_sub_state_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
 
 template <class T, class U>
-using get_mapping_t = decltype(get_mapping_impl<T>((U *)0));
+struct get_state_mapping {
+  using type = decltype(get_state_mapping_impl<T>((U *)0));
+};
+
+template <class T, class U>
+struct get_state_mapping<sm<T>, U> {
+  using type = decltype(get_sub_state_mapping_impl<sm<T>>((U *)0));
+};
+
+template <class T, class U>
+using get_state_mapping_t = typename get_state_mapping<T, U>::type;
+
+template <class>
+transition_impl<> get_event_mapping_impl(...);
+
+template <class T, class TMappings>
+TMappings get_event_mapping_impl(event_mappings<T, TMappings> *);
+
+template <class T, class U>
+using get_event_mapping_t = decltype(get_event_mapping_impl<T>((U *)0));
 
 template <class... Ts>
 using get_events = aux::type_list<typename Ts::event...>;
@@ -993,7 +1012,7 @@ class sm {
 
   template <class TEvent>
   bool process_event(const TEvent &event) noexcept {
-    return process_event_impl<get_mapping_t<TEvent, mappings_t>>(event, states_t{}, aux::make_index_sequence<regions>{});
+    return process_event_impl<get_event_mapping_t<TEvent, mappings_t>>(event, states_t{}, aux::make_index_sequence<regions>{});
   }
 
   template <class TVisitor>
@@ -1039,7 +1058,7 @@ class sm {
   template <class TMappings, class TEvent, class... TStates>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &, const aux::index_sequence<1> &) noexcept {
     static bool (*dispatch_table[])(sm &, const TEvent &,
-                                    aux::byte &) = {&get_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
+                                    aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     return dispatch_table[current_state_[0]](*this, event, current_state_[0]);
   }
 
@@ -1047,7 +1066,7 @@ class sm {
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &,
                           const aux::index_sequence<Ns...> &) noexcept {
     static bool (*dispatch_table[])(sm &, const TEvent &,
-                                    aux::byte &) = {&get_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
+                                    aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     auto handled = false;
     int _[]{0, (handled |= dispatch_table[current_state_[Ns - 1]](*this, event, current_state_[Ns - 1]), 0)...};
     (void)_;
