@@ -14,16 +14,6 @@ docs_dir: .
 pages:
 - Home: index.md
 - User Guide: user_guide.md
-- Examples:
-    - Hello World : example/hello_world.md
-    - Transitions : example/transitions.md
-    - Action Guards : example/action_guards.md
-    - States : example/states.md
-    - Events : example/events.md
-    - Orthogonal Regions : example/orthogonal_regions.md
-    - Composite : example/composite.md
-    - eUML Emulation : example/euml_emulation.md
-    - Dependency Injection : example/di.md
-    - Dispatcher : example/dispatcher.md
+- Examples: examples.md
 - Benchmarks: benchmarks.md
 - CHANGELOG: CHANGELOG.md
