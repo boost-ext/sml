@@ -669,9 +669,9 @@ void update_current_state(SM &, aux::byte &current_state, const aux::byte &new_s
 
 template <class SM>
 void update_current_state(SM &sm, aux::byte &current_state, const aux::byte &new_state, const aux::false_type &) noexcept {
-  sm.process_event(on_exit{});
+  sm.process_internal_event(on_exit{});
   current_state = new_state;
-  sm.process_event(on_entry{});
+  sm.process_internal_event(on_entry{});
 }
 
 template <class...>
@@ -977,6 +977,9 @@ class sm {
   template <class...>
   friend struct transition_sub_impl;
 
+  template <class S>
+  friend void update_current_state(S &, aux::byte &, const aux::byte &, const aux::false_type &) noexcept;
+
  public:
   sm(sm &&) = default;
   sm(const sm &) = delete;
@@ -988,15 +991,10 @@ class sm {
     initialize(initial_states_t{});
   }
 
-  template <class TEvent>  //, aux::enable_if_t<aux::get_id<events_ids_t, -1, TEvent>() != -1, int> = 0>
+  template <class TEvent>
   bool process_event(const TEvent &event) noexcept {
     return process_event_impl<get_mapping_t<TEvent, mappings_t>>(event, states_t{}, aux::make_index_sequence<regions>{});
   }
-
-  // template <class TEvent, aux::enable_if_t<aux::get_id<events_ids_t, -1, TEvent>() == -1, int> = 0>
-  // bool process_event(const TEvent &) noexcept {
-  // return false;
-  //}
 
   template <class TVisitor>
   void visit_current_states(const TVisitor &visitor) const noexcept(noexcept(visitor(state<initial_state>{}))) {
@@ -1026,10 +1024,17 @@ class sm {
     auto region = 0, i = region;
     int _[]{0, (region = i, current_state_[region] = aux::get_id<states_ids_t, 0, TStates>(), i++, 0)...};
     (void)_;
-    process_event(anonymous{});
+    process_internal_event(anonymous{});
   }
 
   void initialize(const aux::type_list<> &) noexcept {}
+
+  template <class TEvent, aux::enable_if_t<aux::get_id<events_ids_t, -1, TEvent>() != -1, int> = 0>
+  bool process_internal_event(const TEvent &event) noexcept {
+    return process_event(event);
+  }
+
+  bool process_internal_event(...) noexcept { return false; }
 
   template <class TMappings, class TEvent, class... TStates>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &, const aux::index_sequence<1> &) noexcept {
