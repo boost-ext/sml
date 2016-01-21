@@ -781,39 +781,22 @@ struct transition<state<S1>, state<S2>, event<E>, always, none>
 template <class...>
 struct transition_impl;
 
-template <class S, class TId, class... TIds>
-struct transition_impl<S, TId, TIds...> {
+template <class TId, class... TIds>
+struct transition_impl<TId, TIds...> {
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
     if (aux::get<TId::value>(self.transitions_).execute(self, event, current_state)) {
       return true;
     }
-    return transition_impl<S, TIds...>::execute(self, event, current_state);
+    return transition_impl<TIds...>::execute(self, event, current_state);
   }
 };
 
-template <class T, class TId, class... TIds>
-struct transition_impl<sm<T>, TId, TIds...> {
+template <class TId>
+struct transition_impl<TId> {
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
-    return aux::get<sm<T>>(self.deps_).process_event(event) ? true : transition_impl<void, TId, TIds...>::execute(
-                                                                         self, event, current_state);
-  }
-};
-
-template <class T>
-struct transition_impl<sm<T>> {
-  template <class SM, class TEvent>
-  static bool execute(SM &self, const TEvent &event, aux::byte &) noexcept {
-    return aux::get<sm<T>>(self.deps_).process_event(event);
-  }
-};
-
-template <class S>
-struct transition_impl<S> {
-  template <class SM, class TEvent>
-  static bool execute(SM &, const TEvent &, aux::byte &) noexcept {
-    return false;
+    return aux::get<TId::value>(self.transitions_).execute(self, event, current_state);
   }
 };
 
@@ -822,6 +805,26 @@ struct transition_impl<> {
   template <class SM, class TEvent>
   static bool execute(SM &, const TEvent &, aux::byte &) noexcept {
     return false;
+  }
+};
+
+template <class...>
+struct transition_sub_impl;
+
+template <class TSM, class TId, class... TIds>
+struct transition_sub_impl<TSM, TId, TIds...> {
+  template <class SM, class TEvent>
+  static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
+    return aux::get<TSM>(self.deps_).process_event(event) ? true
+                                                          : transition_impl<TId, TIds...>::execute(self, event, current_state);
+  }
+};
+
+template <class TSM>
+struct transition_sub_impl<TSM> {
+  template <class SM, class TEvent>
+  static bool execute(SM &self, const TEvent &event, aux::byte &) noexcept {
+    return aux::get<TSM>(self.deps_).process_event(event);
   }
 };
 
@@ -911,13 +914,16 @@ template <class T>
 using mappings_t = typename mappings<typename T::underlying_type>::type;
 
 template <class S>
-aux::conditional_t<is_sm<S>::value, transition_impl<S>, transition_impl<>> get_mapping_impl(...);
+aux::conditional_t<is_sm<S>::value, transition_sub_impl<S>, transition_impl<>> get_mapping_impl(...);
 
 template <class T, class R>
 R get_mapping_impl(event_mappings<T, R> *);
 
 template <class T, class... Ts>
-aux::apply_t<transition_impl, aux::type_list<T, Ts...>> get_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
+aux::apply_t<transition_impl, aux::type_list<Ts...>> get_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
+
+template <class T, class... Ts>
+aux::apply_t<transition_sub_impl, aux::type_list<T, Ts...>> get_mapping_impl(state_mappings<sm<T>, aux::type_list<Ts...>> *);
 
 template <class T, class U>
 using get_mapping_t = decltype(get_mapping_impl<T>((U *)0));
@@ -968,9 +974,10 @@ class sm {
   template <class...>
   friend struct transition_impl;
 
- public:
-  using events = events_t;
+  template <class...>
+  friend struct transition_sub_impl;
 
+ public:
   sm(sm &&) = default;
   sm(const sm &) = delete;
   sm &operator=(const sm &) = delete;
@@ -981,10 +988,15 @@ class sm {
     initialize(initial_states_t{});
   }
 
-  template <class TEvent>
+  template <class TEvent>  //, aux::enable_if_t<aux::get_id<events_ids_t, -1, TEvent>() != -1, int> = 0>
   bool process_event(const TEvent &event) noexcept {
     return process_event_impl<get_mapping_t<TEvent, mappings_t>>(event, states_t{}, aux::make_index_sequence<regions>{});
   }
+
+  // template <class TEvent, aux::enable_if_t<aux::get_id<events_ids_t, -1, TEvent>() == -1, int> = 0>
+  // bool process_event(const TEvent &) noexcept {
+  // return false;
+  //}
 
   template <class TVisitor>
   void visit_current_states(const TVisitor &visitor) const noexcept(noexcept(visitor(state<initial_state>{}))) {
