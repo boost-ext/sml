@@ -26,39 +26,31 @@ BOOST_MSM_EUML_EVENT(open_close)
 BOOST_MSM_EUML_EVENT(cd_detected)
 
 BOOST_MSM_EUML_ACTION(start_playback){
-    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
-                                                                                          SourceState &,
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &,
                                                                                           TargetState &){}};
 BOOST_MSM_EUML_ACTION(open_drawer){template <class FSM, class EVT, class SourceState, class TargetState> void
 
                                    operator()(EVT const &, FSM &, SourceState &, TargetState &){}};
 BOOST_MSM_EUML_ACTION(close_drawer){
-    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
-                                                                                          SourceState &,
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &,
                                                                                           TargetState &){}};
 BOOST_MSM_EUML_ACTION(store_cd_info){
-    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &fsm,
-                                                                                          SourceState &,
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &fsm, SourceState &,
                                                                                           TargetState &){}};
 BOOST_MSM_EUML_ACTION(stop_playback){
-    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
-                                                                                          SourceState &,
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &,
                                                                                           TargetState &){}};
 BOOST_MSM_EUML_ACTION(pause__playback){
-    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
-                                                                                          SourceState &,
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &,
                                                                                           TargetState &){}};
 BOOST_MSM_EUML_ACTION(resume_playback){
-    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
-                                                                                          SourceState &,
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &,
                                                                                           TargetState &){}};
 BOOST_MSM_EUML_ACTION(stop_and_open){
-    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
-                                                                                          SourceState &,
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &,
                                                                                           TargetState &){}};
 BOOST_MSM_EUML_ACTION(stopped_again){
-    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &,
-                                                                                          SourceState &,
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &,
                                                                                           TargetState &){}};
 
 // The list of FSM states
@@ -86,8 +78,7 @@ BOOST_MSM_EUML_TRANSITION_TABLE(
     transition_table)
 // clang-format on
 
-BOOST_MSM_EUML_ACTION(Log_No_Transition){
-    template <class FSM, class Event> void operator()(Event const &, FSM &, int state){}};
+BOOST_MSM_EUML_ACTION(Log_No_Transition){template <class FSM, class Event> void operator()(Event const &, FSM &, int state){}};
 
 // create a state machine "on the fly"
 BOOST_MSM_EUML_DECLARE_STATE_MACHINE((transition_table,                            // STT

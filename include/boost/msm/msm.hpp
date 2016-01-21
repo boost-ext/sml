@@ -1174,6 +1174,6 @@ struct dispatcher {
   template <class T>
   static void dispatch_event(const TEvent &, T &, const aux::type_list<> &) noexcept {}
 };
-}  // v_1_0_0
+}  // lite_1_0_0
 }  // msm
 }  // boost
