@@ -1,15 +1,15 @@
-Introduction
-============
-
 ![Boost libraries](img/boost.png)
 <a href="http://www.boost.org/LICENSE_1_0.txt" target="_blank">![Boost Licence](http://img.shields.io/badge/license-boost-blue.svg)</a>
-<a href="https://github.com/krzysztof-jusiak/msm-lite" target="_blank">![Github](https://img.shields.io/badge/boost.msm-lite-github-blue.svg)</a>
+<a href="https://github.com/krzysztof-jusiak/msm-lite" target="_blank">![Github](https://img.shields.io/badge/msm_lite-github-blue.svg)</a>
 <a href="https://github.com/krzysztof-jusiak/msm-lite/releases" target="_blank">![Version](https://badge.fury.io/gh/krzysztof-jusiak%2Fmsm-lite.svg)</a>
 <a href="https://github.com/krzysztof-jusiak/msm-lite/releases/latest" target="_blank">![Github Release](http://img.shields.io/github/release/krzysztof-jusiak/msm-lite.svg)</a>
 <a href="https://travis-ci.org/krzysztof-jusiak/msm-lite" target="_blank">![Build Status](https://img.shields.io/travis/krzysztof-jusiak/msm-lite/cpp14.svg?label=linux/osx)</a>
 <a href="http://github.com/krzysztof-jusiak/msm-lite/issues" target="_blank">![Github Issues](https://img.shields.io/github/issues/krzysztof-jusiak/msm-lite.svg)</a>
 
 ---------------------------------------
+
+Introduction
+============
 
 msm-lite: C++14 Meta State Machine Library
 
@@ -20,12 +20,12 @@ msm-lite: C++14 Meta State Machine Library
 * [Boost.MSM - UML Short Guide](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch02.html)
 * [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)
 
-> **Why msm-lite?**
+###Why msm-lite?
 
 * Boost.MSM - eUML is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
   msm-lite, therefore, is trying to address those issues.
 
-> **Problems with Boost.MSM - eUML**
+###Problems with Boost.MSM - eUML
 
 * Horrible compilation times (see Benchmarks)
 * Produces huge binaries (see Benchmarks)
@@ -38,7 +38,7 @@ msm-lite: C++14 Meta State Machine Library
 * Huge complexity may overwhelm in the beginning
 * A lot of Boost dependencies
 
-> **msm-lite design goals**
+###msm-lite design goals
 
 * Keep the Boost.MSM - eUML goodies
 
@@ -64,14 +64,14 @@ msm-lite: C++14 Meta State Machine Library
    * Logging support (TBD)
    * Testing support (TBD)
 
-> **What 'lite' implies?**
+###What 'lite' implies?
 
 * Minimal learning curve
 * Only crucial features
 * Guaranteed performance and quick compilation times
 * No dependencies
 
-> **Supported features by msm-lite**
+###Supported features by msm-lite
 
 * Transitions / internal transitions / anonymous transitions / no transition (see Example)
 * Guards / actions (see Example)
@@ -83,24 +83,3 @@ msm-lite: C++14 Meta State Machine Library
 * Visit current states (see Example)
 * Proposed boost.di integration (see Example)
 
-> **How to start**
-
-* Get [msm.hpp](https://raw.githubusercontent.com/krzysztof-jusiak/msm-lite/master/include/msm/msm.hpp) header
-```sh
-    wget https://raw.githubusercontent.com/krzysztof-jusiak/msm-lite/master/include/msm/msm.hpp
-```
-
-* Include the header
-```cpp
-    #include "msm.hpp"
-```
-
-* Compile with C++14 support
-```sh
-    $CXX -std=c++14 ...
-```
-
-> **Supported/tested compilers**
-
-* Clang-3.4+
-* GCC-5.2+

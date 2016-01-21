@@ -19,6 +19,10 @@ function get_cpp_file(file) {
      return cpp_file.responseText;
 }
 
+$.fn.toHtml=function(){
+   return $(this).html($(this).text())
+}
+
 function toggle(id, file) {
     document.getElementById("run_it_btn_" + id).firstChild.data = 'Run this code!';
     document.getElementById("run_it_btn_" + id).removeChild;
@@ -134,7 +138,7 @@ $(document).ready(function () {
 		var n = example.substring(i).indexOf('\n');
 		var id = file.hashCode();
 		var compile = "\/\/ $CXX -std=c++14 " + basename;
-		example = example.substring(i + n + 2);
+		example = $('<div/>').text(example.substring(i + n + 2)).html();
         $(this).replaceWith('<button class="btn btn-neutral float-right" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\')">Run this code!</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"><pre><code class="cpp">' + compile + '\n\n' + example + '</pre></div>');
     });
 });

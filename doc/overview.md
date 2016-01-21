@@ -1,4 +1,30 @@
-*Benchmarks*
+###Quick Start
+
+* Get [msm.hpp](https://raw.githubusercontent.com/krzysztof-jusiak/msm-lite/master/include/msm/msm.hpp) header
+```sh
+    wget https://raw.githubusercontent.com/krzysztof-jusiak/msm-lite/master/include/msm/msm.hpp
+```
+
+* Include the header
+```cpp
+    #include "msm.hpp"
+```
+
+* Compile with C++14 support
+```sh
+    $CXX -std=c++14 ...
+```
+
+###Dependencies
+
+###Supported/tested compilers
+
+* Clang-3.4+
+* GCC-5.2+
+
+###Design
+
+###Performance
 
 * Simple / 1'000'000 / clang++3.7 -O2 -s
 
