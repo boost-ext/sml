@@ -817,6 +817,14 @@ struct process_current_event_impl<S> {
   }
 };
 
+template <>
+struct process_current_event_impl<> {
+  template <class SM, class TEvent>
+  static bool execute(SM &, const TEvent &, aux::byte &) noexcept {
+    return false;
+  }
+};
+
 template <class, class>
 struct state_mappings;
 
@@ -903,7 +911,7 @@ template <class T>
 using mappings_t = typename mappings<typename T::underlying_type>::type;
 
 template <class S>
-process_current_event_impl<S> get_mapping_impl(...);
+aux::conditional_t<is_sm<S>::value, process_current_event_impl<S>, process_current_event_impl<>> get_mapping_impl(...);
 
 template <class T, class R>
 R get_mapping_impl(event_mappings<T, R> *);
