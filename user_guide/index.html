@@ -36,6 +36,8 @@
   <script src="../js/theme.js"></script> 
   <script src="../js/gitter.js"></script>
   <script src="../js/cpp.js"></script>
+  <script src="../js/html.js"></script>
+  <script src="../js/youtube.js"></script>
   <script src="../js/codemirror/codemirror.js"></script>
   <script src="../js/codemirror/active-line.js"></script>
   <script src="../js/codemirror/clike.js"></script>
@@ -72,12 +74,26 @@
 <li>
           
             <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../overview/index.html">Overview</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../tutorial/index.html">Tutorial</a>
+        
+    </li>
+<li>
+          
+            <li>
     <li class="toctree-l1 current">
         <a class="current" href="index.html">User Guide</a>
         
             <ul>
             
-                <li class="toctree-l3"><a href="#user-guide">User Guide</a></li>
+                <li class="toctree-l3"><a href="#documentation">Documentation</a></li>
                 
             
             </ul>
@@ -86,86 +102,8 @@
 <li>
           
             <li>
-    <ul class="subnav">
-    <li><span>Examples</span></li>
-
-        
-            
     <li class="toctree-l1 ">
-        <a class="" href="../example/hello_world/index.html">Hello World</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../example/transitions/index.html">Transitions</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../example/action_guards/index.html">Action Guards</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../example/states/index.html">States</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../example/events/index.html">Events</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../example/orthogonal_regions/index.html">Orthogonal Regions</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../example/composite/index.html">Composite</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../example/euml_emulation/index.html">eUML Emulation</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../example/di/index.html">Dependency Injection</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../example/dispatcher/index.html">Dispatcher</a>
-        
-    </li>
-
-        
-    </ul>
-<li>
-          
-            <li>
-    <li class="toctree-l1 ">
-        <a class="" href="../benchmarks/index.html">Benchmarks</a>
+        <a class="" href="../examples/index.html">Examples</a>
         
     </li>
 <li>
@@ -173,6 +111,13 @@
             <li>
     <li class="toctree-l1 ">
         <a class="" href="../CHANGELOG/index.html">CHANGELOG</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../TODO/index.html">TODO</a>
         
     </li>
 <li>
@@ -213,7 +158,65 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="user-guide">User Guide</h1>
+                <h1 id="documentation">Documentation</h1>
+<ul>
+<li>API reference</li>
+</ul>
+<pre><code class="cpp">namespace msm {
+    template &lt;class T&gt; // requires T to have T.configure()
+    class sm {
+    public:
+      using events; // list of supported events
+
+      template&lt;class... TDeps&gt; // no requirements
+      explicit sm(TDeps&amp;&amp;...) noexcept; // action/guards dependencies
+      sm_impl(const sm &amp;) = delete;
+      sm_impl(sm &amp;&amp;) = default;
+
+      template &lt;class TEvent&gt; // no requirements, returns whether event was handled or not
+      bool process_event(const TEvent &amp;) noexcept;
+
+      template &lt;class TVisitor&gt; // requires TVisitor to be callable with auto
+      void visit_current_states(const TVisitor &amp;) const noexcept;
+
+      template &lt;class TFlag&gt; // no requirements, returns whether active state has TFlag or not
+      bool is(const TFlag &amp;) const noexcept;
+    };
+
+    template &lt;class... Ts&gt; // requires Ts to have Ts::src_state
+                           //                   , Ts::dst_state
+                           //                   , Ts::event
+                           //                   , Ts::deps
+                           //                   , Ts.execute(...)
+    auto make_transition_table(Ts...) noexcept;
+
+    action process_event;
+
+    template &lt;class TEvent&gt; // no requirements
+    auto event{};
+
+    template &lt;class T&gt; // no requirements
+    using state;
+
+    template &lt;class T, T...&gt;
+    state&lt;T...&gt; operator&quot;&quot;_s(); // create a state, ex. &quot;idle&quot;_s
+
+    state initial;
+
+    template &lt;class T&gt; // requires T to be callable and returns bool
+    auto operator!(const T &amp;) noexcept;
+
+    template &lt;class T1, class T2&gt; // requires T1, T2 to be callable and returns bool
+    auto operator&amp;&amp;(const T1 &amp;, const T2 &amp;) noexcept;
+
+    template &lt;class T1, class T2&gt; // requires T1, T2 to be callable and returns bool
+    auto operator||(const T1 &amp;, const T2 &amp;) noexcept;
+
+    template &lt;class T1, class T2&gt; // requires T1, T2 to be callable
+    auto operator, (const T1 &amp;t1, const T2 &amp;t2) noexcept;
+}
+</code></pre>
+
 <ul>
 <li>
 <p><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html">Boost.MSM - eUML Documentation</a></p>
@@ -365,10 +368,10 @@ MSM\_POLICY\_STATES\_DST\_SRC           | dst\_state == src\_state (same as in e
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../example/hello_world/index.html" class="btn btn-neutral float-right" title="Hello World">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../examples/index.html" class="btn btn-neutral float-right" title="Examples">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../index.html" class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../tutorial/index.html" class="btn btn-neutral" title="Tutorial"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -410,10 +413,10 @@ MSM\_POLICY\_STATES\_DST\_SRC           | dst\_state == src\_state (same as in e
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../tutorial/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../example/hello_world/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../examples/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
