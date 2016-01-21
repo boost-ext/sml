@@ -44,14 +44,13 @@ msm-lite: C++14 Meta State Machine Library
 ###msm-lite design goals
 
 * Keep the Boost.MSM - eUML goodies
-
     * Performance (see [Performance](overview.md#performance))
     * Memory usage (see [Performance](overview.md#performance))
     * eUML DSL (s1 == s2 + event [ guard ] / action)
     * UML standard compliant (As much as possible)
 
-* Eliminate Boost.MSM - eUML problems
 
+* Eliminate Boost.MSM - eUML problems
     * Compilation times (see [Performance](overview.md#performance))
     * Binary size (see [Performance](overview.md#performance))
     * Reduce complexity by eliminating less used features
@@ -61,8 +60,8 @@ msm-lite: C++14 Meta State Machine Library
     * No dependencies / one header (1k lines)
     * Functional programming support using lamda expressions
 
-* Add a new functionality
 
+* Add a new functionality
     * Logging support (TBD)
     * Testing support (TBD)
 
