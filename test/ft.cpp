@@ -809,6 +809,62 @@ test composite_def_ctor = [] {
   expect(sm.is(s2));
 };
 
+test composite_transition_the_same_event = [] {
+  struct sub {
+    sub() {}
+    auto configure() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1>
+        , s1 == s2 + event<e2>
+      );
+      // clang-format on
+    }
+  };
+
+  static msm::state<msm::sm<sub>> sub_state;
+
+  struct c {
+    c(){};
+    auto configure() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == sub_state + event<e1>
+        , sub_state == terminate + event<e3>
+      );
+      // clang-format on
+    }
+  };
+
+  c c_;
+  sub sub_;
+  msm::sm<sub> subsm{sub_};
+  msm::sm<c> sm{c_, subsm};
+
+  expect(sm.is(idle));
+  expect(sm.process_event(e1()));
+  expect(sm.is(sub_state));
+  expect(subsm.is(idle));
+
+  expect(!sm.process_event(e4()));
+
+  sm.process_event(e1());
+  expect(sm.is(sub_state));
+  expect(subsm.is(s1));
+
+  expect(sm.process_event(e2()));
+  expect(sm.is(sub_state));
+  expect(subsm.is(s2));
+
+  expect(sm.process_event(e3()));
+  expect(sm.is(msm::terminate));
+  expect(subsm.is(s2));
+};
+
 test composite_custom_ctor = [] {
   static auto in_sub = 0;
 

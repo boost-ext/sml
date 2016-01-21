@@ -781,48 +781,39 @@ struct transition<state<S1>, state<S2>, event<E>, always, none>
 template <class...>
 struct process_current_event_impl;
 
-template <class T, class... Ts>
-struct process_current_event_impl<T, Ts...> {
+template <class S, class T, class... Ts>
+struct process_current_event_impl<S, T, Ts...> {
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
-    // TODO if first process_sub_event
     if (aux::get<T::value>(self.transitions_).execute(self, event, current_state)) {
       return true;
     }
-    // TODO replace with execute_impl internal impl
-    return process_current_event_impl<Ts...>::execute(self, event, current_state);
+    return process_current_event_impl<S, Ts...>::execute(self, event, current_state);
+  }
+};
+
+template <class X, class T, class... Ts>
+struct process_current_event_impl<sm<X>, T, Ts...> {
+  template <class SM, class TEvent>
+  static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
+    return aux::get<sm<X>>(self.deps_).process_event(event) ? true : process_current_event_impl<void, T, Ts...>::execute(
+                                                                         self, event, current_state);
   }
 };
 
 template <class T>
-struct process_current_event_impl<T> {
+struct process_current_event_impl<sm<T>> {
   template <class SM, class TEvent>
-  static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
-    return aux::get<T::value>(self.transitions_).execute(self, event, current_state);
+  static bool execute(SM &self, const TEvent &event, aux::byte &) noexcept {
+    return aux::get<sm<T>>(self.deps_).process_event(event);
   }
 };
 
-template <>
-struct process_current_event_impl<> {
+template <class S>
+struct process_current_event_impl<S> {
   template <class SM, class TEvent>
   static bool execute(SM &, const TEvent &, aux::byte &) noexcept {
     return false;
-  }
-};
-
-template <class>
-struct process_sub_event_impl {
-  template <class SM, class TEvent>
-  static bool execute(SM &, const TEvent &) noexcept {
-    return false;
-  }
-};
-
-template <class T>
-struct process_sub_event_impl<sm<T>> {
-  template <class SM, class TEvent>
-  static bool execute(SM &self, const TEvent &event) noexcept {
-    return aux::get<sm<T>>(self.deps_).process_event(event);
   }
 };
 
@@ -911,14 +902,14 @@ struct mappings<aux::pool_impl<aux::index_sequence<Ns...>, Ts...>>
 template <class T>
 using mappings_t = typename mappings<typename T::underlying_type>::type;
 
-template <class>
-process_current_event_impl<> get_mapping_impl(...);
+template <class S>
+process_current_event_impl<S> get_mapping_impl(...);
 
 template <class T, class R>
 R get_mapping_impl(event_mappings<T, R> *);
 
-template <class T, class R>
-aux::apply_t<process_current_event_impl, R> get_mapping_impl(state_mappings<T, R> *);
+template <class T, class... Ts>
+aux::apply_t<process_current_event_impl, aux::type_list<T, Ts...>> get_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
 
 template <class T, class U>
 using get_mapping_t = decltype(get_mapping_impl<T>((U *)0));
@@ -968,9 +959,6 @@ class sm {
 
   template <class...>
   friend struct process_current_event_impl;
-
-  template <class>
-  friend struct process_sub_event_impl;
 
  public:
   using events = events_t;
@@ -1063,16 +1051,18 @@ class sm {
   template <class TEvent, class... TStates>
   auto process_event_sub_impl(const TEvent &event, const aux::type_list<TStates...> &, const aux::index_sequence<1> &,
                               const aux::true_type &) noexcept {
-    static bool (*dispatch_table[])(sm &, const TEvent &) = {&process_sub_event_impl<TStates>::template execute<sm, TEvent>...};
-    return dispatch_table[current_state_[0]](*this, event);
+    static bool (*dispatch_table[])(sm &, const TEvent &,
+                                    aux::byte &) = {&process_current_event_impl<TStates>::template execute<sm, TEvent>...};
+    return dispatch_table[current_state_[0]](*this, event, current_state_[0]);
   }
 
   template <class TEvent, class... TStates, int... Ns>
   auto process_event_sub_impl(const TEvent &event, const aux::type_list<TStates...> &, const aux::index_sequence<Ns...> &,
                               const aux::true_type &) noexcept {
-    static bool (*dispatch_table[])(sm &, const TEvent &) = {&process_sub_event_impl<TStates>::template execute<sm, TEvent>...};
+    static bool (*dispatch_table[])(sm &, const TEvent &,
+                                    aux::byte &) = {&process_current_event_impl<TStates>::template execute<sm, TEvent>...};
     auto handled = false;
-    int _[]{0, (handled |= dispatch_table[current_state_[Ns - 1]](*this, event), 0)...};
+    int _[]{0, (handled |= dispatch_table[current_state_[Ns - 1]](*this, event, current_state_[Ns - 1]), 0)...};
     (void)_;
     return handled;
   }

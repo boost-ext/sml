@@ -63,8 +63,8 @@ msm-lite: C++14 Meta State Machine Library
 
 * Add a new functionality
 
-   * Logging support (TBD)
-   * Testing support (TBD)
+    * Logging support (TBD)
+    * Testing support (TBD)
 
 ###What 'lite' implies?
 
@@ -77,7 +77,7 @@ msm-lite: C++14 Meta State Machine Library
 
 * Transitions / Internal transitions / Anonymous transitions / No transition (see [Transitions](examples.md#transitions))
 * Actions / Guards (see [Action/Guards](examples.md#action-guards))
-* State entry / Exit actions (see [States](examples.md#states))
+* State entry / exit actions (see [States](examples.md#states))
 * Orthogonal regions (see [Orthogonal Regions](examples.md#orthogonal-regions))
 * Sub / Composite state machines (see [Composite](examples.md#composite))
 
