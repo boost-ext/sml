@@ -1,4 +1,3 @@
-![Boost libraries](doc/img/boost.png)
 <a href="http://www.boost.org/LICENSE_1_0.txt" target="_blank">![Boost Licence](http://img.shields.io/badge/license-boost-blue.svg)</a>
 <a href="https://github.com/krzysztof-jusiak/msm-lite" target="_blank">![Github](https://img.shields.io/badge/msm_lite-github-blue.svg)</a>
 <a href="https://github.com/krzysztof-jusiak/msm-lite/releases" target="_blank">![Version](https://badge.fury.io/gh/krzysztof-jusiak%2Fmsm-lite.svg)</a>
