@@ -26,9 +26,9 @@
 
 ###Performance
 
-| Test | CXXFLAGS | States | Submachines | Events | Transitions | Process Events |
-| ---- | -------- | ------ | ----------- | ------ | ----------- | -------------- |
-|[Simple Test](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/test/pt/simple) | -O2 -s | 5 | 0 | 6 | 12 | 1'000'000 |
+| Test | CXXFLAGS | Events | States | Transitions | Process Events |
+| ---- | -------- | ------ | ------ | ----------- | -------------- |
+|[Simple Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/simple) | -O2 -s | 6 | 5 | 12 | 1'000'000 |
 
 | clang++-3.7      | msm-lite |  boost.msm-eUML | boost.statechart |
 |------------------|----------|-----------------|------------------|
@@ -46,9 +46,9 @@
 
 ---------------------------------------
 
-| Test | CXXFLAGS | States | Submachines | Events | Transitions | Process Events |
-| ---- | -------- | ------ | ----------- | ------ | ----------- | -------------- |
-|[Composite Test](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/test/pt/simple) | -O2 -s | 5 | 0 | 6 | 12 | 1'000'000 |
+| Test | CXXFLAGS | Events | States | Transitions | Process Events |
+| ---- | -------- | ------ | ------ | ----------- | -------------- |
+|[Composite Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/composite) | -O2 -s | 8 | 5 + 3 | 12 + 4 | 1'000 * 1'000 |
 
 | clang++-3.7      | msm-lite |  boost.msm-eUML | boost.statechart |
 |------------------|----------|-----------------|------------------|
@@ -66,9 +66,9 @@
 
 ---------------------------------------
 
-| Test | CXXFLAGS | States | Submachines | Events | Transitions | Process Events |
-| ---- | -------- | ------ | ----------- | ------ | ----------- | -------------- |
-|[Complex Test](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/test/pt/simple) | -O2 -s | 5 | 0 | 6 | 12 | 1'000'000 |
+| Test | CXXFLAGS | Events | States | Transitions | Process Events |
+| ---- | -------- | ------ | ------ | ----------- | -------------- |
+|[Complex Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/complex) | -O2 -s | 50 | 50 | 50 | 1'000'000 |
 
 | clang++-3.7      | msm-lite |  boost.msm-eUML | boost.statechart |
 |------------------|----------|-----------------|------------------|
@@ -86,9 +86,9 @@
 
 ---------------------------------------
 
-| Test | CXXFLAGS | States | Submachines | Events | Transitions | Process Events |
-| ---- | -------- | ------ | ----------- | ------ | ----------- | -------------- |
-|[Header Test](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/test/pt/simple) | -O2 -s | 5 | 0 | 6 | 12 | 1'000'000 |
+| Test |
+| ---- |
+|[Header Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/header) |
 
 | clang++-3.7      | msm-lite |  boost.msm-eUML | boost.statechart |
 |------------------|----------|-----------------|------------------|

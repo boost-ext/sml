@@ -27,14 +27,14 @@ msm-lite: C++14 Meta State Machine Library
 
 ###Problems with Boost.MSM - eUML
 
-* Horrible compilation times (see Benchmarks)
-* Produces huge binaries (see Benchmarks)
+* Horrible compilation times (see [Performance](overview.md#performance))
+* Produces huge binaries (see [Performance](overview.md#performance))
 * Based on too many macros
 * Horrible and long error messages
 * Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, on\_entry, on\_exit)
 * A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)
 * Data in states makes it harder share/encapsulate (UML compliant though)
-* Functional programming emulation (introduced before lambda expressions)
+* Functional programming emulation
 * Huge complexity may overwhelm in the beginning
 * A lot of Boost dependencies
 
@@ -42,17 +42,17 @@ msm-lite: C++14 Meta State Machine Library
 
 * Keep the Boost.MSM - eUML goodies
 
-    * Performance (see Benchmarks)
-    * Memory usage (see Benchmarks)
+    * Performance (see [Performance](overview.md#performance))
+    * Memory usage (see [Performance](overview.md#performance))
     * eUML DSL (s1 == s2 + event [ guard ] / action)
     * UML standard compliant (As much as possible)
 
 * Eliminate Boost.MSM - eUML problems
 
-    * Compilation times (see Benchmarls)
-    * Binary size (see Benchmarks)
+    * Compilation times (see [Performance](overview.md#performance))
+    * Binary size (see [Performance](overview.md#performance))
     * Reduce complexity by eliminating less used features
-    * Short and informative error messages (see Error Messages)
+    * Short and informative error messages
     * Less boilerplate / no macros
     * Improve visibility by having all actions on transition table
     * No dependencies / one header (1k lines)
@@ -60,7 +60,7 @@ msm-lite: C++14 Meta State Machine Library
 
 * Add a new functionality
 
-   * Dependency injection support for guards/actions (see DI)
+   * Dependency injection support for guards/actions (see [DI](examples.md#dependency-injection))
    * Logging support (TBD)
    * Testing support (TBD)
 
@@ -71,15 +71,17 @@ msm-lite: C++14 Meta State Machine Library
 * Guaranteed performance and quick compilation times
 * No dependencies
 
-###Supported features by msm-lite
+###Supported UML features by msm-lite
 
-* Transitions / internal transitions / anonymous transitions / no transition (see Example)
-* Guards / actions (see Example)
-* State entry / exit actions (see Example)
-* Orthogonal regions (see Example)
-* Sub/Composite state machines (see Example)
-* Custom flags (see Example)
-* Dispatcher (see Example)
+* Transitions / Internal transitions / Anonymous transitions / No transition (see [Transitions](examples.md#transitions))
+* Actions / Guards (see [Action/Guards](examples.md#action-guards))
+* State entry / Exit actions (see [States](examples.md#states))
+* Orthogonal regions (see [Orthogonal Regions](examples.md#orthogonal-regions))
+* Sub / Composite state machines (see [Composite](examples.md#composite))
+
+###Supported UML features by msm-lite
+
 * Visit current states (see Example)
+* Dispatcher (see [Composite](examples.md#composite))
 * Proposed boost.di integration (see Example)
 
