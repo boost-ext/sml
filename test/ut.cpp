@@ -8,7 +8,7 @@
 #include "msm/msm.hpp"
 
 namespace msm {
-inline namespace v_1_0_0 {
+inline namespace lite_1_0_0 {
 namespace aux {
 
 test remove_reference_types = [] {

@@ -14,7 +14,7 @@
 #define MSM_DSL_DST_STATE(s1, s2) s2
 #endif
 namespace msm {
-inline namespace v_1_0_0 {
+inline namespace lite_1_0_0 {
 namespace aux {
 using byte = unsigned char;
 struct none_type {};
@@ -172,18 +172,18 @@ using unique_t = typename unique<Ts...>::type;
 template <template <class...> class, class>
 struct apply;
 template <template <class...> class T, template <class...> class U, class... Ts>
-struct apply<T, U<Ts...>> : T<Ts...> {};
+struct apply<T, U<Ts...>> {
+  using type = T<Ts...>;
+};
 template <template <class...> class T, class D>
 using apply_t = typename apply<T, D>::type;
 template <int, class T>
 struct pool_type {
-  using type = T;
-  type object;
+  T object;
 };
 template <int N, class R, class... Ts>
 struct pool_type<N, R(Ts...)> {
-  using type = R (*)(Ts...);
-  type object;
+  R (*object)(Ts...);
 };
 template <int N, class T>
 auto &get_impl_nr(pool_type<N, T> *object) noexcept {
@@ -220,7 +220,6 @@ struct pool_impl<index_sequence<Ns...>, Ts...> : pool_type<Ns, Ts>... {
 };
 template <class... Ts>
 struct pool : pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {
-  using type = pool;
   using underlying_type = pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
   using pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...>::pool_impl;
 };
@@ -231,9 +230,7 @@ struct type_id_impl;
 template <int... Ns, class... Ts>
 struct type_id_impl<index_sequence<Ns...>, Ts...> : type_id_type<Ns, Ts>... {};
 template <class... Ts>
-struct type_id : type_id_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {
-  using type = type_id;
-};
+struct type_id : type_id_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {};
 template <class T, int, int N>
 constexpr auto get_id_impl(type_id_type<N, T> *) noexcept {
   return N - 1;
@@ -785,7 +782,6 @@ struct process_current_event_impl;
 
 template <class T, class... Ts>
 struct process_current_event_impl<T, Ts...> {
-  using type = process_current_event_impl;
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
     // TODO if first process_sub_event
@@ -799,7 +795,6 @@ struct process_current_event_impl<T, Ts...> {
 
 template <class T>
 struct process_current_event_impl<T> {
-  using type = process_current_event_impl;
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
     return aux::get<T::value>(self.transitions_).execute(self, event, current_state);
@@ -808,7 +803,6 @@ struct process_current_event_impl<T> {
 
 template <>
 struct process_current_event_impl<> {
-  using type = process_current_event_impl;
   template <class SM, class TEvent>
   static bool execute(SM &, const TEvent &, aux::byte &) noexcept {
     return false;
