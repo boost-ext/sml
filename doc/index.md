@@ -15,14 +15,17 @@ msm-lite: C++14 Meta State Machine Library
 
 > Your scalable C++14 header only eUML-like meta state machine library with no dependencies
 
-* [UML](http://www.uml.org)
-* [UML2 Specification - State Machines](http://www.omg.org/spec/UML/2.5)
+
+###UML State Machine
+
+* [State Machine](https://en.wikipedia.org/wiki/UML_state_machine)
+* [UML2 Specification](http://www.omg.org/spec/UML/2.5)
 * [Boost.MSM - UML Short Guide](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch02.html)
 * [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)
 
 ###Why msm-lite?
 
-* Boost.MSM - eUML is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
+* [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
   msm-lite, therefore, is trying to address those issues.
 
 ###Problems with Boost.MSM - eUML
@@ -60,7 +63,6 @@ msm-lite: C++14 Meta State Machine Library
 
 * Add a new functionality
 
-   * Dependency injection support for guards/actions (see [DI](examples.md#dependency-injection))
    * Logging support (TBD)
    * Testing support (TBD)
 
@@ -79,9 +81,8 @@ msm-lite: C++14 Meta State Machine Library
 * Orthogonal regions (see [Orthogonal Regions](examples.md#orthogonal-regions))
 * Sub / Composite state machines (see [Composite](examples.md#composite))
 
-###Supported UML features by msm-lite
+###Additional features
 
-* Visit current states (see Example)
-* Dispatcher (see [Composite](examples.md#composite))
-* Proposed boost.di integration (see Example)
+* Dispatcher (see [Dispatcher](examples.md#dispatcher))
+* Dependency Injection integration (see [DI](examples.md#dependency-injection))
 

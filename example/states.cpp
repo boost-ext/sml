@@ -6,6 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "boost/msm/msm.hpp"
+#include <iostream>
 #include <cassert>
 
 namespace msm = boost::msm;
@@ -20,6 +21,8 @@ struct states {
     // clang-format off
     return make_transition_table(
         "idle"_s(initial) == "s1"_s + event<e1>
+	  , "s1"_s + msm::on_entry / [] { std::cout << "s1 on entry" << std::endl; }
+	  , "s1"_s + msm::on_exit / [] { std::cout << "s1 on exit" << std::endl; }
       , "s1"_s == "s2"_s + event<e2>
       , "s2"_s == terminate + event<e3>
     );
