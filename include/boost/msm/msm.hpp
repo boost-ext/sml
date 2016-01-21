@@ -13,6 +13,7 @@
 #define MSM_DSL_SRC_STATE(s1, s2) s1
 #define MSM_DSL_DST_STATE(s1, s2) s2
 #endif
+namespace boost {
 namespace msm {
 inline namespace lite_1_0_0 {
 namespace aux {
@@ -1175,3 +1176,4 @@ struct dispatcher {
 };
 }  // v_1_0_0
 }  // msm
+}  // boost

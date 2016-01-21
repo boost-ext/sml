@@ -4,21 +4,21 @@
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
-.PHONY: all clean test example benchmarks
+.PHONY: all clean test example pt
 CXX?=clang++
 CXXFLAGS:=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -fno-exceptions
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
 CLANG_FORMAT?=clang-format
 CLANG_TIDY?=clang-tidy
 
-all: test example benchmarks
+all: test example pt
 
-benchmarks: benchmarks_header benchmarks_simple benchmarks_composite benchmarks_complex
+pt: pt_header pt_simple pt_composite pt_complex
 
-benchmarks_%:
-	time $(CXX) benchmarks/$*/msm-lite.cpp -O2 -s -I include -I benchmarks -std=c++1y && ./a.out && ls -lh a.out
-	time $(CXX) benchmarks/$*/sc.cpp -ftemplate-depth=1024 -O2 -s -I include -I benchmarks -std=c++1y && ./a.out && ls -lh a.out
-	time $(CXX) benchmarks/$*/euml.cpp -ftemplate-depth=1024 -O2 -s -I include -I benchmarks -std=c++1y && ./a.out && ls -lh a.out
+pt_%:
+	time $(CXX) test/pt/$*/msm-lite.cpp -O2 -s -I include -I test/pt -std=c++1y && ./a.out && ls -lh a.out
+	time $(CXX) test/pt/$*/sc.cpp -ftemplate-depth=1024 -O2 -s -I include -I test/pt -std=c++1y && ./a.out && ls -lh a.out
+	time $(CXX) test/pt/$*/euml.cpp -ftemplate-depth=1024 -O2 -s -I include -I test/pt -std=c++1y && ./a.out && ls -lh a.out
 
 test: test_ut test_ft
 

@@ -6,8 +6,10 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #define MSM_DSL_DST_STATE_FIRST  // dst == src + event [ guard ] / action
-#include "msm/msm.hpp"
+#include "boost/msm/msm.hpp"
 #include <cassert>
+
+namespace msm = boost::msm;
 
 struct e1 {};
 struct e2 {};

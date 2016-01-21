@@ -7,7 +7,7 @@
 
 * Include the header
 ```cpp
-    #include "msm.hpp"
+    #include "boost/msm/msm.hpp"
 ```
 
 * Compile with C++14 support

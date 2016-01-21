@@ -8,11 +8,13 @@
 #if !__has_include(<boost / di.hpp>)
 int main() {}
 #else
-#include "msm/msm.hpp"
+#include "boost/msm/msm.hpp"
 #include <boost/di.hpp>
 #include <cassert>
 #include <typeinfo>
 #include <iostream>
+
+namespace msm = boost::msm;
 
 struct e1 {};
 struct e2 {};

@@ -6,7 +6,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "benchmark.hpp"
-#include "msm/msm.hpp"
+#include "boost/msm/msm.hpp"
+
+namespace msm = boost::msm;
 
 struct e1 {};
 struct e2 {};
