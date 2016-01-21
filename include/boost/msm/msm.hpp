@@ -920,10 +920,10 @@ template <class T, class R>
 R get_mapping_impl(event_mappings<T, R> *);
 
 template <class T, class... Ts>
-aux::apply_t<transition_impl, aux::type_list<Ts...>> get_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
+transition_impl<Ts...> get_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
 
 template <class T, class... Ts>
-aux::apply_t<transition_sub_impl, aux::type_list<T, Ts...>> get_mapping_impl(state_mappings<sm<T>, aux::type_list<Ts...>> *);
+transition_sub_impl<T, Ts...> get_mapping_impl(state_mappings<sm<T>, aux::type_list<Ts...>> *);
 
 template <class T, class U>
 using get_mapping_t = decltype(get_mapping_impl<T>((U *)0));
