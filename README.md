@@ -17,17 +17,13 @@ msm-lite: C++14 Meta State Machine Library
     * [What 'lite' implies?](http://boost-experimental.github.io/msm-lite/index/index.html#what-lite-implies)
     * [Supported UML features by msm-lite](http://boost-experimental.github.io/msm-lite/index/index.html#supported-uml-features-by-msm-lite)
     * [Additional features](http://boost-experimental.github.io/msm-lite/index/index.html#additional-features)
-
 * [Overview](http://boost-experimental.github.io/msm-lite/overview.html)
     * [Quick Start](http://boost-experimental.github.io/msm-lite/overview/index.html#quick-start)
     * [Dependencies](http://boost-experimental.github.io/msm-lite/overview/index.html#dependencies)
     * [Supported/tested compilers](http://boost-experimental.github.io/msm-lite/overview/index.html#supportedtested-compilers)
     * [Performance](http://boost-experimental.github.io/msm-lite/overview/index.html#performance)
-
 * [Tutorial](http://boost-experimental.github.io/msm-lite/tutorial.html)
-
 * [User](http://boost-experimental.github.io/msm-lite/user_guide.html)
-
 * [Examples](http://boost-experimental.github.io/msm-lite/examples.html)
     * [Hello World](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)
     * [Transitions](http://boost-experimental.github.io/msm-lite/examples/index.html#transitions)
@@ -39,10 +35,7 @@ msm-lite: C++14 Meta State Machine Library
     * [eUML Emulation](http://boost-experimental.github.io/msm-lite/examples/index.html#euml-emulation)
     * [Dependency Injection](http://boost-experimental.github.io/msm-lite/examples/index.html#dependency-injection)
     * [Dispatcher](http://boost-experimental.github.io/msm-lite/examples/index.html#dispatcher)
-
 * [CHANGELOG](http://boost-experimental.github.io/msm-lite/CHANGELOG.html)
     * [[1.0.0] - TBD](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#100-tbd)
     * [Added](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#added)
-
 * [TODO](http://boost-experimental.github.io/msm-lite/TODO.html)
-

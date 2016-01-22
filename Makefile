@@ -29,7 +29,6 @@ for line in fileinput.input('../README.md', inplace=True):
                 name = line.replace('#', '')[:-1]
                 id = filter(lambda c: c == '-' or str.isalnum(c), name.lower().replace(" ", "-")).replace("--", "")
                 print('    * [' + name + '](http://boost-experimental.github.io/msm-lite/' + index[1][1:-4] + '/index.html#' + id + ')')
-            print
     break
   else:
     sys.stdout.write(line)
