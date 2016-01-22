@@ -10,7 +10,30 @@ CXXFLAGS:=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -fno-excep
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
 CLANG_FORMAT?=clang-format
 CLANG_TIDY?=clang-tidy
+PYTHON?=python
 MKDOCS?=mkdocs
+
+define UPDATE_README
+import fileinput, sys
+for line in fileinput.input('../README.md', inplace=True):
+  if line.startswith('#GENERATE_INDEX'):
+    print(line)
+    with open('mkdocs.yml', 'r') as file:
+      for line in file:
+        index = line.split(':')
+        if index[0][0] == '-':
+          print('#[' + index[0].split(' ')[1] + '](http://boost-experimental.github.io/msm-lite/' + index[1][1:-4] + '.html)')
+          with open(index[1][1:-1], 'r') as md:
+            for line in md:
+              if line.startswith('##'):
+                name = line.replace('#', '')[:-1]
+                id = filter(lambda c: c == '-' or str.isalnum(c), name.lower().replace(" ", "-")).replace("--", "")
+                print('* [' + name + '](http://boost-experimental.github.io/msm-lite/' + index[1][1:-4] + '.html#' + id + ')')
+    break
+  else:
+    sys.stdout.write(line)
+endef
+export UPDATE_README
 
 all: test example pt
 
@@ -42,7 +65,7 @@ check_static_analysis:
 	$(CLANG_TIDY) -header-filter='msm' `find example test -type f -iname "*.cpp"` -- -std=c++1y -I include -I test -include test.hpp
 
 doc:
-	cd doc && $(MKDOCS) build
+	cd doc && $(MKDOCS) build && $(PYTHON) -c "$$UPDATE_README"
 
 clean:
 	@rm -f *.out
