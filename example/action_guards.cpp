@@ -23,11 +23,11 @@ auto guard1 = [] {
   return true;
 };
 
-auto guard2(int i) {
+auto guard2 = [](int i) {
   assert(42 == i);
   std::cout << "guard2" << std::endl;
   return false;
-}
+};
 
 auto action1 = [](auto e) { std::cout << "action1: " << typeid(e).name() << std::endl; };
 struct action2 {

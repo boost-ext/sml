@@ -658,18 +658,6 @@ struct transition<state<S1>, transition<state<S2>, transition<event<E>, G, A>>>
       : transition<state<S1>, state<S2>, event<E>, G, A>{t.g, t.a} {}
 };
 
-template <class SM>
-void update_current_state(SM &, aux::byte &current_state, const aux::byte &new_state, const aux::true_type &) noexcept {
-  current_state = new_state;
-}
-
-template <class SM>
-void update_current_state(SM &sm, aux::byte &current_state, const aux::byte &new_state, const aux::false_type &) noexcept {
-  sm.process_internal_event(on_exit{});
-  current_state = new_state;
-  sm.process_internal_event(on_entry{});
-}
-
 template <class...>
 struct transition_concept_check {};
 
@@ -697,8 +685,8 @@ struct transition<state<S1>, state<S2>, event<E>, G, A>
   template <class SM>
   auto execute(SM &self, const E &event, aux::byte &current_state) noexcept {
     if (call(g, event, self.deps_, self)) {
-      update_current_state(self, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(),
-                           aux::is_same<src_state, dst_state>{});
+      self.update_current_state(current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{},
+                                state<dst_state>{});
       call(a, event, self.deps_, self);
       return true;
     }
@@ -722,8 +710,8 @@ struct transition<state<S1>, state<S2>, event<E>, always, A>
 
   template <class SM>
   auto execute(SM &self, const E &event, aux::byte &current_state) noexcept {
-    update_current_state(self, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(),
-                         aux::is_same<src_state, dst_state>{});
+    self.update_current_state(current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{},
+                              state<dst_state>{});
     call(a, event, self.deps_, self);
     return true;
   }
@@ -745,8 +733,8 @@ struct transition<state<S1>, state<S2>, event<E>, G, none>
   template <class SM>
   auto execute(SM &self, const E &event, aux::byte &current_state) noexcept {
     if (call(g, event, self.deps_, self)) {
-      update_current_state(self, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(),
-                           aux::is_same<src_state, dst_state>{});
+      self.update_current_state(current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{},
+                                state<dst_state>{});
       return true;
     }
     return false;
@@ -768,8 +756,8 @@ struct transition<state<S1>, state<S2>, event<E>, always, none>
 
   template <class SM>
   auto execute(SM &self, const E &, aux::byte &current_state) noexcept {
-    update_current_state(self, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(),
-                         aux::is_same<src_state, dst_state>{});
+    self.update_current_state(current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{},
+                              state<dst_state>{});
     return true;
   }
 };
@@ -992,9 +980,6 @@ class sm {
   template <class...>
   friend struct transition_sub_impl;
 
-  template <class S>
-  friend void update_current_state(S &, aux::byte &, const aux::byte &, const aux::false_type &) noexcept;
-
  public:
   sm(sm &&) = default;
   sm(const sm &) = delete;
@@ -1087,6 +1072,19 @@ class sm {
   template <class TVisitor, class TState>
   static void visit_state(const TVisitor &visitor) noexcept {
     visitor(state<TState>{});
+  }
+
+  template <class TState>
+  void update_current_state(aux::byte &current_state, const aux::byte &new_state, const TState &, const TState &) noexcept {
+    current_state = new_state;
+  }
+
+  template <class TSrcState, class TDstState>
+  void update_current_state(aux::byte &current_state, const aux::byte &new_state, const TSrcState &,
+                            const TDstState &) noexcept {
+    process_internal_event(on_exit{});
+    current_state = new_state;
+    process_internal_event(on_entry{});
   }
 
   deps_t deps_;
