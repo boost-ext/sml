@@ -1,3 +1,5 @@
+* [Boost.MSM - UML Short Guide](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch02.html)
+
 Documentation
 ============
 

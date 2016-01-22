@@ -14,8 +14,8 @@ docs_dir: .
 pages:
 - Home: index.md
 - Overview: overview.md
-- Tutorial: tutorial.md
 - User Guide: user_guide.md
+- Reference: reference.md
 - Examples: examples.md
 - CHANGELOG: CHANGELOG.md
 - TODO: TODO.md

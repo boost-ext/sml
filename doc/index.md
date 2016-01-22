@@ -20,7 +20,6 @@ msm-lite: C++14 Meta State Machine Library
 
 * [State Machine](https://en.wikipedia.org/wiki/UML_state_machine)
 * [UML2 Specification](http://www.omg.org/spec/UML/2.5)
-* [Boost.MSM - UML Short Guide](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch02.html)
 * [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)
 
 ###Why msm-lite?
