@@ -22,13 +22,13 @@ for line in fileinput.input('../README.md', inplace=True):
       for line in file:
         index = line.split(':')
         if index[0][0] == '-':
-          print('###[' + index[0].split(' ')[1] + '](http://boost-experimental.github.io/msm-lite/' + index[1][1:-4] + '.html)')
+          print('* [' + index[0].split(' ')[1] + '](http://boost-experimental.github.io/msm-lite/' + index[1][1:-4] + '.html)')
           with open(index[1][1:-1], 'r') as md:
             for line in md:
               if line.startswith('##'):
                 name = line.replace('#', '')[:-1]
                 id = filter(lambda c: c == '-' or str.isalnum(c), name.lower().replace(" ", "-")).replace("--", "")
-                print('* [' + name + '](http://boost-experimental.github.io/msm-lite/' + index[1][1:-4] + '.html#' + id + ')')
+                print('    * [' + name + '](http://boost-experimental.github.io/msm-lite/' + index[1][1:-4] + '/index.html#' + id + ')')
             print
     break
   else:
