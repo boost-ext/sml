@@ -49,7 +49,6 @@ msm-lite: C++14 Meta State Machine Library
     * eUML DSL (s1 == s2 + event [ guard ] / action)
     * UML standard compliant (As much as possible)
 
-
 * Eliminate Boost.MSM - eUML problems
     * Compilation times (see [Performance](overview.md#performance))
     * Binary size (see [Performance](overview.md#performance))
@@ -59,7 +58,6 @@ msm-lite: C++14 Meta State Machine Library
     * Improve visibility by having all actions on transition table
     * No dependencies / one header (1k lines)
     * Functional programming support using lamda expressions
-
 
 * Add a new functionality
     * Logging support (TBD)
