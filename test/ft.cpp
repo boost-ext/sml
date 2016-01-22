@@ -464,9 +464,6 @@ test transition_entry_exit_actions = [] {
   expect(sm.is(s2));
 };
 
-void f_action(int, double) {}
-auto f_guard(float &) { return true; }
-
 struct c_guard {
   template <class T>
   bool operator()(const T &) const noexcept {
@@ -491,7 +488,7 @@ test transition_types = [] {
 
       // clang-format off
       return make_transition_table(
-        idle(initial) == s1 + event<e1> [ guard1 && f_guard ] / (action1, f_action)
+        idle(initial) == s1 + event<e1> [ guard1] / (action1, []{})
         , s1 == s2 + event<e2> / ([] { })
         , s2 == s1 + event<e4> / process_event(e5{})
         , s1 / [] {}
@@ -501,7 +498,7 @@ test transition_types = [] {
         , idle == s1
         , s3 + event<e4> / [] { }
         , s3 + event<e5> [guard1] / action1
-        , s1 == s2 [guard1 && guard1 && f_guard]
+        , s1 == s2 [guard1 && guard1 && [] { return true; }]
         , s3(initial) == s2 [guard1]
         , s2 == s3 [guard1 && !guard2]
         , s3 == s4 [guard1] / action1

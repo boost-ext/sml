@@ -4,12 +4,13 @@
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
-.PHONY: all clean test example pt
+.PHONY: all doc clean test example pt
 CXX?=clang++
 CXXFLAGS:=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -fno-exceptions
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
 CLANG_FORMAT?=clang-format
 CLANG_TIDY?=clang-tidy
+MKDOCS?=mkdocs
 
 all: test example pt
 
@@ -39,6 +40,9 @@ check_style:
 
 check_static_analysis:
 	$(CLANG_TIDY) -header-filter='msm' `find example test -type f -iname "*.cpp"` -- -std=c++1y -I include -I test -include test.hpp
+
+doc:
+	cd doc && $(MKDOCS) build
 
 clean:
 	@rm -f *.out

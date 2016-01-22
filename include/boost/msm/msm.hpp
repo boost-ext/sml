@@ -182,10 +182,6 @@ template <int, class T>
 struct pool_type {
   T object;
 };
-template <int N, class R, class... Ts>
-struct pool_type<N, R(Ts...)> {
-  R (*object)(Ts...);
-};
 template <int N, class T>
 auto &get_impl_nr(pool_type<N, T> *object) noexcept {
   return static_cast<pool_type<N, T> &>(*object).object;
@@ -252,6 +248,14 @@ struct get_size<T<Ts...>> {
 };
 }  // aux
 namespace detail {
+namespace concepts {
+template <class T>
+decltype(aux::declval<T>().configure(), aux::true_type()) configurable_impl(int);
+template <class>
+aux::false_type configurable_impl(...);
+template <class T>
+struct configurable : decltype(configurable_impl<T>(0)) {};
+}  // concepts
 template <class...>
 struct transition;
 template <class, class>
@@ -262,17 +266,13 @@ template <class, class>
 struct transition_eg;
 template <class, class>
 struct transition_ea;
-
 template <class>
 class sm;
-
 template <class>
 struct is_sm : aux::false_type {};
-
 template <class T>
 struct is_sm<sm<T>> : aux::true_type {};
-
-struct sm_empty {
+struct fsm {
   auto configure() noexcept { return aux::pool<>{}; }
 };
 
@@ -385,7 +385,7 @@ auto args_impl__(int) -> aux::function_traits_t<decltype(&T::operator())>;
 template <class T, class E>
 auto args__(...) -> decltype(args_impl__<T, E>(0));
 template <class T, class E>
-auto args__(int) -> aux::function_traits_t<decltype(&T::template operator() < sm_empty, E > )>;
+auto args__(int) -> aux::function_traits_t<decltype(&T::template operator() < fsm, E > )>;
 template <class T, class E>
 using args_t = decltype(args__<T, E>(0));
 
@@ -395,7 +395,7 @@ struct ignore;
 template <class E, class... Ts>
 struct ignore<E, aux::type_list<Ts...>> {
   using type = aux::join_t<aux::conditional_t<aux::is_same<E, aux::remove_reference_t<Ts>>::value ||
-                                                  aux::is_same<sm<sm_empty>, aux::remove_reference_t<Ts>>::value,
+                                                  aux::is_same<sm<fsm>, aux::remove_reference_t<Ts>>::value,
                                               aux::type_list<>, aux::type_list<Ts>>...>;
 };
 
@@ -414,7 +414,7 @@ struct get_deps<T<Ts...>, E, aux::enable_if_t<aux::is_base_of<operator_base, T<T
 
 template <class T, class TEvent, class TDeps, class SM,
           aux::enable_if_t<!aux::is_same<TEvent, aux::remove_reference_t<T>>::value &&
-                               !aux::is_same<sm<sm_empty>, aux::remove_reference_t<T>>::value,
+                               !aux::is_same<sm<fsm>, aux::remove_reference_t<T>>::value,
                            int> = 0>
 decltype(auto) get_arg(const TEvent &, TDeps &deps, SM &) noexcept {
   return aux::get<T>(deps);
@@ -427,7 +427,7 @@ decltype(auto) get_arg(const TEvent &event, TDeps &, SM &) noexcept {
 }
 
 template <class T, class TEvent, class TDeps, class SM,
-          aux::enable_if_t<aux::is_same<sm<sm_empty>, aux::remove_reference_t<T>>::value, int> = 0>
+          aux::enable_if_t<aux::is_same<sm<fsm>, aux::remove_reference_t<T>>::value, int> = 0>
 decltype(auto) get_arg(const TEvent &, TDeps &, SM &sm) noexcept {
   return sm;
 }
@@ -970,6 +970,7 @@ using merge_deps = aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>
 
 template <class SM>
 class sm {
+  static_assert(concepts::configurable<SM>::value, "State machine requires 'configure()' method");
   using transitions_t = decltype(aux::declval<SM>().configure());
   using mappings_t = detail::mappings_t<transitions_t>;
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
@@ -980,7 +981,6 @@ class sm {
   using events_ids_t = aux::apply_t<aux::type_id, events_t>;
   using deps_t = aux::apply_t<aux::pool, aux::join_t<get_sm<SM>, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
   static constexpr auto regions = aux::get_size<initial_states_t>::value > 0 ? aux::get_size<initial_states_t>::value : 1;
-
   static_assert(regions > 0, "At least one initial state is required");
 
   template <class...>
