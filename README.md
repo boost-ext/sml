@@ -12,7 +12,7 @@ msm-lite: C++14 Meta State Machine Library
 
 [](GENERATE_INDEX)
 
-* [Home](http://boost-experimental.github.io/msm-lite/index/index.html)
+* [Home](http://boost-experimental.github.io/msm-lite/index.html)
     * [UML State Machine](http://boost-experimental.github.io/msm-lite/index/index.html#uml-state-machine)
     * [Why msm-lite?](http://boost-experimental.github.io/msm-lite/index/index.html#why-msm-lite)
     * [Problems with Boost.MSM - eUML](http://boost-experimental.github.io/msm-lite/index/index.html#problems-with-boostmsm-euml)
