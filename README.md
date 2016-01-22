@@ -6,27 +6,27 @@
 
 ---------------------------------------
 
-msm-lite: C++14 Meta State Machine Library
+#msm-lite: C++14 Meta State Machine Library
 
 > Your scalable C++14 header only eUML-like meta state machine library with no dependencies
 
-[](GENERATE_INDEX)
+[](GENERATE_TOC_BEGIN)
 
 * [Home](http://boost-experimental.github.io/msm-lite/index.html)
-    * [UML State Machine](http://boost-experimental.github.io/msm-lite/index/index.html#uml-state-machine)
-    * [Why msm-lite?](http://boost-experimental.github.io/msm-lite/index/index.html#why-msm-lite)
-    * [Problems with Boost.MSM - eUML](http://boost-experimental.github.io/msm-lite/index/index.html#problems-with-boostmsm-euml)
-    * [msm-lite design goals](http://boost-experimental.github.io/msm-lite/index/index.html#msm-lite-design-goals)
-    * [What 'lite' implies?](http://boost-experimental.github.io/msm-lite/index/index.html#what-lite-implies)
-    * [Supported UML features by msm-lite](http://boost-experimental.github.io/msm-lite/index/index.html#supported-uml-features-by-msm-lite)
-    * [Additional features](http://boost-experimental.github.io/msm-lite/index/index.html#additional-features)
+    * [UML State Machine](http://boost-experimental.github.io/msm-lite/index.html#uml-state-machine)
+    * [Why msm-lite?](http://boost-experimental.github.io/msm-lite/index.html#why-msm-lite)
+    * [Problems with Boost.MSM - eUML](http://boost-experimental.github.io/msm-lite/index.html#problems-with-boostmsm-euml)
+    * [msm-lite design goals](http://boost-experimental.github.io/msm-lite/index.html#msm-lite-design-goals)
+    * [What 'lite' implies?](http://boost-experimental.github.io/msm-lite/index.html#what-lite-implies)
+    * [Supported UML features by msm-lite](http://boost-experimental.github.io/msm-lite/index.html#supported-uml-features-by-msm-lite)
+    * [Additional features](http://boost-experimental.github.io/msm-lite/index.html#additional-features)
 * [Overview](http://boost-experimental.github.io/msm-lite/overview/index.html)
     * [Quick Start](http://boost-experimental.github.io/msm-lite/overview/index.html#quick-start)
     * [Dependencies](http://boost-experimental.github.io/msm-lite/overview/index.html#dependencies)
     * [Supported/tested compilers](http://boost-experimental.github.io/msm-lite/overview/index.html#supportedtested-compilers)
     * [Performance](http://boost-experimental.github.io/msm-lite/overview/index.html#performance)
 * [Tutorial](http://boost-experimental.github.io/msm-lite/tutorial/index.html)
-* [User](http://boost-experimental.github.io/msm-lite/user_guide/index.html)
+* [User Guide](http://boost-experimental.github.io/msm-lite/user_guide/index.html)
 * [Examples](http://boost-experimental.github.io/msm-lite/examples/index.html)
     * [Hello World](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)
     * [Transitions](http://boost-experimental.github.io/msm-lite/examples/index.html#transitions)
@@ -42,3 +42,9 @@ msm-lite: C++14 Meta State Machine Library
     * [[1.0.0] - TBD](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#100-tbd)
     * [Added](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#added)
 * [TODO](http://boost-experimental.github.io/msm-lite/TODO/index.html)
+
+[](GENERATE_TOC_END)
+
+---
+
+**Disclaimer** msm-lite is not an official Boost library.
