@@ -302,10 +302,6 @@ struct process_event {
     return process_impl<TEvent>{event};
   }
 };
-struct defer {
-  template <class SM, class TEvent>
-  void operator()(sm<SM> &, const TEvent &) noexcept {}
-};
 
 template <class>
 struct event {
