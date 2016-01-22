@@ -277,9 +277,10 @@ struct fsm {
 };
 
 struct operator_base {};
-struct anonymous {};
-struct on_entry {};
-struct on_exit {};
+struct internal_event {};
+struct anonymous : internal_event {};
+struct on_entry : internal_event {};
+struct on_exit : internal_event {};
 struct always {
   auto operator()() const noexcept { return true; }
 };
