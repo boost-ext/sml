@@ -47,7 +47,7 @@ struct integral_constant {
 using true_type = integral_constant<bool, true>;
 using false_type = integral_constant<bool, false>;
 template <class>
-using always = aux::true_type;
+struct always : aux::true_type {};
 template <bool B, class T, class F>
 struct conditional {
   using type = T;
@@ -202,13 +202,14 @@ decltype(auto) get(TPool &p) noexcept {
   return get_impl_type<T>(&p);
 }
 struct init {};
+
 template <class, class...>
 struct pool_impl;
 template <int... Ns, class... Ts>
 struct pool_impl<index_sequence<Ns...>, Ts...> : pool_type<Ns, Ts>... {
   explicit pool_impl(Ts... ts) noexcept : pool_type<Ns, Ts>{ts}... {}
-  template <class... TArgs>
-  pool_impl(init &&, pool_impl<TArgs...> &&pool) noexcept : pool_type<Ns, Ts>{aux::get<Ts>(pool)}... {}
+  template <template <class...> class TPool, class... TArgs>
+  pool_impl(init &&, TPool<TArgs...> &&pool) noexcept : pool_type<Ns, Ts>{aux::get<Ts>(pool)}... {}
 };
 template <class... Ts>
 struct pool : pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {
