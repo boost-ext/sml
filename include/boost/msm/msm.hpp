@@ -29,6 +29,10 @@ template <class...>
 struct type_list {
   using type = type_list;
 };
+template <bool...>
+struct bool_list {
+  using type = bool_list;
+};
 template <class... Ts>
 struct inherit : Ts... {
   using type = inherit;
@@ -42,6 +46,8 @@ struct integral_constant {
 };
 using true_type = integral_constant<bool, true>;
 using false_type = integral_constant<bool, false>;
+template <class>
+using always = aux::true_type;
 template <bool B, class T, class F>
 struct conditional {
   using type = T;
@@ -70,17 +76,6 @@ template <class T>
 struct is_trivially_constructible : integral_constant<bool, __is_trivially_constructible(T)> {};
 template <class T>
 using is_trivially_constructible_t = typename is_trivially_constructible<T>::type;
-struct is_callable_fallback {
-  void operator()();
-};
-template <class T>
-false_type test_is_callable(non_type<void (is_callable_fallback::*)(), &T::operator()> *);
-template <class>
-true_type test_is_callable(...);
-template <class T>
-struct is_callable : decltype(test_is_callable<inherit<T, is_callable_fallback>>(0)) {};
-template <class T, class... TArgs>
-struct is_callable<T(TArgs...)> : true_type {};
 template <class T>
 struct remove_reference {
   using type = T;
@@ -220,6 +215,10 @@ struct pool : pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {
   using underlying_type = pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
   using pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...>::pool_impl;
 };
+template <class>
+struct is_pool : aux::false_type {};
+template <class... Ts>
+struct is_pool<pool<Ts...>> : aux::true_type {};
 template <int, class T>
 struct type_id_type {};
 template <class, class...>
@@ -248,14 +247,43 @@ struct get_size<T<Ts...>> {
 };
 }  // aux
 namespace detail {
+struct on_entry;
+struct on_exit;
+}
 namespace concepts {
 template <class T>
-decltype(aux::declval<T>().configure(), aux::true_type()) configurable_impl(int);
+decltype(aux::declval<T>().configure()) configurable_impl(int);
 template <class>
-aux::false_type configurable_impl(...);
+void configurable_impl(...);
 template <class T>
-struct configurable : decltype(configurable_impl<T>(0)) {};
+struct configurable : aux::is_pool<decltype(configurable_impl<T>(0))> {};
+
+struct callable_fallback {
+  void operator()();
+};
+template <class T>
+aux::false_type test_callable(aux::non_type<void (callable_fallback::*)(), &T::operator()> *);
+template <class>
+aux::true_type test_callable(...);
+template <class T>
+struct callable : decltype(test_callable<aux::inherit<T, callable_fallback>>(0)) {};
+template <class T, class... TArgs>
+struct callable<T(TArgs...)> : aux::true_type {};
+
+aux::false_type transitional_impl(...);
+template <class...>
+struct is_valid_transition : aux::true_type {};
+template <class S1, class S2, class T>
+struct is_valid_transition<S1, S2, detail::on_entry, T> : aux::is_same<S1, S2> {};
+template <class S1, class S2, class T>
+struct is_valid_transition<S1, S2, detail::on_exit, T> : aux::is_same<S1, S2> {};
+template <class T>
+auto transitional_impl(T &&t)
+    -> is_valid_transition<typename T::src_state, typename T::dst_state, typename T::event, typename T::deps>;
+template <class T>
+struct transitional : decltype(transitional_impl(aux::declval<T>())) {};
 }  // concepts
+namespace detail {
 template <class...>
 struct transition;
 template <class, class>
@@ -306,12 +334,12 @@ struct process_event {
 
 template <class>
 struct event {
-  template <class T, aux::enable_if_t<aux::is_callable<T>::value, int> = 0>
+  template <class T, aux::enable_if_t<concepts::callable<T>::value, int> = 0>
   auto operator[](const T &t) const noexcept {
     return transition_eg<event, T>{*this, t};
   }
 
-  template <class T, aux::enable_if_t<aux::is_callable<T>::value, int> = 0>
+  template <class T, aux::enable_if_t<concepts::callable<T>::value, int> = 0>
   auto operator/(const T &t) const noexcept {
     return transition_ea<event, T>{*this, t};
   }
@@ -348,12 +376,12 @@ struct state_impl : state_str<TState> {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
 
-  template <class T, aux::enable_if_t<aux::is_callable<T>::value, int> = 0>
+  template <class T, aux::enable_if_t<concepts::callable<T>::value, int> = 0>
   auto operator[](const T &t) const noexcept {
     return transition_sg<TState, T>{static_cast<const TState &>(*this), t};
   }
 
-  template <class T, aux::enable_if_t<aux::is_callable<T>::value, int> = 0>
+  template <class T, aux::enable_if_t<concepts::callable<T>::value, int> = 0>
   auto operator/(const T &t) const noexcept {
     return transition_sa<TState, T>{static_cast<const TState &>(*this), t};
   }
@@ -659,22 +687,8 @@ struct transition<state<S1>, transition<state<S2>, transition<event<E>, G, A>>>
       : transition<state<S1>, state<S2>, event<E>, G, A>{t.g, t.a} {}
 };
 
-template <class...>
-struct transition_concept_check {};
-
-template <class S1, class S2>
-struct transition_concept_check<S1, S2, on_entry> {
-  static_assert(aux::is_same<S1, S2>::value, "on_entry event can't change the state");
-};
-
-template <class S1, class S2>
-struct transition_concept_check<S1, S2, on_exit> {
-  static_assert(aux::is_same<S1, S2>::value, "on_exit event can't change the state");
-};
-
 template <class S1, class S2, class E, class G, class A>
-struct transition<state<S1>, state<S2>, event<E>, G, A>
-    : transition_concept_check<MSM_DSL_SRC_STATE(S1, S2), MSM_DSL_DST_STATE(S1, S2), E> {
+struct transition<state<S1>, state<S2>, event<E>, G, A> {
   static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
   using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
@@ -699,8 +713,7 @@ struct transition<state<S1>, state<S2>, event<E>, G, A>
 };
 
 template <class S1, class S2, class E, class A>
-struct transition<state<S1>, state<S2>, event<E>, always, A>
-    : transition_concept_check<MSM_DSL_SRC_STATE(S1, S2), MSM_DSL_DST_STATE(S1, S2), E> {
+struct transition<state<S1>, state<S2>, event<E>, always, A> {
   static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
   using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
@@ -721,8 +734,7 @@ struct transition<state<S1>, state<S2>, event<E>, always, A>
 };
 
 template <class S1, class S2, class E, class G>
-struct transition<state<S1>, state<S2>, event<E>, G, none>
-    : transition_concept_check<MSM_DSL_SRC_STATE(S1, S2), MSM_DSL_DST_STATE(S1, S2), E> {
+struct transition<state<S1>, state<S2>, event<E>, G, none> {
   static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
   using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
@@ -745,8 +757,7 @@ struct transition<state<S1>, state<S2>, event<E>, G, none>
 };
 
 template <class S1, class S2, class E>
-struct transition<state<S1>, state<S2>, event<E>, always, none>
-    : transition_concept_check<MSM_DSL_SRC_STATE(S1, S2), MSM_DSL_DST_STATE(S1, S2), E> {
+struct transition<state<S1>, state<S2>, event<E>, always, none> {
   static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
   using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
@@ -959,7 +970,6 @@ using merge_deps = aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>
 
 template <class SM>
 class sm {
-  static_assert(concepts::configurable<SM>::value, "State machine requires 'configure()' method");
   using transitions_t = decltype(aux::declval<SM>().configure());
   using mappings_t = detail::mappings_t<transitions_t>;
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
@@ -1094,22 +1104,22 @@ class sm {
 };
 }  // detail
 
-template <class T, aux::enable_if_t<aux::is_callable<T>::value, int> = 0>
+template <class T, aux::enable_if_t<concepts::callable<T>::value, int> = 0>
 auto operator!(const T &t) noexcept {
   return detail::not_<T>(t);
 }
 
-template <class T1, class T2, aux::enable_if_t<aux::is_callable<T1>::value && aux::is_callable<T2>::value, int> = 0>
+template <class T1, class T2, aux::enable_if_t<concepts::callable<T1>::value && concepts::callable<T2>::value, int> = 0>
 auto operator&&(const T1 &t1, const T2 &t2) noexcept {
   return detail::and_<T1, T2>(t1, t2);
 }
 
-template <class T1, class T2, aux::enable_if_t<aux::is_callable<T1>::value && aux::is_callable<T2>::value, int> = 0>
+template <class T1, class T2, aux::enable_if_t<concepts::callable<T1>::value && concepts::callable<T2>::value, int> = 0>
 auto operator||(const T1 &t1, const T2 &t2) noexcept {
   return detail::or_<T1, T2>(t1, t2);
 }
 
-template <class T1, class T2, aux::enable_if_t<aux::is_callable<T1>::value && aux::is_callable<T2>::value, int> = 0>
+template <class T1, class T2, aux::enable_if_t<concepts::callable<T1>::value && concepts::callable<T2>::value, int> = 0>
 auto operator, (const T1 &t1, const T2 &t2) noexcept {
   return detail::seq_<T1, T2>(t1, t2);
 }
@@ -1138,12 +1148,14 @@ detail::initial_state initial;
 detail::state<detail::terminate_state> terminate;
 detail::process_event process_event;
 
-template <class... Ts>
+template <class... Ts, aux::enable_if_t<aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
+                                                     aux::bool_list<concepts::transitional<Ts>::value...>>::value,
+                                        int> = 0>
 auto make_transition_table(Ts... ts) noexcept {
   return aux::pool<Ts...>{ts...};
 }
 
-template <class T>
+template <class T, aux::enable_if_t<concepts::configurable<T>::value, int> = 0>
 using sm = detail::sm<T>;
 
 template <class TEvent, class TConfig>
