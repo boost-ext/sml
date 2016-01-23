@@ -139,7 +139,22 @@ $(document).ready(function () {
 		var id = file.hashCode();
 		var compile = "\/\/ $CXX -std=c++14 " + basename;
 		example = $('<div/>').text(example.substring(i + n + 2)).html();
-        $(this).replaceWith('<button class="btn btn-neutral float-right" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\')">Run this code!</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"><pre><code class="cpp">' + compile + '\n\n' + example + '</pre></div>');
+        $(this).replaceWith('<button class="btn btn-neutral float-right" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\')">Run this code!</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"><pre><code class="cpp">' + compile + '\n\n' + example + '</code></pre></div>');
     });
+
+    $('img[alt="CPP_TEST"]').each(function () {
+        var file = $(this).attr('src');
+        var basename = $(this).attr('src').split('/')[$(this).attr('src').split('/').length - 1];
+		var regex = "#include.*";
+		var example = get_cpp_file(file);
+		var i = example.lastIndexOf("#include")
+		var n = example.substring(i).indexOf('\n');
+		var id = file.hashCode();
+		var compile = "\/\/ $CXX -std=c++14 " + basename;
+		example = $('<div/>').text(example.substring(i + n + 2)).html();
+        example = "make_transition_Table(); configure;"
+        $(this).replaceWith('<button class="btn btn-neutral float-right" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\')">Run this code!</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"><table style="table-layout: fixed; width: 100%; border: 1px;"><thead style="background: #edf0f2;"><tr><th>Code</th><th>Test</th></tr></thead><tbody><tr><td><pre><code class="cpp">' + compile + '\n\n' + example + '</code></pre></td><td><pre><code class="cpp">' + compile + '\n\n' + example + '</code></pre></td></tr></tbody></table></div>');
+    });
+
 });
 

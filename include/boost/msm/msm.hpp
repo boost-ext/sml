@@ -5,6 +5,9 @@
 // (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 #pragma once
+#if (__cplusplus < 201305L && _MSC_VER < 1900)
+#error "Boost.DI requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
+#else
 #define MSM_VERSION 1'0'0
 #if defined(MSM_DSL_DST_STATE_FIRST)
 #define MSM_DSL_SRC_STATE(s1, s2) s2
@@ -318,7 +321,7 @@ struct none {
 };
 struct process_event {
   template <class TEvent>
-  struct process_impl {
+  struct process_event_impl {
     template <class SM, class T>
     void operator()(sm<SM> &sm, const T &) noexcept {
       sm.process_event(event);
@@ -329,7 +332,7 @@ struct process_event {
 
   template <class TEvent>
   auto operator()(const TEvent &event) noexcept {
-    return process_impl<TEvent>{event};
+    return process_event_impl<TEvent>{event};
   }
 };
 
@@ -1183,3 +1186,4 @@ struct dispatcher {
 }  // lite_1_0_0
 }  // msm
 }  // boost
+#endif

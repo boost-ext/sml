@@ -24,6 +24,8 @@ Creates transition table.
 
     #include <boost/msm/msm.hpp>
 
+
 ***Example***
-![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/reference/make_transition_table.cpp)
+
+![CPP_TEST](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
 
