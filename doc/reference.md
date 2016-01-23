@@ -1,9 +1,5 @@
 ###make_transition_table
 
-***Header***
-
-    #include <boost/msm/msm.hpp>
-
 ***Description***
 
 Creates transition table.
@@ -24,6 +20,9 @@ Creates transition table.
 | --------- | ----------- | ----------- | ------- |
 | Ts        | transitional| transitions | list of transitions |
 
+***Header***
+
+    #include <boost/msm/msm.hpp>
 
 ***Example***
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/reference/make_transition_table.cpp)
