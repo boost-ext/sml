@@ -1050,8 +1050,8 @@ class sm {
 
   template <class TMappings, class TEvent, class... TStates>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &, const aux::index_sequence<1> &) noexcept {
-    static bool (*dispatch_table[])(sm &, const TEvent &,
-                                    aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
+    static bool (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(
+        sm &, const TEvent &, aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     return dispatch_table[current_state_[0]](*this, event, current_state_[0]);
   }
 
@@ -1069,14 +1069,16 @@ class sm {
   template <class TVisitor, class... TStates>
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<1> &) const noexcept {
-    static void (*dispatch_table[])(const TVisitor &) = {&sm::visit_state<TVisitor, TStates>...};
+    static void (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(const TVisitor &) = {
+        &sm::visit_state<TVisitor, TStates>...};
     dispatch_table[current_state_[0]](visitor);
   }
 
   template <class TVisitor, class... TStates, int... Ns>
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<Ns...> &) const noexcept {
-    static void (*dispatch_table[])(const TVisitor &) = {&sm::visit_state<TVisitor, TStates>...};
+    static void (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(const TVisitor &) = {
+        &sm::visit_state<TVisitor, TStates>...};
     int _[]{0, (dispatch_table[current_state_[Ns - 1]](visitor), 0)...};
     (void)_;
   }
