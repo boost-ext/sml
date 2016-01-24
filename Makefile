@@ -57,11 +57,11 @@ test/%.out:
 
 example: $(patsubst %.cpp, %.out, $(shell find example -iname "*.cpp"))
 
+example/errors/%.out:
+	$(CXX) example/errors/$*.cpp $(CXXFLAGS) -I include || [ $$? -ne 0 ]
+
 example/%.out:
 	$(CXX) example/$*.cpp $(CXXFLAGS) -I include -o example/$*.out && $($(MEMCHECK)) example/$*.out
-
-example/errors/%.out:
-	-$(CXX) example/errors/$*.cpp $(CXXFLAGS) -I include
 
 check: check_style check_static_analysis
 
