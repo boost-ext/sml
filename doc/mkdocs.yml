@@ -12,10 +12,10 @@ extra_css: [css/codemirror.css, css/mdn-like.css]
 
 docs_dir: .
 pages:
-- Home: index.md
+- Introduction: index.md
 - Overview: overview.md
+- Tutorial: tutorial.md
 - User Guide: user_guide.md
-- Reference: reference.md
 - Examples: examples.md
 - CHANGELOG: CHANGELOG.md
 - TODO: TODO.md

@@ -12,7 +12,7 @@
 
 [](GENERATE_TOC_BEGIN)
 
-* [Home](http://boost-experimental.github.io/msm-lite/index.html)
+* [Introduction](http://boost-experimental.github.io/msm-lite/index.html)
     * [UML State Machine](http://boost-experimental.github.io/msm-lite/index.html#uml-state-machine)
     * [Why msm-lite?](http://boost-experimental.github.io/msm-lite/index.html#why-msm-lite)
     * [Problems with Boost.MSM - eUML](http://boost-experimental.github.io/msm-lite/index.html#problems-with-boostmsm-euml)
@@ -25,9 +25,12 @@
     * [Dependencies](http://boost-experimental.github.io/msm-lite/overview/index.html#dependencies)
     * [Supported/tested compilers](http://boost-experimental.github.io/msm-lite/overview/index.html#supportedtested-compilers)
     * [Performance](http://boost-experimental.github.io/msm-lite/overview/index.html#performance)
+* [Tutorial](http://boost-experimental.github.io/msm-lite/tutorial/index.html)
 * [User Guide](http://boost-experimental.github.io/msm-lite/user_guide/index.html)
-* [Reference](http://boost-experimental.github.io/msm-lite/reference/index.html)
-    * [make_transition_table](http://boost-experimental.github.io/msm-lite/reference/index.html#maketransitiontable)
+    * [make_transition_table](http://boost-experimental.github.io/msm-lite/user_guide/index.html#maketransitiontable)
+    * [Concepts.Transitional](http://boost-experimental.github.io/msm-lite/user_guide/index.html#conceptstransitional)
+    * [Concepts.Configurable](http://boost-experimental.github.io/msm-lite/user_guide/index.html#conceptsconfigurable)
+    * [Concepts.Callable](http://boost-experimental.github.io/msm-lite/user_guide/index.html#conceptscallable)
 * [Examples](http://boost-experimental.github.io/msm-lite/examples/index.html)
     * [Hello World](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)
     * [Transitions](http://boost-experimental.github.io/msm-lite/examples/index.html#transitions)

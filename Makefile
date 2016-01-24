@@ -50,15 +50,18 @@ pt_%:
 	time $(CXX) test/pt/$*/sc.cpp -ftemplate-depth=1024 -O2 -s -I include -I test/pt -std=c++1y && ./a.out && ls -lh a.out
 	time $(CXX) test/pt/$*/euml.cpp -ftemplate-depth=1024 -O2 -s -I include -I test/pt -std=c++1y && ./a.out && ls -lh a.out
 
-test: test_ut test_ft
+test: $(patsubst %.cpp, %.out, $(shell find test -maxdepth 1 -iname *.cpp))
 
-test_%:
-	$(CXX) test/$*.cpp $(CXXFLAGS) -I include -I. -include test/test.hpp -o $*.out && $($(MEMCHECK)) ./$*.out
+test/%.out:
+	$(CXX) test/$*.cpp $(CXXFLAGS) -I include -I. -include test/test.hpp -o test/$*.out && $($(MEMCHECK)) test/$*.out
 
-example: $(patsubst %.cpp, example_%.cpp, $(shell find example -iname *.cpp -exec basename {} \;))
+example: $(patsubst %.cpp, %.out, $(shell find example -iname *.cpp))
 
-example_%:
-	$(CXX) example/$* $(CXXFLAGS) -I include -o $*.out && $($(MEMCHECK)) ./$*.out
+example/%.out:
+	$(CXX) example/$*.cpp $(CXXFLAGS) -I include -o example/$*.out && $($(MEMCHECK)) example/$*.out
+
+example/errors/%.out:
+	$(CXX) example/errors/$*.cpp $(CXXFLAGS) -I include; test $$? -ne 0
 
 check: check_style check_static_analysis
 
@@ -74,5 +77,5 @@ doc:
 	cd doc && $(MKDOCS) build && $(PYTHON) -c "$$UPDATE_README"
 
 clean:
-	@rm -f *.out
+	find example test -iname *.out | xargs rm -f
 
