@@ -1,11 +1,26 @@
 var cpp_code = Array();
 var cpp_output = Array();
 
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr, len;
+  if (this.length === 0) return hash;
+  for (i = 0, len = this.length; i < len; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0;
+  }
+  return hash + 2147483647 + 1;
+};
+
 function get_cpp_file(file) {
      var cpp_file = new XMLHttpRequest();
      cpp_file.open("GET", file, false);
      cpp_file.send();
      return cpp_file.responseText;
+}
+
+$.fn.toHtml=function(){
+   return $(this).html($(this).text())
 }
 
 function toggle(id, file) {
@@ -66,8 +81,8 @@ function compile_and_run(id) {
         JSON.stringify({
           "code" : cpp_code[id].getValue()
         , "codes" : [{
-              "file" : "msm/msm.hpp"
-            , "code" : get_cpp_file("https://raw.githubusercontent.com/krzysztof-jusiak/msm-lite/master/include/msm/msm.hpp")
+              "file" : "boost/msm/msm.hpp"
+            , "code" : get_cpp_file("https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm/msm.hpp")
            }]
          , "options": "warning,cpp-pedantic-errors,optimize,boost-nothing,c++1y"
 		 , "compiler" : "clang-head"
@@ -121,8 +136,25 @@ $(document).ready(function () {
 		var example = get_cpp_file(file);
 		var i = example.lastIndexOf("#include")
 		var n = example.substring(i).indexOf('\n');
-		example = example.substring(i + n + 2);
-        $(this).replaceWith('<button class="btn btn-neutral float-right" id="run_it_btn_1" onclick="cpp(1, \'' + file + '\')">Run this code!</button><textarea style="display: none" id="code_1"></textarea><br /><textarea style="display: none" id="output_1"></textarea><div id="code_listing_1"><pre><code class="cpp">\/\/ ' + basename + '\n\n' + example + '</pre></div>');
+		var id = file.hashCode();
+		var compile = "\/\/ $CXX -std=c++14 " + basename;
+		example = $('<div/>').text(example.substring(i + n + 2)).html();
+        $(this).replaceWith('<button class="btn btn-neutral float-right" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\')">Run this code!</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"><pre><code class="cpp">' + compile + '\n\n' + example + '</code></pre></div>');
     });
+
+    $('img[alt="CPP_TEST"]').each(function () {
+        var file = $(this).attr('src');
+        var basename = $(this).attr('src').split('/')[$(this).attr('src').split('/').length - 1];
+		var regex = "#include.*";
+		var example = get_cpp_file(file);
+		var i = example.lastIndexOf("#include")
+		var n = example.substring(i).indexOf('\n');
+		var id = file.hashCode();
+		var compile = "\/\/ $CXX -std=c++14 " + basename;
+		example = $('<div/>').text(example.substring(i + n + 2)).html();
+        example = "make_transition_Table(); configure;"
+        $(this).replaceWith('<button class="btn btn-neutral float-right" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\')">Run this code!</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"><table style="table-layout: fixed; width: 100%; border: 1px;"><thead style="background: #edf0f2;"><tr><th>Code</th><th>Test</th></tr></thead><tbody><tr><td><pre><code class="cpp">' + compile + '\n\n' + example + '</code></pre></td><td><pre><code class="cpp">' + compile + '\n\n' + example + '</code></pre></td></tr></tbody></table></div>');
+    });
+
 });
 

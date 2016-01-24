@@ -36,6 +36,8 @@
   <script src="./js/theme.js"></script> 
   <script src="./js/gitter.js"></script>
   <script src="./js/cpp.js"></script>
+  <script src="./js/html.js"></script>
+  <script src="./js/youtube.js"></script>
   <script src="./js/codemirror/codemirror.js"></script>
   <script src="./js/codemirror/active-line.js"></script>
   <script src="./js/codemirror/clike.js"></script>
@@ -49,8 +51,6 @@
 
 	
 	<nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
-      <br />
-      <img src="./images/boost.png" />
 
       <div class="wy-side-nav-search">
 		<a href="index.html" class="icon icon-home"> msm-lite</a>
@@ -68,14 +68,42 @@
           
             <li>
     <li class="toctree-l1 current">
-        <a class="current" href="index.html">Home</a>
+        <a class="current" href="index.html">Introduction</a>
         
             <ul>
             
                 <li class="toctree-l3"><a href="#introduction">Introduction</a></li>
                 
+                    <li><a class="toctree-l4" href="#uml-state-machine">UML State Machine</a></li>
+                
+                    <li><a class="toctree-l4" href="#why-msm-lite">Why msm-lite?</a></li>
+                
+                    <li><a class="toctree-l4" href="#problems-with-boostmsm-euml">Problems with Boost.MSM - eUML</a></li>
+                
+                    <li><a class="toctree-l4" href="#msm-lite-design-goals">msm-lite design goals</a></li>
+                
+                    <li><a class="toctree-l4" href="#what-lite-implies">What 'lite' implies?</a></li>
+                
+                    <li><a class="toctree-l4" href="#supported-uml-features-by-msm-lite">Supported UML features by msm-lite</a></li>
+                
+                    <li><a class="toctree-l4" href="#additional-features">Additional features</a></li>
+                
             
             </ul>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="overview/index.html">Overview</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="tutorial/index.html">Tutorial</a>
         
     </li>
 <li>
@@ -88,86 +116,8 @@
 <li>
           
             <li>
-    <ul class="subnav">
-    <li><span>Examples</span></li>
-
-        
-            
     <li class="toctree-l1 ">
-        <a class="" href="example/hello_world/index.html">Hello World</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="example/transitions/index.html">Transitions</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="example/action_guards/index.html">Action Guards</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="example/states/index.html">States</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="example/events/index.html">Events</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="example/orthogonal_regions/index.html">Orthogonal Regions</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="example/composite/index.html">Composite</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="example/euml_emulation/index.html">eUML Emulation</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="example/di/index.html">Dependency Injection</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="example/dispatcher/index.html">Dispatcher</a>
-        
-    </li>
-
-        
-    </ul>
-<li>
-          
-            <li>
-    <li class="toctree-l1 ">
-        <a class="" href="benchmarks/index.html">Benchmarks</a>
+        <a class="" href="examples/index.html">Examples</a>
         
     </li>
 <li>
@@ -175,6 +125,13 @@
             <li>
     <li class="toctree-l1 ">
         <a class="" href="CHANGELOG/index.html">CHANGELOG</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="TODO/index.html">TODO</a>
         
     </li>
 <li>
@@ -203,7 +160,7 @@
     
       
     
-    <li>Home</li>
+    <li>Introduction</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -215,54 +172,50 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="introduction">Introduction</h1>
-<p><a href="http://www.boost.org/LICENSE_1_0.txt" target="_blank"><img alt="Boost Licence" src="http://img.shields.io/badge/license-boost-blue.svg" /></a>
-<a href="https://github.com/krzysztof-jusiak/msm-lite" target="_blank"><img alt="Github" src="https://img.shields.io/badge/boost.msm-lite-github-blue.svg" /></a>
+                <p><img alt="Boost libraries" src="./img/boost.png" />
+<a href="http://www.boost.org/LICENSE_1_0.txt" target="_blank"><img alt="Boost Licence" src="http://img.shields.io/badge/license-boost-blue.svg" /></a>
+<a href="https://github.com/krzysztof-jusiak/msm-lite" target="_blank"><img alt="Github" src="https://img.shields.io/badge/msm_lite-github-blue.svg" /></a>
 <a href="https://github.com/krzysztof-jusiak/msm-lite/releases" target="_blank"><img alt="Version" src="https://badge.fury.io/gh/krzysztof-jusiak%2Fmsm-lite.svg" /></a>
 <a href="https://github.com/krzysztof-jusiak/msm-lite/releases/latest" target="_blank"><img alt="Github Release" src="http://img.shields.io/github/release/krzysztof-jusiak/msm-lite.svg" /></a>
 <a href="https://travis-ci.org/krzysztof-jusiak/msm-lite" target="_blank"><img alt="Build Status" src="https://img.shields.io/travis/krzysztof-jusiak/msm-lite/cpp14.svg?label=linux/osx" /></a>
 <a href="http://github.com/krzysztof-jusiak/msm-lite/issues" target="_blank"><img alt="Github Issues" src="https://img.shields.io/github/issues/krzysztof-jusiak/msm-lite.svg" /></a></p>
+<hr />
+<h1 id="introduction">Introduction</h1>
 <p>msm-lite: C++14 Meta State Machine Library</p>
 <blockquote>
-<p>Yours scalable C++14 header only eUML-like meta state machine library with no dependencies</p>
+<p>Your scalable C++14 header only eUML-like meta state machine library with no dependencies</p>
 </blockquote>
+<h3 id="uml-state-machine">UML State Machine</h3>
 <ul>
-<li><a href="http://www.uml.org">UML</a></li>
-<li><a href="http://www.omg.org/spec/UML/2.5">UML2 Specification - State Machines</a></li>
-<li><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch02.html">Boost.MSM - UML Short Guide</a></li>
+<li><a href="https://en.wikipedia.org/wiki/UML_state_machine">State Machine</a></li>
+<li><a href="http://www.omg.org/spec/UML/2.5">UML2 Specification</a></li>
 <li><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html">Boost.MSM - eUML</a></li>
 </ul>
-<blockquote>
-<p><strong>Why msm-lite?</strong></p>
-</blockquote>
+<h3 id="why-msm-lite">Why msm-lite?</h3>
 <ul>
-<li>Boost.MSM - eUML is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
+<li><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html">Boost.MSM - eUML</a> is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
   msm-lite, therefore, is trying to address those issues.</li>
 </ul>
-<blockquote>
-<p><strong>Problems with Boost.MSM - eUML</strong></p>
-</blockquote>
+<h3 id="problems-with-boostmsm-euml">Problems with Boost.MSM - eUML</h3>
 <ul>
-<li>Horrible compilation times (see Benchmarks)</li>
-<li>Produces huge binaries (see Benchmarks)</li>
+<li>Horrible compilation times (see <a href="overview/index.html#performance">Performance</a>)</li>
+<li>Produces huge binaries (see <a href="overview/index.html#performance">Performance</a>)</li>
 <li>Based on too many macros</li>
-<li>Horrible and long error messages</li>
+<li>Horrible and long error messages (see <a href="overview/index.html#error-messages">Error Messages</a>)</li>
 <li>Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, on_entry, on_exit)</li>
 <li>A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)</li>
 <li>Data in states makes it harder share/encapsulate (UML compliant though)</li>
-<li>Functional programming emulation (introduced before lambda expressions)</li>
+<li>Functional programming emulation</li>
 <li>Huge complexity may overwhelm in the beginning</li>
 <li>A lot of Boost dependencies</li>
 </ul>
-<blockquote>
-<p><strong>msm-lite design goals</strong></p>
-</blockquote>
+<h3 id="msm-lite-design-goals">msm-lite design goals</h3>
 <ul>
 <li>
 <p>Keep the Boost.MSM - eUML goodies</p>
 <ul>
-<li>Performance (see Benchmarks)</li>
-<li>Memory usage (see Benchmarks)</li>
+<li>Performance (see <a href="overview/index.html#performance">Performance</a>)</li>
+<li>Memory usage (see <a href="overview/index.html#performance">Performance</a>)</li>
 <li>eUML DSL (s1 == s2 + event [ guard ] / action)</li>
 <li>UML standard compliant (As much as possible)</li>
 </ul>
@@ -270,75 +223,36 @@
 <li>
 <p>Eliminate Boost.MSM - eUML problems</p>
 <ul>
-<li>Compilation times (see Benchmarls)</li>
-<li>Binary size (see Benchmarks)</li>
+<li>Compilation times (see <a href="overview/index.html#performance">Performance</a>)</li>
+<li>Binary size (see <a href="overview/index.html#performance">Performance</a>)</li>
 <li>Reduce complexity by eliminating less used features</li>
-<li>Short and informative error messages (see Error Messages)</li>
+<li>Short and informative error messages (see <a href="overview/index.html#error-messages">Error Messages</a>)</li>
 <li>Less boilerplate / no macros</li>
 <li>Improve visibility by having all actions on transition table</li>
 <li>No dependencies / one header (1k lines)</li>
 <li>Functional programming support using lamda expressions</li>
 </ul>
 </li>
-<li>
-<p>Add a new functionality</p>
-</li>
-<li>
-<p>Dependency injection support for guards/actions (see DI)</p>
-</li>
-<li>Logging support (TBD)</li>
-<li>Testing support (TBD)</li>
 </ul>
-<blockquote>
-<p><strong>What 'lite' implies?</strong></p>
-</blockquote>
+<h3 id="what-lite-implies">What 'lite' implies?</h3>
 <ul>
 <li>Minimal learning curve</li>
 <li>Only crucial features</li>
 <li>Guaranteed performance and quick compilation times</li>
 <li>No dependencies</li>
 </ul>
-<blockquote>
-<p><strong>Supported features by msm-lite</strong></p>
-</blockquote>
+<h3 id="supported-uml-features-by-msm-lite">Supported UML features by msm-lite</h3>
 <ul>
-<li>Transitions / internal transitions / anonymous transitions / no transition (see Example)</li>
-<li>Guards / actions (see Example)</li>
-<li>State entry / exit actions (see Example)</li>
-<li>Orthogonal regions (see Example)</li>
-<li>Sub/Composite state machines (see Example)</li>
-<li>Custom flags (see Example)</li>
-<li>Dispatcher (see Example)</li>
-<li>Visit current states (see Example)</li>
-<li>Proposed boost.di integration (see Example)</li>
+<li>Transitions / Internal transitions / Anonymous transitions / No transition (see <a href="examples/index.html#transitions">Transitions</a>)</li>
+<li>Actions / Guards (see <a href="examples/index.html#action-guards">Action/Guards</a>)</li>
+<li>State entry / exit actions (see <a href="examples/index.html#states">States</a>)</li>
+<li>Orthogonal regions (see <a href="examples/index.html#orthogonal-regions">Orthogonal Regions</a>)</li>
+<li>Sub / Composite state machines (see <a href="examples/index.html#composite">Composite</a>)</li>
 </ul>
-<blockquote>
-<p><strong>How to start</strong></p>
-</blockquote>
+<h3 id="additional-features">Additional features</h3>
 <ul>
-<li>Get <a href="https://raw.githubusercontent.com/krzysztof-jusiak/msm-lite/master/include/msm/msm.hpp">msm.hpp</a> header</li>
-</ul>
-<pre><code class="sh">    wget https://raw.githubusercontent.com/krzysztof-jusiak/msm-lite/master/include/msm/msm.hpp
-</code></pre>
-
-<ul>
-<li>Include the header</li>
-</ul>
-<pre><code class="cpp">    #include &quot;msm.hpp&quot;
-</code></pre>
-
-<ul>
-<li>Compile with C++14 support</li>
-</ul>
-<pre><code class="sh">    $CXX -std=c++14 ...
-</code></pre>
-
-<blockquote>
-<p><strong>Supported/tested compilers</strong></p>
-</blockquote>
-<ul>
-<li>Clang-3.4+</li>
-<li>GCC-5.2+</li>
+<li>Runtime Dispatcher (see <a href="examples/index.html#runtime-dispatcher">Runtime Dispatcher</a>)</li>
+<li>Dependency Injection integration (see <a href="examples/index.html#dependency-injection">DI</a>)</li>
 </ul>
               
             </div>
@@ -347,7 +261,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="user_guide/index.html" class="btn btn-neutral float-right" title="User Guide">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="overview/index.html" class="btn btn-neutral float-right" title="Overview">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
     </div>
@@ -391,7 +305,7 @@
       
       
       
-        <span style="margin-left: 15px"><a href="user_guide/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="overview/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
@@ -401,5 +315,5 @@
 
 <!--
 MkDocs version : 0.14.0
-Build Date UTC : 2016-01-20 21:55:43.831129
+Build Date UTC : 2016-01-24 21:20:55.987638
 -->

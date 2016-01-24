@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Krzysztof Jusiak">
+  
+  <title>Tutorial - msm-lite</title>
+  
+
+  <link rel="shortcut icon" href="../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  <link href="../css/codemirror.css" rel="stylesheet">
+  <link href="../css/mdn-like.css" rel="stylesheet">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Tutorial";
+    var mkdocs_page_input_path = "tutorial.md";
+    var mkdocs_page_url = "/tutorial/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script>
+  <script src="../js/theme.js"></script> 
+  <script src="../js/gitter.js"></script>
+  <script src="../js/cpp.js"></script>
+  <script src="../js/html.js"></script>
+  <script src="../js/youtube.js"></script>
+  <script src="../js/codemirror/codemirror.js"></script>
+  <script src="../js/codemirror/active-line.js"></script>
+  <script src="../js/codemirror/clike.js"></script>
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+	
+	<nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+
+      <div class="wy-side-nav-search">
+		<a href="../index.html" class="icon icon-home"> msm-lite</a>
+		<div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+	  <hr />
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../index.html">Introduction</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../overview/index.html">Overview</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 current">
+        <a class="current" href="index.html">Tutorial</a>
+        
+            <ul>
+            
+            </ul>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../user_guide/index.html">User Guide</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../examples/index.html">Examples</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../CHANGELOG/index.html">CHANGELOG</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../TODO/index.html">TODO</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+
+	  <hr />
+
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">msm-lite</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Tutorial</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <ul>
+<li><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch02.html">Boost.MSM - UML Short Guide</a></li>
+<li>
+<p><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html">Boost.MSM - eUML Documentation</a></p>
+</li>
+<li>
+<p>API reference</p>
+</li>
+</ul>
+<pre><code class="cpp">namespace msm {
+    template &lt;class T&gt; // requires T to have T.configure()
+    class sm {
+    public:
+      using events; // list of supported events
+
+      template&lt;class... TDeps&gt; // no requirements
+      explicit sm(TDeps&amp;&amp;...) noexcept; // action/guards dependencies
+      sm_impl(const sm &amp;) = delete;
+      sm_impl(sm &amp;&amp;) = default;
+
+      template &lt;class TEvent&gt; // no requirements, returns whether event was handled or not
+      bool process_event(const TEvent &amp;) noexcept;
+
+      template &lt;class TVisitor&gt; // requires TVisitor to be callable with auto
+      void visit_current_states(const TVisitor &amp;) const noexcept;
+
+      template &lt;class TFlag&gt; // no requirements, returns whether active state has TFlag or not
+      bool is(const TFlag &amp;) const noexcept;
+    };
+
+    template &lt;class... Ts&gt; // requires Ts to have Ts::src_state
+                           //                   , Ts::dst_state
+                           //                   , Ts::event
+                           //                   , Ts::deps
+                           //                   , Ts.execute(...)
+    auto make_transition_table(Ts...) noexcept;
+
+    action process_event;
+
+    template &lt;class TEvent&gt; // no requirements
+    auto event{};
+
+    template &lt;class T&gt; // no requirements
+    using state;
+
+    template &lt;class T, T...&gt;
+    state&lt;T...&gt; operator&quot;&quot;_s(); // create a state, ex. &quot;idle&quot;_s
+
+    state initial;
+
+    template &lt;class T&gt; // requires T to be callable and returns bool
+    auto operator!(const T &amp;) noexcept;
+
+    template &lt;class T1, class T2&gt; // requires T1, T2 to be callable and returns bool
+    auto operator&amp;&amp;(const T1 &amp;, const T2 &amp;) noexcept;
+
+    template &lt;class T1, class T2&gt; // requires T1, T2 to be callable and returns bool
+    auto operator||(const T1 &amp;, const T2 &amp;) noexcept;
+
+    template &lt;class T1, class T2&gt; // requires T1, T2 to be callable
+    auto operator, (const T1 &amp;t1, const T2 &amp;t2) noexcept;
+}
+</code></pre>
+
+<ul>
+<li>Boost.MSM - eUML vs msm-lite</li>
+</ul>
+<pre><code class="cpp">// Boost.MSM - eUML
+
+#include &lt;boost/msm/back/state_machine.hpp&gt;
+#include &lt;boost/msm/front/state_machine_def.hpp&gt;
+#include &lt;boost/msm/front/euml/euml.hpp&gt;
+
+namespace msm = boost::msm;
+namespace mpl = boost::mpl;
+using namespace boost::msm::front::euml;
+
+BOOST_MSM_EUML_EVENT(open_close)
+
+BOOST_MSM_EUML_ACTION(open_drawer){
+    template &lt;class FSM, class EVT, class SourceState, class TargetState&gt;
+    void operator()(EVT const &amp;, FSM &amp;, SourceState &amp;, TargetState &amp;){}
+};
+
+BOOST_MSM_EUML_ACTION(close_drawer){
+    template &lt;class FSM, class EVT, class SourceState, class TargetState&gt;
+    void operator()(EVT const &amp;, FSM &amp;, SourceState &amp;, TargetState &amp;){}
+};
+
+BOOST_MSM_EUML_STATE((), Empty)
+BOOST_MSM_EUML_STATE((), Open)
+
+BOOST_MSM_EUML_TRANSITION_TABLE(
+    (
+     Open == Empty + open_close / open_drawer,
+     Empty == Open + open_close / close_drawer
+    ), transition_table
+)
+
+BOOST_MSM_EUML_ACTION(Log_No_Transition){
+    template &lt;class FSM, class Event&gt; void operator()(Event const &amp;, FSM &amp;, int state){}};
+
+BOOST_MSM_EUML_DECLARE_STATE_MACHINE((transition_table,                            // STT
+                                      init_ &lt;&lt; Empty,                              // Init State
+                                      no_action,                                   // Entry
+                                      no_action,                                   // Exit
+                                      attributes_ &lt;&lt; no_attributes_,               // Attributes
+                                      configure_ &lt;&lt; no_exception &lt;&lt; no_msg_queue,  // configuration
+                                      Log_No_Transition                            // no_transition handler
+                                      ),
+                                     player_)  // fsm name
+
+int main() {
+    msm::back::state_machine&lt;player_&gt; sm;
+    sm.process_event(open_close);
+    sm.process_event(open_close);
+}
+</code></pre>
+
+<pre><code class="cpp">// msm-lite
+
+#include &quot;msm/msm.hpp&quot;
+
+struct open_close {};
+
+auto open_drawer = [] {};
+auto close_drawer = [] {};
+
+struct player {
+  auto configure() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+        &quot;Empty&quot;_s(initial) == &quot;Open&quot;_s + event&lt;open_close&gt; / open_drawer,
+        &quot;Open&quot;_s == &quot;Empty&quot;_s + event&lt;open_close&gt; / close_drawer
+    );
+  }
+};
+
+int main() {
+  msm::sm&lt;player&gt; player;
+  player.process_event(open_close{});
+  player.process_event(open_close{});
+}
+</code></pre>
+
+<ul>
+<li>
+<p>msm-lite DSL</p>
+<table>
+<thead>
+<tr>
+<th>Expression</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>src_state == dst_state + event<e> [ guard &amp;&amp; (![]{return true;} &amp;&amp; guard2) ] / (action, action2, []{})</td>
+<td>transition from src_state to dst_state on event e with guard and action</td>
+</tr>
+<tr>
+<td>src_state == dst_state + event<e> [ guard ] / action</td>
+<td>transition from src_state to dst_state on event e with guard and action</td>
+</tr>
+<tr>
+<td>src_state == dst_state / [] {}</td>
+<td>anonymous transition with action</td>
+</tr>
+<tr>
+<td>src_state == dst_state + event<e></td>
+<td>transition on event e without guard or action</td>
+</tr>
+<tr>
+<td>state + event<e> [ guard ]</td>
+<td>internal transition on event e when guard</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>msm-lite data dependencies</p>
+</li>
+</ul>
+<pre><code class="cpp">                             /---- event
+                            |
+auto guard = [](double d, auto event) { return true; }
+                   |
+                   \-------\
+                           |
+auto action = [](int i){}  |
+                 |         |
+                 |         |
+            /---/  /------/
+           |      /
+sm&lt;...&gt; s{42, 87.0};
+</code></pre>
+
+<p><a id="configuration"></a>
+* Configuration</p>
+<pre><code>Macro                                   | Description
+----------------------------------------|-----------------------------------------
+MSM\_POLICY\_STATES\_DST\_SRC           | dst\_state == src\_state (same as in eUML)
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../user_guide/index.html" class="btn btn-neutral float-right" title="User Guide">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../overview/index.html" class="btn btn-neutral" title="Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+  /* * * CONFIGURATION VARIABLES * * */
+  var disqus_shortname = 'msm-lite';
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+      <p>Copyright &copy; 2016</p>
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../overview/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../user_guide/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>
