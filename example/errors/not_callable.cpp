@@ -20,7 +20,7 @@ struct not_callable {
 
     // clang-format off
     return make_transition_table(
-        idle(initial) == terminate + event<e1> / im_not_callable{}
+        idle(initial) == terminate + event<e1> / im_not_callable{} // not callable
     );
     // clang-format on
   }

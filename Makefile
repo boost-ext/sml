@@ -50,12 +50,12 @@ pt_%:
 	time $(CXX) test/pt/$*/sc.cpp -ftemplate-depth=1024 -O2 -s -I include -I test/pt -std=c++1y && ./a.out && ls -lh a.out
 	time $(CXX) test/pt/$*/euml.cpp -ftemplate-depth=1024 -O2 -s -I include -I test/pt -std=c++1y && ./a.out && ls -lh a.out
 
-test: $(patsubst %.cpp, %.out, $(shell find test -maxdepth 1 -iname *.cpp))
+test: $(patsubst %.cpp, %.out, $(shell find test -maxdepth 1 -iname "*.cpp"))
 
 test/%.out:
 	$(CXX) test/$*.cpp $(CXXFLAGS) -I include -I. -include test/test.hpp -o test/$*.out && $($(MEMCHECK)) test/$*.out
 
-example: $(patsubst %.cpp, %.out, $(shell find example -iname *.cpp))
+example: $(patsubst %.cpp, %.out, $(shell find example -iname "*.cpp"))
 
 example/%.out:
 	$(CXX) example/$*.cpp $(CXXFLAGS) -I include -o example/$*.out && $($(MEMCHECK)) example/$*.out
@@ -77,5 +77,5 @@ doc:
 	cd doc && $(MKDOCS) build && $(PYTHON) -c "$$UPDATE_README"
 
 clean:
-	find example test -iname *.out | xargs rm -f
+	find example test -iname "*.out" | xargs rm -f
 

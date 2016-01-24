@@ -32,7 +32,7 @@ msm-lite: C++14 Meta State Machine Library
 * Horrible compilation times (see [Performance](overview.md#performance))
 * Produces huge binaries (see [Performance](overview.md#performance))
 * Based on too many macros
-* Horrible and long error messages
+* Horrible and long error messages (see [Error Messages](overview.md#error-messages))
 * Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, on\_entry, on\_exit)
 * A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)
 * Data in states makes it harder share/encapsulate (UML compliant though)
@@ -52,7 +52,7 @@ msm-lite: C++14 Meta State Machine Library
     * Compilation times (see [Performance](overview.md#performance))
     * Binary size (see [Performance](overview.md#performance))
     * Reduce complexity by eliminating less used features
-    * Short and informative error messages
+    * Short and informative error messages (see [Error Messages](overview.md#error-messages))
     * Less boilerplate / no macros
     * Improve visibility by having all actions on transition table
     * No dependencies / one header (1k lines)

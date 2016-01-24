@@ -25,6 +25,7 @@
     * [Dependencies](http://boost-experimental.github.io/msm-lite/overview/index.html#dependencies)
     * [Supported/tested compilers](http://boost-experimental.github.io/msm-lite/overview/index.html#supportedtested-compilers)
     * [Performance](http://boost-experimental.github.io/msm-lite/overview/index.html#performance)
+    * [Error messages](http://boost-experimental.github.io/msm-lite/overview/index.html#error-messages)
 * [Tutorial](http://boost-experimental.github.io/msm-lite/tutorial/index.html)
 * [User Guide](http://boost-experimental.github.io/msm-lite/user_guide/index.html)
     * [make_transition_table](http://boost-experimental.github.io/msm-lite/user_guide/index.html#maketransitiontable)

@@ -98,3 +98,14 @@
 |------------------|----------|-----------------|------------------|
 | Compilation time | 0.073s   | 3.197s          | 0.704s           |
 
+
+###Error messages
+
+***Not configurable***
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_configurable.cpp)
+
+***Not callable***
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_callable.cpp)
+
+***Not transitional***
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_transitional.cpp)
