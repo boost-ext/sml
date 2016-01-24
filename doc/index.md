@@ -53,10 +53,10 @@ msm-lite: C++14 Meta State Machine Library
     * Binary size (see [Performance](overview.md#performance))
     * Reduce complexity by eliminating less used features
     * Short and informative error messages (see [Error Messages](overview.md#error-messages))
-    * Less boilerplate / no macros
-    * Improve visibility by having all actions on transition table
+    * Less boilerplate / no macros (see [Hello World](examples.md#hello-world))
+    * Improve visibility by having all actions on transition table (see [States](examples.md#states))
+    * Functional programming support using lamda expressions (see [Action/Guards](examples.md#action-guards))
     * No dependencies / one header (1k lines)
-    * Functional programming support using lamda expressions
 
 ###What 'lite' implies?
 
