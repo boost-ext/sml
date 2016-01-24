@@ -34,7 +34,7 @@
 
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/di.cpp)
 
-###Dispatcher
+###Runtime Dispatcher
 
-![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatcher.cpp)
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp)
 

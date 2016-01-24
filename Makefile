@@ -74,7 +74,7 @@ check_static_analysis:
 	$(CLANG_TIDY) -header-filter='msm' `find example test -type f -iname "*.cpp"` -- -std=c++1y -I include -I test -include test.hpp
 
 doc:
-	cd doc && $(MKDOCS) build && $(PYTHON) -c "$$UPDATE_README"
+	cd doc && $(MKDOCS) build --clean && $(PYTHON) -c "$$UPDATE_README"
 
 clean:
 	find example test -iname "*.out" | xargs rm -f

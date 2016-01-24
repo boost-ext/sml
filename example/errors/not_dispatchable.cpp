@@ -10,7 +10,7 @@
 namespace msm = boost::msm;
 
 struct runtime_event {};
-struct event {};  // missing id
+struct e1 {};  // missing id
 
 struct not_dispatchable {
   auto configure() const noexcept {
@@ -19,7 +19,7 @@ struct not_dispatchable {
 
     // clang-format off
     return make_transition_table(
-        idle(initial) == terminate + event<event>
+        idle(initial) == terminate + event<e1>
     );
     // clang-format on
   }

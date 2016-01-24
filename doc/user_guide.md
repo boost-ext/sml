@@ -35,6 +35,8 @@ Creates transition table.
 
 ###Concepts.Callable
 
+###Concepts.Dispatchable
+
 namespace msm {
     template <class T> // requires T to have T.configure()
     class sm {

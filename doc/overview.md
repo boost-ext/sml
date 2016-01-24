@@ -109,3 +109,6 @@
 
 ***Not transitional***
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_transitional.cpp)
+
+***Not dispatchable***
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_dispatchable.cpp)

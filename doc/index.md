@@ -58,10 +58,6 @@ msm-lite: C++14 Meta State Machine Library
     * No dependencies / one header (1k lines)
     * Functional programming support using lamda expressions
 
-* Add a new functionality
-    * Logging support (TBD)
-    * Testing support (TBD)
-
 ###What 'lite' implies?
 
 * Minimal learning curve
@@ -79,6 +75,6 @@ msm-lite: C++14 Meta State Machine Library
 
 ###Additional features
 
-* Dispatcher (see [Dispatcher](examples.md#dispatcher))
+* Runtime Dispatcher (see [Runtime Dispatcher](examples.md#runtime-dispatcher))
 * Dependency Injection integration (see [DI](examples.md#dependency-injection))
 
