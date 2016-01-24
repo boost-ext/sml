@@ -24,6 +24,12 @@
 * Clang-3.4+
 * GCC-5.2+
 
+###Configuration
+| Macro                                   | Description |
+| ----------------------------------------|------------ |
+| BOOST\_MSM\_VERSION                     | Current versoin of msm-lite (ex. 1'0'0) |
+| BOOST\_MSM\_DSL\_DST\_STATE\_FIRST      | dst\_state == src\_state (see [eUML emulation](examples.md#euml-emulation)) |
+
 ###Performance
 
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |

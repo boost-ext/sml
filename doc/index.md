@@ -76,5 +76,5 @@ msm-lite: C++14 Meta State Machine Library
 ###Additional features
 
 * Runtime Dispatcher (see [Runtime Dispatcher](examples.md#runtime-dispatcher))
-* Dependency Injection integration (see [DI](examples.md#dependency-injection))
+* Dependency Injection integration (see [Dependency Injection](examples.md#dependency-injection))
 
