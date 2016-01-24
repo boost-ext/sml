@@ -139,6 +139,8 @@ test no_transition = [] {
   expect(sm.is(idle));
   expect(!sm.process_event(e2{}));
   expect(sm.is(idle));
+  expect(!sm.process_event(int{}));
+  expect(sm.is(idle));
 };
 
 test transition_with_action_with_event = [] {
@@ -995,4 +997,130 @@ test composite_with_orthogonal_regions = [] {
   expect(sm.is(msm::terminate, msm::terminate));
 };
 
-// test dispatcher = [] {};
+struct runtime_event {
+  int id = 0;
+};
+struct event1 {
+  static constexpr auto id = 1;
+  event1(const runtime_event &) {}
+};
+struct event2 {
+  static constexpr auto id = 2;
+};
+struct event3 {
+  static constexpr auto id = 3;
+  event3(const runtime_event &) {}
+};
+test dispatch_runtime_event = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<event1>
+        , s1 == s2 + event<event2>
+        , s2 == terminate + event<event3>
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  expect(sm.is(idle));
+  auto dispatcher = msm::make_dispatch_table<runtime_event, 1 /*min*/, 10 /*max*/>(sm);
+
+  {
+    runtime_event event{1};
+    expect(dispatcher(event, event.id));
+    expect(sm.is(s1));
+  }
+
+  {
+    runtime_event event{9};
+    expect(!dispatcher(event, event.id));
+    expect(sm.is(s1));
+  }
+
+  {
+    runtime_event event{2};
+    expect(dispatcher(event, event.id));
+    expect(sm.is(s2));
+  }
+
+  {
+    runtime_event event{3};
+    expect(dispatcher(event, event.id));
+    expect(sm.is(msm::terminate));
+  }
+
+  {
+    runtime_event event{5};
+    expect(!dispatcher(event, event.id));
+    expect(sm.is(msm::terminate));
+  }
+};
+
+test dispatch_runtime_event_sub_sm = [] {
+  static auto in_sub = 0;
+
+  struct sub {
+    auto configure() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<event2> / [] { in_sub++; }
+      );
+      // clang-format on
+    }
+  };
+
+  static msm::state<msm::sm<sub>> sub_state;
+
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == sub_state + event<event1>
+        , sub_state == terminate + event<event3>
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  expect(sm.is(idle));
+
+  auto dispatcher = msm::make_dispatch_table<runtime_event, 1 /*min*/, 4 /*max*/>(sm);
+
+  {
+    runtime_event event{1};
+    expect(dispatcher(event, event.id));
+    expect(sm.is(sub_state));
+    expect(0 == in_sub);
+  }
+
+  {
+    runtime_event event{2};
+    expect(dispatcher(event, event.id));
+    expect(sm.is(sub_state));
+    expect(1 == in_sub);
+  }
+
+  {
+    runtime_event event{3};
+    expect(dispatcher(event, event.id));
+    expect(sm.is(msm::terminate));
+    expect(1 == in_sub);
+  }
+
+  {
+    runtime_event event{4};
+    expect(!dispatcher(event, event.id));
+    expect(sm.is(msm::terminate));
+    expect(1 == in_sub);
+  }
+};

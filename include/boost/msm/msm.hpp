@@ -6,15 +6,15 @@
 //
 #pragma once
 #if (__cplusplus < 201305L && _MSC_VER < 1900)
-#error "Boost.DI requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
+#error "boost.msm-lite requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
-#define MSM_VERSION 1'0'0
-#if defined(MSM_DSL_DST_STATE_FIRST)
-#define MSM_DSL_SRC_STATE(s1, s2) s2
-#define MSM_DSL_DST_STATE(s1, s2) s1
+#define BOOST_MSM_VERSION 1'0'0
+#if defined(BOOST_MSM_DSL_DST_STATE_FIRST)
+#define BOOST_MSM_DSL_SRC_STATE(s1, s2) s2
+#define BOOST_MSM_DSL_DST_STATE(s1, s2) s1
 #else
-#define MSM_DSL_SRC_STATE(s1, s2) s1
-#define MSM_DSL_DST_STATE(s1, s2) s2
+#define BOOST_MSM_DSL_SRC_STATE(s1, s2) s1
+#define BOOST_MSM_DSL_DST_STATE(s1, s2) s2
 #endif
 namespace boost {
 namespace msm {
@@ -75,6 +75,10 @@ template <class T>
 struct is_same<T, T> : true_type {};
 template <class T, class U>
 struct is_base_of : integral_constant<bool, __is_base_of(T, U)> {};
+template <class T, class... TArgs>
+struct is_constructible : integral_constant<bool, __is_constructible(T, TArgs...)> {};
+template <class T, class... TArgs>
+using is_constructible_t = typename is_constructible<T, TArgs...>::type;
 template <class T>
 struct is_trivially_constructible : integral_constant<bool, __is_trivially_constructible(T)> {};
 template <class T>
@@ -255,6 +259,7 @@ struct on_entry;
 struct on_exit;
 }
 namespace concepts {
+#define BOOST_MSM_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type
 template <class T>
 decltype(aux::declval<T>().configure()) configurable_impl(int);
 template <class>
@@ -274,18 +279,32 @@ struct callable : decltype(test_callable<aux::inherit<T, callable_fallback>>(0))
 template <class T, class... TArgs>
 struct callable<T(TArgs...)> : aux::true_type {};
 
-aux::false_type transitional_impl(...);
 template <class...>
 struct is_valid_transition : aux::true_type {};
 template <class S1, class S2, class T>
 struct is_valid_transition<S1, S2, detail::on_entry, T> : aux::is_same<S1, S2> {};
 template <class S1, class S2, class T>
 struct is_valid_transition<S1, S2, detail::on_exit, T> : aux::is_same<S1, S2> {};
+aux::false_type transitional_impl(...);
 template <class T>
-auto transitional_impl(T &&t)
-    -> is_valid_transition<typename T::src_state, typename T::dst_state, typename T::event, typename T::deps>;
+auto transitional_impl(T &&t) -> is_valid_transition<typename T::src_state, typename T::dst_state, typename T::event,
+                                                     typename T::deps, decltype(T::has_initial)>;
 template <class T>
 struct transitional : decltype(transitional_impl(aux::declval<T>())) {};
+template <class>
+aux::false_type dispatchable_impl(...);
+template <class...>
+struct is_valid_event : aux::true_type {};
+template <class, class TEvent>
+auto dispatchable_impl(TEvent && ) -> is_valid_event<decltype(TEvent::id), decltype(TEvent())>;
+template <class T, class TEvent>
+auto dispatchable_impl(TEvent && ) -> is_valid_event<decltype(TEvent::id), decltype(TEvent(aux::declval<T>()))>;
+template <class, class>
+struct dispatchable;
+template <class T, class... TEvents>
+struct dispatchable<T, aux::type_list<TEvents...>>
+    : aux::is_same<aux::bool_list<aux::always<TEvents>::value...>,
+                   aux::bool_list<decltype(dispatchable_impl<T>(aux::declval<TEvents>()))::value...>> {};
 }  // concepts
 namespace detail {
 template <class...>
@@ -338,12 +357,12 @@ struct process_event {
 
 template <class>
 struct event {
-  template <class T, aux::enable_if_t<concepts::callable<T>::value, int> = 0>
+  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value) = 0>
   auto operator[](const T &t) const noexcept {
     return transition_eg<event, T>{*this, t};
   }
 
-  template <class T, aux::enable_if_t<concepts::callable<T>::value, int> = 0>
+  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value) = 0>
   auto operator/(const T &t) const noexcept {
     return transition_ea<event, T>{*this, t};
   }
@@ -380,12 +399,12 @@ struct state_impl : state_str<TState> {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
 
-  template <class T, aux::enable_if_t<concepts::callable<T>::value, int> = 0>
+  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value) = 0>
   auto operator[](const T &t) const noexcept {
     return transition_sg<TState, T>{static_cast<const TState &>(*this), t};
   }
 
-  template <class T, aux::enable_if_t<concepts::callable<T>::value, int> = 0>
+  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value) = 0>
   auto operator/(const T &t) const noexcept {
     return transition_sa<TState, T>{static_cast<const TState &>(*this), t};
   }
@@ -693,9 +712,9 @@ struct transition<state<S1>, transition<state<S2>, transition<event<E>, G, A>>>
 
 template <class S1, class S2, class E, class G, class A>
 struct transition<state<S1>, state<S2>, event<E>, G, A> {
-  static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
-  using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
-  using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
+  static constexpr auto has_initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
+  using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
+  using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
   using deps = aux::apply_t<aux::unique_t, aux::join_t<get_deps_t<G, E>, get_deps_t<A, E>>>;
 
@@ -718,9 +737,9 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> {
 
 template <class S1, class S2, class E, class A>
 struct transition<state<S1>, state<S2>, event<E>, always, A> {
-  static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
-  using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
-  using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
+  static constexpr auto has_initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
+  using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
+  using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<A, E>>;
 
@@ -739,9 +758,9 @@ struct transition<state<S1>, state<S2>, event<E>, always, A> {
 
 template <class S1, class S2, class E, class G>
 struct transition<state<S1>, state<S2>, event<E>, G, none> {
-  static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
-  using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
-  using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
+  static constexpr auto has_initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
+  using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
+  using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<G, E>>;
 
@@ -762,9 +781,9 @@ struct transition<state<S1>, state<S2>, event<E>, G, none> {
 
 template <class S1, class S2, class E>
 struct transition<state<S1>, state<S2>, event<E>, always, none> {
-  static constexpr auto has_initial = state<MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
-  using src_state = typename state<MSM_DSL_SRC_STATE(S1, S2)>::type;
-  using dst_state = typename state<MSM_DSL_DST_STATE(S1, S2)>::type;
+  static constexpr auto has_initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
+  using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
+  using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
   using deps = aux::type_list<>;
 
@@ -947,6 +966,19 @@ TMappings get_event_mapping_impl(event_mappings<T, TMappings> *);
 template <class T, class U>
 using get_event_mapping_t = decltype(get_event_mapping_impl<T>((U *)0));
 
+template <class, class TEvent>
+struct get_all_events_impl {
+  using type = aux::type_list<TEvent>;
+};
+
+template <class T, class TEvent>
+struct get_all_events_impl<sm<T>, TEvent> {
+  using type = aux::join_t<aux::type_list<TEvent>, typename sm<T>::events>;
+};
+
+template <class... Ts>
+using get_all_events = aux::join_t<typename get_all_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
+
 template <class... Ts>
 using get_events = aux::type_list<typename Ts::event...>;
 
@@ -996,6 +1028,8 @@ class sm {
   friend struct transition_sub_impl;
 
  public:
+  using events = aux::apply_t<aux::unique_t, aux::apply_t<get_all_events, transitions_t>>;
+
   sm(sm &&) = default;
   sm(const sm &) = delete;
   sm &operator=(const sm &) = delete;
@@ -1023,7 +1057,7 @@ class sm {
     return result;
   }
 
-  template <class... TStates, aux::enable_if_t<sizeof...(TStates) == regions, int> = 0>
+  template <class... TStates, BOOST_MSM_REQUIRES(sizeof...(TStates) == regions) = 0>
   bool is(const TStates &...) const noexcept {
     auto result = true;
     auto i = 0;
@@ -1044,7 +1078,7 @@ class sm {
 
   void initialize(const aux::type_list<> &) noexcept {}
 
-  template <class TEvent, aux::enable_if_t<aux::get_id<events_ids_t, -1, TEvent>() != -1, int> = 0>
+  template <class TEvent, BOOST_MSM_REQUIRES(aux::get_id<events_ids_t, -1, TEvent>() != -1) = 0>
   bool process_internal_event(const TEvent &event) noexcept {
     return process_event(event);
   }
@@ -1108,24 +1142,80 @@ class sm {
   transitions_t transitions_;
   aux::byte current_state_[regions];
 };
+
+template <class TEvent = void>
+struct dispatch_event_impl {
+  template <class SM, class T>
+  static bool execute(SM &sm, const T &data) noexcept {
+    return execute_impl(sm, data, aux::is_constructible<TEvent, T>{});
+  }
+
+  template <class SM, class T>
+  static bool execute_impl(SM &sm, const T &data, const aux::true_type &) noexcept {
+    return sm.process_event(TEvent(data));
+  }
+
+  template <class SM, class T>
+  static bool execute_impl(SM &sm, const T &, const aux::false_type &) noexcept {
+    return sm.process_event(TEvent());
+  }
+};
+
+template <>
+struct dispatch_event_impl<void> {
+  template <class SM, class T>
+  static bool execute(SM &, const T &) noexcept {
+    return false;
+  }
+};
+
+template <int, class>
+struct events_ids_impl {};
+
+template <class... Ts>
+struct event_id : events_ids_impl<Ts::id, Ts>... {};
+
+template <int>
+dispatch_event_impl<> get_event_impl(...);
+
+template <int N, class T>
+dispatch_event_impl<T> get_event_impl(events_ids_impl<N, T> *);
+
+template <int N, class T>
+struct get_event {
+  using type = decltype(get_event_impl<N>((T *)0));
+};
+
+template <int N, class T>
+using get_event_t = typename get_event<N, T>::type;
+
+template <class TEvent, int EventRangeBegin, class SM, int... Ns>
+auto make_dispatch_table(sm<SM> &fsm, const aux::index_sequence<Ns...> &) noexcept {
+  using events_ids = aux::apply_t<event_id, typename sm<SM>::events>;
+  return [&](const TEvent &event, int id) {
+    static bool (*dispatch_table[])(
+        sm<SM> &, const TEvent &) = {&get_event_t<Ns - 1 + EventRangeBegin, events_ids>::template execute<sm<SM>, TEvent>...};
+    return dispatch_table[id - EventRangeBegin](fsm, event);
+  };
+}
 }  // detail
 
-template <class T, aux::enable_if_t<concepts::callable<T>::value, int> = 0>
+template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value) = 0>
 auto operator!(const T &t) noexcept {
   return detail::not_<T>(t);
 }
 
-template <class T1, class T2, aux::enable_if_t<concepts::callable<T1>::value && concepts::callable<T2>::value, int> = 0>
+template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<T1>::value &&concepts::callable<T2>::value) = 0>
 auto operator&&(const T1 &t1, const T2 &t2) noexcept {
   return detail::and_<T1, T2>(t1, t2);
 }
 
-template <class T1, class T2, aux::enable_if_t<concepts::callable<T1>::value && concepts::callable<T2>::value, int> = 0>
+template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<T1>::value &&concepts::callable<T2>::value) = 0>
 auto operator||(const T1 &t1, const T2 &t2) noexcept {
   return detail::or_<T1, T2>(t1, t2);
 }
 
-template <class T1, class T2, aux::enable_if_t<concepts::callable<T1>::value && concepts::callable<T2>::value, int> = 0>
+template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<T1>::value &&concepts::callable<T2>::value) = 0>
 auto operator, (const T1 &t1, const T2 &t2) noexcept {
   return detail::seq_<T1, T2>(t1, t2);
 }
@@ -1154,35 +1244,22 @@ detail::initial_state initial;
 detail::state<detail::terminate_state> terminate;
 detail::process_event process_event;
 
-template <class... Ts, aux::enable_if_t<aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
-                                                     aux::bool_list<concepts::transitional<Ts>::value...>>::value,
-                                        int> = 0>
+template <class... Ts, BOOST_MSM_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
+                                                       aux::bool_list<concepts::transitional<Ts>::value...>>::value) = 0>
 auto make_transition_table(Ts... ts) noexcept {
   return aux::pool<Ts...>{ts...};
 }
 
-template <class T, aux::enable_if_t<concepts::configurable<T>::value, int> = 0>
+template <class T, BOOST_MSM_REQUIRES(concepts::configurable<T>::value) = 0>
 using sm = detail::sm<T>;
 
-template <class TEvent, class TConfig>
-struct dispatcher {
-  template <class T>
-  static void dispatch_event(const TEvent &e, T &sm) noexcept {
-    dispatch_event(e, sm, typename T::events{});
-  }
-
- private:
-  template <class T, class E, class... Ts>
-  static void dispatch_event(const TEvent &event, T &sm, const aux::type_list<E, Ts...> &) noexcept {
-    if (TConfig::template get_id<E>() == TConfig::get_id(event)) {
-      sm.process_event(TConfig::template get_event<E>(event));
-    }
-    dispatch_event(event, sm, aux::type_list<Ts...>{});
-  }
-
-  template <class T>
-  static void dispatch_event(const TEvent &, T &, const aux::type_list<> &) noexcept {}
-};
+template <class TEvent, int EventRangeBegin, int EventRangeEnd, class SM,
+          BOOST_MSM_REQUIRES(concepts::dispatchable<TEvent, typename sm<SM>::events>::value) = 0>
+auto make_dispatch_table(sm<SM> &fsm) noexcept {
+  static_assert(EventRangeEnd - EventRangeBegin > 0, "Event ids range difference has to be greater than 0");
+  return detail::make_dispatch_table<TEvent, EventRangeBegin>(fsm,
+                                                              aux::make_index_sequence<EventRangeEnd - EventRangeBegin + 1>{});
+}
 }  // lite_1_0_0
 }  // msm
 }  // boost

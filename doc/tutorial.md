@@ -1,7 +1,5 @@
 * [Boost.MSM - UML Short Guide](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch02.html)
-
-Documentation
-============
+* [Boost.MSM - eUML Documentation](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)
 
 * API reference
 
@@ -61,7 +59,6 @@ namespace msm {
 }
 ```
 
-* [Boost.MSM - eUML Documentation](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)
 
 * Boost.MSM - eUML vs msm-lite
 ```cpp
