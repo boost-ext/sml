@@ -93,7 +93,7 @@
         
             <ul>
             
-                <li class="toctree-l3"><a href="#make_transition_table">make_transition_table</a></li>
+                <li class="toctree-l3"><a href="#make95transition95table">make_transition_table</a></li>
                 
             
                 <li class="toctree-l3"><a href="#conceptstransitional">Concepts.Transitional</a></li>
@@ -170,7 +170,7 @@
           <div role="main">
             <div class="section">
               
-                <h3 id="make_transition_table">make_transition_table</h3>
+                <h3 id="make95transition95table">make_transition_table</h3>
 <p><strong><em>Description</em></strong></p>
 <p>Creates transition table.</p>
 <p><strong><em>Synopsis</em></strong></p>
@@ -203,64 +203,11 @@ auto make_transition_table(Ts...) noexcept;
 <pre><code>#include &lt;boost/msm/msm.hpp&gt;
 </code></pre>
 <p><strong><em>Example</em></strong></p>
-<p><img alt="CPP_TEST" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" /></p>
+<p><img alt="CPP(TEST)" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" /></p>
 <h3 id="conceptstransitional">Concepts.Transitional</h3>
 <h3 id="conceptsconfigurable">Concepts.Configurable</h3>
 <h3 id="conceptscallable">Concepts.Callable</h3>
 <h3 id="conceptsdispatchable">Concepts.Dispatchable</h3>
-<p>namespace msm {
-    template <class T> // requires T to have T.configure()
-    class sm {
-    public:
-      using events; // list of supported events</p>
-<pre><code>  template&lt;class... TDeps&gt; // no requirements
-  explicit sm(TDeps&amp;&amp;...) noexcept; // action/guards dependencies
-  sm_impl(const sm &amp;) = delete;
-  sm_impl(sm &amp;&amp;) = default;
-
-  template &lt;class TEvent&gt; // no requirements, returns whether event was handled or not
-  bool process_event(const TEvent &amp;) noexcept;
-
-  template &lt;class TVisitor&gt; // requires TVisitor to be callable with auto
-  void visit_current_states(const TVisitor &amp;) const noexcept;
-
-  template &lt;class TFlag&gt; // no requirements, returns whether active state has TFlag or not
-  bool is(const TFlag &amp;) const noexcept;
-};
-
-template &lt;class... Ts&gt; // requires Ts to have Ts::src_state
-                       //                   , Ts::dst_state
-                       //                   , Ts::event
-                       //                   , Ts::deps
-                       //                   , Ts.execute(...)
-auto make_transition_table(Ts...) noexcept;
-
-action process_event;
-
-template &lt;class TEvent&gt; // no requirements
-auto event{};
-
-template &lt;class T&gt; // no requirements
-using state;
-
-template &lt;class T, T...&gt;
-state&lt;T...&gt; operator""_s(); // create a state, ex. "idle"_s
-
-state initial;
-
-template &lt;class T&gt; // requires T to be callable and returns bool
-auto operator!(const T &amp;) noexcept;
-
-template &lt;class T1, class T2&gt; // requires T1, T2 to be callable and returns bool
-auto operator&amp;&amp;(const T1 &amp;, const T2 &amp;) noexcept;
-
-template &lt;class T1, class T2&gt; // requires T1, T2 to be callable and returns bool
-auto operator||(const T1 &amp;, const T2 &amp;) noexcept;
-
-template &lt;class T1, class T2&gt; // requires T1, T2 to be callable
-auto operator, (const T1 &amp;t1, const T2 &amp;t2) noexcept;
-</code></pre>
-<p>}</p>
               
             </div>
           </div>
@@ -281,7 +228,7 @@ auto operator, (const T1 &amp;t1, const T2 &amp;t2) noexcept;
   <div id="disqus_thread"></div>
   <script type="text/javascript">
   /* * * CONFIGURATION VARIABLES * * */
-  var disqus_shortname = 'msm-lite';
+  var disqus_shortname = '..';
 
   /* * * DON'T EDIT BELOW THIS LINE * * */
   (function() {
