@@ -1069,7 +1069,8 @@ test dispatch_runtime_event = [] {
 
       // clang-format off
       return make_transition_table(
-          idle(initial) == s1 + event<event1>
+          idle2(initial) == idle // anonymous transition
+        , idle == s1 + event<event1>
         , s1 == s2 + event<event2>
         , s2 == terminate + event<event3>
       );

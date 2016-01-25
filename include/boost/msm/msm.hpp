@@ -998,7 +998,7 @@ using get_event_mapping_t = decltype(get_event_mapping_impl<T>((U *)0));
 
 template <class, class TEvent>
 struct get_all_events_impl {
-  using type = aux::type_list<TEvent>;
+  using type = aux::conditional_t<aux::is_base_of<internal_event, TEvent>::value, aux::type_list<>, aux::type_list<TEvent>>;
 };
 
 template <class T, class TEvent>
