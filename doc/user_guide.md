@@ -1,4 +1,16 @@
-###make\_transition\_table
+###Concepts
+
+* Transitional
+* Configurable
+* Callable
+* Dispatchable
+
+###State
+
+###Event
+* on\_entry/on\_exit
+
+###Transition Table
 
 ***Description***
 
@@ -29,11 +41,7 @@ Creates transition table.
 
 ![CPP(TEST)](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
 
-###Concepts.Transitional
 
-###Concepts.Configurable
+###State Machine
 
-###Concepts.Callable
-
-###Concepts.Dispatchable
-
+###Dispatch Table
