@@ -84,7 +84,9 @@
                 
                     <li><a class="toctree-l4" href="#what-lite-implies">What 'lite' implies?</a></li>
                 
-                    <li><a class="toctree-l4" href="#supported-uml-features-by-msm-lite">Supported UML features by msm-lite</a></li>
+                    <li><a class="toctree-l4" href="#supported-uml-features">Supported UML features</a></li>
+                
+                    <li><a class="toctree-l4" href="#dropped-uml-features">Dropped UML features</a></li>
                 
                     <li><a class="toctree-l4" href="#additional-features">Additional features</a></li>
                 
@@ -208,6 +210,7 @@
 <li>Functional programming emulation</li>
 <li>Huge complexity may overwhelm in the beginning</li>
 <li>A lot of Boost dependencies</li>
+<li>COupled code</li>
 </ul>
 <h3 id="msm-lite-design-goals">msm-lite design goals</h3>
 <ul>
@@ -227,10 +230,11 @@
 <li>Binary size (see <a href="overview/index.html#performance">Performance</a>)</li>
 <li>Reduce complexity by eliminating less used features</li>
 <li>Short and informative error messages (see <a href="overview/index.html#error-messages">Error Messages</a>)</li>
-<li>Less boilerplate / no macros</li>
-<li>Improve visibility by having all actions on transition table</li>
+<li>Less boilerplate / no macros (see <a href="examples/index.html#hello-world">Hello World</a>)</li>
+<li>Improve visibility by having all actions on transition table (see <a href="examples/index.html#states">States</a>)</li>
+<li>Allows loosely coupled design (see <a href="examples/index.html#dependency-injection">Dependency Injection</a>)</li>
+<li>Functional programming support using lamda expressions (see <a href="examples/index.html#action-guards">Action/Guards</a>)</li>
 <li>No dependencies / one header (1k lines)</li>
-<li>Functional programming support using lamda expressions</li>
 </ul>
 </li>
 </ul>
@@ -241,7 +245,7 @@
 <li>Guaranteed performance and quick compilation times</li>
 <li>No dependencies</li>
 </ul>
-<h3 id="supported-uml-features-by-msm-lite">Supported UML features by msm-lite</h3>
+<h3 id="supported-uml-features"><em>Supported</em> UML features</h3>
 <ul>
 <li>Transitions / Internal transitions / Anonymous transitions / No transition (see <a href="examples/index.html#transitions">Transitions</a>)</li>
 <li>Actions / Guards (see <a href="examples/index.html#action-guards">Action/Guards</a>)</li>
@@ -249,8 +253,15 @@
 <li>Orthogonal regions (see <a href="examples/index.html#orthogonal-regions">Orthogonal Regions</a>)</li>
 <li>Sub / Composite state machines (see <a href="examples/index.html#composite">Composite</a>)</li>
 </ul>
-<h3 id="additional-features">Additional features</h3>
+<h3 id="dropped-uml-features"><em>Dropped</em> UML features</h3>
 <ul>
+<li>Shallow/Deep history</li>
+<li>Explicit entry/exit pseudo states</li>
+</ul>
+<h3 id="additional-features"><em>Additional</em> features</h3>
+<ul>
+<li>Logging (see <a href="examples/index.html#logging">Logging</a>)</li>
+<li>Testing (see <a href="examples/index.html#testing">Testing</a>)</li>
 <li>Runtime Dispatcher (see <a href="examples/index.html#runtime-dispatcher">Runtime Dispatcher</a>)</li>
 <li>Dependency Injection integration (see <a href="examples/index.html#dependency-injection">Dependency Injection</a>)</li>
 </ul>
@@ -315,5 +326,5 @@
 
 <!--
 MkDocs version : 0.14.0
-Build Date UTC : 2016-01-24 21:42:18.747356
+Build Date UTC : 2016-01-25 18:13:21.225482
 -->

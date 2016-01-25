@@ -198,8 +198,8 @@
 </ul>
 <h3 id="supportedtested-compilers">Supported/tested compilers</h3>
 <ul>
-<li>Clang-3.4+</li>
-<li>GCC-5.2+</li>
+<li>Clang-3.4+ (100% coverage, clang-tidy clean, valgrind clean)</li>
+<li>GCC-5.2+ (100% coverage, clang-tidy clean, valgrind clean)</li>
 </ul>
 <h3 id="configuration">Configuration</h3>
 <table>
@@ -554,6 +554,12 @@
 </tr>
 </tbody>
 </table>
+<ul>
+<li>To run benchmarks</li>
+</ul>
+<pre><code class="sh">make pt # make pt_simple pt_composite pt_complex
+</code></pre>
+
 <h3 id="error-messages">Error messages</h3>
 <p><strong><em>Not configurable</em></strong>
 <img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_configurable.cpp" /></p>
