@@ -13,7 +13,6 @@ namespace msm = boost::msm;
 
 struct e1 {};
 struct e2 {};
-struct e3 {};
 
 struct transitions {
   auto configure() const noexcept {

@@ -39,6 +39,7 @@ msm-lite: C++14 Meta State Machine Library
 * Functional programming emulation
 * Huge complexity may overwhelm in the beginning
 * A lot of Boost dependencies
+* COupled code
 
 ###msm-lite design goals
 
@@ -55,6 +56,7 @@ msm-lite: C++14 Meta State Machine Library
     * Short and informative error messages (see [Error Messages](overview.md#error-messages))
     * Less boilerplate / no macros (see [Hello World](examples.md#hello-world))
     * Improve visibility by having all actions on transition table (see [States](examples.md#states))
+	* Allows loosely coupled design (see [Dependency Injection](examples.md#dependency-injection))
     * Functional programming support using lamda expressions (see [Action/Guards](examples.md#action-guards))
     * No dependencies / one header (1k lines)
 
@@ -65,7 +67,7 @@ msm-lite: C++14 Meta State Machine Library
 * Guaranteed performance and quick compilation times
 * No dependencies
 
-###Supported UML features by msm-lite
+###*Supported* UML features
 
 * Transitions / Internal transitions / Anonymous transitions / No transition (see [Transitions](examples.md#transitions))
 * Actions / Guards (see [Action/Guards](examples.md#action-guards))
@@ -73,8 +75,15 @@ msm-lite: C++14 Meta State Machine Library
 * Orthogonal regions (see [Orthogonal Regions](examples.md#orthogonal-regions))
 * Sub / Composite state machines (see [Composite](examples.md#composite))
 
-###Additional features
+###*Dropped* UML features
 
+* Shallow/Deep history
+* Explicit entry/exit pseudo states
+
+###*Additional* features
+
+* Logging (see [Logging](examples.md#logging))
+* Testing (see [Testing](examples.md#testing))
 * Runtime Dispatcher (see [Runtime Dispatcher](examples.md#runtime-dispatcher))
 * Dependency Injection integration (see [Dependency Injection](examples.md#dependency-injection))
 

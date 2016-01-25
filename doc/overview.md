@@ -21,8 +21,8 @@
 
 ###Supported/tested compilers
 
-* Clang-3.4+
-* GCC-5.2+
+* Clang-3.4+ (100% coverage, clang-tidy clean, valgrind clean)
+* GCC-5.2+ (100% coverage, clang-tidy clean, valgrind clean)
 
 ###Configuration
 | Macro                                   | Description |

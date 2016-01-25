@@ -537,8 +537,8 @@ class and_ : operator_base {
   template <int... Ns, class TEvent, class TDeps, class SM>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
     auto result = true;
-    bool calls[] = {call(aux::get<Ns - 1>(g), event, deps, sm)...};
-    for (auto r : calls) result &= r;
+    int _[]{0, (call(aux::get<Ns - 1>(g), event, deps, sm) ? result : result = false)...};
+    (void)_;
     return result;
   }
 
@@ -559,8 +559,8 @@ class or_ : operator_base {
   template <int... Ns, class TEvent, class TDeps, class SM>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
     auto result = false;
-    bool calls[] = {call(aux::get<Ns - 1>(g), event, deps, sm)...};
-    for (auto r : calls) result |= r;
+    int _[]{0, (call(aux::get<Ns - 1>(g), event, deps, sm) ? result = true : result)...};
+    (void)_;
     return result;
   }
 
@@ -1030,6 +1030,7 @@ class sm {
   friend struct transition_sub_impl;
 
  public:
+  using states = states_t;
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_all_events, transitions_t>>;
 
   sm(sm &&) = default;
@@ -1142,6 +1143,8 @@ class sm {
 
   deps_t deps_;
   transitions_t transitions_;
+
+ protected:
   aux::byte current_state_[regions];
 };
 
@@ -1201,6 +1204,19 @@ auto make_dispatch_table(sm<SM> &fsm, const aux::index_sequence<Ns...> &) noexce
   };
 }
 }  // detail
+namespace testing {
+template <class T>
+struct sm : detail::sm<T> {
+  using detail::sm<T>::sm;
+  using states_ids_t = aux::apply_t<aux::type_id, typename detail::sm<T>::states>;
+
+  template <class... TStates>
+  void set_current_states(const TStates &...) noexcept {
+    decltype(detail::sm<T>::current_state_) new_states = {aux::get_id<states_ids_t, 0, typename TStates::type>()...};
+    *detail::sm<T>::current_state_ = *new_states;
+  }
+};
+}  // testing
 
 template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value) = 0>
 auto operator!(const T &t) noexcept {

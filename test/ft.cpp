@@ -249,6 +249,57 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
   expect(sm.is(s1));
 };
 
+test operators = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      auto yes = [] { return true; };
+      auto no = [] { return false; };
+      auto action = [](int &i) { i++; };
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1> [ yes || no ] / (action, action)
+        , s1 == s2 + event<e1> [ !no && yes ] / action
+        , s2 == s3 + event<e1> [ no && yes ] / (action, [](int&i) {i++;})
+        , s2 == s3 + event<e2> [ yes && [] { return true; } ] / (action, [](int&i) {i++;})
+      );
+      // clang-format on
+    }
+  };
+
+  int i = 0;
+  msm::sm<c> sm{i};
+
+  {
+    i = 0;
+    expect(sm.process_event(e1{}));
+    expect(sm.is(s1));
+    expect(2 == i);
+  }
+
+  {
+    i = 0;
+    expect(sm.process_event(e1{}));
+    expect(sm.is(s2));
+    expect(1 == i);
+  }
+
+  {
+    i = 0;
+    expect(!sm.process_event(e1{}));
+    expect(sm.is(s2));
+    expect(0 == i);
+  }
+
+  {
+    i = 0;
+    expect(sm.process_event(e2{}));
+    expect(sm.is(s3));
+    expect(2 == i);
+  }
+};
+
 test transitions = [] {
   struct c {
     auto configure() noexcept {
@@ -1122,5 +1173,88 @@ test dispatch_runtime_event_sub_sm = [] {
     expect(!dispatcher(event, event.id));
     expect(sm.is(msm::terminate));
     expect(1 == in_sub);
+  }
+};
+
+test sm_testing = [] {
+  struct data {
+    int value = 0;
+  };
+
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+
+      auto guard = [](const data &d) { return d.value == 42; };
+
+      auto action = [](data &d) { return d.value = 123; };
+
+      struct Action {
+        void operator()(data &d) noexcept { d.value = 12; }
+      };
+
+      // clang-format off
+      return make_transition_table(
+          idle(initial) == s1 + event<e1> [ guard ] / action
+        , s1 == s2 + event<e2> [ guard && [](bool b) { return b; } ] / Action{}
+        , s2 == terminate + event<e3> [ guard ] / [](data& d) { d.value = 87; }
+      );
+      // clang-format on
+    }
+  };
+
+  {
+    data fake_data;
+    const data &c_fake_data = fake_data;
+    msm::testing::sm<c> sm{c_fake_data, fake_data};
+    expect(sm.is(idle));
+
+    expect(!sm.process_event(e1{}));
+    expect(sm.is(idle));
+    expect(0 == fake_data.value);
+
+    fake_data.value = 42;
+    expect(sm.process_event(e1{}));
+    expect(sm.is(s1));
+    expect(123 == fake_data.value);
+  }
+
+  {
+    data fake_data;
+    const data &c_fake_data = fake_data;
+    msm::testing::sm<c> sm{fake_data, c_fake_data};
+    expect(sm.is(idle));
+
+    sm.set_current_states(s2);
+    fake_data.value = 42;
+    expect(sm.process_event(e3{}));
+    expect(sm.is(msm::terminate));
+    expect(87 == fake_data.value);
+  }
+
+  {
+    data fake_data;
+    const data &c_fake_data = fake_data;
+    msm::testing::sm<c> sm{c_fake_data, fake_data};
+    expect(sm.is(idle));
+
+    sm.set_current_states(s2);
+    fake_data.value = 42;
+    expect(sm.process_event(e3{}));
+    expect(sm.is(msm::terminate));
+    expect(87 == fake_data.value);
+  }
+
+  {
+    data fake_data;
+    const data &c_fake_data = fake_data;
+    msm::testing::sm<c> sm{fake_data, c_fake_data, true};
+    expect(sm.is(idle));
+
+    sm.set_current_states(s1);
+    fake_data.value = 42;
+    expect(sm.process_event(e2{}));
+    expect(sm.is(s2));
+    expect(12 == fake_data.value);
   }
 };

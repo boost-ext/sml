@@ -30,6 +30,14 @@
 
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp)
 
+###Logging
+
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)
+
+###Testing
+
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp)
+
 ###Dependency Injection
 
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/di.cpp)
