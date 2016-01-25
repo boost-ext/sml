@@ -568,7 +568,7 @@ test transition_types = [] {
         , idle == s1 + event<e2> [guard1 || guard2] / (action1, action2, []{}, [](int, auto, float){})
         , idle == s1 + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float){})
         , idle == s1 + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto) { return false; } ] / (action1,
-        action2, []{}, [](int, auto, float){})
+        action2, []{}, [](int, auto, double){})
       );
       // clang-format on
     }
@@ -978,8 +978,7 @@ test composite_custom_ctor = [] {
   {
     in_sub = 0;
     sub sub_{i};
-    c c_;
-    msm::sm<sub> subsm{c_, sub_};
+    msm::sm<sub> subsm{sub_};
     msm::sm<c> sm{subsm};
     test(static_cast<decltype(sm) &&>(sm));
   }
@@ -987,8 +986,7 @@ test composite_custom_ctor = [] {
   {
     in_sub = 0;
     sub sub_{i};
-    c c_;
-    msm::sm<sub> subsm{sub_, c_};
+    msm::sm<sub> subsm{sub_};
     msm::sm<c> sm{subsm};
     test(static_cast<decltype(sm) &&>(sm));
   }
@@ -1010,6 +1008,7 @@ test composite_with_orthogonal_regions = [] {
   };
 
   struct c {
+    c() {}
     auto configure() noexcept {
       using namespace msm;
 
@@ -1062,6 +1061,7 @@ struct event3 {
   static constexpr auto id = 3;
   event3(const runtime_event &) {}
 };
+
 test dispatch_runtime_event = [] {
   struct c {
     auto configure() noexcept {

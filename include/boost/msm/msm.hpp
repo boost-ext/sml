@@ -1036,18 +1036,6 @@ using merge_deps = aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>
 
 template <class SM>
 class sm {
-  using transitions_t = decltype(aux::declval<SM>().configure());
-  using mappings_t = detail::mappings_t<transitions_t>;
-  using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
-  using states_ids_t = aux::apply_t<aux::type_id, states_t>;
-  using initial_states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_initial_states, transitions_t>>;
-  using sub_sms_t = aux::apply_t<get_sub_sms, states_t>;
-  using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
-  using events_ids_t = aux::apply_t<aux::type_id, events_t>;
-  using deps_t = aux::apply_t<aux::pool, aux::join_t<get_sm<SM>, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
-  static constexpr auto regions = aux::get_size<initial_states_t>::value > 0 ? aux::get_size<initial_states_t>::value : 1;
-  static_assert(regions > 0, "At least one initial state is required");
-
   template <class...>
   friend struct transition;
 
@@ -1057,6 +1045,24 @@ class sm {
   template <class...>
   friend struct transition_sub_impl;
 
+  using transitions_t = decltype(aux::declval<SM>().configure());
+  using mappings_t = detail::mappings_t<transitions_t>;
+  using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
+  using states_ids_t = aux::apply_t<aux::type_id, states_t>;
+  using initial_states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_initial_states, transitions_t>>;
+  using sub_sms_t = aux::apply_t<get_sub_sms, states_t>;
+  using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
+  using events_ids_t = aux::apply_t<aux::type_id, events_t>;
+  using deps_t = aux::join_t<get_sm<SM>, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>;
+  using deps_ids_t = aux::apply_t<aux::type_id, deps_t>;
+  using deps = aux::apply_t<aux::pool, deps_t>;
+  static constexpr auto regions = aux::get_size<initial_states_t>::value > 0 ? aux::get_size<initial_states_t>::value : 1;
+  static_assert(regions > 0, "At least one initial state is required");
+
+  template <class... TDeps>
+  using required = aux::is_same<aux::bool_list<aux::always<TDeps>::value...>,
+                                aux::bool_list<(aux::get_id<deps_ids_t, -1, TDeps>() != -1)...>>;
+
  public:
   using states = states_t;
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_all_events, transitions_t>>;
@@ -1065,9 +1071,14 @@ class sm {
   sm(const sm &) = delete;
   sm &operator=(const sm &) = delete;
 
-  template <class... TDeps>
+  template <class... TDeps, BOOST_MSM_REQUIRES(required<TDeps...>::value) = 0>
   explicit sm(TDeps &&... deps) noexcept : deps_{aux::init{}, aux::pool<TDeps...>{deps...}},
                                            transitions_(aux::get<SM>(deps_).configure()) {
+    initialize(initial_states_t{});
+  }
+
+  using boost_di_inject__ = aux::type_list<deps &&>;
+  explicit sm(deps &&deps) noexcept : deps_(deps), transitions_(aux::get<SM>(deps_).configure()) {
     initialize(initial_states_t{});
   }
 
@@ -1171,7 +1182,7 @@ class sm {
     process_internal_event(on_entry{});
   }
 
-  deps_t deps_;
+  deps deps_;
   transitions_t transitions_;
 
  protected:

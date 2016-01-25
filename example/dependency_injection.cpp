@@ -5,9 +5,9 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#if !__has_include(<boost / di.hpp>)
-int main() {}
-#else
+// clang-format off
+#if __has_include(<boost/di.hpp>)
+// clang-format on
 #include "boost/msm/msm.hpp"
 #include <boost/di.hpp>
 #include <cassert>
@@ -53,7 +53,7 @@ namespace di = boost::di;
 
 class controller {
  public:
-  explicit controller(const msm::sm<example>& sm) : sm(sm) {}
+  explicit controller(msm::sm<example>& sm) : sm(sm) {}
 
   void start() {
     assert(sm.process_event(e1{}));
@@ -63,11 +63,13 @@ class controller {
   }
 
  private:
-  msm::sm<example> sm;
+  msm::sm<example>& sm;
 };
 
 int main() {
   auto injector = di::make_injector(di::bind<>.to(42), di::bind<>.to(87.0));
   injector.create<controller>().start();
 }
+#else
+int main() {}
 #endif
