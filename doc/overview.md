@@ -17,7 +17,7 @@
 
 ###Dependencies
 
-* msm-lite has no external dependencies (no STL, no Boost)
+* No external dependencies are required (niether STL nor Boost)
 
 ###Supported/tested compilers
 
@@ -28,6 +28,7 @@
 | Macro                                   | Description |
 | ----------------------------------------|------------ |
 | BOOST\_MSM\_VERSION                     | Current versoin of msm-lite (ex. 1'0'0) |
+| BOOST\_MSM\_LOG                         | Enables logging system  (see [Logging](examples.md#logging)) |
 | BOOST\_MSM\_DSL\_DST\_STATE\_FIRST      | dst\_state == src\_state (see [eUML emulation](examples.md#euml-emulation)) |
 
 ###Performance

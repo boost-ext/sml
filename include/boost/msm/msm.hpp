@@ -1252,8 +1252,8 @@ struct sm : detail::sm<T> {
   using states_ids_t = aux::apply_t<aux::type_id, typename detail::sm<T>::states>;
 
   template <class... TStates>
-  void set_current_states(const TStates &...) noexcept {
-    decltype(detail::sm<T>::current_state_) new_states = {aux::get_id<states_ids_t, 0, typename TStates::type>()...};
+  void set_current_states(const detail::state<TStates> &...) noexcept {
+    decltype(detail::sm<T>::current_state_) new_states = {aux::get_id<states_ids_t, 0, TStates>()...};
     *detail::sm<T>::current_state_ = *new_states;
   }
 };

@@ -36,18 +36,20 @@ msm-lite: C++14 Meta State Machine Library
 * Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, on\_entry, on\_exit)
 * A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)
 * Data in states makes it harder share/encapsulate (UML compliant though)
+* Loosley coupled design is hard to achieve
 * Functional programming emulation
 * Huge complexity may overwhelm in the beginning
 * A lot of Boost dependencies
-* COupled code
 
 ###msm-lite design goals
 
-* Keep the Boost.MSM - eUML goodies
+* Keep the Boost.MSM - eUML 'goodies'
     * Performance (see [Performance](overview.md#performance))
     * Memory usage (see [Performance](overview.md#performance))
     * eUML DSL (s1 == s2 + event [ guard ] / action)
     * UML standard compliant (As much as possible)
+
+>
 
 * Eliminate Boost.MSM - eUML problems
     * Compilation times (see [Performance](overview.md#performance))
