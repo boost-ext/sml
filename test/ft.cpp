@@ -1187,7 +1187,7 @@ test sm_testing = [] {
 
       auto guard = [](const data &d) { return d.value == 42; };
 
-      auto action = [](data &d) { return d.value = 123; };
+      auto action = [](data &d) { d.value = 123; };
 
       struct Action {
         void operator()(data &d) noexcept { d.value = 12; }

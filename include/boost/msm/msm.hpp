@@ -9,6 +9,9 @@
 #error "Boost.msm-lite requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
 #define BOOST_MSM_VERSION 1'0'0
+#if !defined(BOOST_MSM_LOG)
+#define BOOST_MSM_LOG(...)
+#endif
 #if defined(BOOST_MSM_DSL_DST_STATE_FIRST)
 #define BOOST_MSM_DSL_SRC_STATE(s1, s2) s2
 #define BOOST_MSM_DSL_DST_STATE(s1, s2) s1
@@ -308,6 +311,10 @@ struct dispatchable<T, aux::type_list<TEvents...>>
     : aux::is_same<aux::bool_list<aux::always<TEvents>::value...>,
                    aux::bool_list<decltype(dispatchable_impl<T>(aux::declval<TEvents>()))::value...>> {};
 }  // concepts
+namespace logging {
+template <class...>
+struct state_change {};
+};
 namespace detail {
 template <class...>
 struct transition;
@@ -375,12 +382,12 @@ struct state;
 
 template <class>
 struct state_str {
-  auto c_str() const noexcept { return __PRETTY_FUNCTION__; }
+  static auto c_str() noexcept { return __PRETTY_FUNCTION__; }
 };
 
 template <char... Chrs>
 struct state_str<state<aux::string<Chrs...>>> {
-  auto c_str() const noexcept {
+  static auto c_str() noexcept {
     static char str[] = {Chrs..., 0};
     return str;
   }
@@ -486,20 +493,43 @@ decltype(auto) get_arg(const TEvent &, TDeps &, SM &sm) noexcept {
   return sm;
 }
 
+#if defined(BOOST_MSM_LOG)
+template <class... Ts, class T, class TEvent, class TDeps, class SM>
+auto call_impl(const aux::type<void> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TDeps &deps,
+               sm<SM> &sm) noexcept {
+  object(get_arg<Ts>(event, deps, sm)...);
+  BOOST_MSM_LOG(action, SM, object, event);
+}
+
+template <class... Ts, class T, class TEvent, class TDeps, class SM>
+auto call_impl(const aux::type<bool> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TDeps &deps,
+               sm<SM> &sm) noexcept {
+  auto result = object(get_arg<Ts>(event, deps, sm)...);
+  BOOST_MSM_LOG(guard, SM, object, event, result);
+  return result;
+}
+#endif
+
 template <class... Ts, class T, class TEvent, class TDeps, class SM,
           aux::enable_if_t<!aux::is_base_of<operator_base, T>::value, int> = 0>
-auto call_impl(const aux::type_list<Ts...> &, T object, const TEvent &event, TDeps &deps, SM &sm) noexcept {
+auto call_impl(const aux::type_list<Ts...> &args, T object, const TEvent &event, TDeps &deps, sm<SM> &sm) noexcept {
+#if defined(BOOST_MSM_LOG)
+  using result_type = decltype(object(get_arg<Ts>(event, deps, sm)...));
+  return call_impl(aux::type<result_type>{}, args, object, event, deps, sm);
+#else
+  (void)args;
   return object(get_arg<Ts>(event, deps, sm)...);
+#endif
 }
 
 template <class... Ts, class T, class TEvent, class TDeps, class SM,
           aux::enable_if_t<aux::is_base_of<operator_base, T>::value, int> = 0>
-auto call_impl(const aux::type_list<Ts...> &, T object, const TEvent &event, TDeps &deps, SM &sm) noexcept {
+auto call_impl(const aux::type_list<Ts...> &, T object, const TEvent &event, TDeps &deps, sm<SM> &sm) noexcept {
   return object(event, deps, sm);
 }
 
 template <class T, class TEvent, class TDeps, class SM>
-auto call(T object, const TEvent &event, TDeps &deps, SM &sm) noexcept {
+auto call(T object, const TEvent &event, TDeps &deps, sm<SM> &sm) noexcept {
   return call_impl(args_t<T, TEvent>{}, object, event, deps, sm);
 }
 
@@ -1045,6 +1075,7 @@ class sm {
 
   template <class TEvent>
   bool process_event(const TEvent &event) noexcept {
+    BOOST_MSM_LOG(process_event, SM, event);
     return process_event_impl<get_event_mapping_t<TEvent, mappings_t>>(event, states_t{}, aux::make_index_sequence<regions>{});
   }
 
@@ -1129,14 +1160,15 @@ class sm {
   }
 
   template <class TState>
-  void update_current_state(aux::byte &current_state, const aux::byte &new_state, const TState &, const TState &) noexcept {
-    current_state = new_state;
-  }
+  void update_current_state(aux::byte &, const aux::byte &, const TState &, const TState &) noexcept {}
 
   template <class TSrcState, class TDstState>
-  void update_current_state(aux::byte &current_state, const aux::byte &new_state, const TSrcState &,
-                            const TDstState &) noexcept {
+  void update_current_state(aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
+                            const TDstState &dst_state) noexcept {
     process_internal_event(on_exit{});
+    BOOST_MSM_LOG(state_change, SM, src_state, dst_state);
+    (void)src_state;
+    (void)dst_state;
     current_state = new_state;
     process_internal_event(on_entry{});
   }

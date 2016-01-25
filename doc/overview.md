@@ -105,6 +105,12 @@
 | Compilation time | 0.073s   | 3.197s          | 0.704s           |
 
 
+* To run benchmarks
+
+```sh
+make pt # make pt_simple pt_composite pt_complex
+```
+
 ###Error messages
 
 ***Not configurable***
