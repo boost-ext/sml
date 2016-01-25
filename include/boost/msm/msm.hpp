@@ -11,6 +11,8 @@
 #define BOOST_MSM_VERSION 1'0'0
 #if !defined(BOOST_MSM_LOG)
 #define BOOST_MSM_LOG(...)
+#else
+#define BOOST_MSM_LOG_ENABLED
 #endif
 #if defined(BOOST_MSM_DSL_DST_STATE_FIRST)
 #define BOOST_MSM_DSL_SRC_STATE(s1, s2) s2
@@ -493,7 +495,7 @@ decltype(auto) get_arg(const TEvent &, TDeps &, SM &sm) noexcept {
   return sm;
 }
 
-#if defined(BOOST_MSM_LOG)
+#if defined(BOOST_MSM_LOG_ENABLED)
 template <class... Ts, class T, class TEvent, class TDeps, class SM>
 auto call_impl(const aux::type<void> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TDeps &deps,
                sm<SM> &sm) noexcept {
@@ -513,7 +515,7 @@ auto call_impl(const aux::type<bool> &, const aux::type_list<Ts...> &, T object,
 template <class... Ts, class T, class TEvent, class TDeps, class SM,
           aux::enable_if_t<!aux::is_base_of<operator_base, T>::value, int> = 0>
 auto call_impl(const aux::type_list<Ts...> &args, T object, const TEvent &event, TDeps &deps, sm<SM> &sm) noexcept {
-#if defined(BOOST_MSM_LOG)
+#if defined(BOOST_MSM_LOG_ENABLED)
   using result_type = decltype(object(get_arg<Ts>(event, deps, sm)...));
   return call_impl(aux::type<result_type>{}, args, object, event, deps, sm);
 #else

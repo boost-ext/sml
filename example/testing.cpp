@@ -23,8 +23,7 @@ struct fsm {
     using namespace msm;
 
     auto guard = [](data& d) { return !d.value; };
-
-    auto action = [](data& d) { return d.value = 42; };
+    auto action = [](data& d) { d.value = 42; };
 
     // clang-format off
     return make_transition_table(
