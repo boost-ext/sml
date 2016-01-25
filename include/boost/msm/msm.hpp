@@ -313,10 +313,6 @@ struct dispatchable<T, aux::type_list<TEvents...>>
     : aux::is_same<aux::bool_list<aux::always<TEvents>::value...>,
                    aux::bool_list<decltype(dispatchable_impl<T>(aux::declval<TEvents>()))::value...>> {};
 }  // concepts
-namespace logging {
-template <class...>
-struct state_change {};
-};
 namespace detail {
 template <class...>
 struct transition;

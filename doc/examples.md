@@ -40,7 +40,7 @@
 
 ###Dependency Injection
 
-![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/di.cpp)
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp)
 
 ###Runtime Dispatcher
 
