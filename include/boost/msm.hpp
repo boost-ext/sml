@@ -1084,7 +1084,6 @@ class sm {
     initialize(initial_states_t{});
   }
 
-  using boost_di_inject__ = aux::type_list<deps_t &&>;
   explicit sm(deps_t &&deps) noexcept : deps_(deps), transitions_(aux::try_get<SM>(deps_).configure()) {
     initialize(initial_states_t{});
   }
