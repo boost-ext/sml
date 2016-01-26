@@ -39,16 +39,16 @@ struct dispatch_table {
 int main() {
   msm::sm<dispatch_table> sm;
 
-  auto dispatcher = msm::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max*/>(sm);
+  auto dispatch_event = msm::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max*/>(sm);
 
   {
     runtime_event event{1};
-    assert(dispatcher(event, event.id));
+    assert(dispatch_event(event, event.id));
   }
 
   {
     runtime_event event{2};
-    assert(dispatcher(event, event.id));
+    assert(dispatch_event(event, event.id));
   }
 
   assert(sm.is(msm::terminate));
