@@ -883,7 +883,6 @@ template <class TSM>
 struct transition_sub_impl<TSM> {
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event, aux::byte &) noexcept {
-    // error
     return aux::try_get<TSM>(self.deps_).process_event(event);
   }
 };
@@ -1086,7 +1085,7 @@ class sm {
   }
 
   using boost_di_inject__ = aux::type_list<deps_t &&>;
-  explicit sm(deps_t &&deps) noexcept : deps_(deps), transitions_(aux::get<SM>(deps_).configure()) {
+  explicit sm(deps_t &&deps) noexcept : deps_(deps), transitions_(aux::try_get<SM>(deps_).configure()) {
     initialize(initial_states_t{});
   }
 
