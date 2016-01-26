@@ -89,3 +89,5 @@ msm-lite: C++14 Meta State Machine Library
 * Runtime Dispatcher (see [Runtime Dispatcher](examples.md#runtime-dispatcher))
 * Dependency Injection integration (see [Dependency Injection](examples.md#dependency-injection))
 
+###*Acknowledgements*
+* Thanks to Christophe Henry for a great Boost.MSM - eUML idea and library
