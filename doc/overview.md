@@ -66,7 +66,7 @@
 
 | g++-6.0          | msm-lite |  boost.msm-eUML | boost.statechart |
 |------------------|----------|-----------------|------------------|
-| Compilation time | 0.446s   | 9.363s          | 2.037s           |
+| Compilation time | 0.435s   | 9.363s          | 2.037s           |
 | Execution time   | 9ms      | 13ms            | 404ms            |
 | Memory usage     | 20b      | 60b             | 224b             |
 | Executable size  | 12K      | 91K             | 83K              |
@@ -79,14 +79,14 @@
 
 | clang++-3.7      | msm-lite |  boost.msm-eUML | boost.statechart |
 |------------------|----------|-----------------|------------------|
-| Compilation time | 0.778s   | 1m15.935s       | 3.661s           |
+| Compilation time | 0.765s   | 1m15.935s       | 3.661s           |
 | Execution time   | 70ms     | 81ms            | 6221ms           |
 | Memory usage     | 102b     | 120b            | 200b             |
 | Executable size  | 35K      | 611K            | 343K             |
 
 | g++-6.0          | msm-lite |  boost.msm-eUML | boost.statechart |
 |------------------|----------|-----------------|------------------|
-| Compilation time | 1.020s   | 52.238s         | 4.997s           |
+| Compilation time | 0.996s   | 52.238s         | 4.997s           |
 | Execution time   | 72ms     | 77ms            | 5520ms           |
 | Memory usage     | 102b     | 120b            | 224b             |
 | Executable size  | 35K      | 271K            | 215K             |

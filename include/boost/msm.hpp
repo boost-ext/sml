@@ -188,46 +188,57 @@ struct apply<T, U<Ts...>> {
 template <template <class...> class T, class D>
 using apply_t = typename apply<T, D>::type;
 template <int, class T>
-struct pool_type {
-  T object;
+struct tuple_type {
+  T value;
+};
+template <class, class...>
+struct tuple_impl;
+template <int... Ns, class... Ts>
+struct tuple_impl<index_sequence<Ns...>, Ts...> : tuple_type<Ns, Ts>... {
+  explicit tuple_impl(Ts... ts) noexcept : tuple_type<Ns, Ts>{ts}... {}
+};
+template <class... Ts>
+struct tuple : tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {
+  using tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>::tuple_impl;
 };
 template <int N, class T>
-auto &get_impl_nr(pool_type<N, T> *object) noexcept {
-  return static_cast<pool_type<N, T> &>(*object).object;
+auto &get_by_id_impl(tuple_type<N, T> *object) noexcept {
+  return static_cast<tuple_type<N, T> &>(*object).value;
 }
-template <int N, class TPool>
-auto &get(TPool &p) noexcept {
-  return get_impl_nr<N + 1>(&p);
+template <int N, class Tuple>
+auto &get_by_id(Tuple &t) noexcept {
+  return get_by_id_impl<N + 1>(&t);
 }
 template <class T>
-auto get_impl_type(...) noexcept {
+struct pool_type {
+  T value;
+};
+struct init {};
+template <class T>
+auto try_get_impl(...) noexcept {
   return aux::remove_reference_t<T>{};
 }
-template <class T, int N>
-auto &get_impl_type(pool_type<N, T> *object) noexcept {
-  return static_cast<pool_type<N, T> &>(*object).object;
+template <class T>
+auto &try_get_impl(pool_type<T> *object) noexcept {
+  return static_cast<pool_type<T> &>(*object).value;
 }
-template <class T, int N>
-auto &get_impl_type(pool_type<N, T &> *object) noexcept {
-  return static_cast<pool_type<N, T &> &>(*object).object;
+template <class T>
+auto &try_get_impl(pool_type<T &> *object) noexcept {
+  return static_cast<pool_type<T &> &>(*object).value;
+}
+template <class T, class TPool>
+decltype(auto) try_get(TPool &p) noexcept {
+  return try_get_impl<T>(&p);
 }
 template <class T, class TPool>
 decltype(auto) get(TPool &p) noexcept {
-  return get_impl_type<T>(&p);
+  return static_cast<pool_type<T> &>(p).value;
 }
-struct init {};
-template <class, class...>
-struct pool_impl;
-template <int... Ns, class... Ts>
-struct pool_impl<index_sequence<Ns...>, Ts...> : pool_type<Ns, Ts>... {
-  explicit pool_impl(Ts... ts) noexcept : pool_type<Ns, Ts>{ts}... {}
-  template <template <class...> class TPool, class... TArgs>
-  pool_impl(init &&, TPool<TArgs...> &&pool) noexcept : pool_type<Ns, Ts>{aux::get<Ts>(pool)}... {}
-};
 template <class... Ts>
-struct pool : pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {
-  using underlying_type = pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
-  using pool_impl<make_index_sequence<sizeof...(Ts)>, Ts...>::pool_impl;
+struct pool : pool_type<Ts>... {
+  explicit pool(Ts... ts) noexcept : pool_type<Ts>{ts}... {}
+  template <class... TArgs>
+  pool(init &&, pool<TArgs...> &&p) noexcept : pool_type<Ts>{aux::try_get<Ts>(p)}... {}
 };
 template <class>
 struct is_pool : aux::false_type {};
@@ -543,11 +554,11 @@ class seq_ : operator_base {
  private:
   template <int... Ns, class TEvent, class TDeps, class SM>
   void for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
-    int _[]{0, (call(aux::get<Ns - 1>(a), event, deps, sm), 0)...};
+    int _[]{0, (call(aux::get_by_id<Ns - 1>(a), event, deps, sm), 0)...};
     (void)_;
   }
 
-  aux::pool<Ts...> a;
+  aux::tuple<Ts...> a;
 };
 
 template <class... Ts>
@@ -564,12 +575,12 @@ class and_ : operator_base {
   template <int... Ns, class TEvent, class TDeps, class SM>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
     auto result = true;
-    int _[]{0, (call(aux::get<Ns - 1>(g), event, deps, sm) ? result : result = false)...};
+    int _[]{0, (call(aux::get_by_id<Ns - 1>(g), event, deps, sm) ? result : result = false)...};
     (void)_;
     return result;
   }
 
-  aux::pool<Ts...> g;
+  aux::tuple<Ts...> g;
 };
 
 template <class... Ts>
@@ -586,12 +597,12 @@ class or_ : operator_base {
   template <int... Ns, class TEvent, class TDeps, class SM>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
     auto result = false;
-    int _[]{0, (call(aux::get<Ns - 1>(g), event, deps, sm) ? result = true : result)...};
+    int _[]{0, (call(aux::get_by_id<Ns - 1>(g), event, deps, sm) ? result = true : result)...};
     (void)_;
     return result;
   }
 
-  aux::pool<Ts...> g;
+  aux::tuple<Ts...> g;
 };
 
 template <class T>
@@ -829,22 +840,22 @@ struct transition<state<S1>, state<S2>, event<E>, always, none> {
 template <class...>
 struct transition_impl;
 
-template <class TId, class... TIds>
-struct transition_impl<TId, TIds...> {
+template <class T, class... Ts>
+struct transition_impl<T, Ts...> {
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
-    if (aux::get<TId::value>(self.transitions_).execute(self, event, current_state)) {
+    if (aux::get<T>(self.transitions_).execute(self, event, current_state)) {
       return true;
     }
-    return transition_impl<TIds...>::execute(self, event, current_state);
+    return transition_impl<Ts...>::execute(self, event, current_state);
   }
 };
 
-template <class TId>
-struct transition_impl<TId> {
+template <class T>
+struct transition_impl<T> {
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
-    return aux::get<TId::value>(self.transitions_).execute(self, event, current_state);
+    return aux::get<T>(self.transitions_).execute(self, event, current_state);
   }
 };
 
@@ -859,12 +870,12 @@ struct transition_impl<> {
 template <class...>
 struct transition_sub_impl;
 
-template <class TSM, class TId, class... TIds>
-struct transition_sub_impl<TSM, TId, TIds...> {
+template <class TSM, class T, class... Ts>
+struct transition_sub_impl<TSM, T, Ts...> {
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event, aux::byte &current_state) noexcept {
-    return aux::get<TSM>(self.deps_).process_event(event) ? true
-                                                          : transition_impl<TId, TIds...>::execute(self, event, current_state);
+    return aux::try_get<TSM>(self.deps_).process_event(event) ? true
+                                                              : transition_impl<T, Ts...>::execute(self, event, current_state);
   }
 };
 
@@ -872,7 +883,8 @@ template <class TSM>
 struct transition_sub_impl<TSM> {
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event, aux::byte &) noexcept {
-    return aux::get<TSM>(self.deps_).process_event(event);
+    // error
+    return aux::try_get<TSM>(self.deps_).process_event(event);
   }
 };
 
@@ -952,14 +964,13 @@ struct unique_mappings<T> : aux::inherit<T> {};
 template <class, class...>
 struct mappings;
 
-template <int... Ns, class... Ts>
-struct mappings<aux::pool_impl<aux::index_sequence<Ns...>, Ts...>>
-    : unique_mappings_t<event_mappings<
-          typename Ts::event,
-          aux::inherit<state_mappings<typename Ts::src_state, aux::type_list<aux::integral_constant<int, Ns - 1>>>>>...> {};
+template <class... Ts>
+struct mappings<aux::pool<Ts...>>
+    : unique_mappings_t<
+          event_mappings<typename Ts::event, aux::inherit<state_mappings<typename Ts::src_state, aux::type_list<Ts>>>>...> {};
 
 template <class T>
-using mappings_t = typename mappings<typename T::underlying_type>::type;
+using mappings_t = typename mappings<T>::type;
 
 template <class>
 transition_impl<> get_state_mapping_impl(...);
@@ -1052,15 +1063,13 @@ class sm {
   using sub_sms_t = aux::apply_t<get_sub_sms, states_t>;
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
   using events_ids_t = aux::apply_t<aux::type_id, events_t>;
-  using deps_t = aux::join_t<get_sm<SM>, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>;
-  using deps_ids_t = aux::apply_t<aux::type_id, deps_t>;
-  using deps = aux::apply_t<aux::pool, deps_t>;
+  using deps_t = aux::apply_t<aux::pool, aux::join_t<get_sm<SM>, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
   static constexpr auto regions = aux::get_size<initial_states_t>::value > 0 ? aux::get_size<initial_states_t>::value : 1;
   static_assert(regions > 0, "At least one initial state is required");
 
   template <class... TDeps>
-  using required = aux::is_same<aux::bool_list<aux::always<TDeps>::value...>,
-                                aux::bool_list<(aux::get_id<deps_ids_t, -1, TDeps>() != -1)...>>;
+  using dependable = aux::is_same<aux::bool_list<aux::always<TDeps>::value...>,
+                                  aux::bool_list<aux::is_base_of<aux::pool_type<TDeps>, deps_t>::value...>>;
 
  public:
   using states = states_t;
@@ -1070,14 +1079,14 @@ class sm {
   sm(const sm &) = delete;
   sm &operator=(const sm &) = delete;
 
-  template <class... TDeps, BOOST_MSM_REQUIRES(required<TDeps...>::value) = 0>
+  template <class... TDeps, BOOST_MSM_REQUIRES(dependable<TDeps...>::value) = 0>
   explicit sm(TDeps &&... deps) noexcept : deps_{aux::init{}, aux::pool<TDeps...>{deps...}},
-                                           transitions_(aux::get<SM>(deps_).configure()) {
+                                           transitions_(aux::try_get<SM>(deps_).configure()) {
     initialize(initial_states_t{});
   }
 
-  using boost_di_inject__ = aux::type_list<deps &&>;
-  explicit sm(deps &&deps) noexcept : deps_(deps), transitions_(aux::get<SM>(deps_).configure()) {
+  using boost_di_inject__ = aux::type_list<deps_t &&>;
+  explicit sm(deps_t &&deps) noexcept : deps_(deps), transitions_(aux::get<SM>(deps_).configure()) {
     initialize(initial_states_t{});
   }
 
@@ -1181,7 +1190,7 @@ class sm {
     process_internal_event(on_entry{});
   }
 
-  deps deps_;
+  deps_t deps_;
   transitions_t transitions_;
 
  protected:
