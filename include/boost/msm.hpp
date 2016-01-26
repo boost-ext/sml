@@ -199,6 +199,7 @@ struct tuple_impl<index_sequence<Ns...>, Ts...> : tuple_type<Ns, Ts>... {
 };
 template <class... Ts>
 struct tuple : tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {
+  using boost_di_inject__ = aux::type_list<Ts...>;
   using tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>::tuple_impl;
 };
 template <int N, class T>
@@ -236,6 +237,7 @@ decltype(auto) get(TPool &p) noexcept {
 }
 template <class... Ts>
 struct pool : pool_type<Ts>... {
+  using boost_di_inject__ = aux::type_list<Ts...>;
   explicit pool(Ts... ts) noexcept : pool_type<Ts>{ts}... {}
   template <class... TArgs>
   pool(init &&, pool<TArgs...> &&p) noexcept : pool_type<Ts>{aux::try_get<Ts>(p)}... {}
@@ -276,7 +278,7 @@ struct on_entry;
 struct on_exit;
 }
 namespace concepts {
-#define BOOST_MSM_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type
+#define BOOST_MSM_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0
 template <class T>
 decltype(aux::declval<T>().configure()) configurable_impl(int);
 template <class>
@@ -374,12 +376,12 @@ struct process_event {
 
 template <class>
 struct event {
-  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value) = 0>
+  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value)>
   auto operator[](const T &t) const noexcept {
     return transition_eg<event, T>{*this, t};
   }
 
-  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value) = 0>
+  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value)>
   auto operator/(const T &t) const noexcept {
     return transition_ea<event, T>{*this, t};
   }
@@ -416,12 +418,12 @@ struct state_impl : state_str<TState> {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
 
-  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value) = 0>
+  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value)>
   auto operator[](const T &t) const noexcept {
     return transition_sg<TState, T>{static_cast<const TState &>(*this), t};
   }
 
-  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value) = 0>
+  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value)>
   auto operator/(const T &t) const noexcept {
     return transition_sa<TState, T>{static_cast<const TState &>(*this), t};
   }
@@ -1061,7 +1063,7 @@ class sm {
   using initial_states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_initial_states, transitions_t>>;
   using sub_sms_t = aux::apply_t<get_sub_sms, states_t>;
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
-  using events_ids_t = aux::apply_t<aux::type_id, events_t>;
+  using events_ids_t = aux::apply_t<aux::pool, events_t>;
   using deps_t = aux::apply_t<aux::pool, aux::join_t<get_sm<SM>, sub_sms_t, aux::apply_t<detail::merge_deps, transitions_t>>>;
   static constexpr auto regions = aux::get_size<initial_states_t>::value > 0 ? aux::get_size<initial_states_t>::value : 1;
   static_assert(regions > 0, "At least one initial state is required");
@@ -1078,7 +1080,7 @@ class sm {
   sm(const sm &) = delete;
   sm &operator=(const sm &) = delete;
 
-  template <class... TDeps, BOOST_MSM_REQUIRES(dependable<TDeps...>::value) = 0>
+  template <class... TDeps, BOOST_MSM_REQUIRES(dependable<TDeps...>::value)>
   explicit sm(TDeps &&... deps) noexcept : deps_{aux::init{}, aux::pool<TDeps...>{deps...}},
                                            transitions_(aux::try_get<SM>(deps_).configure()) {
     initialize(initial_states_t{});
@@ -1106,7 +1108,7 @@ class sm {
     return result;
   }
 
-  template <class... TStates, BOOST_MSM_REQUIRES(sizeof...(TStates) == regions) = 0>
+  template <class... TStates, BOOST_MSM_REQUIRES(sizeof...(TStates) == regions)>
   bool is(const TStates &...) const noexcept {
     auto result = true;
     auto i = 0;
@@ -1127,7 +1129,7 @@ class sm {
 
   void initialize(const aux::type_list<> &) noexcept {}
 
-  template <class TEvent, BOOST_MSM_REQUIRES(aux::get_id<events_ids_t, -1, TEvent>() != -1) = 0>
+  template <class TEvent, BOOST_MSM_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
   bool process_internal_event(const TEvent &event) noexcept {
     return process_event(event);
   }
@@ -1265,22 +1267,22 @@ struct sm : detail::sm<T> {
 };
 }  // testing
 
-template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value) = 0>
+template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value)>
 auto operator!(const T &t) noexcept {
   return detail::not_<T>(t);
 }
 
-template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<T1>::value &&concepts::callable<T2>::value) = 0>
+template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<T1>::value &&concepts::callable<T2>::value)>
 auto operator&&(const T1 &t1, const T2 &t2) noexcept {
   return detail::and_<T1, T2>(t1, t2);
 }
 
-template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<T1>::value &&concepts::callable<T2>::value) = 0>
+template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<T1>::value &&concepts::callable<T2>::value)>
 auto operator||(const T1 &t1, const T2 &t2) noexcept {
   return detail::or_<T1, T2>(t1, t2);
 }
 
-template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<T1>::value &&concepts::callable<T2>::value) = 0>
+template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<T1>::value &&concepts::callable<T2>::value)>
 auto operator, (const T1 &t1, const T2 &t2) noexcept {
   return detail::seq_<T1, T2>(t1, t2);
 }
@@ -1310,16 +1312,16 @@ detail::state<detail::terminate_state> terminate;
 detail::process_event process_event;
 
 template <class... Ts, BOOST_MSM_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
-                                                       aux::bool_list<concepts::transitional<Ts>::value...>>::value) = 0>
+                                                       aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 auto make_transition_table(Ts... ts) noexcept {
   return aux::pool<Ts...>{ts...};
 }
 
-template <class T, BOOST_MSM_REQUIRES(concepts::configurable<T>::value) = 0>
+template <class T, BOOST_MSM_REQUIRES(concepts::configurable<T>::value)>
 using sm = detail::sm<T>;
 
 template <class TEvent, int EventRangeBegin, int EventRangeEnd, class SM,
-          BOOST_MSM_REQUIRES(concepts::dispatchable<TEvent, typename sm<SM>::events>::value) = 0>
+          BOOST_MSM_REQUIRES(concepts::dispatchable<TEvent, typename sm<SM>::events>::value)>
 auto make_dispatch_table(sm<SM> &fsm) noexcept {
   static_assert(EventRangeEnd - EventRangeBegin > 0, "Event ids range difference has to be greater than 0");
   return detail::make_dispatch_table<TEvent, EventRangeBegin>(fsm,
