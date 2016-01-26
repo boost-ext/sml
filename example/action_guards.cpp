@@ -6,7 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "boost/msm/msm.hpp"
+#include "boost/msm.hpp"
 #include <cassert>
 #include <typeinfo>
 #include <iostream>

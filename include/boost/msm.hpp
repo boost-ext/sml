@@ -216,7 +216,6 @@ decltype(auto) get(TPool &p) noexcept {
   return get_impl_type<T>(&p);
 }
 struct init {};
-
 template <class, class...>
 struct pool_impl;
 template <int... Ns, class... Ts>

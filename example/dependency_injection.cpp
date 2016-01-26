@@ -8,7 +8,7 @@
 // clang-format off
 #if __has_include(<boost/di.hpp>)
 // clang-format on
-#include "boost/msm/msm.hpp"
+#include "boost/msm.hpp"
 #include <boost/di.hpp>
 #include <cassert>
 #include <typeinfo>
