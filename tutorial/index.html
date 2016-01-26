@@ -8,7 +8,7 @@
   
   <meta name="author" content="Krzysztof Jusiak">
   
-  <title>Tutorial - msm-lite</title>
+  <title>Tutorial - boost.msm-lite</title>
   
 
   <link rel="shortcut icon" href="../img/favicon.ico">
@@ -52,8 +52,10 @@
 	
 	<nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
 
+	  <img src="../img/boost.png" />
+
       <div class="wy-side-nav-search">
-		<a href="../index.html" class="icon icon-home"> msm-lite</a>
+  	  <a href="../index.html" class="icon icon-home"> boost.msm-lite</a>
 		<div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -61,9 +63,9 @@
 </div>
       </div>
 
-	  <hr />
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+
         <ul class="current">
           
             <li>
@@ -92,25 +94,25 @@
                 <li class="toctree-l3"><a href="#1-create-events-and-states">1. Create events and states</a></li>
                 
             
-                <li class="toctree-l3"><a href="#2-create-guard-and-actions">2. Create guard and actions</a></li>
+                <li class="toctree-l3"><a href="#2-create-guards-and-actions">2. Create guards and actions</a></li>
                 
             
-                <li class="toctree-l3"><a href="#3-create-transition-table">3. Create transition table</a></li>
+                <li class="toctree-l3"><a href="#3-create-a-transition-table">3. Create a transition table</a></li>
                 
             
                 <li class="toctree-l3"><a href="#4-set-initial-states">4. Set initial states</a></li>
                 
             
-                <li class="toctree-l3"><a href="#5-create-state-machine">5. Create state machine</a></li>
+                <li class="toctree-l3"><a href="#5-create-a-state-machine">5. Create a state machine</a></li>
                 
             
                 <li class="toctree-l3"><a href="#6-process-events">6. Process events</a></li>
                 
             
-                <li class="toctree-l3"><a href="#8-test-state-machine">8. Test state machine</a></li>
+                <li class="toctree-l3"><a href="#8-testing-a-state-machine">8. Testing a state machine</a></li>
                 
             
-                <li class="toctree-l3"><a href="#9-debug-state-machine">9. Debug state machine</a></li>
+                <li class="toctree-l3"><a href="#9-debugging-a-state-machine">9. Debugging a state machine</a></li>
                 
             
             </ul>
@@ -149,7 +151,6 @@
         </ul>
       </div>
 
-	  <hr />
 
     </nav>
 
@@ -158,7 +159,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">msm-lite</a>
+        <a href="../index.html">boost.msm-lite</a>
       </nav>
 
       
@@ -188,10 +189,60 @@
 <li><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html">Boost.MSM - eUML Documentation</a></li>
 </ul>
 <h3 id="1-create-events-and-states">1. Create events and states</h3>
-<pre><code>composite
+<p>State machine is composed of finite number of states and transitions which are triggered via events.</p>
+<p>An Event is just a unique type, which will be process by the state machine.</p>
+<pre><code class="cpp">struct my_event { ... };
 </code></pre>
-<h3 id="2-create-guard-and-actions">2. Create guard and actions</h3>
-<h3 id="3-create-transition-table">3. Create transition table</h3>
+
+<p>A State can have entry/exit behaviour which is executed whenever state is entered or left and
+represents current location of the state machine processing.</p>
+<p>To create a state below snipped might be used.</p>
+<pre><code class="cpp">msm::state&lt;class idle&gt; idle;
+// or
+auto idle = msm::state&lt;class idle&gt;{};
+</code></pre>
+
+<p>If you happen to have a clang/gcc compiler, you can create a state on the fly by.</p>
+<pre><code class="cpp">using namespace msm;
+auto state  = &quot;idle&quot;_s;
+</code></pre>
+
+<p><code>msm-lite</code> states cannot have data as data is injected directly into guards/actions instead.</p>
+<p>A state machine might be a state itself.</p>
+<pre><code class="cpp">msm::state&lt;msm::sm&lt;state_machine&gt;&gt; composite;
+</code></pre>
+
+<p><code>msm-lite</code> supports <code>terminate</code> state, which stops process events to be processed.</p>
+<p>States are printable too.</p>
+<pre><code class="cpp">assert(string(&quot;idle&quot;) == &quot;idle&quot;_s.c_str());
+</code></pre>
+
+<h3 id="2-create-guards-and-actions">2. Create guards and actions</h3>
+<p>Guards and actions are callable objects which will be executed by the state machine in order to verify whether a transition, followed by an action should take place.</p>
+<p>Guard is required to return boolean value.</p>
+<pre><code class="cpp">auto guard = [] {
+    return true;
+};
+
+auto guard = [](int, double) { // guard with dependencies
+    return true;
+};
+
+auto guard = [](int, auto event, double) { // guard with an event and dependencies
+    return true;
+};
+</code></pre>
+
+<p>Action is required not to return.</p>
+<pre><code class="cpp">auto action = [] { };
+auto action = [](int, double) { }; // action with dependencies
+auto action = [](int, auto event, double) { }; // action with an event and dependencies
+</code></pre>
+
+<h3 id="3-create-a-transition-table">3. Create a transition table</h3>
+<p>When we have states and events handy we can finally create a transition table which represents
+our transitions.</p>
+<p><code>msm-lite</code> is using eUML-like DSL in order to be as close as possible to UML design.</p>
 <ul>
 <li>
 <p>DSL</p>
@@ -227,15 +278,54 @@
 </table>
 </li>
 </ul>
+<p>To create a transition table.</p>
+<pre><code class="cpp">using namespace msm;
+make_transition_table(
+    &quot;src_state&quot;_s == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action
+);
+</code></pre>
+
 <h3 id="4-set-initial-states">4. Set initial states</h3>
-<pre><code>more than one = orthogonal regions
+<p>Initial states tells the state machine where to start.</p>
+<pre><code class="cpp">using namespace msm;
+make_transition_table(
+    &quot;src_state&quot;_s(initial) == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
+    &quot;dst_state&quot;_s          == terminate     + event&lt;game_over&gt;
+);
 </code></pre>
-<h3 id="5-create-state-machine">5. Create state machine</h3>
-<pre><code>dependencies + DI
+
+<p>You can have more than one initial state. Both initial states will be executed in pseudo parallel way
+and are called orthogonal regions.</p>
+<pre><code class="cpp">using namespace msm;
+make_transition_table(
+    &quot;region_1&quot;_s(initial) == &quot;dst_state1&quot;_s + event&lt;my_event1&gt; [ guard ] / action,
+    &quot;dst_state1&quot;_s          == terminate    + event&lt;game_over&gt;
+
+    &quot;region_2&quot;_s(initial) == &quot;dst_state2&quot;_s + event&lt;my_event2&gt; [ guard ] / action,
+    &quot;dst_state2&quot;_s          == terminate    + event&lt;game_over&gt;
+);
 </code></pre>
-<ul>
-<li>Action/Guards data dependencies</li>
-</ul>
+
+<h3 id="5-create-a-state-machine">5. Create a state machine</h3>
+<p>State machine is an abstraction for transition table holding current states and processing events.
+To create a state machine, firstly we have to configure our transition table.</p>
+<pre><code class="cpp">class example {
+public:
+    auto configure() noexcept {
+        using namespace msm;
+        return make_transition_table(
+            &quot;src_state&quot;_s(initial) == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
+            &quot;dst_state&quot;_s          == terminate     + event&lt;game_over&gt;
+        );
+    }
+};
+</code></pre>
+
+<p>Having transition table configured we can create a state machine.</p>
+<pre><code class="cpp">msm::sm&lt;example&gt; sm;
+</code></pre>
+
+<p>State machine constructor is responsible to provide required dependencies for actions and guards.</p>
 <pre><code class="cpp">                             /---- event
                             |
 auto guard = [](double d, auto event) { return true; }
@@ -247,19 +337,81 @@ auto action = [](int i){}  |
                  |         |
             /---/  /------/
            |      /
-sm&lt;...&gt; s{42, 87.0};
+msm::sm&lt;exmple&gt; s{42, 87.0};
 </code></pre>
 
 <h3 id="6-process-events">6. Process events</h3>
-<pre><code>true = handled, false
-dynamic dispatcher
+<p>State machine is simple creature. The main feature of it is to process events.
+In order to do so, <code>process_event</code> method might be used.</p>
+<pre><code class="cpp">msm::sm&lt;example&gt; sm;
+
+assert(sm.process_event(my_event{})); // returns true when handled
+assert(!sm.process_event(int{})); // not handled by the state machine
 </code></pre>
-<h3 id="8-test-state-machine">8. Test state machine</h3>
-<pre><code>is/visit state machine states
-+ testing
+
+<p><code>msm-lite</code> also provides a way to dispatch dynamically created events into the state machine.</p>
+<pre><code class="cpp">struct runtime_event {
+  int id = 0;
+};
+struct event1 {
+  static constexpr auto id = 1;
+};
+
+auto dispatch_event = msm::make_dispatch_table&lt;runtime_event, 1 /*min*/, 5 /*max*/&gt;(sm);
+  {
+    runtime_event event{1};
+    assert(dispatch_event(event, event.id)); // will call sm.process(event1{});
+  }
 </code></pre>
-<h3 id="9-debug-state-machine">9. Debug state machine</h3>
-<pre><code>logging
+
+<h3 id="8-testing-a-state-machine">8. Testing a state machine</h3>
+<p>Sometimes it is useful to verify whether a state machine is in a specific states, for example, whether
+we are in a terminate state or not. We can do it with <code>msm-lite</code> using <code>is</code> or <code>visit_current_states</code>
+functionality.</p>
+<pre><code class="cpp">msm::sm&lt;example&gt; sm;
+assert(sm.process_event(my_event{}));
+assert(sm.is(terminate)); // is(terminate, s1, ...) when you have orthogonal regions
+
+//or
+
+sm.visit_current_states([](auto state) { std::cout &lt;&lt; state.c_str() &lt;&lt; std::endl; });
+</code></pre>
+
+<p>On top of that, <code>msm-lite</code> provides testing facilities to check state machine as a whole.
+<code>set_current_states</code> method is available from <code>testing::sm</code> in order to set state machine
+in requested state.</p>
+<pre><code class="cpp">testing::sm&lt;example&gt; sm{fake_data...};
+sm.set_current_states(&quot;s3&quot;_s); // set_current_states(&quot;s3&quot;_s, &quot;s1&quot;_s, ...) for orthogonal regions
+assert(sm.process_event(event{}));
+assert(sm.is(terminate));
+</code></pre>
+
+<h3 id="9-debugging-a-state-machine">9. Debugging a state machine</h3>
+<p><code>msm-lite</code> provides logging capabilities in order to print state machine flow.
+To enable logging you have to define <code>BOOST_MSM_LOG</code>.</p>
+<pre><code class="cpp">template &lt;class SM, class TEvent&gt;
+void log_process_event(const TEvent&amp;) {
+  printf(&quot;[%s][process_event] %s\n&quot;, typeid(SM).name(), typeid(TEvent).name());
+}
+
+template &lt;class SM, class TAction, class TEvent&gt;
+void log_guard(const TAction&amp;, const TEvent&amp;, bool result) {
+  printf(&quot;[%s][guard] %s %s %s\n&quot;, typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name(),
+         (result ? &quot;[OK]&quot; : &quot;[Reject]&quot;));
+}
+
+template &lt;class SM, class TAction, class TEvent&gt;
+void log_action(const TAction&amp;, const TEvent&amp;) {
+  printf(&quot;[%s][action] %s %s\n&quot;, typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name());
+}
+
+template &lt;class SM, class TSrcState, class TDstState&gt;
+void log_state_change(const TSrcState&amp; src, const TDstState&amp; dst) {
+  printf(&quot;[%s][transition] %s -&gt; %s\n&quot;, typeid(SM).name(), src.c_str(), dst.c_str());
+}
+
+#define BOOST_MSM_LOG(T, SM, ...) log_##T&lt;SM&gt;(__VA_ARGS__)
+#include &lt;boost/msm.hpp&gt;
 </code></pre>
               
             </div>
