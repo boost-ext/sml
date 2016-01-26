@@ -8,12 +8,12 @@
 // at http://marijnhaverbeke.nl/blog/#cm-internals .
 
 (function(mod) {
-  if (typeof exports == "object" && typeof module == "object") // CommonJS
+  //if (typeof exports == "object" && typeof module == "object") // CommonJS
     module.exports = mod();
-  else if (typeof define_wknd == "function")
-    return define_wknd([], mod);
-  else // Plain browser env
-    this.CodeMirror = mod();
+  //else if (typeof define_wknd == "function")
+    //return define_wknd([], mod);
+  //else // Plain browser env
+    //this.CodeMirror = mod();
 })(function() {
   "use strict";
 

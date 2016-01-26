@@ -8,12 +8,12 @@
 // and gives its background <div> the class "CodeMirror-activeline-background".
 
 (function(mod) {
-  if (typeof exports == "object" && typeof module == "object") // CommonJS
+  //if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
-  else if (typeof define_wknd == "function")
-    define_wknd(["../../lib/codemirror"], mod);
-  else // Plain browser env
-    mod(CodeMirror);
+  //else if (typeof define_wknd == "function")
+    //define_wknd(["../../lib/codemirror"], mod);
+  //else // Plain browser env
+    //mod(CodeMirror);
 })(function(CodeMirror) {
   "use strict";
   var WRAP_CLASS = "CodeMirror-activeline";
