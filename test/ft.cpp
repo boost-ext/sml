@@ -1187,7 +1187,6 @@ test sm_testing = [] {
       using namespace msm;
 
       auto guard = [](const data &d) { return d.value == 42; };
-
       auto action = [](data &d) { d.value = 123; };
 
       struct Action {
