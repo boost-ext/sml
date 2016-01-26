@@ -175,15 +175,15 @@
               
                 <h3 id="quick-start">Quick Start</h3>
 <ul>
-<li>Get <a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm/msm.hpp">boost/msm/msm.hpp</a> header</li>
+<li>Get <a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm.hpp">boost/msm.hpp</a> header</li>
 </ul>
-<pre><code class="sh">    wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm/msm.hpp
+<pre><code class="sh">    wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm.hpp
 </code></pre>
 
 <ul>
 <li>Include the header</li>
 </ul>
-<pre><code class="cpp">    #include &quot;boost/msm/msm.hpp&quot;
+<pre><code class="cpp">    #include &quot;boost/msm.hpp&quot;
 </code></pre>
 
 <ul>
@@ -194,7 +194,7 @@
 
 <h3 id="dependencies">Dependencies</h3>
 <ul>
-<li>msm-lite has no external dependencies (no STL, no Boost)</li>
+<li>No external dependencies are required (niether STL nor Boost)</li>
 </ul>
 <h3 id="supportedtested-compilers">Supported/tested compilers</h3>
 <ul>
@@ -213,6 +213,10 @@
 <tr>
 <td>BOOST_MSM_VERSION</td>
 <td>Current versoin of msm-lite (ex. 1'0'0)</td>
+</tr>
+<tr>
+<td>BOOST_MSM_LOG</td>
+<td>Enables logging system  (see <a href="../examples/index.html#logging">Logging</a>)</td>
 </tr>
 <tr>
 <td>BOOST_MSM_DSL_DST_STATE_FIRST</td>
@@ -386,7 +390,7 @@
 <tbody>
 <tr>
 <td>Compilation time</td>
-<td>0.446s</td>
+<td>0.435s</td>
 <td>9.363s</td>
 <td>2.037s</td>
 </tr>
@@ -445,7 +449,7 @@
 <tbody>
 <tr>
 <td>Compilation time</td>
-<td>0.778s</td>
+<td>0.765s</td>
 <td>1m15.935s</td>
 <td>3.661s</td>
 </tr>
@@ -481,7 +485,7 @@
 <tbody>
 <tr>
 <td>Compilation time</td>
-<td>1.020s</td>
+<td>0.996s</td>
 <td>52.238s</td>
 <td>4.997s</td>
 </tr>
@@ -589,7 +593,7 @@
   <div id="disqus_thread"></div>
   <script type="text/javascript">
   /* * * CONFIGURATION VARIABLES * * */
-  ar disqus_shortname = 'msm-lite';
+  var disqus_shortname = 'msm-lite';
 
   /* * * DON'T EDIT BELOW THIS LINE * * */
   (function() {

@@ -2,33 +2,243 @@
     "docs": [
         {
             "location": "/index.html", 
-            "text": "Introduction\n\n\nmsm-lite: C++14 Meta State Machine Library\n\n\n\n\nYour scalable C++14 header only eUML-like meta state machine library with no dependencies\n\n\n\n\nUML State Machine\n\n\n\n\nState Machine\n\n\nUML2 Specification\n\n\nBoost.MSM - eUML\n\n\n\n\nWhy msm-lite?\n\n\n\n\nBoost.MSM - eUML\n is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;\n  msm-lite, therefore, is trying to address those issues.\n\n\n\n\nProblems with Boost.MSM - eUML\n\n\n\n\nHorrible compilation times (see \nPerformance\n)\n\n\nProduces huge binaries (see \nPerformance\n)\n\n\nBased on too many macros\n\n\nHorrible and long error messages (see \nError Messages\n)\n\n\nSometimes hard to follow as not all actions might be seen on transition table (ex. initial states, on_entry, on_exit)\n\n\nA lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)\n\n\nData in states makes it harder share/encapsulate (UML compliant though)\n\n\nFunctional programming emulation\n\n\nHuge complexity may overwhelm in the beginning\n\n\nA lot of Boost dependencies\n\n\nCOupled code\n\n\n\n\nmsm-lite design goals\n\n\n\n\n\n\nKeep the Boost.MSM - eUML goodies\n\n\n\n\nPerformance (see \nPerformance\n)\n\n\nMemory usage (see \nPerformance\n)\n\n\neUML DSL (s1 == s2 + event [ guard ] / action)\n\n\nUML standard compliant (As much as possible)\n\n\n\n\n\n\n\n\nEliminate Boost.MSM - eUML problems\n\n\n\n\nCompilation times (see \nPerformance\n)\n\n\nBinary size (see \nPerformance\n)\n\n\nReduce complexity by eliminating less used features\n\n\nShort and informative error messages (see \nError Messages\n)\n\n\nLess boilerplate / no macros (see \nHello World\n)\n\n\nImprove visibility by having all actions on transition table (see \nStates\n)\n\n\nAllows loosely coupled design (see \nDependency Injection\n)\n\n\nFunctional programming support using lamda expressions (see \nAction/Guards\n)\n\n\nNo dependencies / one header (1k lines)\n\n\n\n\n\n\n\n\nWhat 'lite' implies?\n\n\n\n\nMinimal learning curve\n\n\nOnly crucial features\n\n\nGuaranteed performance and quick compilation times\n\n\nNo dependencies\n\n\n\n\nSupported\n UML features\n\n\n\n\nTransitions / Internal transitions / Anonymous transitions / No transition (see \nTransitions\n)\n\n\nActions / Guards (see \nAction/Guards\n)\n\n\nState entry / exit actions (see \nStates\n)\n\n\nOrthogonal regions (see \nOrthogonal Regions\n)\n\n\nSub / Composite state machines (see \nComposite\n)\n\n\n\n\nDropped\n UML features\n\n\n\n\nShallow/Deep history\n\n\nExplicit entry/exit pseudo states\n\n\n\n\nAdditional\n features\n\n\n\n\nLogging (see \nLogging\n)\n\n\nTesting (see \nTesting\n)\n\n\nRuntime Dispatcher (see \nRuntime Dispatcher\n)\n\n\nDependency Injection integration (see \nDependency Injection\n)", 
+            "text": "Introduction\n\n\nmsm-lite: C++14 Meta State Machine Library\n\n\n\n\nYour scalable C++14 header only eUML-like meta state machine library with no dependencies\n\n\n\n\nUML State Machine\n\n\n\n\nState Machine\n\n\nUML2 Specification\n\n\nBoost.MSM - eUML\n\n\n\n\nWhy msm-lite?\n\n\n\n\nBoost.MSM - eUML\n is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;\n  msm-lite, therefore, is trying to address those issues.\n\n\n\n\nProblems with Boost.MSM - eUML\n\n\n\n\nHorrible compilation times (see \nPerformance\n)\n\n\nProduces huge binaries (see \nPerformance\n)\n\n\nBased on too many macros\n\n\nHorrible and long error messages (see \nError Messages\n)\n\n\nSometimes hard to follow as not all actions might be seen on transition table (ex. initial states, on_entry, on_exit)\n\n\nA lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)\n\n\nData in states makes it harder share/encapsulate (UML compliant though)\n\n\nLoosley coupled design is hard to achieve\n\n\nFunctional programming emulation\n\n\nHuge complexity may overwhelm in the beginning\n\n\nA lot of Boost dependencies\n\n\n\n\nmsm-lite design goals\n\n\n\n\nKeep the Boost.MSM - eUML 'goodies'\n\n\nPerformance (see \nPerformance\n)\n\n\nMemory usage (see \nPerformance\n)\n\n\neUML DSL (s1 == s2 + event [ guard ] / action)\n\n\nUML standard compliant (As much as possible)\n\n\n\n\n\n\n\n\n\n\n\n\nEliminate Boost.MSM - eUML problems\n\n\nCompilation times (see \nPerformance\n)\n\n\nBinary size (see \nPerformance\n)\n\n\nReduce complexity by eliminating less used features\n\n\nShort and informative error messages (see \nError Messages\n)\n\n\nLess boilerplate / no macros (see \nHello World\n)\n\n\nImprove visibility by having all actions on transition table (see \nStates\n)\n\n\nAllows loosely coupled design (see \nDependency Injection\n)\n\n\nFunctional programming support using lamda expressions (see \nAction/Guards\n)\n\n\nNo dependencies / one header (1k lines)\n\n\n\n\n\n\n\n\nWhat 'lite' implies?\n\n\n\n\nMinimal learning curve\n\n\nOnly crucial features\n\n\nGuaranteed performance and quick compilation times\n\n\nNo dependencies\n\n\n\n\nSupported\n UML features\n\n\n\n\nTransitions / Internal transitions / Anonymous transitions / No transition (see \nTransitions\n)\n\n\nActions / Guards (see \nAction/Guards\n)\n\n\nState entry / exit actions (see \nStates\n)\n\n\nOrthogonal regions (see \nOrthogonal Regions\n)\n\n\nSub / Composite state machines (see \nComposite\n)\n\n\n\n\nDropped\n UML features\n\n\n\n\nShallow/Deep history\n\n\nExplicit entry/exit pseudo states\n\n\n\n\nAdditional\n features\n\n\n\n\nLogging (see \nLogging\n)\n\n\nTesting (see \nTesting\n)\n\n\nRuntime Dispatcher (see \nRuntime Dispatcher\n)\n\n\nDependency Injection integration (see \nDependency Injection\n)\n\n\n\n\nAcknowledgements\n\n\n\n\nThanks to Christophe Henry for a great Boost.MSM - eUML idea and library", 
             "title": "Introduction"
         }, 
         {
             "location": "/index.html#introduction", 
-            "text": "msm-lite: C++14 Meta State Machine Library   Your scalable C++14 header only eUML-like meta state machine library with no dependencies   UML State Machine   State Machine  UML2 Specification  Boost.MSM - eUML   Why msm-lite?   Boost.MSM - eUML  is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;\n  msm-lite, therefore, is trying to address those issues.   Problems with Boost.MSM - eUML   Horrible compilation times (see  Performance )  Produces huge binaries (see  Performance )  Based on too many macros  Horrible and long error messages (see  Error Messages )  Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, on_entry, on_exit)  A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)  Data in states makes it harder share/encapsulate (UML compliant though)  Functional programming emulation  Huge complexity may overwhelm in the beginning  A lot of Boost dependencies  COupled code   msm-lite design goals    Keep the Boost.MSM - eUML goodies   Performance (see  Performance )  Memory usage (see  Performance )  eUML DSL (s1 == s2 + event [ guard ] / action)  UML standard compliant (As much as possible)     Eliminate Boost.MSM - eUML problems   Compilation times (see  Performance )  Binary size (see  Performance )  Reduce complexity by eliminating less used features  Short and informative error messages (see  Error Messages )  Less boilerplate / no macros (see  Hello World )  Improve visibility by having all actions on transition table (see  States )  Allows loosely coupled design (see  Dependency Injection )  Functional programming support using lamda expressions (see  Action/Guards )  No dependencies / one header (1k lines)     What 'lite' implies?   Minimal learning curve  Only crucial features  Guaranteed performance and quick compilation times  No dependencies   Supported  UML features   Transitions / Internal transitions / Anonymous transitions / No transition (see  Transitions )  Actions / Guards (see  Action/Guards )  State entry / exit actions (see  States )  Orthogonal regions (see  Orthogonal Regions )  Sub / Composite state machines (see  Composite )   Dropped  UML features   Shallow/Deep history  Explicit entry/exit pseudo states   Additional  features   Logging (see  Logging )  Testing (see  Testing )  Runtime Dispatcher (see  Runtime Dispatcher )  Dependency Injection integration (see  Dependency Injection )", 
+            "text": "msm-lite: C++14 Meta State Machine Library   Your scalable C++14 header only eUML-like meta state machine library with no dependencies", 
             "title": "Introduction"
         }, 
         {
+            "location": "/index.html#uml-state-machine", 
+            "text": "State Machine  UML2 Specification  Boost.MSM - eUML", 
+            "title": "UML State Machine"
+        }, 
+        {
+            "location": "/index.html#why-msm-lite", 
+            "text": "Boost.MSM - eUML  is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;\n  msm-lite, therefore, is trying to address those issues.", 
+            "title": "Why msm-lite?"
+        }, 
+        {
+            "location": "/index.html#problems-with-boostmsm-euml", 
+            "text": "Horrible compilation times (see  Performance )  Produces huge binaries (see  Performance )  Based on too many macros  Horrible and long error messages (see  Error Messages )  Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, on_entry, on_exit)  A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)  Data in states makes it harder share/encapsulate (UML compliant though)  Loosley coupled design is hard to achieve  Functional programming emulation  Huge complexity may overwhelm in the beginning  A lot of Boost dependencies", 
+            "title": "Problems with Boost.MSM - eUML"
+        }, 
+        {
+            "location": "/index.html#msm-lite-design-goals", 
+            "text": "Keep the Boost.MSM - eUML 'goodies'  Performance (see  Performance )  Memory usage (see  Performance )  eUML DSL (s1 == s2 + event [ guard ] / action)  UML standard compliant (As much as possible)       Eliminate Boost.MSM - eUML problems  Compilation times (see  Performance )  Binary size (see  Performance )  Reduce complexity by eliminating less used features  Short and informative error messages (see  Error Messages )  Less boilerplate / no macros (see  Hello World )  Improve visibility by having all actions on transition table (see  States )  Allows loosely coupled design (see  Dependency Injection )  Functional programming support using lamda expressions (see  Action/Guards )  No dependencies / one header (1k lines)", 
+            "title": "msm-lite design goals"
+        }, 
+        {
+            "location": "/index.html#what-lite-implies", 
+            "text": "Minimal learning curve  Only crucial features  Guaranteed performance and quick compilation times  No dependencies", 
+            "title": "What 'lite' implies?"
+        }, 
+        {
+            "location": "/index.html#supported-uml-features", 
+            "text": "Transitions / Internal transitions / Anonymous transitions / No transition (see  Transitions )  Actions / Guards (see  Action/Guards )  State entry / exit actions (see  States )  Orthogonal regions (see  Orthogonal Regions )  Sub / Composite state machines (see  Composite )", 
+            "title": "Supported UML features"
+        }, 
+        {
+            "location": "/index.html#dropped-uml-features", 
+            "text": "Shallow/Deep history  Explicit entry/exit pseudo states", 
+            "title": "Dropped UML features"
+        }, 
+        {
+            "location": "/index.html#additional-features", 
+            "text": "Logging (see  Logging )  Testing (see  Testing )  Runtime Dispatcher (see  Runtime Dispatcher )  Dependency Injection integration (see  Dependency Injection )", 
+            "title": "Additional features"
+        }, 
+        {
+            "location": "/index.html#acknowledgements", 
+            "text": "Thanks to Christophe Henry for a great Boost.MSM - eUML idea and library", 
+            "title": "Acknowledgements"
+        }, 
+        {
             "location": "/overview/index.html", 
-            "text": "Quick Start\n\n\n\n\nGet \nboost/msm/msm.hpp\n header\n\n\n\n\n    wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm/msm.hpp\n\n\n\n\n\n\nInclude the header\n\n\n\n\n    #include \nboost/msm/msm.hpp\n\n\n\n\n\n\n\nCompile with C++14 support\n\n\n\n\n    $CXX -std=c++14 ...\n\n\n\n\nDependencies\n\n\n\n\nmsm-lite has no external dependencies (no STL, no Boost)\n\n\n\n\nSupported/tested compilers\n\n\n\n\nClang-3.4+ (100% coverage, clang-tidy clean, valgrind clean)\n\n\nGCC-5.2+ (100% coverage, clang-tidy clean, valgrind clean)\n\n\n\n\nConfiguration\n\n\n\n\n\n\n\n\nMacro\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\nBOOST_MSM_VERSION\n\n\nCurrent versoin of msm-lite (ex. 1'0'0)\n\n\n\n\n\n\nBOOST_MSM_DSL_DST_STATE_FIRST\n\n\ndst_state == src_state (see \neUML emulation\n)\n\n\n\n\n\n\n\n\nPerformance\n\n\n\n\n\n\n\n\nTest\n\n\nCXXFLAGS\n\n\nEvents\n\n\nStates\n\n\nTransitions\n\n\nProcess Events\n\n\n\n\n\n\n\n\n\n\nSimple Test\n\n\n-O2 -s\n\n\n6\n\n\n5\n\n\n12\n\n\n1'000'000\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nclang++-3.7\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.307s\n\n\n3.855s\n\n\n1.061s\n\n\n\n\n\n\nExecution time\n\n\n15ms\n\n\n17ms\n\n\n1232ms\n\n\n\n\n\n\nMemory usage\n\n\n14b\n\n\n32b\n\n\n200b\n\n\n\n\n\n\nExecutable size\n\n\n11K\n\n\n91K\n\n\n59K\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ng++-6.0\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.386s\n\n\n7.879s\n\n\n1.790s\n\n\n\n\n\n\nExecution time\n\n\n15ms\n\n\n20ms\n\n\n929ms\n\n\n\n\n\n\nMemory usage\n\n\n14b\n\n\n32b\n\n\n224b\n\n\n\n\n\n\nExecutable size\n\n\n11K\n\n\n67K\n\n\n63K\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTest\n\n\nCXXFLAGS\n\n\nEvents\n\n\nStates\n\n\nTransitions\n\n\nProcess Events\n\n\n\n\n\n\n\n\n\n\nComposite Test\n\n\n-O2 -s\n\n\n8\n\n\n5 + 3\n\n\n12 + 4\n\n\n1'000 * 1'000\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nclang++-3.7\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.354s\n\n\n4.526s\n\n\n1.293s\n\n\n\n\n\n\nExecution time\n\n\n10ms\n\n\n14ms\n\n\n491ms\n\n\n\n\n\n\nMemory usage\n\n\n20b\n\n\n60b\n\n\n200b\n\n\n\n\n\n\nExecutable size\n\n\n15K\n\n\n111K\n\n\n83K\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ng++-6.0\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.446s\n\n\n9.363s\n\n\n2.037s\n\n\n\n\n\n\nExecution time\n\n\n9ms\n\n\n13ms\n\n\n404ms\n\n\n\n\n\n\nMemory usage\n\n\n20b\n\n\n60b\n\n\n224b\n\n\n\n\n\n\nExecutable size\n\n\n12K\n\n\n91K\n\n\n83K\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTest\n\n\nCXXFLAGS\n\n\nEvents\n\n\nStates\n\n\nTransitions\n\n\nProcess Events\n\n\n\n\n\n\n\n\n\n\nComplex Test\n\n\n-O2 -s\n\n\n50\n\n\n50\n\n\n50\n\n\n1'000'000\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nclang++-3.7\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.778s\n\n\n1m15.935s\n\n\n3.661s\n\n\n\n\n\n\nExecution time\n\n\n70ms\n\n\n81ms\n\n\n6221ms\n\n\n\n\n\n\nMemory usage\n\n\n102b\n\n\n120b\n\n\n200b\n\n\n\n\n\n\nExecutable size\n\n\n35K\n\n\n611K\n\n\n343K\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ng++-6.0\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n1.020s\n\n\n52.238s\n\n\n4.997s\n\n\n\n\n\n\nExecution time\n\n\n72ms\n\n\n77ms\n\n\n5520ms\n\n\n\n\n\n\nMemory usage\n\n\n102b\n\n\n120b\n\n\n224b\n\n\n\n\n\n\nExecutable size\n\n\n35K\n\n\n271K\n\n\n215K\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTest\n\n\n\n\n\n\n\n\n\n\nHeader Test\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nclang++-3.7\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.060s\n\n\n2.072s\n\n\n0.552s\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ng++-6.0\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.073s\n\n\n3.197s\n\n\n0.704s\n\n\n\n\n\n\n\n\n\n\nTo run benchmarks\n\n\n\n\nmake pt # make pt_simple pt_composite pt_complex\n\n\n\n\nError messages\n\n\nNot configurable\n\n\n\n\nNot callable\n\n\n\n\nNot transitional\n\n\n\n\nNot dispatchable", 
+            "text": "Quick Start\n\n\n\n\nGet \nboost/msm.hpp\n header\n\n\n\n\n    wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm.hpp\n\n\n\n\n\n\nInclude the header\n\n\n\n\n    #include \nboost/msm.hpp\n\n\n\n\n\n\n\nCompile with C++14 support\n\n\n\n\n    $CXX -std=c++14 ...\n\n\n\n\nDependencies\n\n\n\n\nNo external dependencies are required (niether STL nor Boost)\n\n\n\n\nSupported/tested compilers\n\n\n\n\nClang-3.4+ (100% coverage, clang-tidy clean, valgrind clean)\n\n\nGCC-5.2+ (100% coverage, clang-tidy clean, valgrind clean)\n\n\n\n\nConfiguration\n\n\n\n\n\n\n\n\nMacro\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\nBOOST_MSM_VERSION\n\n\nCurrent versoin of msm-lite (ex. 1'0'0)\n\n\n\n\n\n\nBOOST_MSM_LOG\n\n\nEnables logging system  (see \nLogging\n)\n\n\n\n\n\n\nBOOST_MSM_DSL_DST_STATE_FIRST\n\n\ndst_state == src_state (see \neUML emulation\n)\n\n\n\n\n\n\n\n\nPerformance\n\n\n\n\n\n\n\n\nTest\n\n\nCXXFLAGS\n\n\nEvents\n\n\nStates\n\n\nTransitions\n\n\nProcess Events\n\n\n\n\n\n\n\n\n\n\nSimple Test\n\n\n-O2 -s\n\n\n6\n\n\n5\n\n\n12\n\n\n1'000'000\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nclang++-3.7\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.307s\n\n\n3.855s\n\n\n1.061s\n\n\n\n\n\n\nExecution time\n\n\n15ms\n\n\n17ms\n\n\n1232ms\n\n\n\n\n\n\nMemory usage\n\n\n14b\n\n\n32b\n\n\n200b\n\n\n\n\n\n\nExecutable size\n\n\n11K\n\n\n91K\n\n\n59K\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ng++-6.0\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.386s\n\n\n7.879s\n\n\n1.790s\n\n\n\n\n\n\nExecution time\n\n\n15ms\n\n\n20ms\n\n\n929ms\n\n\n\n\n\n\nMemory usage\n\n\n14b\n\n\n32b\n\n\n224b\n\n\n\n\n\n\nExecutable size\n\n\n11K\n\n\n67K\n\n\n63K\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTest\n\n\nCXXFLAGS\n\n\nEvents\n\n\nStates\n\n\nTransitions\n\n\nProcess Events\n\n\n\n\n\n\n\n\n\n\nComposite Test\n\n\n-O2 -s\n\n\n8\n\n\n5 + 3\n\n\n12 + 4\n\n\n1'000 * 1'000\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nclang++-3.7\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.354s\n\n\n4.526s\n\n\n1.293s\n\n\n\n\n\n\nExecution time\n\n\n10ms\n\n\n14ms\n\n\n491ms\n\n\n\n\n\n\nMemory usage\n\n\n20b\n\n\n60b\n\n\n200b\n\n\n\n\n\n\nExecutable size\n\n\n15K\n\n\n111K\n\n\n83K\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ng++-6.0\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.435s\n\n\n9.363s\n\n\n2.037s\n\n\n\n\n\n\nExecution time\n\n\n9ms\n\n\n13ms\n\n\n404ms\n\n\n\n\n\n\nMemory usage\n\n\n20b\n\n\n60b\n\n\n224b\n\n\n\n\n\n\nExecutable size\n\n\n12K\n\n\n91K\n\n\n83K\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTest\n\n\nCXXFLAGS\n\n\nEvents\n\n\nStates\n\n\nTransitions\n\n\nProcess Events\n\n\n\n\n\n\n\n\n\n\nComplex Test\n\n\n-O2 -s\n\n\n50\n\n\n50\n\n\n50\n\n\n1'000'000\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nclang++-3.7\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.765s\n\n\n1m15.935s\n\n\n3.661s\n\n\n\n\n\n\nExecution time\n\n\n70ms\n\n\n81ms\n\n\n6221ms\n\n\n\n\n\n\nMemory usage\n\n\n102b\n\n\n120b\n\n\n200b\n\n\n\n\n\n\nExecutable size\n\n\n35K\n\n\n611K\n\n\n343K\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ng++-6.0\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.996s\n\n\n52.238s\n\n\n4.997s\n\n\n\n\n\n\nExecution time\n\n\n72ms\n\n\n77ms\n\n\n5520ms\n\n\n\n\n\n\nMemory usage\n\n\n102b\n\n\n120b\n\n\n224b\n\n\n\n\n\n\nExecutable size\n\n\n35K\n\n\n271K\n\n\n215K\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTest\n\n\n\n\n\n\n\n\n\n\nHeader Test\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nclang++-3.7\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.060s\n\n\n2.072s\n\n\n0.552s\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ng++-6.0\n\n\nmsm-lite\n\n\nboost.msm-eUML\n\n\nboost.statechart\n\n\n\n\n\n\n\n\n\n\nCompilation time\n\n\n0.073s\n\n\n3.197s\n\n\n0.704s\n\n\n\n\n\n\n\n\n\n\nTo run benchmarks\n\n\n\n\nmake pt # make pt_simple pt_composite pt_complex\n\n\n\n\nError messages\n\n\nNot configurable\n\n\n\n\nNot callable\n\n\n\n\nNot transitional\n\n\n\n\nNot dispatchable", 
             "title": "Overview"
         }, 
         {
+            "location": "/overview/index.html#quick-start", 
+            "text": "Get  boost/msm.hpp  header       wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm.hpp   Include the header       #include  boost/msm.hpp    Compile with C++14 support       $CXX -std=c++14 ...", 
+            "title": "Quick Start"
+        }, 
+        {
+            "location": "/overview/index.html#dependencies", 
+            "text": "No external dependencies are required (niether STL nor Boost)", 
+            "title": "Dependencies"
+        }, 
+        {
+            "location": "/overview/index.html#supportedtested-compilers", 
+            "text": "Clang-3.4+ (100% coverage, clang-tidy clean, valgrind clean)  GCC-5.2+ (100% coverage, clang-tidy clean, valgrind clean)", 
+            "title": "Supported/tested compilers"
+        }, 
+        {
+            "location": "/overview/index.html#configuration", 
+            "text": "Macro  Description      BOOST_MSM_VERSION  Current versoin of msm-lite (ex. 1'0'0)    BOOST_MSM_LOG  Enables logging system  (see  Logging )    BOOST_MSM_DSL_DST_STATE_FIRST  dst_state == src_state (see  eUML emulation )", 
+            "title": "Configuration"
+        }, 
+        {
+            "location": "/overview/index.html#performance", 
+            "text": "Test  CXXFLAGS  Events  States  Transitions  Process Events      Simple Test  -O2 -s  6  5  12  1'000'000        clang++-3.7  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.307s  3.855s  1.061s    Execution time  15ms  17ms  1232ms    Memory usage  14b  32b  200b    Executable size  11K  91K  59K        g++-6.0  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.386s  7.879s  1.790s    Execution time  15ms  20ms  929ms    Memory usage  14b  32b  224b    Executable size  11K  67K  63K         Test  CXXFLAGS  Events  States  Transitions  Process Events      Composite Test  -O2 -s  8  5 + 3  12 + 4  1'000 * 1'000        clang++-3.7  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.354s  4.526s  1.293s    Execution time  10ms  14ms  491ms    Memory usage  20b  60b  200b    Executable size  15K  111K  83K        g++-6.0  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.435s  9.363s  2.037s    Execution time  9ms  13ms  404ms    Memory usage  20b  60b  224b    Executable size  12K  91K  83K         Test  CXXFLAGS  Events  States  Transitions  Process Events      Complex Test  -O2 -s  50  50  50  1'000'000        clang++-3.7  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.765s  1m15.935s  3.661s    Execution time  70ms  81ms  6221ms    Memory usage  102b  120b  200b    Executable size  35K  611K  343K        g++-6.0  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.996s  52.238s  4.997s    Execution time  72ms  77ms  5520ms    Memory usage  102b  120b  224b    Executable size  35K  271K  215K         Test      Header Test        clang++-3.7  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.060s  2.072s  0.552s        g++-6.0  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.073s  3.197s  0.704s      To run benchmarks   make pt # make pt_simple pt_composite pt_complex", 
+            "title": "Performance"
+        }, 
+        {
+            "location": "/overview/index.html#error-messages", 
+            "text": "Not configurable   Not callable   Not transitional   Not dispatchable", 
+            "title": "Error messages"
+        }, 
+        {
             "location": "/tutorial/index.html", 
-            "text": "Boost.MSM - UML Short Guide\n\n\n\n\nBoost.MSM - eUML Documentation\n\n\n\n\n\n\nTransition Table DSL\n\n\n\n\n\n\n\n\nExpression\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\nsrc_state == dst_state + event\n [ guard \n (![]{return true;} \n guard2) ] / (action, action2, []{})\n\n\ntransition from src_state to dst_state on event e with guard and action\n\n\n\n\n\n\nsrc_state == dst_state + event\n [ guard ] / action\n\n\ntransition from src_state to dst_state on event e with guard and action\n\n\n\n\n\n\nsrc_state == dst_state / [] {}\n\n\nanonymous transition with action\n\n\n\n\n\n\nsrc_state == dst_state + event\n\n\ntransition on event e without guard or action\n\n\n\n\n\n\nstate + event\n [ guard ]\n\n\ninternal transition on event e when guard\n\n\n\n\n\n\n\n\n\n\n\n\nAction/Guards data dependencies\n\n\n\n\n\n\n                             /---- event\n                            |\nauto guard = [](double d, auto event) { return true; }\n                   |\n                   \\-------\\\n                           |\nauto action = [](int i){}  |\n                 |         |\n                 |         |\n            /---/  /------/\n           |      /\nsm\n...\n s{42, 87.0};", 
+            "text": "0. Read Boost.MSM - eUML documentation\n\n\n\n\nBoost.MSM - UML Short Guide\n\n\nBoost.MSM - eUML Documentation\n\n\n\n\n1. Create events and states\n\n\ncomposite\n\n\n\n2. Create guard and actions\n\n\n3. Create transition table\n\n\n\n\n\n\nDSL\n\n\n\n\n\n\n\n\nExpression\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\nsrc_state == dst_state + event\n [ guard \n (![]{return true;} \n guard2) ] / (action, action2, []{})\n\n\ntransition from src_state to dst_state on event e with guard and action\n\n\n\n\n\n\nsrc_state == dst_state + event\n [ guard ] / action\n\n\ntransition from src_state to dst_state on event e with guard and action\n\n\n\n\n\n\nsrc_state == dst_state / [] {}\n\n\nanonymous transition with action\n\n\n\n\n\n\nsrc_state == dst_state + event\n\n\ntransition on event e without guard or action\n\n\n\n\n\n\nstate + event\n [ guard ]\n\n\ninternal transition on event e when guard\n\n\n\n\n\n\n\n\n\n\n\n\n4. Set initial states\n\n\nmore than one = orthogonal regions\n\n\n\n5. Create state machine\n\n\ndependencies + DI\n\n\n\n\n\nAction/Guards data dependencies\n\n\n\n\n                             /---- event\n                            |\nauto guard = [](double d, auto event) { return true; }\n                   |\n                   \\-------\\\n                           |\nauto action = [](int i){}  |\n                 |         |\n                 |         |\n            /---/  /------/\n           |      /\nsm\n...\n s{42, 87.0};\n\n\n\n\n6. Process events\n\n\ntrue = handled, false\ndynamic dispatcher\n\n\n\n8. Test state machine\n\n\nis/visit state machine states\n+ testing\n\n\n\n9. Debug state machine\n\n\nlogging", 
             "title": "Tutorial"
         }, 
         {
+            "location": "/tutorial/index.html#0-read-boostmsm-euml-documentation", 
+            "text": "Boost.MSM - UML Short Guide  Boost.MSM - eUML Documentation", 
+            "title": "0. Read Boost.MSM - eUML documentation"
+        }, 
+        {
+            "location": "/tutorial/index.html#1-create-events-and-states", 
+            "text": "composite", 
+            "title": "1. Create events and states"
+        }, 
+        {
+            "location": "/tutorial/index.html#2-create-guard-and-actions", 
+            "text": "", 
+            "title": "2. Create guard and actions"
+        }, 
+        {
+            "location": "/tutorial/index.html#3-create-transition-table", 
+            "text": "DSL     Expression  Description      src_state == dst_state + event  [ guard   (![]{return true;}   guard2) ] / (action, action2, []{})  transition from src_state to dst_state on event e with guard and action    src_state == dst_state + event  [ guard ] / action  transition from src_state to dst_state on event e with guard and action    src_state == dst_state / [] {}  anonymous transition with action    src_state == dst_state + event  transition on event e without guard or action    state + event  [ guard ]  internal transition on event e when guard", 
+            "title": "3. Create transition table"
+        }, 
+        {
+            "location": "/tutorial/index.html#4-set-initial-states", 
+            "text": "more than one = orthogonal regions", 
+            "title": "4. Set initial states"
+        }, 
+        {
+            "location": "/tutorial/index.html#5-create-state-machine", 
+            "text": "dependencies + DI   Action/Guards data dependencies                                /---- event\n                            |\nauto guard = [](double d, auto event) { return true; }\n                   |\n                   \\-------\\\n                           |\nauto action = [](int i){}  |\n                 |         |\n                 |         |\n            /---/  /------/\n           |      /\nsm ...  s{42, 87.0};", 
+            "title": "5. Create state machine"
+        }, 
+        {
+            "location": "/tutorial/index.html#6-process-events", 
+            "text": "true = handled, false\ndynamic dispatcher", 
+            "title": "6. Process events"
+        }, 
+        {
+            "location": "/tutorial/index.html#8-test-state-machine", 
+            "text": "is/visit state machine states\n+ testing", 
+            "title": "8. Test state machine"
+        }, 
+        {
+            "location": "/tutorial/index.html#9-debug-state-machine", 
+            "text": "logging", 
+            "title": "9. Debug state machine"
+        }, 
+        {
             "location": "/user_guide/index.html", 
-            "text": "make_transition_table\n\n\nDescription\n\n\nCreates transition table.\n\n\nSynopsis\n\n\ntemplate \nclass... Ts\n\nauto make_transition_table(Ts...) noexcept;\n\n\n\nSemantics\n\n\nmake_transition_table(transitions...);\n\n\n\nRequirements\n\n\n\n\n\n\n\n\nParameter\n\n\nRequirement\n\n\nDescription\n\n\nReturns\n\n\n\n\n\n\n\n\n\n\nTs\n\n\ntransitional\n\n\ntransitions\n\n\nlist of transitions\n\n\n\n\n\n\n\n\nHeader\n\n\n#include \nboost/msm/msm.hpp\n\n\n\n\nExample\n\n\n\n\nConcepts.Transitional\n\n\nConcepts.Configurable\n\n\nConcepts.Callable\n\n\nConcepts.Dispatchable", 
+            "text": "Concepts\n\n\n\n\nTransitional\n\n\nConfigurable\n\n\nCallable\n\n\nDispatchable\n\n\n\n\nState\n\n\nEvent\n\n\n\n\non_entry/on_exit\n\n\n\n\nTransition Table\n\n\nDescription\n\n\nCreates transition table.\n\n\nSynopsis\n\n\ntemplate \nclass... Ts\n\nauto make_transition_table(Ts...) noexcept;\n\n\n\nSemantics\n\n\nmake_transition_table(transitions...);\n\n\n\nRequirements\n\n\n\n\n\n\n\n\nParameter\n\n\nRequirement\n\n\nDescription\n\n\nReturns\n\n\n\n\n\n\n\n\n\n\nTs\n\n\ntransitional\n\n\ntransitions\n\n\nlist of transitions\n\n\n\n\n\n\n\n\nHeader\n\n\n#include \nboost/msm/msm.hpp\n\n\n\n\nExample\n\n\n\n\nState Machine\n\n\nDispatch Table", 
             "title": "User Guide"
+        }, 
+        {
+            "location": "/user_guide/index.html#concepts", 
+            "text": "Transitional  Configurable  Callable  Dispatchable", 
+            "title": "Concepts"
+        }, 
+        {
+            "location": "/user_guide/index.html#state", 
+            "text": "", 
+            "title": "State"
+        }, 
+        {
+            "location": "/user_guide/index.html#event", 
+            "text": "on_entry/on_exit", 
+            "title": "Event"
+        }, 
+        {
+            "location": "/user_guide/index.html#transition-table", 
+            "text": "Description  Creates transition table.  Synopsis  template  class... Ts \nauto make_transition_table(Ts...) noexcept;  Semantics  make_transition_table(transitions...);  Requirements     Parameter  Requirement  Description  Returns      Ts  transitional  transitions  list of transitions     Header  #include  boost/msm/msm.hpp   Example", 
+            "title": "Transition Table"
+        }, 
+        {
+            "location": "/user_guide/index.html#state-machine", 
+            "text": "", 
+            "title": "State Machine"
+        }, 
+        {
+            "location": "/user_guide/index.html#dispatch-table", 
+            "text": "", 
+            "title": "Dispatch Table"
         }, 
         {
             "location": "/examples/index.html", 
             "text": "Hello World\n\n\n\n\nTransitions\n\n\n\n\nAction Guards\n\n\n\n\nStates\n\n\n\n\nEvents\n\n\n\n\nOrthogonal Regions\n\n\n\n\nComposite\n\n\n\n\neUML Emulation\n\n\n\n\nLogging\n\n\n\n\nTesting\n\n\n\n\nDependency Injection\n\n\n\n\nRuntime Dispatcher", 
             "title": "Examples"
+        }, 
+        {
+            "location": "/examples/index.html#hello-world", 
+            "text": "", 
+            "title": "Hello World"
+        }, 
+        {
+            "location": "/examples/index.html#transitions", 
+            "text": "", 
+            "title": "Transitions"
+        }, 
+        {
+            "location": "/examples/index.html#action-guards", 
+            "text": "", 
+            "title": "Action Guards"
+        }, 
+        {
+            "location": "/examples/index.html#states", 
+            "text": "", 
+            "title": "States"
+        }, 
+        {
+            "location": "/examples/index.html#events", 
+            "text": "", 
+            "title": "Events"
+        }, 
+        {
+            "location": "/examples/index.html#orthogonal-regions", 
+            "text": "", 
+            "title": "Orthogonal Regions"
+        }, 
+        {
+            "location": "/examples/index.html#composite", 
+            "text": "", 
+            "title": "Composite"
+        }, 
+        {
+            "location": "/examples/index.html#euml-emulation", 
+            "text": "", 
+            "title": "eUML Emulation"
+        }, 
+        {
+            "location": "/examples/index.html#logging", 
+            "text": "", 
+            "title": "Logging"
+        }, 
+        {
+            "location": "/examples/index.html#testing", 
+            "text": "", 
+            "title": "Testing"
+        }, 
+        {
+            "location": "/examples/index.html#dependency-injection", 
+            "text": "", 
+            "title": "Dependency Injection"
+        }, 
+        {
+            "location": "/examples/index.html#runtime-dispatcher", 
+            "text": "", 
+            "title": "Runtime Dispatcher"
         }, 
         {
             "location": "/CHANGELOG/index.html", 
@@ -37,8 +247,13 @@
         }, 
         {
             "location": "/CHANGELOG/index.html#100-tbd", 
-            "text": "Added   Initial version", 
+            "text": "", 
             "title": "1.0.0 - TBD"
+        }, 
+        {
+            "location": "/CHANGELOG/index.html#added", 
+            "text": "Initial version", 
+            "title": "Added"
         }, 
         {
             "location": "/TODO/index.html", 

@@ -86,6 +86,33 @@
         
             <ul>
             
+                <li class="toctree-l3"><a href="#0-read-boostmsm-euml-documentation">0. Read Boost.MSM - eUML documentation</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#1-create-events-and-states">1. Create events and states</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#2-create-guard-and-actions">2. Create guard and actions</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#3-create-transition-table">3. Create transition table</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#4-set-initial-states">4. Set initial states</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#5-create-state-machine">5. Create state machine</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#6-process-events">6. Process events</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#8-test-state-machine">8. Test state machine</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#9-debug-state-machine">9. Debug state machine</a></li>
+                
+            
             </ul>
         
     </li>
@@ -155,13 +182,19 @@
           <div role="main">
             <div class="section">
               
-                <ul>
+                <h3 id="0-read-boostmsm-euml-documentation">0. Read Boost.MSM - eUML documentation</h3>
+<ul>
 <li><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch02.html">Boost.MSM - UML Short Guide</a></li>
+<li><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html">Boost.MSM - eUML Documentation</a></li>
+</ul>
+<h3 id="1-create-events-and-states">1. Create events and states</h3>
+<pre><code>composite
+</code></pre>
+<h3 id="2-create-guard-and-actions">2. Create guard and actions</h3>
+<h3 id="3-create-transition-table">3. Create transition table</h3>
+<ul>
 <li>
-<p><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html">Boost.MSM - eUML Documentation</a></p>
-</li>
-<li>
-<p>Transition Table DSL</p>
+<p>DSL</p>
 <table>
 <thead>
 <tr>
@@ -193,9 +226,15 @@
 </tbody>
 </table>
 </li>
-<li>
-<p>Action/Guards data dependencies</p>
-</li>
+</ul>
+<h3 id="4-set-initial-states">4. Set initial states</h3>
+<pre><code>more than one = orthogonal regions
+</code></pre>
+<h3 id="5-create-state-machine">5. Create state machine</h3>
+<pre><code>dependencies + DI
+</code></pre>
+<ul>
+<li>Action/Guards data dependencies</li>
 </ul>
 <pre><code class="cpp">                             /---- event
                             |
@@ -209,6 +248,18 @@ auto action = [](int i){}  |
             /---/  /------/
            |      /
 sm&lt;...&gt; s{42, 87.0};
+</code></pre>
+
+<h3 id="6-process-events">6. Process events</h3>
+<pre><code>true = handled, false
+dynamic dispatcher
+</code></pre>
+<h3 id="8-test-state-machine">8. Test state machine</h3>
+<pre><code>is/visit state machine states
++ testing
+</code></pre>
+<h3 id="9-debug-state-machine">9. Debug state machine</h3>
+<pre><code>logging
 </code></pre>
               
             </div>
@@ -230,7 +281,7 @@ sm&lt;...&gt; s{42, 87.0};
   <div id="disqus_thread"></div>
   <script type="text/javascript">
   /* * * CONFIGURATION VARIABLES * * */
-  ar disqus_shortname = 'msm-lite';
+  var disqus_shortname = 'msm-lite';
 
   /* * * DON'T EDIT BELOW THIS LINE * * */
   (function() {

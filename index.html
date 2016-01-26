@@ -90,6 +90,8 @@
                 
                     <li><a class="toctree-l4" href="#additional-features">Additional features</a></li>
                 
+                    <li><a class="toctree-l4" href="#acknowledgements">Acknowledgements</a></li>
+                
             
             </ul>
         
@@ -207,25 +209,24 @@
 <li>Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, on_entry, on_exit)</li>
 <li>A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)</li>
 <li>Data in states makes it harder share/encapsulate (UML compliant though)</li>
+<li>Loosley coupled design is hard to achieve</li>
 <li>Functional programming emulation</li>
 <li>Huge complexity may overwhelm in the beginning</li>
 <li>A lot of Boost dependencies</li>
-<li>COupled code</li>
 </ul>
 <h3 id="msm-lite-design-goals">msm-lite design goals</h3>
 <ul>
-<li>
-<p>Keep the Boost.MSM - eUML goodies</p>
-<ul>
+<li>Keep the Boost.MSM - eUML 'goodies'<ul>
 <li>Performance (see <a href="overview/index.html#performance">Performance</a>)</li>
 <li>Memory usage (see <a href="overview/index.html#performance">Performance</a>)</li>
 <li>eUML DSL (s1 == s2 + event [ guard ] / action)</li>
 <li>UML standard compliant (As much as possible)</li>
 </ul>
 </li>
-<li>
-<p>Eliminate Boost.MSM - eUML problems</p>
+</ul>
+<blockquote></blockquote>
 <ul>
+<li>Eliminate Boost.MSM - eUML problems<ul>
 <li>Compilation times (see <a href="overview/index.html#performance">Performance</a>)</li>
 <li>Binary size (see <a href="overview/index.html#performance">Performance</a>)</li>
 <li>Reduce complexity by eliminating less used features</li>
@@ -265,6 +266,10 @@
 <li>Runtime Dispatcher (see <a href="examples/index.html#runtime-dispatcher">Runtime Dispatcher</a>)</li>
 <li>Dependency Injection integration (see <a href="examples/index.html#dependency-injection">Dependency Injection</a>)</li>
 </ul>
+<h3 id="acknowledgements"><em>Acknowledgements</em></h3>
+<ul>
+<li>Thanks to Christophe Henry for a great Boost.MSM - eUML idea and library</li>
+</ul>
               
             </div>
           </div>
@@ -283,7 +288,7 @@
   <div id="disqus_thread"></div>
   <script type="text/javascript">
   /* * * CONFIGURATION VARIABLES * * */
-  ar disqus_shortname = 'msm-lite';
+  var disqus_shortname = 'msm-lite';
 
   /* * * DON'T EDIT BELOW THIS LINE * * */
   (function() {
@@ -325,6 +330,6 @@
 </html>
 
 <!--
-MkDocs version : 0.14.0
-Build Date UTC : 2016-01-25 18:13:21.225482
+MkDocs version : 0.15.0
+Build Date UTC : 2016-01-26 13:51:04.252247
 -->

@@ -93,19 +93,22 @@
         
             <ul>
             
-                <li class="toctree-l3"><a href="#make95transition95table">make_transition_table</a></li>
+                <li class="toctree-l3"><a href="#concepts">Concepts</a></li>
                 
             
-                <li class="toctree-l3"><a href="#conceptstransitional">Concepts.Transitional</a></li>
+                <li class="toctree-l3"><a href="#state">State</a></li>
                 
             
-                <li class="toctree-l3"><a href="#conceptsconfigurable">Concepts.Configurable</a></li>
+                <li class="toctree-l3"><a href="#event">Event</a></li>
                 
             
-                <li class="toctree-l3"><a href="#conceptscallable">Concepts.Callable</a></li>
+                <li class="toctree-l3"><a href="#transition-table">Transition Table</a></li>
                 
             
-                <li class="toctree-l3"><a href="#conceptsdispatchable">Concepts.Dispatchable</a></li>
+                <li class="toctree-l3"><a href="#state-machine">State Machine</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#dispatch-table">Dispatch Table</a></li>
                 
             
             </ul>
@@ -170,7 +173,19 @@
           <div role="main">
             <div class="section">
               
-                <h3 id="make95transition95table">make_transition_table</h3>
+                <h3 id="concepts">Concepts</h3>
+<ul>
+<li>Transitional</li>
+<li>Configurable</li>
+<li>Callable</li>
+<li>Dispatchable</li>
+</ul>
+<h3 id="state">State</h3>
+<h3 id="event">Event</h3>
+<ul>
+<li>on_entry/on_exit</li>
+</ul>
+<h3 id="transition-table">Transition Table</h3>
 <p><strong><em>Description</em></strong></p>
 <p>Creates transition table.</p>
 <p><strong><em>Synopsis</em></strong></p>
@@ -204,10 +219,8 @@ auto make_transition_table(Ts...) noexcept;
 </code></pre>
 <p><strong><em>Example</em></strong></p>
 <p><img alt="CPP(TEST)" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" /></p>
-<h3 id="conceptstransitional">Concepts.Transitional</h3>
-<h3 id="conceptsconfigurable">Concepts.Configurable</h3>
-<h3 id="conceptscallable">Concepts.Callable</h3>
-<h3 id="conceptsdispatchable">Concepts.Dispatchable</h3>
+<h3 id="state-machine">State Machine</h3>
+<h3 id="dispatch-table">Dispatch Table</h3>
               
             </div>
           </div>
@@ -228,7 +241,7 @@ auto make_transition_table(Ts...) noexcept;
   <div id="disqus_thread"></div>
   <script type="text/javascript">
   /* * * CONFIGURATION VARIABLES * * */
-  ar disqus_shortname = 'msm-lite';
+  var disqus_shortname = 'msm-lite';
 
   /* * * DON'T EDIT BELOW THIS LINE * * */
   (function() {
