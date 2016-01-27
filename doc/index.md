@@ -20,6 +20,25 @@ msm-lite: C++14 Meta State Machine Library
 * [UML2 Specification](http://www.omg.org/spec/UML/2.5)
 * [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)
 
+###Do I need a State Machine?
+State Machine design pattern allows you to avoid maintaing following design.
+
+```cpp
+void some_function() {
+    ...
+    if ((is_running && !is_jumping) || just_started) {
+        ...
+    } else if (is_boss_level && extra_feature_enabled && !ab_test) {
+        ...
+    } else {
+        ...
+    }
+}
+```
+
+If above code looks somewhat similar to your code base or if you like
+to avoid it `msm-lite` may suits you!
+
 ###Why msm-lite?
 
 * [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
@@ -88,4 +107,4 @@ msm-lite: C++14 Meta State Machine Library
 * Dependency Injection integration (see [Dependency Injection](examples.md#dependency-injection))
 
 ###*Acknowledgements*
-* Thanks to Christophe Henry for a great Boost.MSM - eUML idea and library
+* Thanks to Christophe Henry for a great [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) library

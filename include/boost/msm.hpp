@@ -1257,9 +1257,11 @@ auto make_dispatch_table(sm<SM> &fsm, const aux::index_sequence<Ns...> &) noexce
 }  // detail
 namespace testing {
 template <class T>
-struct sm : detail::sm<T> {
-  using detail::sm<T>::sm;
+class sm : public detail::sm<T> {
   using states_ids_t = aux::apply_t<aux::type_id, typename detail::sm<T>::states>;
+
+ public:
+  using detail::sm<T>::sm;
 
   template <class... TStates>
   void set_current_states(const detail::state<TStates> &...) noexcept {

@@ -15,6 +15,11 @@
     $CXX -std=c++14 ...
 ```
 
+* To run tests clone the repository and run
+```sh
+    make test
+```
+
 ###Dependencies
 
 * No external dependencies are required (niether STL nor Boost)
@@ -27,9 +32,9 @@
 ###Configuration
 | Macro                                   | Description |
 | ----------------------------------------|------------ |
-| BOOST\_MSM\_VERSION                     | Current versoin of msm-lite (ex. 1'0'0) |
-| BOOST\_MSM\_LOG                         | Enables logging system  (see [Logging](examples.md#logging)) |
-| BOOST\_MSM\_DSL\_DST\_STATE\_FIRST      | dst\_state == src\_state (see [eUML emulation](examples.md#euml-emulation)) |
+| `BOOST_MSM_VERSION`                     | Current versoin of msm-lite (ex. 1'0'0) |
+| [`BOOST_MSM_LOG`](user_guide.md#boost_msm_log-debugging) | Enables logging system  (see [Logging](examples.md#logging)) |
+| `BOOST_MSM_DSL_DST_STATE_FIRST`      | dst\_state == src\_state (see [eUML emulation](examples.md#euml-emulation)) |
 
 ###Performance
 

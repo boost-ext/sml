@@ -14,6 +14,7 @@
 
 * [Introduction](http://boost-experimental.github.io/msm-lite/index.html)
     * [UML State Machine](http://boost-experimental.github.io/msm-lite/index.html#uml-state-machine)
+    * [Do I need a State Machine?](http://boost-experimental.github.io/msm-lite/index.html#do-i-need-a-state-machine)
     * [Why msm-lite?](http://boost-experimental.github.io/msm-lite/index.html#why-msm-lite)
     * [Problems with Boost.MSM - eUML](http://boost-experimental.github.io/msm-lite/index.html#problems-with-boostmsm-euml)
     * [msm-lite design goals](http://boost-experimental.github.io/msm-lite/index.html#msm-lite-design-goals)
@@ -48,7 +49,9 @@
     * [event [core]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#event-core)
     * [make_transition_table [state machine]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#maketransitiontable-state-machine)
     * [sm [state machine]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#sm-state-machine)
+    * [testing::sm [testing]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#testingsm-testing)
     * [make_dispatch_table [extension]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#makedispatchtable-extension)
+    * [BOOST_MSM_LOG [debugging]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#boostmsmlog-debugging)
 * [Examples](http://boost-experimental.github.io/msm-lite/examples/index.html)
     * [Hello World](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)
     * [Transitions](http://boost-experimental.github.io/msm-lite/examples/index.html#transitions)
