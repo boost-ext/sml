@@ -12,8 +12,7 @@ Introduction
 
 msm-lite: C++14 Meta State Machine Library
 
-> Your scalable C++14 header only eUML-like meta state machine library with no dependencies
-
+> Your scalable C++14 header only eUML-like meta state machine library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world))
 
 ###UML State Machine
 
