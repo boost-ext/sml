@@ -220,23 +220,32 @@ auto state  = &quot;idle&quot;_s;
 <h3 id="2-create-guards-and-actions">2. Create guards and actions</h3>
 <p>Guards and actions are callable objects which will be executed by the state machine in order to verify whether a transition, followed by an action should take place.</p>
 <p>Guard is required to return boolean value.</p>
-<pre><code class="cpp">auto guard = [] {
+<pre><code class="cpp">auto guard1 = [] {
     return true;
 };
 
-auto guard = [](int, double) { // guard with dependencies
+auto guard2 = [](int, double) { // guard with dependencies
     return true;
 };
 
-auto guard = [](int, auto event, double) { // guard with an event and dependencies
+auto guard3 = [](int, auto event, double) { // guard with an event and dependencies
     return true;
+};
+
+struct guard4 {
+    bool operator()() const noexcept {
+        return true;
+    }
 };
 </code></pre>
 
 <p>Action is required not to return.</p>
-<pre><code class="cpp">auto action = [] { };
-auto action = [](int, double) { }; // action with dependencies
-auto action = [](int, auto event, double) { }; // action with an event and dependencies
+<pre><code class="cpp">auto action1 = [] { };
+auto action2 = [](int, double) { }; // action with dependencies
+auto action3 = [](int, auto event, double) { }; // action with an event and dependencies
+struct action4 {
+    void operator()() noexcept { }
+};
 </code></pre>
 
 <h3 id="3-create-a-transition-table">3. Create a transition table</h3>
@@ -245,7 +254,7 @@ our transitions.</p>
 <p><code>msm-lite</code> is using eUML-like DSL in order to be as close as possible to UML design.</p>
 <ul>
 <li>
-<p>DSL</p>
+<p>Transition Table DSL</p>
 <table>
 <thead>
 <tr>
@@ -255,12 +264,8 @@ our transitions.</p>
 </thead>
 <tbody>
 <tr>
-<td>src_state == dst_state + event<e> [ guard &amp;&amp; (![]{return true;} &amp;&amp; guard2) ] / (action, action2, []{})</td>
-<td>transition from src_state to dst_state on event e with guard and action</td>
-</tr>
-<tr>
-<td>src_state == dst_state + event<e> [ guard ] / action</td>
-<td>transition from src_state to dst_state on event e with guard and action</td>
+<td>state + event<e> [ guard ]</td>
+<td>internal transition on event e when guard</td>
 </tr>
 <tr>
 <td>src_state == dst_state / [] {}</td>
@@ -271,14 +276,18 @@ our transitions.</p>
 <td>transition on event e without guard or action</td>
 </tr>
 <tr>
-<td>state + event<e> [ guard ]</td>
-<td>internal transition on event e when guard</td>
+<td>src_state == dst_state + event<e> [ guard ] / action</td>
+<td>transition from src_state to dst_state on event e with guard and action</td>
+</tr>
+<tr>
+<td>src_state == dst_state + event<e> [ guard &amp;&amp; (![]{return true;} &amp;&amp; guard2) ] / (action, action2, []{})</td>
+<td>transition from src_state to dst_state on event e with guard and action</td>
 </tr>
 </tbody>
 </table>
 </li>
 </ul>
-<p>To create a transition table.</p>
+<p>To create a transition table <a href="../user_guide/index.html#make_transition_table-state-machine"><code>make_transition_table</code></a> is provided.</p>
 <pre><code class="cpp">using namespace msm;
 make_transition_table(
     &quot;src_state&quot;_s == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action
@@ -338,10 +347,24 @@ auto action = [](int i){}  |
             /---/  /------/
            |      /
 msm::sm&lt;exmple&gt; s{42, 87.0};
+
+msm::sm&lt;exmple&gt; s{87.0, 42}; // order in which parameters have to passed is not specificied
+</code></pre>
+
+<p>Passing and maintaining a lot of dependencies might be tedious and require huge amount of boilerplate code.
+In order to avoid it, Dependency Injection Library might be used to automate this process.
+For example, we can use <a href="https://github.com/boost-experimental/di">experimental Boost.DI</a>.</p>
+<pre><code class="cpp">auto injector = di::make_injector(
+    di::bind&lt;&gt;.to(42)
+  , di::bind&lt;interface&gt;.to&lt;implementation&gt;()
+);
+
+auto sm = injector.create&lt;sm&lt;example&gt;&gt;();
+assert(sm.process_event(e1{}));
 </code></pre>
 
 <h3 id="6-process-events">6. Process events</h3>
-<p>State machine is simple creature. The main feature of it is to process events.
+<p>State machine is a simple creature. The main feature of it is to process events.
 In order to do so, <code>process_event</code> method might be used.</p>
 <pre><code class="cpp">msm::sm&lt;example&gt; sm;
 
@@ -379,7 +402,7 @@ sm.visit_current_states([](auto state) { std::cout &lt;&lt; state.c_str() &lt;&l
 
 <p>On top of that, <code>msm-lite</code> provides testing facilities to check state machine as a whole.
 <code>set_current_states</code> method is available from <code>testing::sm</code> in order to set state machine
-in requested state.</p>
+in a requested state.</p>
 <pre><code class="cpp">testing::sm&lt;example&gt; sm{fake_data...};
 sm.set_current_states(&quot;s3&quot;_s); // set_current_states(&quot;s3&quot;_s, &quot;s1&quot;_s, ...) for orthogonal regions
 assert(sm.process_event(event{}));

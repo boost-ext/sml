@@ -120,7 +120,13 @@
                 <li class="toctree-l3"><a href="#sm-state-machine">sm [state machine]</a></li>
                 
             
+                <li class="toctree-l3"><a href="#testingsm-testing">testing::sm [testing]</a></li>
+                
+            
                 <li class="toctree-l3"><a href="#make_dispatch_table-extension">make_dispatch_table [extension]</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#boost_msm_log-debugging">BOOST_MSM_LOG [debugging]</a></li>
                 
             
             </ul>
@@ -184,13 +190,15 @@
             <div class="section">
               
                 <h3 id="transitional-concept">transitional [concept]</h3>
-<p><em>Description</em></p>
+<p><strong><em>Header</em></strong></p>
+<pre><code>#include &lt;boost/msm.hpp&gt;
+</code></pre>
+<p><strong><em>Description</em></strong></p>
 <p>Requirements for transition.</p>
-<p><em>Synopsis</em></p>
+<p><strong><em>Synopsis</em></strong></p>
 <pre><code>template &lt;class T&gt;
 concept bool transitional() {
   return requires(T transition) {
-  {
     typename T::src_state;
     typename T::dst_state;
     typename T::event;
@@ -200,22 +208,21 @@ concept bool transitional() {
   }
 }
 </code></pre>
-<p><em>Semantics</em></p>
+<p><strong><em>Semantics</em></strong></p>
 <pre><code>transitional&lt;T&gt;
 </code></pre>
-<p><em>Header</em></p>
-<pre><code>#include &lt;boost/msm.hpp&gt;
-</code></pre>
-<p><em>Example</em></p>
+<p><strong><em>Example</em></strong></p>
 <pre><code>using namespace msm;
 auto transition = ("idle"_s == terminate);
 static_assert(transitional&lt;decltype(transition)&gt;);
 </code></pre>
-<hr />
 <h3 id="configurable-concept">configurable [concept]</h3>
-<p><em>Description</em></p>
+<p><strong><em>Header</em></strong></p>
+<pre><code>#include &lt;boost/msm.hpp&gt;
+</code></pre>
+<p><strong><em>Description</em></strong></p>
 <p>Requirements for the state machine.</p>
-<p><em>Synopsis</em></p>
+<p><strong><em>Synopsis</em></strong></p>
 <pre><code>template &lt;class SM&gt;
 concept bool configurable() {
   return requires(SM sm) {
@@ -223,13 +230,10 @@ concept bool configurable() {
   }
 }
 </code></pre>
-<p><em>Semantics</em></p>
+<p><strong><em>Semantics</em></strong></p>
 <pre><code>configurable&lt;SM&gt;
 </code></pre>
-<p><em>Header</em></p>
-<pre><code>#include &lt;boost/msm.hpp&gt;
-</code></pre>
-<p><em>Example</em></p>
+<p><strong><em>Example</em></strong></p>
 <pre><code>class example {
   auto configure() const noexcept {
     return make_transition_table();
@@ -238,11 +242,13 @@ concept bool configurable() {
 
 static_assert(configurable&lt;example&gt;);
 </code></pre>
-<hr />
 <h3 id="callable-concept">callable [concept]</h3>
-<p><em>Description</em></p>
+<p><strong><em>Header</em></strong></p>
+<pre><code>#include &lt;boost/msm.hpp&gt;
+</code></pre>
+<p><strong><em>Description</em></strong></p>
 <p>Requirements for action and guards.</p>
-<p><em>Synopsis</em></p>
+<p><strong><em>Synopsis</em></strong></p>
 <pre><code>template &lt;class TResult, class T&gt;
 concept bool callable() {
   return requires(T object) {
@@ -250,24 +256,23 @@ concept bool callable() {
   }
 }
 </code></pre>
-<p><em>Semantics</em></p>
+<p><strong><em>Semantics</em></strong></p>
 <pre><code>callable&lt;SM&gt;
 </code></pre>
-<p><em>Header</em></p>
-<pre><code>#include &lt;boost/msm.hpp&gt;
-</code></pre>
-<p><em>Example</em></p>
+<p><strong><em>Example</em></strong></p>
 <pre><code>auto guard = [] { return true; };
 auto action = [] { };
 
 static_assert(callable&lt;bool, decltype(guard)&gt;);
 static_assert(callable&lt;void, decltype(action)&gt;);
 </code></pre>
-<hr />
 <h3 id="dispatchable-concept">dispatchable [concept]</h3>
-<p><em>Description</em></p>
+<p><strong><em>Header</em></strong></p>
+<pre><code>#include &lt;boost/msm.hpp&gt;
+</code></pre>
+<p><strong><em>Description</em></strong></p>
 <p>Requirements for the dispatch table.</p>
-<p><em>Synopsis</em></p>
+<p><strong><em>Synopsis</em></strong></p>
 <pre><code>template &lt;class TDynamicEvent, TEvent&gt;
 concept bool dispatchable() {
   return requires(T) {
@@ -276,13 +281,10 @@ concept bool dispatchable() {
   }
 }
 </code></pre>
-<p><em>Semantics</em></p>
+<p><strong><em>Semantics</em></strong></p>
 <pre><code>dispatchable&lt;SM&gt;
 </code></pre>
-<p><em>Header</em></p>
-<pre><code>#include &lt;boost/msm.hpp&gt;
-</code></pre>
-<p><em>Example</em></p>
+<p><strong><em>Example</em></strong></p>
 <pre><code>struct runtime_event { };
 
 struct event {
@@ -292,11 +294,13 @@ struct event {
 
 static_assert(dispatchable&lt;runtime_event, event&gt;);
 </code></pre>
-<hr />
 <h3 id="state-core">state [core]</h3>
-<p><em>Description</em></p>
+<p><strong><em>Header</em></strong></p>
+<pre><code>#include &lt;boost/msm.hpp&gt;
+</code></pre>
+<p><strong><em>Description</em></strong></p>
 <p>Represents a state machine state.</p>
-<p><em>Synopsis</em></p>
+<p><strong><em>Synopsis</em></strong></p>
 <pre><code>template&lt;class TState&gt; // no requirements, TState may be a state machine
 class state {
 public:
@@ -322,13 +326,10 @@ state&lt;unspecified&gt; operator""_s() noexcept;
 state&lt;unspecified&gt; terminate;
 state&lt;unspecified&gt; initial;
 </code></pre>
-<p><em>Semantics</em></p>
+<p><strong><em>Semantics</em></strong></p>
 <pre><code>state&lt;T&gt;{}
 </code></pre>
-<p><em>Header</em></p>
-<pre><code>#include &lt;boost/msm.hpp&gt;
-</code></pre>
-<p><em>Example</em></p>
+<p><strong><em>Example</em></strong></p>
 <pre><code>state&lt;class idle&gt; idle;
 auto idle = state&lt;class idle&gt;{};
 auto idle = "idle"_s;
@@ -337,11 +338,13 @@ auto initial_state = idle(initial);
 
 auto last_state = terminate;
 </code></pre>
-<hr />
 <h3 id="event-core">event [core]</h3>
-<p><em>Description</em></p>
+<p><strong><em>Header</em></strong></p>
+<pre><code>#include &lt;boost/msm.hpp&gt;
+</code></pre>
+<p><strong><em>Description</em></strong></p>
 <p>Represents a state machine event.</p>
-<p><em>Synopsis</em></p>
+<p><strong><em>Synopsis</em></strong></p>
 <pre><code>template&lt;TEvent&gt; // no requirements
 class event {
 public:
@@ -359,30 +362,26 @@ event&lt;TEvent&gt; event{};
 auto on_entry = event&lt;unspecified&gt;;
 auto on_exit = event&lt;unspecified&gt;;
 </code></pre>
-<p><em>Semantics</em></p>
+<p><strong><em>Semantics</em></strong></p>
 <pre><code>event&lt;T&gt;
 </code></pre>
-<p><em>Header</em></p>
-<pre><code>#include &lt;boost/msm.hpp&gt;
-</code></pre>
-<p><em>Example</em></p>
+<p><strong><em>Example</em></strong></p>
 <pre><code>auto my_int_event = event&lt;int&gt;;
 </code></pre>
-<hr />
 <h3 id="make_transition_table-state-machine">make_transition_table [state machine]</h3>
-<p><em>Description</em></p>
+<p><strong><em>Header</em></strong></p>
+<pre><code>#include &lt;boost/msm.hpp&gt;
+</code></pre>
+<p><strong><em>Description</em></strong></p>
 <p>Creates a transition table.</p>
-<p><em>Synopsis</em></p>
+<p><strong><em>Synopsis</em></strong></p>
 <pre><code>template &lt;class... Ts&gt; requires transitional&lt;Ts&gt;...
 auto make_transition_table(Ts...) noexcept;
 </code></pre>
-<p><em>Semantics</em></p>
+<p><strong><em>Semantics</em></strong></p>
 <pre><code>make_transition_table(transitions...);
 </code></pre>
-<p><em>Header</em></p>
-<pre><code>#include &lt;boost/msm.hpp&gt;
-</code></pre>
-<p><em>Example</em></p>
+<p><strong><em>Example</em></strong></p>
 <pre><code>auto transition_table = make_transition_table(
   "idle_s"(initial) == terminate + event&lt;int&gt; / [] {}
 );
@@ -394,12 +393,13 @@ public:
   }
 };
 </code></pre>
-<p><img alt="CPP(TEST)" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" /></p>
-<hr />
 <h3 id="sm-state-machine">sm [state machine]</h3>
-<p><em>Description</em></p>
+<p><strong><em>Header</em></strong></p>
+<pre><code>#include &lt;boost/msm.hpp&gt;
+</code></pre>
+<p><strong><em>Description</em></strong></p>
 <p>Creates a state machine.</p>
-<p><em>Synopsis</em></p>
+<p><strong><em>Synopsis</em></strong></p>
 <pre><code>template&lt;class T&gt; requires configurable&lt;T&gt;
 class sm {
 public:
@@ -410,7 +410,7 @@ public:
   sm(const sm &amp;) = delete;
   sm &amp;operator=(const sm &amp;) = delete;
 
-  template &lt;class... TDeps&gt; requires dependable&lt;TDeps&gt;...
+  template &lt;class... TDeps&gt; requires is_base_of&lt;TDeps, dependencies&gt;...
   sm(TDeps&amp;&amp;...) noexcept;
 
   template&lt;class TEvent&gt; // no requirements
@@ -429,7 +429,7 @@ public:
 <table>
 <thead>
 <tr>
-<th>Function</th>
+<th>Expression</th>
 <th>Requirement</th>
 <th>Description</th>
 <th>Returns</th>
@@ -462,17 +462,14 @@ public:
 </tr>
 </tbody>
 </table>
-<p><em>Semantics</em></p>
+<p><strong><em>Semantics</em></strong></p>
 <pre><code>sm&lt;T&gt;{...};
 sm.process_event(TEvent{});
 sm.visit_current_states([](auto state){});
 sm.is(terminate);
 sm.is(s1, s2);
 </code></pre>
-<p><em>Header</em></p>
-<pre><code>#include &lt;boost/msm.hpp&gt;
-</code></pre>
-<p><em>Example</em></p>
+<p><strong><em>Example</em></strong></p>
 <pre><code>struct my_event {};
 
 class example {
@@ -493,22 +490,66 @@ assert(sm.is(terminate));
 
 sm.visit_current_states([](auto state) { std::cout &lt;&lt; state.c_str() &lt;&lt; std::endl; });
 </code></pre>
-<p><img alt="CPP(TEST)" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" /></p>
-<hr />
+<h3 id="testingsm-testing">testing::sm [testing]</h3>
+<p><strong><em>Header</em></strong></p>
+<pre><code>#include &lt;boost/msm.hpp&gt;
+</code></pre>
+<p><strong><em>Description</em></strong></p>
+<p>Creates a state machine with testing capabilities.</p>
+<p><strong><em>Synopsis</em></strong></p>
+<pre><code>namespace testing {
+  template &lt;class T&gt;
+  class sm : public msm::sm&lt;T&gt; {
+   public:
+    using msm::sm&lt;T&gt;::sm;
+
+    template &lt;class... TStates&gt;
+    void set_current_states(const detail::state&lt;TStates&gt; &amp;...) noexcept;
+  };
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Expression</th>
+<th>Requirement</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>set_current_states&lt;TStates...&gt;</code></td>
+<td>-</td>
+<td>set current states</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong><em>Semantics</em></strong></p>
+<pre><code>testing::sm&lt;T&gt;{...};
+sm.set_current_states("s1"_s);
+</code></pre>
+<p><strong><em>Example</em></strong></p>
+<pre><code>testing::sm&lt;T&gt;{inject_fake_data...};
+sm.set_current_states("s1"_s);
+sm.process_event(TEvent{});
+sm.is(terminate);
+</code></pre>
 <h3 id="make_dispatch_table-extension">make_dispatch_table [extension]</h3>
-<p><em>Description</em></p>
+<p><strong><em>Header</em></strong></p>
+<pre><code>#include &lt;boost/msm.hpp&gt;
+</code></pre>
+<p><strong><em>Description</em></strong></p>
 <p>Creates a dispatch table to handle runtime events.</p>
-<p><em>Synopsis</em></p>
+<p><strong><em>Synopsis</em></strong></p>
 <pre><code>template&lt;class TEvent, int EventRangeBegin, int EventRangeBegin, class SM&gt; requires dispatchable&lt;TEvent, typename SM::events&gt;
 callable&lt;bool, (TEvent, int)&gt; make_dispatch_table(sm&lt;SM&gt;&amp;) noexcept;
 </code></pre>
-<p><em>Semantics</em></p>
+<p><strong><em>Semantics</em></strong></p>
 <pre><code>make_dispatch_table&lt;T, 0, 10&gt;(sm);
 </code></pre>
-<p><em>Header</em></p>
-<pre><code>#include &lt;boost/msm.hpp&gt;
-</code></pre>
-<p><em>Example</em></p>
+<p><strong><em>Example</em></strong></p>
 <pre><code>struct runtime_event {
   int id = 0;
 };
@@ -520,8 +561,61 @@ struct event1 {
 auto dispatch_event = msm::make_dispatch_table&lt;runtime_event, 1 /*min*/, 5 /*max*/&gt;(sm);
 assert(dispatch_event(event, event.id));
 </code></pre>
-<p><img alt="CPP(TEST)" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" /></p>
-<hr />
+<h3 id="boost_msm_log-debugging">BOOST_MSM_LOG [debugging]</h3>
+<p><strong><em>Header</em></strong></p>
+<pre><code>#include &lt;boost/msm.hpp&gt;
+</code></pre>
+<p><strong><em>Description</em></strong></p>
+<p>Add logging support for the state machine.</p>
+<p><strong><em>Synopsis</em></strong></p>
+<pre><code>#define BOOST_MSM_LOG(T, SM, ...)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Expression</th>
+<th>Requirement</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>T</code></td>
+<td>-</td>
+<td>process_event/guard/action/state_change</td>
+<td>Enables logging of state machine behaviour</td>
+</tr>
+</tbody>
+</table>
+<p><strong><em>Semantics</em></strong></p>
+<pre><code>BOOST_MSM_LOG(state_change, sm&lt;example&gt;, current_state, new_state)
+</code></pre>
+<p><strong><em>Example</em></strong></p>
+<pre><code>template &lt;class SM, class TEvent&gt;
+void log_process_event(const TEvent&amp;) {
+  printf("[%s][process_event] %s\n", typeid(SM).name(), typeid(TEvent).name());
+}
+
+template &lt;class SM, class TAction, class TEvent&gt;
+void log_guard(const TAction&amp;, const TEvent&amp;, bool result) {
+  printf("[%s][guard] %s %s %s\n", typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name(),
+         (result ? "[OK]" : "[Reject]"));
+}
+
+template &lt;class SM, class TAction, class TEvent&gt;
+void log_action(const TAction&amp;, const TEvent&amp;) {
+  printf("[%s][action] %s %s\n", typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name());
+}
+
+template &lt;class SM, class TSrcState, class TDstState&gt;
+void log_state_change(const TSrcState&amp; src, const TDstState&amp; dst) {
+  printf("[%s][transition] %s -&gt; %s\n", typeid(SM).name(), src.c_str(), dst.c_str());
+}
+
+#define BOOST_MSM_LOG(T, SM, ...) log_##T&lt;SM&gt;(__VA_ARGS__)
+#include "boost/msm.hpp"
+</code></pre>
               
             </div>
           </div>

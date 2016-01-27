@@ -79,6 +79,8 @@
                 
                     <li><a class="toctree-l4" href="#uml-state-machine">UML State Machine</a></li>
                 
+                    <li><a class="toctree-l4" href="#do-i-need-a-state-machine">Do I need a State Machine?</a></li>
+                
                     <li><a class="toctree-l4" href="#why-msm-lite">Why msm-lite?</a></li>
                 
                     <li><a class="toctree-l4" href="#problems-with-boostmsm-euml">Problems with Boost.MSM - eUML</a></li>
@@ -187,7 +189,7 @@
 <h1 id="introduction">Introduction</h1>
 <p>msm-lite: C++14 Meta State Machine Library</p>
 <blockquote>
-<p>Your scalable C++14 header only eUML-like meta state machine library with no dependencies</p>
+<p>Your scalable C++14 header only eUML-like meta state machine library with no dependencies (<a href="http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world"><strong>Try it online!</strong></a>)</p>
 </blockquote>
 <h3 id="uml-state-machine">UML State Machine</h3>
 <ul>
@@ -195,6 +197,22 @@
 <li><a href="http://www.omg.org/spec/UML/2.5">UML2 Specification</a></li>
 <li><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html">Boost.MSM - eUML</a></li>
 </ul>
+<h3 id="do-i-need-a-state-machine">Do I need a State Machine?</h3>
+<p>State Machine design pattern allows you to avoid maintaing following design.</p>
+<pre><code class="cpp">void some_function() {
+    ...
+    if ((is_running &amp;&amp; !is_jumping) || just_started) {
+        ...
+    } else if (is_boss_level &amp;&amp; extra_feature_enabled &amp;&amp; !ab_test) {
+        ...
+    } else {
+        ...
+    }
+}
+</code></pre>
+
+<p>If above code looks somewhat similar to your code base or if you like
+to avoid it <code>msm-lite</code> may suits you!</p>
 <h3 id="why-msm-lite">Why msm-lite?</h3>
 <ul>
 <li><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html">Boost.MSM - eUML</a> is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
@@ -268,7 +286,7 @@
 </ul>
 <h3 id="acknowledgements"><em>Acknowledgements</em></h3>
 <ul>
-<li>Thanks to Christophe Henry for a great Boost.MSM - eUML idea and library</li>
+<li>Thanks to Christophe Henry for a great <a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html">Boost.MSM - eUML</a> library</li>
 </ul>
               
             </div>
@@ -330,6 +348,6 @@
 </html>
 
 <!--
-MkDocs version : 0.15.0
-Build Date UTC : 2016-01-27 18:23:37.457678
+MkDocs version : 0.14.0
+Build Date UTC : 2016-01-27 22:16:38.723016
 -->
