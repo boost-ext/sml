@@ -7,8 +7,53 @@
         }, 
         {
             "location": "/index.html#introduction", 
-            "text": "msm-lite: C++14 Meta State Machine Library   Your scalable C++14 header only eUML-like meta state machine library with no dependencies   UML State Machine   State Machine  UML2 Specification  Boost.MSM - eUML   Why msm-lite?   Boost.MSM - eUML  is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;\n  msm-lite, therefore, is trying to address those issues.   Problems with Boost.MSM - eUML   Horrible compilation times (see  Performance )  Produces huge binaries (see  Performance )  Based on too many macros  Horrible and long error messages (see  Error Messages )  Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, on_entry, on_exit)  A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)  Data in states makes it harder share/encapsulate (UML compliant though)  Loosley coupled design is hard to achieve  Functional programming emulation  Huge complexity may overwhelm in the beginning  A lot of Boost dependencies   msm-lite design goals   Keep the Boost.MSM - eUML 'goodies'  Performance (see  Performance )  Memory usage (see  Performance )  eUML DSL (s1 == s2 + event [ guard ] / action)  UML standard compliant (As much as possible)       Eliminate Boost.MSM - eUML problems  Compilation times (see  Performance )  Binary size (see  Performance )  Reduce complexity by eliminating less used features  Short and informative error messages (see  Error Messages )  Less boilerplate / no macros (see  Hello World )  Improve visibility by having all actions on transition table (see  States )  Allows loosely coupled design (see  Dependency Injection )  Functional programming support using lamda expressions (see  Action/Guards )  No dependencies / one header (1k lines)     What 'lite' implies?   Minimal learning curve  Only crucial features  Guaranteed performance and quick compilation times  No dependencies   Supported  UML features   Transitions / Internal transitions / Anonymous transitions / No transition (see  Transitions )  Actions / Guards (see  Action/Guards )  State entry / exit actions (see  States )  Orthogonal regions (see  Orthogonal Regions )  Sub / Composite state machines (see  Composite )   Dropped  UML features   Shallow/Deep history  Explicit entry/exit pseudo states   Additional  features   Logging (see  Logging )  Testing (see  Testing )  Runtime Dispatcher (see  Runtime Dispatcher )  Dependency Injection integration (see  Dependency Injection )   Acknowledgements   Thanks to Christophe Henry for a great Boost.MSM - eUML idea and library", 
+            "text": "msm-lite: C++14 Meta State Machine Library   Your scalable C++14 header only eUML-like meta state machine library with no dependencies", 
             "title": "Introduction"
+        }, 
+        {
+            "location": "/index.html#uml-state-machine", 
+            "text": "State Machine  UML2 Specification  Boost.MSM - eUML", 
+            "title": "UML State Machine"
+        }, 
+        {
+            "location": "/index.html#why-msm-lite", 
+            "text": "Boost.MSM - eUML  is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;\n  msm-lite, therefore, is trying to address those issues.", 
+            "title": "Why msm-lite?"
+        }, 
+        {
+            "location": "/index.html#problems-with-boostmsm-euml", 
+            "text": "Horrible compilation times (see  Performance )  Produces huge binaries (see  Performance )  Based on too many macros  Horrible and long error messages (see  Error Messages )  Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, on_entry, on_exit)  A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)  Data in states makes it harder share/encapsulate (UML compliant though)  Loosley coupled design is hard to achieve  Functional programming emulation  Huge complexity may overwhelm in the beginning  A lot of Boost dependencies", 
+            "title": "Problems with Boost.MSM - eUML"
+        }, 
+        {
+            "location": "/index.html#msm-lite-design-goals", 
+            "text": "Keep the Boost.MSM - eUML 'goodies'  Performance (see  Performance )  Memory usage (see  Performance )  eUML DSL (s1 == s2 + event [ guard ] / action)  UML standard compliant (As much as possible)       Eliminate Boost.MSM - eUML problems  Compilation times (see  Performance )  Binary size (see  Performance )  Reduce complexity by eliminating less used features  Short and informative error messages (see  Error Messages )  Less boilerplate / no macros (see  Hello World )  Improve visibility by having all actions on transition table (see  States )  Allows loosely coupled design (see  Dependency Injection )  Functional programming support using lamda expressions (see  Action/Guards )  No dependencies / one header (1k lines)", 
+            "title": "msm-lite design goals"
+        }, 
+        {
+            "location": "/index.html#what-lite-implies", 
+            "text": "Minimal learning curve  Only crucial features  Guaranteed performance and quick compilation times  No dependencies", 
+            "title": "What 'lite' implies?"
+        }, 
+        {
+            "location": "/index.html#supported-uml-features", 
+            "text": "Transitions / Internal transitions / Anonymous transitions / No transition (see  Transitions )  Actions / Guards (see  Action/Guards )  State entry / exit actions (see  States )  Orthogonal regions (see  Orthogonal Regions )  Sub / Composite state machines (see  Composite )", 
+            "title": "Supported UML features"
+        }, 
+        {
+            "location": "/index.html#dropped-uml-features", 
+            "text": "Shallow/Deep history  Explicit entry/exit pseudo states", 
+            "title": "Dropped UML features"
+        }, 
+        {
+            "location": "/index.html#additional-features", 
+            "text": "Logging (see  Logging )  Testing (see  Testing )  Runtime Dispatcher (see  Runtime Dispatcher )  Dependency Injection integration (see  Dependency Injection )", 
+            "title": "Additional features"
+        }, 
+        {
+            "location": "/index.html#acknowledgements", 
+            "text": "Thanks to Christophe Henry for a great Boost.MSM - eUML idea and library", 
+            "title": "Acknowledgements"
         }, 
         {
             "location": "/overview/index.html", 
@@ -16,19 +61,184 @@
             "title": "Overview"
         }, 
         {
+            "location": "/overview/index.html#quick-start", 
+            "text": "Get  boost/msm.hpp  header       wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm.hpp   Include the header       #include  boost/msm.hpp    Compile with C++14 support       $CXX -std=c++14 ...", 
+            "title": "Quick Start"
+        }, 
+        {
+            "location": "/overview/index.html#dependencies", 
+            "text": "No external dependencies are required (niether STL nor Boost)", 
+            "title": "Dependencies"
+        }, 
+        {
+            "location": "/overview/index.html#supportedtested-compilers", 
+            "text": "Clang-3.4+ (100% coverage, clang-tidy clean, valgrind clean)  GCC-5.2+ (100% coverage, clang-tidy clean, valgrind clean)", 
+            "title": "Supported/tested compilers"
+        }, 
+        {
+            "location": "/overview/index.html#configuration", 
+            "text": "Macro  Description      BOOST_MSM_VERSION  Current versoin of msm-lite (ex. 1'0'0)    BOOST_MSM_LOG  Enables logging system  (see  Logging )    BOOST_MSM_DSL_DST_STATE_FIRST  dst_state == src_state (see  eUML emulation )", 
+            "title": "Configuration"
+        }, 
+        {
+            "location": "/overview/index.html#performance", 
+            "text": "Test  CXXFLAGS  Events  States  Transitions  Process Events      Simple Test  -O2 -s  6  5  12  1'000'000        clang++-3.7  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.307s  3.855s  1.061s    Execution time  15ms  17ms  1232ms    Memory usage  14b  32b  200b    Executable size  11K  91K  59K        g++-6.0  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.386s  7.879s  1.790s    Execution time  15ms  20ms  929ms    Memory usage  14b  32b  224b    Executable size  11K  67K  63K         Test  CXXFLAGS  Events  States  Transitions  Process Events      Composite Test  -O2 -s  8  5 + 3  12 + 4  1'000 * 1'000        clang++-3.7  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.354s  4.526s  1.293s    Execution time  10ms  14ms  491ms    Memory usage  20b  60b  200b    Executable size  15K  111K  83K        g++-6.0  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.435s  9.363s  2.037s    Execution time  9ms  13ms  404ms    Memory usage  20b  60b  224b    Executable size  12K  91K  83K         Test  CXXFLAGS  Events  States  Transitions  Process Events      Complex Test  -O2 -s  50  50  50  1'000'000        clang++-3.7  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.765s  1m15.935s  3.661s    Execution time  70ms  81ms  6221ms    Memory usage  102b  120b  200b    Executable size  35K  611K  343K        g++-6.0  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.996s  52.238s  4.997s    Execution time  72ms  77ms  5520ms    Memory usage  102b  120b  224b    Executable size  35K  271K  215K         Test      Header Test        clang++-3.7  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.060s  2.072s  0.552s        g++-6.0  msm-lite  boost.msm-eUML  boost.statechart      Compilation time  0.073s  3.197s  0.704s      To run benchmarks   make pt # make pt_simple pt_composite pt_complex", 
+            "title": "Performance"
+        }, 
+        {
+            "location": "/overview/index.html#error-messages", 
+            "text": "Not configurable   Not callable   Not transitional   Not dispatchable", 
+            "title": "Error messages"
+        }, 
+        {
             "location": "/tutorial/index.html", 
             "text": "0. Read Boost.MSM - eUML documentation\n\n\n\n\nBoost.MSM - UML Short Guide\n\n\nBoost.MSM - eUML Documentation\n\n\n\n\n1. Create events and states\n\n\nState machine is composed of finite number of states and transitions which are triggered via events.\n\n\nAn Event is just a unique type, which will be process by the state machine.\n\n\nstruct my_event { ... };\n\n\n\n\nA State can have entry/exit behaviour which is executed whenever state is entered or left and\nrepresents current location of the state machine processing.\n\n\nTo create a state below snipped might be used.\n\n\nmsm::state\nclass idle\n idle;\n// or\nauto idle = msm::state\nclass idle\n{};\n\n\n\n\nIf you happen to have a clang/gcc compiler, you can create a state on the fly by.\n\n\nusing namespace msm;\nauto state  = \nidle\n_s;\n\n\n\n\nmsm-lite\n states cannot have data as data is injected directly into guards/actions instead.\n\n\nA state machine might be a state itself.\n\n\nmsm::state\nmsm::sm\nstate_machine\n composite;\n\n\n\n\nmsm-lite\n supports \nterminate\n state, which stops process events to be processed.\n\n\nStates are printable too.\n\n\nassert(string(\nidle\n) == \nidle\n_s.c_str());\n\n\n\n\n2. Create guards and actions\n\n\nGuards and actions are callable objects which will be executed by the state machine in order to verify whether a transition, followed by an action should take place.\n\n\nGuard is required to return boolean value.\n\n\nauto guard = [] {\n    return true;\n};\n\nauto guard = [](int, double) { // guard with dependencies\n    return true;\n};\n\nauto guard = [](int, auto event, double) { // guard with an event and dependencies\n    return true;\n};\n\n\n\n\nAction is required not to return.\n\n\nauto action = [] { };\nauto action = [](int, double) { }; // action with dependencies\nauto action = [](int, auto event, double) { }; // action with an event and dependencies\n\n\n\n\n3. Create a transition table\n\n\nWhen we have states and events handy we can finally create a transition table which represents\nour transitions.\n\n\nmsm-lite\n is using eUML-like DSL in order to be as close as possible to UML design.\n\n\n\n\n\n\nDSL\n\n\n\n\n\n\n\n\nExpression\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\nsrc_state == dst_state + event\n [ guard \n (![]{return true;} \n guard2) ] / (action, action2, []{})\n\n\ntransition from src_state to dst_state on event e with guard and action\n\n\n\n\n\n\nsrc_state == dst_state + event\n [ guard ] / action\n\n\ntransition from src_state to dst_state on event e with guard and action\n\n\n\n\n\n\nsrc_state == dst_state / [] {}\n\n\nanonymous transition with action\n\n\n\n\n\n\nsrc_state == dst_state + event\n\n\ntransition on event e without guard or action\n\n\n\n\n\n\nstate + event\n [ guard ]\n\n\ninternal transition on event e when guard\n\n\n\n\n\n\n\n\n\n\n\n\nTo create a transition table.\n\n\nusing namespace msm;\nmake_transition_table(\n    \nsrc_state\n_s == \ndst_state\n_s + event\nmy_event\n [ guard ] / action\n);\n\n\n\n\n4. Set initial states\n\n\nInitial states tells the state machine where to start.\n\n\nusing namespace msm;\nmake_transition_table(\n    \nsrc_state\n_s(initial) == \ndst_state\n_s + event\nmy_event\n [ guard ] / action,\n    \ndst_state\n_s          == terminate     + event\ngame_over\n\n);\n\n\n\n\nYou can have more than one initial state. Both initial states will be executed in pseudo parallel way\nand are called orthogonal regions.\n\n\nusing namespace msm;\nmake_transition_table(\n    \nregion_1\n_s(initial) == \ndst_state1\n_s + event\nmy_event1\n [ guard ] / action,\n    \ndst_state1\n_s          == terminate    + event\ngame_over\n\n\n    \nregion_2\n_s(initial) == \ndst_state2\n_s + event\nmy_event2\n [ guard ] / action,\n    \ndst_state2\n_s          == terminate    + event\ngame_over\n\n);\n\n\n\n\n5. Create a state machine\n\n\nState machine is an abstraction for transition table holding current states and processing events.\nTo create a state machine, firstly we have to configure our transition table.\n\n\nclass example {\npublic:\n    auto configure() noexcept {\n        using namespace msm;\n        return make_transition_table(\n            \nsrc_state\n_s(initial) == \ndst_state\n_s + event\nmy_event\n [ guard ] / action,\n            \ndst_state\n_s          == terminate     + event\ngame_over\n\n        );\n    }\n};\n\n\n\n\nHaving transition table configured we can create a state machine.\n\n\nmsm::sm\nexample\n sm;\n\n\n\n\nState machine constructor is responsible to provide required dependencies for actions and guards.\n\n\n                             /---- event\n                            |\nauto guard = [](double d, auto event) { return true; }\n                   |\n                   \\-------\\\n                           |\nauto action = [](int i){}  |\n                 |         |\n                 |         |\n            /---/  /------/\n           |      /\nmsm::sm\nexmple\n s{42, 87.0};\n\n\n\n\n6. Process events\n\n\nState machine is simple creature. The main feature of it is to process events.\nIn order to do so, \nprocess_event\n method might be used.\n\n\nmsm::sm\nexample\n sm;\n\nassert(sm.process_event(my_event{})); // returns true when handled\nassert(!sm.process_event(int{})); // not handled by the state machine\n\n\n\n\nmsm-lite\n also provides a way to dispatch dynamically created events into the state machine.\n\n\nstruct runtime_event {\n  int id = 0;\n};\nstruct event1 {\n  static constexpr auto id = 1;\n};\n\nauto dispatch_event = msm::make_dispatch_table\nruntime_event, 1 /*min*/, 5 /*max*/\n(sm);\n  {\n    runtime_event event{1};\n    assert(dispatch_event(event, event.id)); // will call sm.process(event1{});\n  }\n\n\n\n\n8. Testing a state machine\n\n\nSometimes it is useful to verify whether a state machine is in a specific states, for example, whether\nwe are in a terminate state or not. We can do it with \nmsm-lite\n using \nis\n or \nvisit_current_states\n\nfunctionality.\n\n\nmsm::sm\nexample\n sm;\nassert(sm.process_event(my_event{}));\nassert(sm.is(terminate)); // is(terminate, s1, ...) when you have orthogonal regions\n\n//or\n\nsm.visit_current_states([](auto state) { std::cout \n state.c_str() \n std::endl; });\n\n\n\n\nOn top of that, \nmsm-lite\n provides testing facilities to check state machine as a whole.\n\nset_current_states\n method is available from \ntesting::sm\n in order to set state machine\nin requested state.\n\n\ntesting::sm\nexample\n sm{fake_data...};\nsm.set_current_states(\ns3\n_s); // set_current_states(\ns3\n_s, \ns1\n_s, ...) for orthogonal regions\nassert(sm.process_event(event{}));\nassert(sm.is(terminate));\n\n\n\n\n9. Debugging a state machine\n\n\nmsm-lite\n provides logging capabilities in order to print state machine flow.\nTo enable logging you have to define \nBOOST_MSM_LOG\n.\n\n\ntemplate \nclass SM, class TEvent\n\nvoid log_process_event(const TEvent\n) {\n  printf(\n[%s][process_event] %s\\n\n, typeid(SM).name(), typeid(TEvent).name());\n}\n\ntemplate \nclass SM, class TAction, class TEvent\n\nvoid log_guard(const TAction\n, const TEvent\n, bool result) {\n  printf(\n[%s][guard] %s %s %s\\n\n, typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name(),\n         (result ? \n[OK]\n : \n[Reject]\n));\n}\n\ntemplate \nclass SM, class TAction, class TEvent\n\nvoid log_action(const TAction\n, const TEvent\n) {\n  printf(\n[%s][action] %s %s\\n\n, typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name());\n}\n\ntemplate \nclass SM, class TSrcState, class TDstState\n\nvoid log_state_change(const TSrcState\n src, const TDstState\n dst) {\n  printf(\n[%s][transition] %s -\n %s\\n\n, typeid(SM).name(), src.c_str(), dst.c_str());\n}\n\n#define BOOST_MSM_LOG(T, SM, ...) log_##T\nSM\n(__VA_ARGS__)\n#include \nboost/msm.hpp", 
             "title": "Tutorial"
         }, 
         {
+            "location": "/tutorial/index.html#0-read-boostmsm-euml-documentation", 
+            "text": "Boost.MSM - UML Short Guide  Boost.MSM - eUML Documentation", 
+            "title": "0. Read Boost.MSM - eUML documentation"
+        }, 
+        {
+            "location": "/tutorial/index.html#1-create-events-and-states", 
+            "text": "State machine is composed of finite number of states and transitions which are triggered via events.  An Event is just a unique type, which will be process by the state machine.  struct my_event { ... };  A State can have entry/exit behaviour which is executed whenever state is entered or left and\nrepresents current location of the state machine processing.  To create a state below snipped might be used.  msm::state class idle  idle;\n// or\nauto idle = msm::state class idle {};  If you happen to have a clang/gcc compiler, you can create a state on the fly by.  using namespace msm;\nauto state  =  idle _s;  msm-lite  states cannot have data as data is injected directly into guards/actions instead.  A state machine might be a state itself.  msm::state msm::sm state_machine  composite;  msm-lite  supports  terminate  state, which stops process events to be processed.  States are printable too.  assert(string( idle ) ==  idle _s.c_str());", 
+            "title": "1. Create events and states"
+        }, 
+        {
+            "location": "/tutorial/index.html#2-create-guards-and-actions", 
+            "text": "Guards and actions are callable objects which will be executed by the state machine in order to verify whether a transition, followed by an action should take place.  Guard is required to return boolean value.  auto guard = [] {\n    return true;\n};\n\nauto guard = [](int, double) { // guard with dependencies\n    return true;\n};\n\nauto guard = [](int, auto event, double) { // guard with an event and dependencies\n    return true;\n};  Action is required not to return.  auto action = [] { };\nauto action = [](int, double) { }; // action with dependencies\nauto action = [](int, auto event, double) { }; // action with an event and dependencies", 
+            "title": "2. Create guards and actions"
+        }, 
+        {
+            "location": "/tutorial/index.html#3-create-a-transition-table", 
+            "text": "When we have states and events handy we can finally create a transition table which represents\nour transitions.  msm-lite  is using eUML-like DSL in order to be as close as possible to UML design.    DSL     Expression  Description      src_state == dst_state + event  [ guard   (![]{return true;}   guard2) ] / (action, action2, []{})  transition from src_state to dst_state on event e with guard and action    src_state == dst_state + event  [ guard ] / action  transition from src_state to dst_state on event e with guard and action    src_state == dst_state / [] {}  anonymous transition with action    src_state == dst_state + event  transition on event e without guard or action    state + event  [ guard ]  internal transition on event e when guard       To create a transition table.  using namespace msm;\nmake_transition_table(\n     src_state _s ==  dst_state _s + event my_event  [ guard ] / action\n);", 
+            "title": "3. Create a transition table"
+        }, 
+        {
+            "location": "/tutorial/index.html#4-set-initial-states", 
+            "text": "Initial states tells the state machine where to start.  using namespace msm;\nmake_transition_table(\n     src_state _s(initial) ==  dst_state _s + event my_event  [ guard ] / action,\n     dst_state _s          == terminate     + event game_over \n);  You can have more than one initial state. Both initial states will be executed in pseudo parallel way\nand are called orthogonal regions.  using namespace msm;\nmake_transition_table(\n     region_1 _s(initial) ==  dst_state1 _s + event my_event1  [ guard ] / action,\n     dst_state1 _s          == terminate    + event game_over \n\n     region_2 _s(initial) ==  dst_state2 _s + event my_event2  [ guard ] / action,\n     dst_state2 _s          == terminate    + event game_over \n);", 
+            "title": "4. Set initial states"
+        }, 
+        {
+            "location": "/tutorial/index.html#5-create-a-state-machine", 
+            "text": "State machine is an abstraction for transition table holding current states and processing events.\nTo create a state machine, firstly we have to configure our transition table.  class example {\npublic:\n    auto configure() noexcept {\n        using namespace msm;\n        return make_transition_table(\n             src_state _s(initial) ==  dst_state _s + event my_event  [ guard ] / action,\n             dst_state _s          == terminate     + event game_over \n        );\n    }\n};  Having transition table configured we can create a state machine.  msm::sm example  sm;  State machine constructor is responsible to provide required dependencies for actions and guards.                               /---- event\n                            |\nauto guard = [](double d, auto event) { return true; }\n                   |\n                   \\-------\\\n                           |\nauto action = [](int i){}  |\n                 |         |\n                 |         |\n            /---/  /------/\n           |      /\nmsm::sm exmple  s{42, 87.0};", 
+            "title": "5. Create a state machine"
+        }, 
+        {
+            "location": "/tutorial/index.html#6-process-events", 
+            "text": "State machine is simple creature. The main feature of it is to process events.\nIn order to do so,  process_event  method might be used.  msm::sm example  sm;\n\nassert(sm.process_event(my_event{})); // returns true when handled\nassert(!sm.process_event(int{})); // not handled by the state machine  msm-lite  also provides a way to dispatch dynamically created events into the state machine.  struct runtime_event {\n  int id = 0;\n};\nstruct event1 {\n  static constexpr auto id = 1;\n};\n\nauto dispatch_event = msm::make_dispatch_table runtime_event, 1 /*min*/, 5 /*max*/ (sm);\n  {\n    runtime_event event{1};\n    assert(dispatch_event(event, event.id)); // will call sm.process(event1{});\n  }", 
+            "title": "6. Process events"
+        }, 
+        {
+            "location": "/tutorial/index.html#8-testing-a-state-machine", 
+            "text": "Sometimes it is useful to verify whether a state machine is in a specific states, for example, whether\nwe are in a terminate state or not. We can do it with  msm-lite  using  is  or  visit_current_states \nfunctionality.  msm::sm example  sm;\nassert(sm.process_event(my_event{}));\nassert(sm.is(terminate)); // is(terminate, s1, ...) when you have orthogonal regions\n\n//or\n\nsm.visit_current_states([](auto state) { std::cout   state.c_str()   std::endl; });  On top of that,  msm-lite  provides testing facilities to check state machine as a whole. set_current_states  method is available from  testing::sm  in order to set state machine\nin requested state.  testing::sm example  sm{fake_data...};\nsm.set_current_states( s3 _s); // set_current_states( s3 _s,  s1 _s, ...) for orthogonal regions\nassert(sm.process_event(event{}));\nassert(sm.is(terminate));", 
+            "title": "8. Testing a state machine"
+        }, 
+        {
+            "location": "/tutorial/index.html#9-debugging-a-state-machine", 
+            "text": "msm-lite  provides logging capabilities in order to print state machine flow.\nTo enable logging you have to define  BOOST_MSM_LOG .  template  class SM, class TEvent \nvoid log_process_event(const TEvent ) {\n  printf( [%s][process_event] %s\\n , typeid(SM).name(), typeid(TEvent).name());\n}\n\ntemplate  class SM, class TAction, class TEvent \nvoid log_guard(const TAction , const TEvent , bool result) {\n  printf( [%s][guard] %s %s %s\\n , typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name(),\n         (result ?  [OK]  :  [Reject] ));\n}\n\ntemplate  class SM, class TAction, class TEvent \nvoid log_action(const TAction , const TEvent ) {\n  printf( [%s][action] %s %s\\n , typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name());\n}\n\ntemplate  class SM, class TSrcState, class TDstState \nvoid log_state_change(const TSrcState  src, const TDstState  dst) {\n  printf( [%s][transition] %s -  %s\\n , typeid(SM).name(), src.c_str(), dst.c_str());\n}\n\n#define BOOST_MSM_LOG(T, SM, ...) log_##T SM (__VA_ARGS__)\n#include  boost/msm.hpp", 
+            "title": "9. Debugging a state machine"
+        }, 
+        {
             "location": "/user_guide/index.html", 
-            "text": "Concepts\n\n\n\n\nTransitional\n\n\nConfigurable\n\n\nCallable\n\n\nDispatchable\n\n\n\n\nState\n\n\nEvent\n\n\n\n\non_entry/on_exit\n\n\n\n\nTransition Table\n\n\nDescription\n\n\nCreates transition table.\n\n\nSynopsis\n\n\ntemplate \nclass... Ts\n\nauto make_transition_table(Ts...) noexcept;\n\n\n\nSemantics\n\n\nmake_transition_table(transitions...);\n\n\n\nRequirements\n\n\n\n\n\n\n\n\nParameter\n\n\nRequirement\n\n\nDescription\n\n\nReturns\n\n\n\n\n\n\n\n\n\n\nTs\n\n\ntransitional\n\n\ntransitions\n\n\nlist of transitions\n\n\n\n\n\n\n\n\nHeader\n\n\n#include \nboost/msm/msm.hpp\n\n\n\n\nExample\n\n\n\n\nState Machine\n\n\nDispatch Table", 
+            "text": "Concepts\n\n\ntransitional\n\n\nDescription\n\n\nRequirements for transition.\n\n\nSynopsis\n\n\ntemplate \nclass T\n\nconcept bool transitional() {\n  return requires(T transition) {\n  {\n    typename T::src_state;\n    typename T::dst_state;\n    typename T::event;\n    typename T::deps;\n    T::has_initial;\n    { transition.execute() } -\n bool;\n  }\n}\n\n\n\nSemantics\n\n\ntransitional\nT\n\n\n\n\nHeader\n\n\n#include \nboost/msm.hpp\n\n\n\n\nExample\n\n\nusing namespace msm;\nauto transition = (\"idle\"_s == terminate);\nstatic_assert(transitional\ndecltype(transition)\n);\n\n\n\n\n\nconfigurable\n\n\nDescription\n\n\nRequirements for the state machine.\n\n\nSynopsis\n\n\ntemplate \nclass SM\n\nconcept bool configurable() {\n  return requires(SM sm) {\n    { sm.configure() };\n  }\n}\n\n\n\nSemantics\n\n\nconfigurable\nSM\n\n\n\n\nHeader\n\n\n#include \nboost/msm.hpp\n\n\n\n\nExample\n\n\nclass example {\n  auto configure() const noexcept {\n    return make_transition_table();\n  }\n};\n\nstatic_assert(configurable\nexample\n);\n\n\n\n\n\ncallable\n\n\nDescription\n\n\nRequirements for action and guards.\n\n\nSynopsis\n\n\ntemplate \nclass TResult, class T\n\nconcept bool callable() {\n  return requires(T object) {\n    { object(...) } -\n TResult;\n  }\n}\n\n\n\nSemantics\n\n\ncallable\nSM\n\n\n\n\nHeader\n\n\n#include \nboost/msm.hpp\n\n\n\n\nExample\n\n\nauto guard = [] { return true; };\nauto action = [] { };\n\nstatic_assert(callable\nbool, decltype(guard)\n);\nstatic_assert(callable\nvoid, decltype(action)\n);\n\n\n\n\n\ndispatchable\n\n\nDescription\n\n\nRequirements for the dispatch table.\n\n\nSynopsis\n\n\ntemplate \nclass TDynamicEvent, TEvent\n\nconcept bool dispatchable() {\n  return requires(T) {\n    typename TEvent::id;\n    { TEvent(declval\nTDynamicEvent\n()) };\n  }\n}\n\n\n\nSemantics\n\n\ndispatchable\nSM\n\n\n\n\nHeader\n\n\n#include \nboost/msm.hpp\n\n\n\n\nExample\n\n\nstruct runtime_event { };\n\nstruct event {\n  static constexpr auto id = 42;\n  event(runtime_event) {}\n};\n\nstatic_assert(dispatchable\nruntime_event, event\n);\n\n\n\n\n\nState\n\n\nstate\n\n\nDescription\n\n\nRepresents a state machine state.\n\n\nSynopsis\n\n\ntemplate\nclass TState\n // no requirements, TState may be a state machine\nclass state {\npublic:\n  template \nclass T\n // no requirements\n  auto operator==(const T \n) const noexcept;\n\n  template \nclass T\n // no requirements\n  auto operator+(const T \n) const noexcept;\n\n  template \nclass T\n requires callable\nbool, T\n\n  auto operator[](const T) const noexcept;\n\n  template \nclass T\n requires callable\nvoid, T\n\n  auto operator/(const T \nt) const noexcept;\n\n  const char* c_str() noexcept;\n};\n\ntemplate \nclass T, T... Chrs\n\nstate\nunspecified\n operator\"\"_s() noexcept;\n\n// predefined states\nstate\nunspecified\n terminate;\nstate\nunspecified\n initial;\n\n\n\nSemantics\n\n\nstate\nT\n{}\n\n\n\nHeader\n\n\n#include \nboost/msm.hpp\n\n\n\n\nExample\n\n\nstate\nclass idle\n idle;\nauto idle = state\nclass idle\n{};\nauto idle = \"idle\"_s;\n\nauto initial_state = idle(initial);\n\nauto last_state = terminate;\n\n\n\n\n\nEvent\n\n\nevent\n\n\nDescription\n\n\nRepresents a state machine event.\n\n\nSynopsis\n\n\ntemplate\nTEvent\n // no requirements\nclass event {\npublic:\n  template \nclass T\n requires callable\nbool, T\n\n  auto operator[](const T \n) const noexcept;\n\n  template \nclass T\n requires callable\nvoid, T\n\n  auto operator/(const T \nt) const noexcept;\n};\n\ntemplate\nclass TEvent\n\nevent\nTEvent\n event{};\n\n// predefined events\nauto on_entry = event\nunspecified\n;\nauto on_exit = event\nunspecified\n;\n\n\n\nSemantics\n\n\nevent\nT\n\n\n\n\nHeader\n\n\n#include \nboost/msm.hpp\n\n\n\n\nExample\n\n\nauto my_int_event = event\nint\n;\n\n\n\n\n\nTransition Table\n\n\nmake_transition_table\n\n\nDescription\n\n\nCreates a transition table.\n\n\nSynopsis\n\n\ntemplate \nclass... Ts\n requires transitional\nTs\n...\nauto make_transition_table(Ts...) noexcept;\n\n\n\nSemantics\n\n\nmake_transition_table(transitions...);\n\n\n\nHeader\n\n\n#include \nboost/msm.hpp\n\n\n\n\nExample\n\n\nauto transition_table = make_transition_table(\n  \"idle_s\"(initial) == terminate + event\nint\n / [] {}\n);\n\n\n\n\n\n\n\nState Machine\n\n\nsm\n\n\nDescription\n\n\nCreates a state machine.\n\n\nSynopsis\n\n\ntemplate\nclass T\n requires configurable\nT\n\nclass sm {\npublic:\n  using states = unspecified;\n  using events = unspecified;\n\n  sm(sm \n) = default;\n  sm(const sm \n) = delete;\n  sm \noperator=(const sm \n) = delete;\n\n  template \nclass... TDeps\n requires dependable\nTDeps\n...\n  sm(TDeps\n...) noexcept;\n\n  template\nclass TEvent\n // no requirements\n  bool process_event(const TEvent\n) noexcept;\n\n  template \nclass TVisitor\n requires callable\nvoid, TVisitor\n\n  void visit_current_states(const TVisitor \n) const noexcept(noexcept(visitor(state{})));\n\n  template \nclass TState\n\n  bool is(const state\nTState\n \n) const noexcept;\n\n  template \nclass... TStates\n requires sizeof...(TStates) == number_of_initial_states\n  bool is(const state\nTStates\n \n...) const noexcept;\n};\n\n\n\n\n\n\n\n\n\nFunction\n\n\nRequirement\n\n\nDescription\n\n\nReturns\n\n\n\n\n\n\n\n\n\n\nprocess_event\nTEvent\n\n\n-\n\n\nprocess event \nTEvent\n\n\nreturns true when handled, false otherwise\n\n\n\n\n\n\nvisit_current_states\nTVisitor\n\n\ncallable\n\n\nvisit current states\n\n\n-\n\n\n\n\n\n\nis\nTState\n\n\n-\n\n\nverify whether any of current states equals \nTState\n\n\ntrue when any current state matches \nTState\n, false otherwise\n\n\n\n\n\n\nis\nTStates...\n\n\nsize of TStates... equals number of initial states\n\n\nverify whether all current states match \nTStates...\n\n\ntrue when all states match \nTState...\n, false otherwise\n\n\n\n\n\n\n\n\nSemantics\n\n\nsm\nT\n{...};\nsm.process_event(TEvent{});\nsm.visit_current_states([](auto state){});\nsm.is(terminate);\nsm.is(s1, s2);\n\n\n\nHeader\n\n\n#include \nboost/msm.hpp\n\n\n\n\nExample\n\n\nstruct my_event {};\n\nclass example {\npublic:\n  auto configure() const noexcept {\n  using namespace msm;\n    return make_transition_table(\n      \"idle\"_s(initial) == terminate + event\nmy_event\n / [](int i) { std::cout \n i \n std::endl; }\n    );\n  }\n};\n\nsm\nexample\n sm{42};\nassert(sm.is(\"idle\"_s));\nassert(!sm.process_event(int{})); // no handled\nassert(sm.process_event(my_event{})); // handled\nassert(sm.is(terminate));\n\nsm.visit_current_states([](auto state) { std::cout \n state.c_str() \n std::endl; });\n\n\n\n\n\n\n\nDispatch Table\n\n\nmake_dispatch_table\n\n\nDescription\n\n\nCreates a dispatch table to handle runtime events.\n\n\nSynopsis\n\n\ntemplate\nclass TEvent, int EventRangeBegin, int EventRangeBegin, class SM\n requires dispatchable\nTEvent, typename SM::events\n\ncallable\nbool, (TEvent, int)\n make_dispatch_table(sm\nSM\n) noexcept;\n\n\n\nSemantics\n\n\nmake_dispatch_table\nT, 0, 10\n(sm);\n\n\n\nHeader\n\n\n#include \nboost/msm.hpp\n\n\n\n\nExample\n\n\nstruct runtime_event {\n  int id = 0;\n};\nstruct event1 {\n  static constexpr auto id = 1;\n  event1(const runtime_event \n) {}\n};\n\nauto dispatch_event = msm::make_dispatch_table\nruntime_event, 1 /*min*/, 5 /*max*/\n(sm);\nassert(dispatch_event(event, event.id));", 
             "title": "User Guide"
+        }, 
+        {
+            "location": "/user_guide/index.html#concepts", 
+            "text": "transitional  Description  Requirements for transition.  Synopsis  template  class T \nconcept bool transitional() {\n  return requires(T transition) {\n  {\n    typename T::src_state;\n    typename T::dst_state;\n    typename T::event;\n    typename T::deps;\n    T::has_initial;\n    { transition.execute() } -  bool;\n  }\n}  Semantics  transitional T   Header  #include  boost/msm.hpp   Example  using namespace msm;\nauto transition = (\"idle\"_s == terminate);\nstatic_assert(transitional decltype(transition) );   configurable  Description  Requirements for the state machine.  Synopsis  template  class SM \nconcept bool configurable() {\n  return requires(SM sm) {\n    { sm.configure() };\n  }\n}  Semantics  configurable SM   Header  #include  boost/msm.hpp   Example  class example {\n  auto configure() const noexcept {\n    return make_transition_table();\n  }\n};\n\nstatic_assert(configurable example );   callable  Description  Requirements for action and guards.  Synopsis  template  class TResult, class T \nconcept bool callable() {\n  return requires(T object) {\n    { object(...) } -  TResult;\n  }\n}  Semantics  callable SM   Header  #include  boost/msm.hpp   Example  auto guard = [] { return true; };\nauto action = [] { };\n\nstatic_assert(callable bool, decltype(guard) );\nstatic_assert(callable void, decltype(action) );   dispatchable  Description  Requirements for the dispatch table.  Synopsis  template  class TDynamicEvent, TEvent \nconcept bool dispatchable() {\n  return requires(T) {\n    typename TEvent::id;\n    { TEvent(declval TDynamicEvent ()) };\n  }\n}  Semantics  dispatchable SM   Header  #include  boost/msm.hpp   Example  struct runtime_event { };\n\nstruct event {\n  static constexpr auto id = 42;\n  event(runtime_event) {}\n};\n\nstatic_assert(dispatchable runtime_event, event );", 
+            "title": "Concepts"
+        }, 
+        {
+            "location": "/user_guide/index.html#state", 
+            "text": "state  Description  Represents a state machine state.  Synopsis  template class TState  // no requirements, TState may be a state machine\nclass state {\npublic:\n  template  class T  // no requirements\n  auto operator==(const T  ) const noexcept;\n\n  template  class T  // no requirements\n  auto operator+(const T  ) const noexcept;\n\n  template  class T  requires callable bool, T \n  auto operator[](const T) const noexcept;\n\n  template  class T  requires callable void, T \n  auto operator/(const T  t) const noexcept;\n\n  const char* c_str() noexcept;\n};\n\ntemplate  class T, T... Chrs \nstate unspecified  operator\"\"_s() noexcept;\n\n// predefined states\nstate unspecified  terminate;\nstate unspecified  initial;  Semantics  state T {}  Header  #include  boost/msm.hpp   Example  state class idle  idle;\nauto idle = state class idle {};\nauto idle = \"idle\"_s;\n\nauto initial_state = idle(initial);\n\nauto last_state = terminate;", 
+            "title": "State"
+        }, 
+        {
+            "location": "/user_guide/index.html#event", 
+            "text": "event  Description  Represents a state machine event.  Synopsis  template TEvent  // no requirements\nclass event {\npublic:\n  template  class T  requires callable bool, T \n  auto operator[](const T  ) const noexcept;\n\n  template  class T  requires callable void, T \n  auto operator/(const T  t) const noexcept;\n};\n\ntemplate class TEvent \nevent TEvent  event{};\n\n// predefined events\nauto on_entry = event unspecified ;\nauto on_exit = event unspecified ;  Semantics  event T   Header  #include  boost/msm.hpp   Example  auto my_int_event = event int ;", 
+            "title": "Event"
+        }, 
+        {
+            "location": "/user_guide/index.html#transition-table", 
+            "text": "make_transition_table  Description  Creates a transition table.  Synopsis  template  class... Ts  requires transitional Ts ...\nauto make_transition_table(Ts...) noexcept;  Semantics  make_transition_table(transitions...);  Header  #include  boost/msm.hpp   Example  auto transition_table = make_transition_table(\n  \"idle_s\"(initial) == terminate + event int  / [] {}\n);", 
+            "title": "Transition Table"
+        }, 
+        {
+            "location": "/user_guide/index.html#state-machine", 
+            "text": "sm  Description  Creates a state machine.  Synopsis  template class T  requires configurable T \nclass sm {\npublic:\n  using states = unspecified;\n  using events = unspecified;\n\n  sm(sm  ) = default;\n  sm(const sm  ) = delete;\n  sm  operator=(const sm  ) = delete;\n\n  template  class... TDeps  requires dependable TDeps ...\n  sm(TDeps ...) noexcept;\n\n  template class TEvent  // no requirements\n  bool process_event(const TEvent ) noexcept;\n\n  template  class TVisitor  requires callable void, TVisitor \n  void visit_current_states(const TVisitor  ) const noexcept(noexcept(visitor(state{})));\n\n  template  class TState \n  bool is(const state TState   ) const noexcept;\n\n  template  class... TStates  requires sizeof...(TStates) == number_of_initial_states\n  bool is(const state TStates   ...) const noexcept;\n};     Function  Requirement  Description  Returns      process_event TEvent  -  process event  TEvent  returns true when handled, false otherwise    visit_current_states TVisitor  callable  visit current states  -    is TState  -  verify whether any of current states equals  TState  true when any current state matches  TState , false otherwise    is TStates...  size of TStates... equals number of initial states  verify whether all current states match  TStates...  true when all states match  TState... , false otherwise     Semantics  sm T {...};\nsm.process_event(TEvent{});\nsm.visit_current_states([](auto state){});\nsm.is(terminate);\nsm.is(s1, s2);  Header  #include  boost/msm.hpp   Example  struct my_event {};\n\nclass example {\npublic:\n  auto configure() const noexcept {\n  using namespace msm;\n    return make_transition_table(\n      \"idle\"_s(initial) == terminate + event my_event  / [](int i) { std::cout   i   std::endl; }\n    );\n  }\n};\n\nsm example  sm{42};\nassert(sm.is(\"idle\"_s));\nassert(!sm.process_event(int{})); // no handled\nassert(sm.process_event(my_event{})); // handled\nassert(sm.is(terminate));\n\nsm.visit_current_states([](auto state) { std::cout   state.c_str()   std::endl; });", 
+            "title": "State Machine"
+        }, 
+        {
+            "location": "/user_guide/index.html#dispatch-table", 
+            "text": "make_dispatch_table  Description  Creates a dispatch table to handle runtime events.  Synopsis  template class TEvent, int EventRangeBegin, int EventRangeBegin, class SM  requires dispatchable TEvent, typename SM::events \ncallable bool, (TEvent, int)  make_dispatch_table(sm SM ) noexcept;  Semantics  make_dispatch_table T, 0, 10 (sm);  Header  #include  boost/msm.hpp   Example  struct runtime_event {\n  int id = 0;\n};\nstruct event1 {\n  static constexpr auto id = 1;\n  event1(const runtime_event  ) {}\n};\n\nauto dispatch_event = msm::make_dispatch_table runtime_event, 1 /*min*/, 5 /*max*/ (sm);\nassert(dispatch_event(event, event.id));", 
+            "title": "Dispatch Table"
         }, 
         {
             "location": "/examples/index.html", 
             "text": "Hello World\n\n\n\n\nTransitions\n\n\n\n\nAction Guards\n\n\n\n\nStates\n\n\n\n\nEvents\n\n\n\n\nOrthogonal Regions\n\n\n\n\nComposite\n\n\n\n\neUML Emulation\n\n\n\n\nLogging\n\n\n\n\nTesting\n\n\n\n\nDependency Injection\n\n\n\n\nRuntime Dispatcher", 
             "title": "Examples"
+        }, 
+        {
+            "location": "/examples/index.html#hello-world", 
+            "text": "", 
+            "title": "Hello World"
+        }, 
+        {
+            "location": "/examples/index.html#transitions", 
+            "text": "", 
+            "title": "Transitions"
+        }, 
+        {
+            "location": "/examples/index.html#action-guards", 
+            "text": "", 
+            "title": "Action Guards"
+        }, 
+        {
+            "location": "/examples/index.html#states", 
+            "text": "", 
+            "title": "States"
+        }, 
+        {
+            "location": "/examples/index.html#events", 
+            "text": "", 
+            "title": "Events"
+        }, 
+        {
+            "location": "/examples/index.html#orthogonal-regions", 
+            "text": "", 
+            "title": "Orthogonal Regions"
+        }, 
+        {
+            "location": "/examples/index.html#composite", 
+            "text": "", 
+            "title": "Composite"
+        }, 
+        {
+            "location": "/examples/index.html#euml-emulation", 
+            "text": "", 
+            "title": "eUML Emulation"
+        }, 
+        {
+            "location": "/examples/index.html#logging", 
+            "text": "", 
+            "title": "Logging"
+        }, 
+        {
+            "location": "/examples/index.html#testing", 
+            "text": "", 
+            "title": "Testing"
+        }, 
+        {
+            "location": "/examples/index.html#dependency-injection", 
+            "text": "", 
+            "title": "Dependency Injection"
+        }, 
+        {
+            "location": "/examples/index.html#runtime-dispatcher", 
+            "text": "", 
+            "title": "Runtime Dispatcher"
         }, 
         {
             "location": "/CHANGELOG/index.html", 
@@ -37,8 +247,13 @@
         }, 
         {
             "location": "/CHANGELOG/index.html#100-tbd", 
-            "text": "Added   Initial version", 
+            "text": "", 
             "title": "1.0.0 - TBD"
+        }, 
+        {
+            "location": "/CHANGELOG/index.html#added", 
+            "text": "Initial version", 
+            "title": "Added"
         }, 
         {
             "location": "/TODO/index.html", 
