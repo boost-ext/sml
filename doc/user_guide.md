@@ -1,6 +1,4 @@
-###Concepts
-
-**transitional**
+###transitional [concept]
 
 *Description*
 
@@ -37,7 +35,7 @@ Requirements for transition.
 
 ---
 
-**configurable**
+###configurable [concept]
 
 *Description*
 
@@ -72,7 +70,7 @@ Requirements for the state machine.
 
 ---
 
-**callable**
+###callable [concept]
 
 *Description*
 
@@ -105,7 +103,7 @@ Requirements for action and guards.
 
 ---
 
-**dispatchable**
+###dispatchable [concept]
 
 *Description*
 
@@ -142,9 +140,7 @@ Requirements for the dispatch table.
 
 ---
 
-###State
-
-**state**
+###state [core]
 
 *Description*
 
@@ -190,16 +186,14 @@ Represents a state machine state.
     state<class idle> idle;
     auto idle = state<class idle>{};
     auto idle = "idle"_s;
-  
+
     auto initial_state = idle(initial);
-  
+
     auto last_state = terminate;
 
 ---
 
-###Event
-
-**event**
+###event [core]
 
 *Description*
 
@@ -238,9 +232,7 @@ Represents a state machine event.
 
 ---
 
-###Transition Table
-
-**make_transition_table**
+###make_transition_table [state machine]
 
 *Description*
 
@@ -265,13 +257,18 @@ Creates a transition table.
       "idle_s"(initial) == terminate + event<int> / [] {}
     );
 
+    class example {
+    public:
+      auto configure() const noexcept {
+        return make_transition_table();
+      }
+    };
+
 ![CPP(TEST)](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
 
 ---
 
-###State Machine
-
-**sm**
+###sm [state machine]
 
 *Description*
 
@@ -350,9 +347,7 @@ Creates a state machine.
 
 ---
 
-###Dispatch Table
-
-**make_dispatch_table**
+###make_dispatch_table [extension]
 
 *Description*
 
