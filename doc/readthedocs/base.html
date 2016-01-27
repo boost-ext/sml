@@ -63,13 +63,12 @@
 	{# SIDE NAV, TOGGLES ON MOBILE #}
 	<nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
 
-	  <img src="{{base_url}}/img/boost.png" />
+      <a href="http://boost.org"><img src="{{base_url}}/img/boost.png" /></a>
+      <a href="{{ homepage_url }}" class="icon icon-home" style="font-weight:bold;text-align:left;padding:0.809em;color:#fcfcfc;margin-bottom:0.809em"> {{ site_name }}</a>
 
       <div class="wy-side-nav-search">
-  	  <a href="{{ homepage_url }}" class="icon icon-home"> {{ site_name }}</a>
 		{% include "searchbox.html" %}
       </div>
-
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
 
@@ -79,7 +78,6 @@
           {% endfor %}
         </ul>
       </div>
-
 
     </nav>
 
