@@ -13,34 +13,6 @@ CLANG_TIDY?=clang-tidy
 PYTHON?=python
 MKDOCS?=mkdocs
 
-define UPDATE_README
-import fileinput, sys
-generating = False
-for line in fileinput.input('../README.md', inplace=True):
-  if line.startswith('[](GENERATE_TOC_BEGIN)'):
-    generating = True
-    print(line)
-    with open('mkdocs.yml', 'r') as file:
-      for line in file:
-        index = line.split(':')
-        if index[0][0] == '-':
-          ext = ('.html' if index[1][1:-4] == 'index' else '/index.html')
-          print('* [' + index[0][2:] + '](http://boost-experimental.github.io/msm-lite/' + index[1][1:-4] + ext + ')')
-          with open(index[1][1:-1], 'r') as md:
-            for line in md:
-              if line.startswith('##'):
-                name = line.replace('#', '')[:-1]
-                id = filter(lambda c: c == '-' or str.isalnum(c), name.lower().replace(" ", "-")).replace("--", "")
-                print('    * [' + name + '](http://boost-experimental.github.io/msm-lite/' + index[1][1:-4] + ext + "#" + id + ')')
-    print
-  elif line.startswith('[](GENERATE_TOC_END)'):
-    generating = False
-    sys.stdout.write(line)
-  elif generating == False:
-    sys.stdout.write(line)
-endef
-export UPDATE_README
-
 all: test example pt
 
 pt: pt_header pt_simple pt_composite pt_complex
@@ -74,7 +46,7 @@ check_static_analysis:
 	$(CLANG_TIDY) -header-filter='msm' `find example test -type f -iname "*.cpp"` -- -std=c++1y -I include -I test -include test.hpp
 
 doc:
-	cd doc && $(MKDOCS) build --clean && $(PYTHON) -c "$$UPDATE_README"
+	cd doc && $(MKDOCS) build --clean && $(PYTHON) readthedocs/scripts/update_readme_toc.py doc/mkdocs.yml README.md http://boost-experimental.github.io/msm-lite
 
 clean:
 	find example test -iname "*.out" | xargs rm -f
