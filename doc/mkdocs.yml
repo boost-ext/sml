@@ -6,9 +6,7 @@ site_author: Krzysztof Jusiak
 repo_url: https://github.com/krzysztof-jusiak/msm-lite
 repo_name: msm-lite
 use_directory_urls: false
-theme_dir: readthedocs
-extra_javascript: [js/gitter.js, js/cpp.js, js/html.js, js/youtube.js, js/codemirror/codemirror.js, js/codemirror/active-line.js, js/codemirror/clike.js]
-extra_css: [css/codemirror.css, css/mdn-like.css]
+theme_dir: boost
 
 docs_dir: .
 pages:

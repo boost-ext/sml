@@ -45,6 +45,7 @@
     * [Event](http://boost-experimental.github.io/msm-lite/user_guide/index.html#event)
     * [Transition Table](http://boost-experimental.github.io/msm-lite/user_guide/index.html#transition-table)
     * [State Machine](http://boost-experimental.github.io/msm-lite/user_guide/index.html#state-machine)
+    * [Dispatch Table](http://boost-experimental.github.io/msm-lite/user_guide/index.html#dispatch-table)
 * [Examples](http://boost-experimental.github.io/msm-lite/examples/index.html)
     * [Hello World](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)
     * [Transitions](http://boost-experimental.github.io/msm-lite/examples/index.html#transitions)

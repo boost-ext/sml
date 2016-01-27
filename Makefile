@@ -46,7 +46,7 @@ check_static_analysis:
 	$(CLANG_TIDY) -header-filter='msm' `find example test -type f -iname "*.cpp"` -- -std=c++1y -I include -I test -include test.hpp
 
 doc:
-	cd doc && $(MKDOCS) build --clean && $(PYTHON) readthedocs/scripts/update_readme_toc.py mkdocs.yml ../README.md http://boost-experimental.github.io/msm-lite
+	cd doc && $(MKDOCS) build --clean && $(PYTHON) boost/scripts/update_readme_toc.py mkdocs.yml ../README.md http://boost-experimental.github.io/msm-lite
 
 clean:
 	find example test -iname "*.out" | xargs rm -f
