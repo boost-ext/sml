@@ -89,11 +89,6 @@ test join_types = [] {
 
 namespace concepts {
 
-void callf() {}
-void callf1(int) {}
-template <class T>
-void callf2(T) {}
-
 struct call {};
 struct call1 {
   void operator()();
@@ -122,22 +117,22 @@ struct call6 {
 
 auto calll1 = [] {};
 auto calll2 = [](int) {};
+auto calll3 = [] { return true; };
 
 test callable_types = [] {
-  static_expect(!callable<call>::value);
-  static_expect(callable<call1>::value);
-  static_expect(callable<call2>::value);
-  static_expect(callable<call3>::value);
-  static_expect(callable<call4>::value);
-  static_expect(callable<call5>::value);
-  static_expect(callable<call6>::value);
-  static_expect(callable<decltype(callf)>::value);
-  static_expect(callable<decltype(callf1)>::value);
-  static_expect(callable<decltype(callf2<int>)>::value);
-  static_expect(callable<decltype(calll1)>::value);
-  static_expect(callable<decltype(calll2)>::value);
+  static_expect(!callable<void, call>::value);
+  static_expect(callable<void, call1>::value);
+  static_expect(callable<void, call2>::value);
+  static_expect(callable<bool, call3>::value);
+  static_expect(callable<bool, call4>::value);
+  static_expect(callable<bool, call5>::value);
+  static_expect(callable<bool, call6>::value);
+  static_expect(callable<void, decltype(calll1)>::value);
+  static_expect(callable<void, decltype(calll2)>::value);
+  static_expect(callable<bool, decltype(calll3)>::value);
   (void)calll1;
   (void)calll2;
+  (void)calll3;
 };
 }  // concepts
 }  // v_1_0_0

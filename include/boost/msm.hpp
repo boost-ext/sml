@@ -293,10 +293,12 @@ template <class T>
 aux::false_type test_callable(aux::non_type<void (callable_fallback::*)(), &T::operator()> *);
 template <class>
 aux::true_type test_callable(...);
-template <class T>
-struct callable : decltype(test_callable<aux::inherit<T, callable_fallback>>(0)) {};
-template <class T, class... TArgs>
-struct callable<T(TArgs...)> : aux::true_type {};
+template <class, class>
+struct callable_impl : aux::false_type {};
+template <class R>
+struct callable_impl<R, aux::true_type> : aux::true_type {};
+template <class R, class T>
+using callable = callable_impl<R, decltype(test_callable<aux::inherit<T, callable_fallback>>(0))>;
 
 template <class...>
 struct is_valid_transition : aux::true_type {};
@@ -376,12 +378,12 @@ struct process_event {
 
 template <class>
 struct event {
-  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value)>
+  template <class T, BOOST_MSM_REQUIRES(concepts::callable<bool, T>::value)>
   auto operator[](const T &t) const noexcept {
     return transition_eg<event, T>{*this, t};
   }
 
-  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value)>
+  template <class T, BOOST_MSM_REQUIRES(concepts::callable<void, T>::value)>
   auto operator/(const T &t) const noexcept {
     return transition_ea<event, T>{*this, t};
   }
@@ -418,12 +420,12 @@ struct state_impl : state_str<TState> {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
 
-  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value)>
+  template <class T, BOOST_MSM_REQUIRES(concepts::callable<bool, T>::value)>
   auto operator[](const T &t) const noexcept {
     return transition_sg<TState, T>{static_cast<const TState &>(*this), t};
   }
 
-  template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value)>
+  template <class T, BOOST_MSM_REQUIRES(concepts::callable<void, T>::value)>
   auto operator/(const T &t) const noexcept {
     return transition_sa<TState, T>{static_cast<const TState &>(*this), t};
   }
@@ -1267,22 +1269,22 @@ struct sm : detail::sm<T> {
 };
 }  // testing
 
-template <class T, BOOST_MSM_REQUIRES(concepts::callable<T>::value)>
+template <class T, BOOST_MSM_REQUIRES(concepts::callable<bool, T>::value)>
 auto operator!(const T &t) noexcept {
   return detail::not_<T>(t);
 }
 
-template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<T1>::value &&concepts::callable<T2>::value)>
+template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
 auto operator&&(const T1 &t1, const T2 &t2) noexcept {
   return detail::and_<T1, T2>(t1, t2);
 }
 
-template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<T1>::value &&concepts::callable<T2>::value)>
+template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
 auto operator||(const T1 &t1, const T2 &t2) noexcept {
   return detail::or_<T1, T2>(t1, t2);
 }
 
-template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<T1>::value &&concepts::callable<T2>::value)>
+template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<void, T1>::value &&concepts::callable<void, T2>::value)>
 auto operator, (const T1 &t1, const T2 &t2) noexcept {
   return detail::seq_<T1, T2>(t1, t2);
 }
