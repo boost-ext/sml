@@ -350,6 +350,8 @@ Creates a state machine.
 
 ---
 
+###Dispatch Table
+
 **make_dispatch_table**
 
 *Description*
