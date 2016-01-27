@@ -1098,23 +1098,23 @@ class sm {
     return process_event_impl<get_event_mapping_t<TEvent, mappings_t>>(event, states_t{}, aux::make_index_sequence<regions>{});
   }
 
-  template <class TVisitor>
+  template <class TVisitor, BOOST_MSM_REQUIRES(concepts::callable<void, TVisitor>::value)>
   void visit_current_states(const TVisitor &visitor) const noexcept(noexcept(visitor(state<initial_state>{}))) {
     visit_current_states_impl(visitor, states_t{}, aux::make_index_sequence<regions>{});
   }
 
-  template <class T>
-  bool is(const T &) const noexcept {
+  template <class TState>
+  bool is(const state<TState> &) const noexcept {
     auto result = false;
-    visit_current_states([&](auto state) { result |= aux::is_same<T, decltype(state)>::value; });
+    visit_current_states([&](auto state) { result |= aux::is_same<TState, typename decltype(state)::type>::value; });
     return result;
   }
 
   template <class... TStates, BOOST_MSM_REQUIRES(sizeof...(TStates) == regions)>
-  bool is(const TStates &...) const noexcept {
+  bool is(const state<TStates> &...) const noexcept {
     auto result = true;
     auto i = 0;
-    int state_ids[] = {aux::get_id<states_ids_t, 0, typename TStates::type>()...};
+    int state_ids[] = {aux::get_id<states_ids_t, 0, TStates>()...};
     visit_current_states(
         [&](auto state) { result &= (aux::get_id<states_ids_t, 0, typename decltype(state)::type>() == state_ids[i++]); });
     return result;
@@ -1304,7 +1304,7 @@ using state = detail::state<T>;
 
 #if !defined(_MSC_VER)
 template <class T, T... Chrs>
-auto operator""_s() {
+auto operator""_s() noexcept {
   return state<aux::string<Chrs...>>{};
 }
 #endif
