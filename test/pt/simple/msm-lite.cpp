@@ -6,9 +6,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "benchmark.hpp"
-#include "boost/msm.hpp"
+#include "boost/msm-lite.hpp"
 
-namespace msm = boost::msm;
+namespace msm = boost::msm::lite;
 
 struct play {};
 struct end_pause {};

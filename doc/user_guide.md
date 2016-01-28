@@ -26,7 +26,6 @@ Requirements for transition.
 
     transitional<T>
 
-
 ***Example***
 
     using namespace msm;
@@ -65,6 +64,8 @@ Requirements for the state machine.
     };
 
     static_assert(configurable<example>);
+
+---
 
 ###callable [concept]
 
@@ -132,6 +133,8 @@ Requirements for the dispatch table.
 
     static_assert(dispatchable<runtime_event, event>);
 
+---
+
 ###state [core]
 
 ***Header***
@@ -183,6 +186,8 @@ Represents a state machine state.
 
     auto last_state = terminate;
 
+---
+
 ###event [core]
 
 ***Header***
@@ -220,6 +225,8 @@ Represents a state machine event.
 
     auto my_int_event = event<int>;
 
+---
+
 ###make_transition_table [state machine]
 
 ***Header***
@@ -251,6 +258,8 @@ Creates a transition table.
         return make_transition_table();
       }
     };
+
+---
 
 ###sm [state machine]
 
@@ -327,6 +336,8 @@ Creates a state machine.
 
     sm.visit_current_states([](auto state) { std::cout << state.c_str() << std::endl; });
 
+---
+
 ###testing::sm [testing]
 
 ***Header***
@@ -366,6 +377,8 @@ Creates a state machine with testing capabilities.
     sm.process_event(TEvent{});
     sm.is(terminate);
 
+---
+
 ###make_dispatch_table [extension]
 
 ***Header***
@@ -397,6 +410,8 @@ Creates a dispatch table to handle runtime events.
 
     auto dispatch_event = msm::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max*/>(sm);
     assert(dispatch_event(event, event.id));
+
+---
 
 ###BOOST_MSM_LOG [debugging]
 
@@ -446,3 +461,4 @@ Add logging support for the state machine.
     #define BOOST_MSM_LOG(T, SM, ...) log_##T<SM>(__VA_ARGS__)
     #include "boost/msm.hpp"
 
+---

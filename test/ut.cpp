@@ -5,11 +5,12 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "boost/msm.hpp"
+#include "boost/msm-lite.hpp"
 
 namespace boost {
 namespace msm {
-inline namespace lite_1_0_0 {
+namespace lite {
+inline namespace v_1_0_0 {
 namespace aux {
 
 test remove_reference_types = [] {
@@ -136,5 +137,6 @@ test callable_types = [] {
 };
 }  // concepts
 }  // v_1_0_0
+}  // lite
 }  // msm
 }  // boost

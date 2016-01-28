@@ -21,7 +21,7 @@ msm-lite: C++14 Meta State Machine Library
 * [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)
 
 ###Do I need a State Machine?
-State Machine design pattern allows you to avoid maintaing following design.
+State Machine design pattern allows you to avoid maintaining following spaghetti code.
 
 ```cpp
 void some_function() {

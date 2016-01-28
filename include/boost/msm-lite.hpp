@@ -23,7 +23,8 @@
 #endif
 namespace boost {
 namespace msm {
-inline namespace lite_1_0_0 {
+namespace lite {
+inline namespace v_1_0_0 {
 namespace aux {
 using byte = unsigned char;
 struct none_type {};
@@ -1331,7 +1332,8 @@ auto make_dispatch_table(sm<SM> &fsm) noexcept {
   return detail::make_dispatch_table<TEvent, EventRangeBegin>(fsm,
                                                               aux::make_index_sequence<EventRangeEnd - EventRangeBegin + 1>{});
 }
-}  // lite_1_0_0
+}  // v_1_0_0
+}  // lite
 }  // msm
 }  // boost
 #endif

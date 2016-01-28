@@ -6,7 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <string>
-#include "boost/msm.hpp"
+#include "boost/msm-lite.hpp"
 // clang-format off
 #if __has_include(<boost/di.hpp>)
 // clang-format on
@@ -14,7 +14,7 @@
 namespace di = boost::di;
 #endif
 
-namespace msm = boost::msm;
+namespace msm = boost::msm::lite;
 
 struct e1 {};
 struct e2 {};

@@ -1,3 +1,10 @@
+All code examples include `boost/msm-lite.hpp` as well as declare a convienent msm namespace alias.
+
+```cpp
+#include <boost/msm-lite.hpp>
+namespace msm = boost::msm::lite;
+```
+
 ###0. Read Boost.MSM - eUML documentation
 * [Boost.MSM - UML Short Guide](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch02.html)
 * [Boost.MSM - eUML Documentation](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)

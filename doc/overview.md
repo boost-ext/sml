@@ -1,13 +1,13 @@
 ###Quick Start
 
-* Get [boost/msm.hpp](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm.hpp) header
+* Get [boost/msm-lite.hpp](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm.hpp) header
 ```sh
-    wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm.hpp
+    wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp
 ```
 
 * Include the header
 ```cpp
-    #include "boost/msm.hpp"
+    #include "boost/msm-lite.hpp"
 ```
 
 * Compile with C++14 support

@@ -8,13 +8,13 @@
 // clang-format off
 #if __has_include(<boost/di.hpp>)
 // clang-format on
-#include "boost/msm.hpp"
+#include "boost/msm-lite.hpp"
 #include <boost/di.hpp>
 #include <cassert>
 #include <typeinfo>
 #include <iostream>
 
-namespace msm = boost::msm;
+namespace msm = boost::msm::lite;
 
 struct e1 {};
 struct e2 {};
