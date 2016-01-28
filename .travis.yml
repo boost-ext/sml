@@ -52,10 +52,16 @@ matrix:
         packages: ["clang-3.8", "valgrind"]
         sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise"]
   - os: linux
-    env: CXX=g++-5 MEMCHECK=VALGRIND GCOV=gcov-5 VARIANT=coverage
+    env: CXX=g++-5 MEMCHECK=VALGRIND GCOV=gcov-5
     addons:
       apt:
         packages: ["g++-5", "valgrind"]
+        sources: ["ubuntu-toolchain-r-test"]
+  - os: linux
+    env: CXX=g++-5 GCOV=gcov-5 VARIANT=coverage
+    addons:
+      apt:
+        packages: ["g++-5"]
         sources: ["ubuntu-toolchain-r-test"]
   - os: osx
     osx_image: xcode6.1
@@ -79,7 +85,8 @@ before_install:
   - git config --global push.default simple
 
 script:
-  - if [ "${CXX}" != "" ]; then (travis_wait make test example); fi
+  - if [ "${CXX}" != "" ] && [ "${VARIANT}" != "coverage" ]; then (travis_wait make test example); fi
+  - if [ "${CXX}" != "" ] && [ "${VARIANT}" == "coverage" ]; then (travis_wait make test); fi
   - if [ "${CHECK}" != "" ]; then (travis_wait make style_check static_check); fi
   - if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${DOCUMENTATION}" != "" ]; then (
     pip install --user travis https://github.com/mkdocs/mkdocs/archive/0.15.0.zip
