@@ -26,7 +26,7 @@ pt_%:
 test: $(patsubst %.cpp, %.out, $(shell find test -maxdepth 1 -iname "*.cpp"))
 
 test/%.out:
-	$(CXX) test/$*.cpp $(CXXFLAGS) $$(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.out && $($(MEMCHECK)) test/$*.out
+	$(CXX) test/$*.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.out && $($(MEMCHECK)) test/$*.out
 
 example: $(patsubst %.cpp, %.out, $(shell find example -iname "*.cpp"))
 
