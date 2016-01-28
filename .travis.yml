@@ -93,7 +93,7 @@ script:
     && make doc && git clone https://github.com/boost-experimental/msm-lite.git
     && cd msm-lite && git checkout -b gh-pages -t origin/gh-pages && git reset --hard
     && rm -rf * && cp -r ../doc/site/* . && git add -A . && git commit -am "doc update"
-    && git push --force --quiet); fi
+    && git push --force --quiet "https://${GH_TOKEN}@github.com/boost-experimental/msm-lite"); fi
 
 after_success:
   - if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${VARIANT}" == "coverage" ]; then (pip
