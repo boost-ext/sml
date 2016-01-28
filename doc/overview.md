@@ -16,9 +16,9 @@
     $CXX -std=c++14 ...
 ```
 
-* To run tests clone the repository and run
+* To run tests
 ```sh
-    make test
+    git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make test
 ```
 
 ###Dependencies
