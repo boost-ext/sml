@@ -36,7 +36,7 @@ example/errors/%.out:
 example/%.out:
 	$(CXX) example/$*.cpp $(CXXFLAGS) -I include -o example/$*.out && $($(MEMCHECK)) example/$*.out
 
-style_style:
+style_check:
 	@find include example test -iname "*.hpp" -or -iname "*.cpp" | xargs $(CLANG_FORMAT) -i
 	@git diff include example test
 	@exit `git ls-files -m include example test | wc -l`
