@@ -74,4 +74,4 @@
 
 ---
 
-**Disclaimer** `boost.msm-lite` is not an official Boost library.
+**Disclaimer** `Boost.MSM-lite` is not an official Boost library.
