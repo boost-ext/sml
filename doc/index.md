@@ -1,6 +1,5 @@
 <a href="http://www.boost.org/LICENSE_1_0.txt" target="_blank">![Boost Licence](http://img.shields.io/badge/license-boost-blue.svg)</a>
 <a href="https://github.com/boost-experimental/msm-lite/releases" target="_blank">![Version](https://badge.fury.io/gh/boost-experimental%2Fmsm-lite.svg)</a>
-<a href="https://github.com/boost-experimental/msm-lite/releases/latest" target="_blank">![Github Release](http://img.shields.io/github/release/boost-experimental/msm-lite.svg)</a>
 <a href="https://travis-ci.org/boost-experimental/msm-lite" target="_blank">![Build Status](https://img.shields.io/travis/boost-experimental/msm-lite/master.svg?label=linux/osx)</a>
 <a href="https://ci.appveyor.com/project/boost-experimental/msm-lite" target="_blank">![Build Status](https://img.shields.io/appveyor/ci/boost-experimental/di/master.svg?label=windows)</a>
 <a href="https://coveralls.io/r/boost-experimental/msm-lite?branch=master" target="_blank">![Coveralls](http://img.shields.io/coveralls/boost-experimental/msm-lite/master.svg)</a>
@@ -13,7 +12,7 @@ Introduction
 
 | **Experimental Boost.MSM-lite** | |
 | - | - |
-| Your scalable C++14 header only eUML-like meta state machine library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-experimental/msm-lite" data-icon="octicon-star" data-style="mega" data-count-href="/boost-experimental/msm-lite/stargazers" data-count-api="/repos/boost-experimental/msm-lite#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-experimental/msm-lite on GitHub">Star</a> |
+| Your scalable C++14 header only eUML-like meta state machine library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-experimental/msm-lite" data-style="mega" data-count-href="/boost-experimental/msm-lite/stargazers" data-count-api="/repos/boost-experimental/msm-lite#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-experimental/msm-lite on GitHub">GitHub</a> |
 
 ###UML State Machine
 
