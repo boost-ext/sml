@@ -5,6 +5,10 @@
 # (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
 sudo: false
+env:
+  global:
+  - secure: "A27gNApbElRr3fqZXifVPKkB+xbxMYDFINGk2RDqul1X1Zg51M7e+ohHO9BwhEYiOGmCnFfbsVUP11XyFIH6kzWmxw9mhy8YDglbYfeyu6grxtU3mHElz8W7wO5OCPFPWXQf23sVYE8AWyjj6M+t3oyLJhPXCcYI7uMHEQm10CQ=" # GH_TOKEN
+  - secure: "QvM1ONwXrVqZS8fRmV9LoEOSenzpFG8svl6Bz7YmmcGWhRq7EqZIzjYm5hp2xT+cNJv4HkW6YO4GFUj5gXaWNTI12ZkuhctBa1YYHgaP/aJaU82bbfsFF4dAmgbjd9qXEMX6pWR0NuHEgwCaYH5ge4LxJiRWrz5fkJ7g0XU2j26sFJW2w/fVZbd7Bb3V8T8hGX4qMCGfcktXyZi59khB450VUFOFeWXiStLMiZoLJzpGI7FG4SvAfljrTA7/JzTVfey+SL9+k3DwLn6zUnNMEMs2XYUwd3qmEWzoLCGTnF0n06/GflUg6EoiEvNECQ2soGpzBVzS0+zShn5YGqQFyHm01PQ7HejMRXlw4Ee89kDMW4MGQCnYaXpxsuqFoGyJZzwiczgJ0V7sJwPLw3vq/zEj388cciiyz+C/BMdlMph6bF5LhrWt7owt8TG8s7JdZ2iY2t/6uBMiVKbS4pIIZfD+Bn21BfXAqg5gXvsSpBI/MdIR34u+wUQT5tUHthnuzAy0lLdtD+/Z0PDN7Bh8Cj8p0hxnbAI6v5Q4b1Hydvr1unOZue7AV9zxAmjN6MsWDUK2XznM6b0roRfaai4yRxbOrDLXWdsEK/bTxceTRhX1PdgYGN7VMFHjYo0sbPJ3vxlHaURyUW/hmKTrVrUFHZD3Sf5NJuI2XxHg7dl0/9c=" # COVERALLS_REPO_TOKEN
 
 matrix:
   fast_finish: true
@@ -15,6 +19,8 @@ matrix:
       apt:
         packages: ["clang-3.7", "clang-tidy-3.7"]
         sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"]
+  - os: linux
+    env: DOCUMENTATION=ON
   - os: linux
     env: CXX=/usr/local/clang-3.4/bin/clang++ MEMCHECK=VALGRIND
     addons:
@@ -46,7 +52,7 @@ matrix:
         packages: ["clang-3.8", "valgrind"]
         sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise"]
   - os: linux
-    env: CXX=g++-5 MEMCHECK=VALGRIND
+    env: CXX=g++-5 MEMCHECK=VALGRIND GCOV=gcov-5 VARIANT=coverage
     addons:
       apt:
         packages: ["g++-5", "valgrind"]
@@ -75,6 +81,17 @@ before_install:
 script:
   - if [ "${CXX}" != "" ]; then (travis_wait make test example); fi
   - if [ "${CHECK}" != "" ]; then (travis_wait make check static_check); fi
+  - if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${DOCUMENTATION}" != "" ]; then (pip
+    && install --user travis https://github.com/mkdocs/mkdocs/archive/0.15.0.zip
+    && make doc && git clone https://github.com/boost-experimental/msm-lite.git
+    && cd msm-lite && git checkout -b gh-pages -t origin/gh-pages && git reset --hard
+    && rm -rf * && cp -r ../doc/site/* . && git add -A . && git commit -am "doc update"
+    && git push --force --quiet); fi
+
+after_success:
+  - if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${VARIANT}" == "coverage" ]; then (pip
+    install --user travis requests[security] cpp-coveralls && coveralls -r . -b test/ --gcov /usr/bin/${GCOV}
+    --repo-token "${COVERALLS_REPO_TOKEN}"); fi
 
 notifications:
   webhooks:

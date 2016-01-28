@@ -8,6 +8,7 @@
 CXX?=clang++
 CXXFLAGS:=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -fno-exceptions
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
+COVERAGE:=-fprofile-arcs -ftest-coverage
 CLANG_FORMAT?=clang-format
 CLANG_TIDY?=clang-tidy
 PYTHON?=python
@@ -25,7 +26,7 @@ pt_%:
 test: $(patsubst %.cpp, %.out, $(shell find test -maxdepth 1 -iname "*.cpp"))
 
 test/%.out:
-	$(CXX) test/$*.cpp $(CXXFLAGS) -I include -I. -include test/test.hpp -o test/$*.out && $($(MEMCHECK)) test/$*.out
+	$(CXX) test/$*.cpp $(CXXFLAGS) $$(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.out && $($(MEMCHECK)) test/$*.out
 
 example: $(patsubst %.cpp, %.out, $(shell find example -iname "*.cpp"))
 
