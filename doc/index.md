@@ -37,7 +37,7 @@ void some_function() {
 ```
 
 If above code looks somewhat similar to your code base or if you like
-to avoid it `msm-lite` may suits you!
+to avoid it `Boost.MSM-lite` may suits you!
 
 ###Why Boost.MSM-lite?
 
