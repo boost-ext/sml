@@ -23,10 +23,10 @@ $.fn.toHtml=function(){
    return $(this).html($(this).text())
 }
 
-function toggle(id, file) {
-    document.getElementById("run_it_btn_" + id).firstChild.data = 'Run this code!';
+function toggle(id, file, text) {
+    document.getElementById("run_it_btn_" + id).firstChild.data = text;
     document.getElementById("run_it_btn_" + id).removeChild;
-    document.getElementById("run_it_btn_" + id).onclick = function() { cpp(id, file); };
+    document.getElementById("run_it_btn_" + id).onclick = function() { cpp(id, file, text); };
     document.getElementById("code_listing_" + id).style.display = 'block';
     cpp_code[id].toTextArea();
     document.getElementById("code_" + id).style.display = 'none';
@@ -35,9 +35,9 @@ function toggle(id, file) {
     document.getElementById("compile_and_run_" + id).remove();
 }
 
-function cpp(id, file) {
+function cpp(id, file, text) {
     document.getElementById('run_it_btn_' + id).firstChild.data = 'Exit';
-    document.getElementById("run_it_btn_" + id).onclick = function() { toggle(id, file); };
+    document.getElementById("run_it_btn_" + id).onclick = function() { toggle(id, file, text); };
     document.getElementById("code_listing_" + id).style.display = 'none';
 
     var compile_btn = document.createElement("BUTTON");
@@ -139,11 +139,14 @@ $(document).ready(function () {
 		var id = file.hashCode();
 		var compile = "\/\/ $CXX -std=c++14 " + basename;
 		example = $('<div/>').text(example.substring(i + n + 2)).html();
-        $(this).replaceWith('<button class="btn btn-neutral float-right" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\')">Run this code!</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"><pre><code class="cpp">' + compile + '\n\n' + example + '</code></pre></div>');
+        $(this).replaceWith('<button class="btn btn-neutral float-right" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\', \'Run this code!\')">Run this code!</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"><pre><code class="cpp">' + compile + '\n\n' + example + '</code></pre></div>');
     });
 
-    $('img[alt="CPP(TEST)"]').each(function () {
-        var file = $(this).attr('src');
+    $('img[alt="CPP(BTN)"]').each(function () {
+        var text = $(this).attr('src');
+        console.log(text);
+        var name = text.split("|")[0].replace(/_/g, ' ').replace(/\//g, '').replace(/\./g, '');
+        var file = text.split("|")[1];
         var basename = $(this).attr('src').split('/')[$(this).attr('src').split('/').length - 1];
 		var regex = "#include.*";
 		var example = get_cpp_file(file);
@@ -152,9 +155,6 @@ $(document).ready(function () {
 		var id = file.hashCode();
 		var compile = "\/\/ $CXX -std=c++14 " + basename;
 		example = $('<div/>').text(example.substring(i + n + 2)).html();
-        example = "make_transition_Table(); configure;"
-        $(this).replaceWith('<button class="btn btn-neutral float-right" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\')">Run this code!</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"><table style="table-layout: fixed; width: 100%; border: 1px;"><thead style="background: #edf0f2;"><tr><th>Code</th><th>Test</th></tr></thead><tbody><tr><td><pre><code class="cpp">' + compile + '\n\n' + example + '</code></pre></td><td><pre><code class="cpp">' + compile + '\n\n' + example + '</code></pre></td></tr></tbody></table></div>');
+        $(this).replaceWith('<button class="btn float" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\', \'' + name + '\')">' + name + '</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"></div>');
     });
-
 });
-
