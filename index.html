@@ -77,6 +77,9 @@
             
                 <li class="toctree-l3"><a href="#introduction">Introduction</a></li>
                 
+            
+                <li class="toctree-l3"><a href="#experimental-boostmsm-lite">experimental boost.msm-lite</a></li>
+                
                     <li><a class="toctree-l4" href="#uml-state-machine">UML State Machine</a></li>
                 
                     <li><a class="toctree-l4" href="#do-i-need-a-state-machine">Do I need a State Machine?</a></li>
@@ -184,10 +187,12 @@
 <a href="https://github.com/krzysztof-jusiak/msm-lite/releases" target="_blank"><img alt="Version" src="https://badge.fury.io/gh/krzysztof-jusiak%2Fmsm-lite.svg" /></a>
 <a href="https://github.com/krzysztof-jusiak/msm-lite/releases/latest" target="_blank"><img alt="Github Release" src="http://img.shields.io/github/release/krzysztof-jusiak/msm-lite.svg" /></a>
 <a href="https://travis-ci.org/krzysztof-jusiak/msm-lite" target="_blank"><img alt="Build Status" src="https://img.shields.io/travis/krzysztof-jusiak/msm-lite/cpp14.svg?label=linux/osx" /></a>
+<a href="https://ci.appveyor.com/project/boost-experimental/msm-lite" target="_blank"><img alt="Build Status" src="https://img.shields.io/appveyor/ci/boost-experimental/di/master.svg?label=windows" /></a>
+<a href="https://coveralls.io/r/boost-experimental/msm-lite?branch=master" target="_blank"><img alt="Coveralls" src="http://img.shields.io/coveralls/boost-experimental/msm-lite/master.svg" /></a>
 <a href="http://github.com/krzysztof-jusiak/msm-lite/issues" target="_blank"><img alt="Github Issues" src="https://img.shields.io/github/issues/krzysztof-jusiak/msm-lite.svg" /></a></p>
 <hr />
 <h1 id="introduction">Introduction</h1>
-<p>msm-lite: C++14 Meta State Machine Library</p>
+<h1 id="experimental-boostmsm-lite">experimental boost.msm-lite</h1>
 <blockquote>
 <p>Your scalable C++14 header only eUML-like meta state machine library with no dependencies (<a href="http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world"><strong>Try it online!</strong></a>)</p>
 </blockquote>
@@ -198,7 +203,7 @@
 <li><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html">Boost.MSM - eUML</a></li>
 </ul>
 <h3 id="do-i-need-a-state-machine">Do I need a State Machine?</h3>
-<p>State Machine design pattern allows you to avoid maintaing following design.</p>
+<p>State Machine design pattern allows you to avoid maintaining following spaghetti code.</p>
 <pre><code class="cpp">void some_function() {
     ...
     if ((is_running &amp;&amp; !is_jumping) || just_started) {
@@ -348,6 +353,6 @@ to avoid it <code>msm-lite</code> may suits you!</p>
 </html>
 
 <!--
-MkDocs version : 0.14.0
-Build Date UTC : 2016-01-27 22:16:38.723016
+MkDocs version : 0.15.0
+Build Date UTC : 2016-01-28 13:42:18.359407
 -->

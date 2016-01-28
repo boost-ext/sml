@@ -19,7 +19,7 @@ for line in fileinput.input(sys.argv[2], inplace=True):
             for line in md:
               if line.startswith('##'):
                 name = line.replace('#', '')[:-1]
-                id = filter(lambda c: c == '-' or str.isalnum(c), name.lower().replace(" ", "-")).replace("--", "")
+                id = filter(lambda c: c == '-' or c == '_' or str.isalnum(c), name.lower().replace(" ", "-")).replace("--", "")
                 print('    * [' + name + '](' + sys.argv[3] + '/' + index[1][1:-4] + ext + "#" + id + ')')
     print
   elif line.startswith('[](GENERATE_TOC_END)'):
