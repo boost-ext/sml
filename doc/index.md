@@ -1,5 +1,5 @@
 <a href="http://www.boost.org/LICENSE_1_0.txt" target="_blank">![Boost Licence](http://img.shields.io/badge/license-boost-blue.svg)</a>
-<a href="https://github.com/krzysztof-jusiak/msm-lite" target="_blank">![Github](https://img.shields.io/badge/msm_lite-github-blue.svg)</a>
+<a href="https://github.com/krzysztof-jusiak/msm-lite" target="_blank">![Github](https://img.shields.io/badge/boost.msm--lite-github-blue.svg)</a>
 <a href="https://github.com/boost-experimental/msm-lite/releases" target="_blank">![Version](https://badge.fury.io/gh/boost-experimental%2Fmsm-lite.svg)</a>
 <a href="https://github.com/boost-experimental/msm-lite/releases/latest" target="_blank">![Github Release](http://img.shields.io/github/release/boost-experimental/msm-lite.svg)</a>
 <a href="https://travis-ci.org/boost-experimental/msm-lite" target="_blank">![Build Status](https://img.shields.io/travis/boost-experimental/msm-lite/master.svg?label=linux/osx)</a>
@@ -12,7 +12,7 @@
 Introduction
 ============
 
-#experimental boost.msm-lite
+**experimental boost.msm-lite**
 
 > Your scalable C++14 header only eUML-like meta state machine library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world))
 

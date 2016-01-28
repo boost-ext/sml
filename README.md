@@ -68,8 +68,7 @@
     * [Dependency Injection](http://boost-experimental.github.io/msm-lite/examples/index.html#dependency-injection)
     * [Runtime Dispatcher](http://boost-experimental.github.io/msm-lite/examples/index.html#runtime-dispatcher)
 * [CHANGELOG](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html)
-    * [[1.0.0] - TBD](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#100-tbd)
-    * [Added](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#added)
+    * [[1.0.0] - 28/01/2016](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#100-28012016)
 * [TODO](http://boost-experimental.github.io/msm-lite/TODO/index.html)
 
 [](GENERATE_TOC_END)

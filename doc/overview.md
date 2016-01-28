@@ -1,13 +1,14 @@
 ###Quick Start
 
-* Get [boost/msm-lite.hpp](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm.hpp) header
+* Get [boost/msm-lite.hpp](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp) header
 ```sh
     wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp
 ```
 
-* Include the header
+* Include the header and define `msm` namespace alias
 ```cpp
     #include "boost/msm-lite.hpp"
+    namespace msm = boost::msm::lite;
 ```
 
 * Compile with C++14 support
@@ -22,12 +23,12 @@
 
 ###Dependencies
 
-* No external dependencies are required (niether STL nor Boost)
+* No external dependencies are required (neither STL nor Boost)
 
 ###Supported/tested compilers
 
-* Clang-3.4+ (100% coverage, clang-tidy clean, valgrind clean)
-* GCC-5.2+ (100% coverage, clang-tidy clean, valgrind clean)
+* [Clang-3.4+](https://travis-ci.org/boost-experimental/msm-lite)
+* [GCC-5.2+](https://travis-ci.org/boost-experimental/msm-lite)
 
 ###Configuration
 | Macro                                   | Description |
