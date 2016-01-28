@@ -1058,14 +1058,14 @@ struct runtime_event {
 };
 struct event1 {
   static constexpr auto id = 1;
-  event1(const runtime_event &) {}
+  explicit event1(const runtime_event &) {}
 };
 struct event2 {
   static constexpr auto id = 2;
 };
 struct event3 {
   static constexpr auto id = 3;
-  event3(const runtime_event &) {}
+  explicit event3(const runtime_event &) {}
 };
 
 test dispatch_runtime_event = [] {
@@ -1289,7 +1289,7 @@ test di_complex = [] {
     virtual void dummy() = 0;
   };
   struct impl1 : i1 {
-    void dummy(){};
+    void dummy() override{};
   };
 
   struct i2 {
@@ -1297,7 +1297,7 @@ test di_complex = [] {
     virtual void dummy() = 0;
   };
   struct impl2 : i2 {
-    void dummy(){};
+    void dummy() override{};
   };
 
   struct i3 {
@@ -1305,7 +1305,7 @@ test di_complex = [] {
     virtual void dummy() = 0;
   };
   struct impl3 : i3 {
-    void dummy(){};
+    void dummy() override{};
   };
 
   struct i4 {
@@ -1313,7 +1313,7 @@ test di_complex = [] {
     virtual void dummy() = 0;
   };
   struct impl4 : i4 {
-    void dummy(){};
+    void dummy() override{};
   };
 
   struct i5 {
@@ -1321,7 +1321,7 @@ test di_complex = [] {
     virtual void dummy() = 0;
   };
   struct impl5 : i5 {
-    void dummy(){};
+    void dummy() override{};
   };
 
   struct c {

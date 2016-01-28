@@ -281,7 +281,7 @@ struct event1 {
 };
 struct event2 {
   static constexpr auto id = 0;
-  event2(runtime_event) {}
+  explicit event2(runtime_event) {}
 };
 struct event3 {
   // static constexpr auto id = 0;

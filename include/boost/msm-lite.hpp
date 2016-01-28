@@ -1079,9 +1079,9 @@ class sm {
   using states = states_t;
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_all_events, transitions_t>>;
 
-  sm(sm &&) = default;
-  sm(const sm &) = delete;
-  sm &operator=(const sm &) = delete;
+  sm(sm &&) noexcept = default;
+  sm(const sm &) noexcept = delete;
+  sm &operator=(const sm &) noexcept = delete;
 
   template <class... TDeps, BOOST_MSM_REQUIRES(dependable<TDeps...>::value)>
   explicit sm(TDeps &&... deps) noexcept : deps_{aux::init{}, aux::pool<TDeps...>{deps...}},
