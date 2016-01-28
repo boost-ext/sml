@@ -1,5 +1,4 @@
 <a href="http://www.boost.org/LICENSE_1_0.txt" target="_blank">![Boost Licence](http://img.shields.io/badge/license-boost-blue.svg)</a>
-<a href="https://github.com/krzysztof-jusiak/msm-lite" target="_blank">![Github](https://img.shields.io/badge/boost.msm--lite-github-blue.svg)</a>
 <a href="https://github.com/boost-experimental/msm-lite/releases" target="_blank">![Version](https://badge.fury.io/gh/boost-experimental%2Fmsm-lite.svg)</a>
 <a href="https://github.com/boost-experimental/msm-lite/releases/latest" target="_blank">![Github Release](http://img.shields.io/github/release/boost-experimental/msm-lite.svg)</a>
 <a href="https://travis-ci.org/boost-experimental/msm-lite" target="_blank">![Build Status](https://img.shields.io/travis/boost-experimental/msm-lite/master.svg?label=linux/osx)</a>
@@ -12,9 +11,9 @@
 Introduction
 ============
 
-| **experimental boost.msm-lite** | |
+| **Experimental Boost.MSM-lite** | |
 | - | - |
-| Your scalable C++14 header only eUML-like meta state machine library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-experimental/msm-lite" data-style="mega" data-count-href="/boost-experimental/msm-lite/stargazers" data-count-api="/repos/boost-experimental/msm-lite#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-experimental/msm-lite on GitHub">Star</a> |
+| Your scalable C++14 header only eUML-like meta state machine library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-experimental/msm-lite" data-icon="octicon-star" data-style="mega" data-count-href="/boost-experimental/msm-lite/stargazers" data-count-api="/repos/boost-experimental/msm-lite#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-experimental/msm-lite on GitHub">Star</a> |
 
 ###UML State Machine
 
@@ -41,10 +40,10 @@ void some_function() {
 If above code looks somewhat similar to your code base or if you like
 to avoid it `msm-lite` may suits you!
 
-###Why msm-lite?
+###Why Boost.MSM-lite?
 
 * [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
-  msm-lite, therefore, is trying to address those issues.
+  Boost.MSM-lite, therefore, is trying to address those issues.
 
 ###Problems with Boost.MSM - eUML
 
@@ -60,7 +59,7 @@ to avoid it `msm-lite` may suits you!
 * Huge complexity may overwhelm in the beginning
 * A lot of Boost dependencies
 
-###msm-lite design goals
+###Boost.MSM-lite design goals
 
 * Keep the Boost.MSM - eUML 'goodies'
     * Performance (see [Performance](overview.md#performance))
