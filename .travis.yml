@@ -7,7 +7,7 @@
 sudo: false
 env:
   global:
-  - secure: "A27gNApbElRr3fqZXifVPKkB+xbxMYDFINGk2RDqul1X1Zg51M7e+ohHO9BwhEYiOGmCnFfbsVUP11XyFIH6kzWmxw9mhy8YDglbYfeyu6grxtU3mHElz8W7wO5OCPFPWXQf23sVYE8AWyjj6M+t3oyLJhPXCcYI7uMHEQm10CQ=" # GH_TOKEN
+  - secure: "se9yDQG/xafgdDzdupsEoKE2Gxg/jv80G9/rV/5/LsUZoEwfgngZaY7jFUUyBNf0uoI8kmVnucr2fQhGj6FhNHSek7B073bbvv7Wp7AjhYm/3s5oAfg/MhRVS4zQTV75/Qszk9eWhe1esRcty15zE3VQFW7dRCKuESIaiVQmvgjI4pUhmEOHZJKoIZlHgGe2sasZIY0uamOih21EB2hJ0sDjOpKuue9ImQ7S8KLhR31h6MvvnVeTI3yah/huarOtPjvb/dSb5Da1yT5jDXe6ywq/q58+U0Qso4aOmGOvBDFc0+AqYhIUj7ghm3Ni5BIB0fqdtVxBBWgmso7dGaNfGAcSRNDt3xdZcET1+vG522F+0BgpGlMs5dwFduNXV74MJa1nnDNHKQBB9DVeL0ouI9rddSSfnbQwupjKkdLzg+DzRKZvh8pH6UgRE4Iqu0s15Q32++yFtyDO3g7Xw+IQVDsx7hDu+i1JMRiWSxDCMi3/Ct9VIFuCTU8fZ5Sy1k75wLfA3PUnbXhQRGnf7f3VUCkPXzBA/hJPKMhPjDv7rvtryGP9EAHJEZqLWL7jzJJdsshwhL/rZcpSwyuuEp0CIpozxNGYjaO8u3bGXkRU3sExhwrfGvhaplkEWtCs0RkTf6ZEPFOoHrsE5A3/a+i0C48r86fWeJTRAnWJoHu1Ql4=" # GH_TOKEN
   - secure: "QvM1ONwXrVqZS8fRmV9LoEOSenzpFG8svl6Bz7YmmcGWhRq7EqZIzjYm5hp2xT+cNJv4HkW6YO4GFUj5gXaWNTI12ZkuhctBa1YYHgaP/aJaU82bbfsFF4dAmgbjd9qXEMX6pWR0NuHEgwCaYH5ge4LxJiRWrz5fkJ7g0XU2j26sFJW2w/fVZbd7Bb3V8T8hGX4qMCGfcktXyZi59khB450VUFOFeWXiStLMiZoLJzpGI7FG4SvAfljrTA7/JzTVfey+SL9+k3DwLn6zUnNMEMs2XYUwd3qmEWzoLCGTnF0n06/GflUg6EoiEvNECQ2soGpzBVzS0+zShn5YGqQFyHm01PQ7HejMRXlw4Ee89kDMW4MGQCnYaXpxsuqFoGyJZzwiczgJ0V7sJwPLw3vq/zEj388cciiyz+C/BMdlMph6bF5LhrWt7owt8TG8s7JdZ2iY2t/6uBMiVKbS4pIIZfD+Bn21BfXAqg5gXvsSpBI/MdIR34u+wUQT5tUHthnuzAy0lLdtD+/Z0PDN7Bh8Cj8p0hxnbAI6v5Q4b1Hydvr1unOZue7AV9zxAmjN6MsWDUK2XznM6b0roRfaai4yRxbOrDLXWdsEK/bTxceTRhX1PdgYGN7VMFHjYo0sbPJ3vxlHaURyUW/hmKTrVrUFHZD3Sf5NJuI2XxHg7dl0/9c=" # COVERALLS_REPO_TOKEN
 
 matrix:
@@ -17,7 +17,7 @@ matrix:
     env: CHECK=ON CLANG_FORMAT=clang-format-3.7 CLANG_TIDY=clang-tidy-3.7
     addons:
       apt:
-        packages: ["clang-3.7", "clang-tidy-3.7"]
+        packages: ["clang-format-3.7", "clang-tidy-3.7"]
         sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"]
   - os: linux
     env: DOCUMENTATION=ON
