@@ -12,9 +12,9 @@
 Introduction
 ============
 
-**experimental boost.msm-lite**
-
-> Your scalable C++14 header only eUML-like meta state machine library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world))
+| **experimental boost.msm-lite** | |
+| - | - |
+| Your scalable C++14 header only eUML-like meta state machine library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-experimental/msm-lite" data-style="mega" data-count-href="/boost-experimental/msm-lite/stargazers" data-count-api="/repos/boost-experimental/msm-lite#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-experimental/msm-lite on GitHub">Star</a> |
 
 ###UML State Machine
 
