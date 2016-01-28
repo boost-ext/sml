@@ -32,6 +32,8 @@ Requirements for transition.
     auto transition = ("idle"_s == terminate);
     static_assert(transitional<decltype(transition)>);
 
+![CPP(BTN)](Run_Transitional_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_transitional.cpp)
+
 ###configurable [concept]
 
 ***Header***
@@ -65,6 +67,8 @@ Requirements for the state machine.
 
     static_assert(configurable<example>);
 
+![CPP(BTN)](Run_Configurable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_configurable.cpp)
+
 ---
 
 ###callable [concept]
@@ -97,6 +101,10 @@ Requirements for action and guards.
 
     static_assert(callable<bool, decltype(guard)>);
     static_assert(callable<void, decltype(action)>);
+
+![CPP(BTN)](Run_Callable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_callable.cpp)
+
+---
 
 ###dispatchable [concept]
 
@@ -132,6 +140,8 @@ Requirements for the dispatch table.
     };
 
     static_assert(dispatchable<runtime_event, event>);
+
+![CPP(BTN)](Run_Dispatchable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_dispatchable.cpp)
 
 ---
 
@@ -172,6 +182,10 @@ Represents a state machine state.
     state<unspecified> terminate;
     state<unspecified> initial;
 
+***Requirements***
+
+* [callable](#callable-concept)
+
 ***Semantics***
 
     state<T>{}
@@ -185,6 +199,10 @@ Represents a state machine state.
     auto initial_state = idle(initial);
 
     auto last_state = terminate;
+
+![CPP(BTN)](Run_States_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp)
+![CPP(BTN)](Run_Composite_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp)
+![CPP(BTN)](Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp)
 
 ---
 
@@ -217,6 +235,10 @@ Represents a state machine event.
     auto on_entry = event<unspecified>;
     auto on_exit = event<unspecified>;
 
+***Requirements***
+
+* [callable](#callable-concept)
+
 ***Semantics***
 
     event<T>
@@ -224,6 +246,8 @@ Represents a state machine event.
 ***Example***
 
     auto my_int_event = event<int>;
+
+![CPP(BTN)](Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/action_guards.cpp)
 
 ---
 
@@ -242,6 +266,10 @@ Creates a transition table.
     template <class... Ts> requires transitional<Ts>...
     auto make_transition_table(Ts...) noexcept;
 
+***Requirements***
+
+* [transitional](#transitional-concept)
+
 ***Semantics***
 
     make_transition_table(transitions...);
@@ -258,6 +286,8 @@ Creates a transition table.
         return make_transition_table();
       }
     };
+
+![CPP(BTN)](Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp)
 
 ---
 
@@ -301,14 +331,15 @@ Creates a state machine.
 
 | Expression | Requirement | Description | Returns |
 | ---------- | ----------- | ----------- | ------- |
+| `TDeps...` | is_base_of dependencies | constructor | |
 | `process_event<TEvent>` | - | process event `TEvent` | returns true when handled, false otherwise |
-| `visit_current_states<TVisitor>` | callable | visit current states | - |
+| `visit_current_states<TVisitor>` | [callable](#callable-concept) | visit current states | - |
 | `is<TState>` | - | verify whether any of current states equals `TState` | true when any current state matches `TState`, false otherwise |
 | `is<TStates...>` | size of TStates... equals number of initial states | verify whether all current states match `TStates...` | true when all states match `TState...`, false otherwise |
 
 ***Semantics***
 
-    sm<T>{...};
+    msm::sm<T>{...};
     sm.process_event(TEvent{});
     sm.visit_current_states([](auto state){});
     sm.is(terminate);
@@ -328,13 +359,17 @@ Creates a state machine.
       }
     };
 
-    sm<example> sm{42};
+    msm::sm<example> sm{42};
     assert(sm.is("idle"_s));
     assert(!sm.process_event(int{})); // no handled
     assert(sm.process_event(my_event{})); // handled
     assert(sm.is(terminate));
 
     sm.visit_current_states([](auto state) { std::cout << state.c_str() << std::endl; });
+
+![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
+![CPP(BTN)](Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp)
+![CPP(BTN)](Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp)
 
 ---
 
@@ -367,15 +402,17 @@ Creates a state machine with testing capabilities.
 
 ***Semantics***
 
-    testing::sm<T>{...};
+    msm::testing::sm<T>{...};
     sm.set_current_states("s1"_s);
 
 ***Example***
 
-    testing::sm<T>{inject_fake_data...};
+    msm::testing::sm<T>{inject_fake_data...};
     sm.set_current_states("s1"_s);
     sm.process_event(TEvent{});
     sm.is(terminate);
+
+![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp)
 
 ---
 
@@ -394,6 +431,10 @@ Creates a dispatch table to handle runtime events.
     template<class TEvent, int EventRangeBegin, int EventRangeBegin, class SM> requires dispatchable<TEvent, typename SM::events>
     callable<bool, (TEvent, int)> make_dispatch_table(sm<SM>&) noexcept;
 
+***Requirements***
+
+* [dispatchable](#dispatchable-concept)
+
 ***Semantics***
 
     make_dispatch_table<T, 0, 10>(sm);
@@ -410,6 +451,8 @@ Creates a dispatch table to handle runtime events.
 
     auto dispatch_event = msm::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max*/>(sm);
     assert(dispatch_event(event, event.id));
+
+![CPP(BTN)](Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp)
 
 ---
 
@@ -429,7 +472,12 @@ Add logging support for the state machine.
 
 | Expression | Requirement | Description | Returns |
 | ---------- | ----------- | ----------- | ------- |
-| `T` | - | process_event/guard/action/state_change | Enables logging of state machine behaviour |
+| `T` | - | process_event/guard/action/state_change | Operation type | 
+| `SM` | - | - | [state machine](#sm-state-machine) type |
+| `...` | - | process_event -> (event) | log process event |
+| `...` | - | guard -> (guard, event, result) | log guard call |
+| `...` | - | action -> (action, event) | log action call |
+| `...` | - | state_change -> (src_state, dst_state) | log state change |
 
 ***Semantics***
 
@@ -437,28 +485,15 @@ Add logging support for the state machine.
 
 ***Example***
 
-    template <class SM, class TEvent>
-    void log_process_event(const TEvent&) {
-      printf("[%s][process_event] %s\n", typeid(SM).name(), typeid(TEvent).name());
+    void log(const char* operation, ...) noexcept {
+        printf("[%s]\n", operation);
     }
-
-    template <class SM, class TAction, class TEvent>
-    void log_guard(const TAction&, const TEvent&, bool result) {
-      printf("[%s][guard] %s %s %s\n", typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name(),
-             (result ? "[OK]" : "[Reject]"));
-    }
-
-    template <class SM, class TAction, class TEvent>
-    void log_action(const TAction&, const TEvent&) {
-      printf("[%s][action] %s %s\n", typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name());
-    }
-
-    template <class SM, class TSrcState, class TDstState>
-    void log_state_change(const TSrcState& src, const TDstState& dst) {
-      printf("[%s][transition] %s -> %s\n", typeid(SM).name(), src.c_str(), dst.c_str());
-    }
-
-    #define BOOST_MSM_LOG(T, SM, ...) log_##T<SM>(__VA_ARGS__)
+    #define BOOST_MSM_LOG(T, ...) log(#T)
     #include "boost/msm.hpp"
+
+    msm::sm<example> sm;
+    sm.process_event(event{}); // [process_event]
+
+![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)
 
 ---
