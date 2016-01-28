@@ -1,0 +1,27 @@
+#
+# Copyright (c) 2012-2016 Krzysztof Jusiak (krzysztof at jusiak dot net)
+#
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
+branches:
+  except:
+    - gh-pages
+
+environment:
+  fast_finish: true
+
+  matrix:
+  - platform: x64
+    os: Visual Studio 2015
+
+install:
+  - cinst drmemory
+  - appveyor DownloadFile http://downloads.sourceforge.net/mingw-w64/x86_64-5.2.0-release-posix-seh-rt_v4-rev1.7z
+  - 7z x x86_64-5.2.0-release-posix-seh-rt_v4-rev1.7z > nul
+  - C:\"Program Files (x86)"\"Microsoft Visual Studio 14.0"\VC\vcvarsall.bat
+  - set PATH=%PATH%;mingw64\bin
+
+build_script:
+  - mingw32-make test example
+
