@@ -176,15 +176,16 @@
               
                 <h3 id="quick-start">Quick Start</h3>
 <ul>
-<li>Get <a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm.hpp">boost/msm-lite.hpp</a> header</li>
+<li>Get <a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp">boost/msm-lite.hpp</a> header</li>
 </ul>
 <pre><code class="sh">    wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp
 </code></pre>
 
 <ul>
-<li>Include the header</li>
+<li>Include the header and define <code>msm</code> namespace alias</li>
 </ul>
 <pre><code class="cpp">    #include &quot;boost/msm-lite.hpp&quot;
+    namespace msm = boost::msm::lite;
 </code></pre>
 
 <ul>
@@ -201,12 +202,12 @@
 
 <h3 id="dependencies">Dependencies</h3>
 <ul>
-<li>No external dependencies are required (niether STL nor Boost)</li>
+<li>No external dependencies are required (neither STL nor Boost)</li>
 </ul>
 <h3 id="supportedtested-compilers">Supported/tested compilers</h3>
 <ul>
-<li>Clang-3.4+ (100% coverage, clang-tidy clean, valgrind clean)</li>
-<li>GCC-5.2+ (100% coverage, clang-tidy clean, valgrind clean)</li>
+<li><a href="https://travis-ci.org/boost-experimental/msm-lite">Clang-3.4+</a></li>
+<li><a href="https://travis-ci.org/boost-experimental/msm-lite">GCC-5.2+</a></li>
 </ul>
 <h3 id="configuration">Configuration</h3>
 <table>
