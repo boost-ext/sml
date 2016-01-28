@@ -12,6 +12,22 @@ namespace msm {
 namespace lite {
 inline namespace v_1_0_0 {
 namespace aux {
+test is_constructible_types = [] {
+  struct c {
+    c(int, double) {}
+  };
+  static_expect(is_constructible<int>::value);
+  static_expect(is_constructible<c, int, double>::value);
+  static_expect(!is_constructible<c, int, double, float>::value);
+  static_expect(!is_constructible<c, int>::value);
+  static_expect(!is_constructible<c, double>::value);
+};
+
+test is_same_types = [] {
+  static_expect(!is_same<int, double>::value);
+  static_expect(is_same<int, int>::value);
+  static_expect(is_same<const double&, const double&>::value);
+};
 
 test remove_reference_types = [] {
   static_expect(is_same<int, remove_reference_t<int>>::value);
@@ -86,23 +102,102 @@ test join_types = [] {
   static_expect(is_same<type_list<float, double>, join_t<type_list<>, type_list<float, double>>>::value);
 };
 
+template <class... Ts>
+using identity = type_list<Ts...>;
+
+test apply_types = [] {
+  using types = type_list<int, double, float>;
+  static_expect(is_same<types, apply_t<identity, types>>::value);
+};
+
+test tuple_empty = [] {
+  tuple<> t;
+  (void)t;
+};
+
+test tuple_basic = [] {
+  tuple<int, double> t{42, 87.0};
+  expect(42 == get_by_id<0>(t));
+  expect(87.0 == get_by_id<1>(t));
+};
+
+test tuple_same_types = [] {
+  tuple<int, int> t{42, 87};
+  expect(42 == get_by_id<0>(t));
+  expect(87 == get_by_id<1>(t));
+};
+
+test pool_empty = [] {
+  pool<> p;
+  static_expect(0 == get_size<decltype(p)>::value);
+  expect(0 == try_get<int>(p));
+};
+
+test pool_basic = [] {
+  pool<int, double> p{42, 87.0};
+  static_expect(2 == get_size<decltype(p)>::value);
+  expect(42 == get<int>(p));
+  expect(87.0 == get<double>(p));
+  expect(0.f == try_get<float>(p));
+};
+
+test pool_init_from_other_pool = [] {
+  pool<double, int> p{87.0, 42};
+  pool<int, double> p2{init{}, static_cast<decltype(p)&&>(p)};
+  expect(42 == get<int>(p));
+  expect(87.0 == get<double>(p));
+  expect(0.f == try_get<float>(p));
+};
+
+test pool_is_pool = [] {
+  static_expect(!is_pool<int>::value);
+  static_expect(!is_pool<tuple<>>::value);
+  static_expect(!is_pool<tuple<int>>::value);
+  static_expect(is_pool<pool<>>::value);
+  static_expect(is_pool<pool<int, double>>::value);
+};
+
+test type_id_empty = [] {
+  using type_ids = type_id<>;
+  static_expect(-1 == get_id<type_ids, -1, int>());
+  static_expect(-1 == get_id<type_ids, -1, double>());
+};
+
+test type_id_basic = [] {
+  using type_ids = type_id<int, double>;
+  static_expect(-1 == get_id<type_ids, -1, float>());
+  static_expect(0 == get_id<type_ids, -1, int>());
+  static_expect(1 == get_id<type_ids, -1, double>());
+};
 }  // aux
 
 namespace concepts {
+test configurable_concept = [] {
+  struct c0 {};
+  struct c1 {
+    auto configure() const noexcept { return aux::pool<>{}; }
+  };
+  struct c2 {
+    auto configure() noexcept { return aux::pool<>{}; }
+  };
+  struct c3 {
+    auto configure() { return aux::pool<>{}; }
+  };
+  struct c4 {
+    int configure();
+  };
+  struct c5 {
+    auto setup() { return aux::pool<>{}; }
+  };
 
-struct call {};
-struct call1 {
-  void operator()();
+  static_expect(configurable<c1>::value);
+  static_expect(configurable<c2>::value);
+  static_expect(configurable<c3>::value);
+  static_expect(!configurable<c0>::value);
+  static_expect(!configurable<c4>::value);
+  static_expect(!configurable<c5>::value);
 };
-struct call2 {
-  void operator()(int) const {}
-};
-struct call3 {
-  auto operator()(int) const { return true; }
-};
-struct call4 {
-  bool operator()(int) const noexcept { return true; }
-};
+
 struct call5 {
   template <class T>
   bool operator()(T) const noexcept {
@@ -116,11 +211,24 @@ struct call6 {
   }
 };
 
-auto calll1 = [] {};
-auto calll2 = [](int) {};
-auto calll3 = [] { return true; };
+test callable_concept = [] {
+  struct call {};
+  struct call1 {
+    void operator()();
+  };
+  struct call2 {
+    void operator()(int) const {}
+  };
+  struct call3 {
+    auto operator()(int) const { return true; }
+  };
+  struct call4 {
+    bool operator()(int) const noexcept { return true; }
+  };
+  auto calll1 = [] {};
+  auto calll2 = [](int) {};
+  auto calll3 = [] { return true; };
 
-test callable_types = [] {
   static_expect(!callable<void, call>::value);
   static_expect(callable<void, call1>::value);
   static_expect(callable<void, call2>::value);
@@ -134,6 +242,56 @@ test callable_types = [] {
   (void)calll1;
   (void)calll2;
   (void)calll3;
+};
+
+struct transition0 {};
+struct transition1 {
+  using src_state = void;
+  using dst_state = void;
+  using event = void;
+  using deps = aux::pool<>;
+  static constexpr auto has_initial = false;
+};
+struct transition2 {
+  using src_state = void;
+  using dst_state = void;
+  // using event = void;
+  using deps = aux::pool<>;
+  static constexpr auto has_initial = false;
+};
+struct transition3 {
+  using src_state = void;
+  using dst_state = void;
+  using event = void;
+  using deps = aux::pool<>;
+  static constexpr auto /*has_*/ initial = false;
+};
+
+test transitional_concept = [] {
+  static_expect(!transitional<int>::value);
+  static_expect(!transitional<transition0>::value);
+  static_expect(transitional<transition1>::value);
+  static_expect(!transitional<transition2>::value);
+  static_expect(!transitional<transition3>::value);
+};
+
+struct runtime_event {};
+struct event1 {
+  static constexpr auto id = 0;
+};
+struct event2 {
+  static constexpr auto id = 0;
+  event2(runtime_event) {}
+};
+struct event3 {
+  // static constexpr auto id = 0;
+};
+
+test dispatchable_concept = [] {
+  static_expect(!dispatchable<runtime_event, aux::type_list<event3, event1>>::value);
+  static_expect(dispatchable<runtime_event, aux::type_list<>>::value);
+  static_expect(dispatchable<runtime_event, aux::type_list<event1, event2>>::value);
+  static_expect(dispatchable<runtime_event, aux::type_list<event2, event1>>::value);
 };
 }  // concepts
 }  // v_1_0_0

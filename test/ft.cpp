@@ -1268,7 +1268,6 @@ test sm_testing = [] {
 // clang-format off
 #if __has_include(<boost/di.hpp>)
 // clang-format on
-
 test di_minimal = [] {
   struct c {
     auto configure() noexcept {
@@ -1387,5 +1386,4 @@ test di_complex = [] {
   expect(sm.process_event(e2{}));
   expect(sm.is(msm::terminate));
 };
-
 #endif
