@@ -10,6 +10,12 @@ matrix:
   fast_finish: true
   include:
   - os: linux
+    env: CHECK=ON CLANG_FORMAT=clang-format-3.7 CLANG_TIDY=clang-tidy-3.7
+    addons:
+      apt:
+        packages: ["clang-3.7", "clang-tidy-3.7"]
+        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"]
+  - os: linux
     env: CXX=/usr/local/clang-3.4/bin/clang++ MEMCHECK=VALGRIND
     addons:
       apt:
@@ -61,6 +67,20 @@ matrix:
     osx_image: xcode7.2b1
     env: CXX=clang++
 
+before_install:
+  - git config --global user.name "Continuous Integration"
+  - git config --global user.email "krzysztof@jusiak.net"
+  - git config --global push.default simple
+
 script:
   - if [ "${CXX}" != "" ]; then (travis_wait make test example); fi
+  - if [ "${CHECK}" != "" ]; then (travis_wait make check static_check); fi
+
+notifications:
+  webhooks:
+    urls:
+    - https://webhooks.gitter.im/e/860de502083214ed3d28
+  on_success: change
+  on_failure: always
+  on_start: false
 
