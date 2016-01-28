@@ -13,9 +13,9 @@ void log_process_event(const TEvent&) {
   printf("[%s][process_event] %s\n", typeid(SM).name(), typeid(TEvent).name());
 }
 
-template <class SM, class TAction, class TEvent>
-void log_guard(const TAction&, const TEvent&, bool result) {
-  printf("[%s][guard] %s %s %s\n", typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name(),
+template <class SM, class TGuard, class TEvent>
+void log_guard(const TGuard&, const TEvent&, bool result) {
+  printf("[%s][guard] %s %s %s\n", typeid(SM).name(), typeid(TGuard).name(), typeid(TEvent).name(),
          (result ? "[OK]" : "[Reject]"));
 }
 

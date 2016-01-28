@@ -24,4 +24,7 @@ struct not_configurable {
   }
 };
 
-int main() { msm::sm<not_configurable> sm; }
+int main() {
+  msm::sm<not_configurable> sm;
+  (void)sm;
+}
