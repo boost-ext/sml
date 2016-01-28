@@ -8,7 +8,7 @@
 CXX?=clang++
 CXXFLAGS:=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -fno-exceptions
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
-COVERAGE:=-fprofile-arcs -ftest-coverage
+GCOV:=-fprofile-arcs -ftest-coverage
 CLANG_FORMAT?=clang-format
 CLANG_TIDY?=clang-tidy
 PYTHON?=python

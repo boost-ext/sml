@@ -52,13 +52,13 @@ matrix:
         packages: ["clang-3.8", "valgrind"]
         sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise"]
   - os: linux
-    env: CXX=g++-5 MEMCHECK=VALGRIND GCOV=gcov-5
+    env: CXX=g++-5 MEMCHECK=VALGRIND
     addons:
       apt:
         packages: ["g++-5", "valgrind"]
         sources: ["ubuntu-toolchain-r-test"]
   - os: linux
-    env: CXX=g++-5 GCOV=gcov-5 VARIANT=coverage
+    env: CXX=g++-5 GCOV=gcov-5 COVERAGE=GCOV
     addons:
       apt:
         packages: ["g++-5"]
@@ -85,8 +85,8 @@ before_install:
   - git config --global push.default simple
 
 script:
-  - if [ "${CXX}" != "" ] && [ "${VARIANT}" != "coverage" ]; then (travis_wait make test example); fi
-  - if [ "${CXX}" != "" ] && [ "${VARIANT}" == "coverage" ]; then (travis_wait make test); fi
+  - if [ "${CXX}" != "" ] && [ "${COVERAGE}" == "" ]; then (travis_wait make test example); fi
+  - if [ "${CXX}" != "" ] && [ "${COVERAGE}" != "" ]; then (travis_wait make test); fi
   - if [ "${CHECK}" != "" ]; then (travis_wait make style_check static_check); fi
   - if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${DOCUMENTATION}" != "" ]; then (
     pip install --user travis https://github.com/mkdocs/mkdocs/archive/0.15.0.zip
@@ -96,8 +96,8 @@ script:
     && git push --force --quiet "https://${GH_TOKEN}@github.com/boost-experimental/msm-lite.git"); fi
 
 after_success:
-  - if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${VARIANT}" == "coverage" ]; then (pip
-    install --user travis requests[security] cpp-coveralls && coveralls -r . -b test/ --gcov /usr/bin/${GCOV}
+  - if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${COVERAGE}" != "" ]; then (pip
+    install --user travis requests[security] cpp-coveralls && coveralls -r . -b . --gcov /usr/bin/${GCOV}
     --repo-token "${COVERALLS_REPO_TOKEN}"); fi
 
 notifications:
