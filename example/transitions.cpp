@@ -17,14 +17,11 @@ struct e2 {};
 struct transitions {
   auto configure() const noexcept {
     using namespace msm;
-    state<class idle> idle;
-    state<class s1> s1;
-
     // clang-format off
     return make_transition_table(
-        idle(initial) == s1  / [] { std::cout << "anonymous transition" << std::endl; }
-      , s1 + event<e1> / [] { std::cout << "internal transition" << std::endl; }
-      , s1 == terminate + event<e2>
+        "idle"_s(initial) == "s1"_s  / [] { std::cout << "anonymous transition" << std::endl; }
+      , "s1"_s + event<e1> / [] { std::cout << "internal transition" << std::endl; }
+      , "s1"_s == terminate + event<e2>
     );
     // clang-format on
   }

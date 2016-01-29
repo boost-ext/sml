@@ -18,13 +18,16 @@ struct e3 {};
 struct states {
   auto configure() const noexcept {
     using namespace msm;
+    state<class idle> idle;
+    auto s2 = state<class s2>{};
+
     // clang-format off
     return make_transition_table(
-        "idle"_s(initial) == "s1"_s + event<e1>
+        idle(initial) == "s1"_s + event<e1>
 	  , "s1"_s + msm::on_entry / [] { std::cout << "s1 on entry" << std::endl; }
 	  , "s1"_s + msm::on_exit / [] { std::cout << "s1 on exit" << std::endl; }
-      , "s1"_s == "s2"_s + event<e2>
-      , "s2"_s == terminate + event<e3>
+      , "s1"_s == s2 + event<e2>
+      , s2 == terminate + event<e3>
     );
     // clang-format on
   }

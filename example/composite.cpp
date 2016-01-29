@@ -21,13 +21,10 @@ struct sub {
   sub() {}
   auto configure() const noexcept {
     using namespace msm;
-    state<class idle> idle;
-    state<class s1> s1;
-
     // clang-format off
       return make_transition_table(
-        idle(initial) == s1 + event<e3> / [] { std::cout << "in sub sm" << std::endl; }
-      , s1 == terminate + event<e4> / [] { std::cout << "finish sub sm" << std::endl; }
+        "idle"_s(initial) == "s1"_s + event<e3> / [] { std::cout << "in sub sm" << std::endl; }
+      , "s1"_s == terminate + event<e4> / [] { std::cout << "finish sub sm" << std::endl; }
       );
     // clang-format on
   }

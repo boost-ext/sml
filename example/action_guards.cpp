@@ -40,19 +40,13 @@ struct action2 {
 struct action_guards {
   auto configure() const noexcept {
     using namespace msm;
-    state<class idle> idle;
-    state<class s1> s1;
-    state<class s2> s2;
-    state<class s3> s3;
-    state<class s4> s4;
-
     // clang-format off
     return make_transition_table(
-        idle(initial) == s1 + event<e1>
-      , s1 == s2 + event<e2> [ guard1 ] / action1
-      , s2 == s3 + event<e3> [ guard1 && ![] { return false;} ] / (action1, action2{})
-      , s3 == s4 + event<e4> [ !guard1 || guard2 ] / (action1, [] { std::cout << "action3" << std::endl; })
-      , s3 == terminate + event<e4> [ guard1 ] / ([] { std::cout << "action4" << std::endl; })
+        "idle"_s(initial) == "s1"_s + event<e1>
+      , "s1"_s == "s2"_s + event<e2> [ guard1 ] / action1
+      , "s2"_s == "s3"_s + event<e3> [ guard1 && ![] { return false;} ] / (action1, action2{})
+      , "s3"_s == "s4"_s + event<e4> [ !guard1 || guard2 ] / (action1, [] { std::cout << "action3" << std::endl; })
+      , "s3"_s == terminate + event<e4> [ guard1 ] / ([] { std::cout << "action4" << std::endl; })
     );
     // clang-format on
   }

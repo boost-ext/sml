@@ -50,9 +50,9 @@ to avoid it `Boost.MSM-lite` may suits you!
 * Produces huge binaries (see [Performance](overview.md#performance))
 * Based on too many macros
 * Horrible and long error messages (see [Error Messages](overview.md#error-messages))
-* Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, on\_entry, on\_exit)
+* Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, state entry/exit actions)
 * A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)
-* Data in states makes it harder share/encapsulate (UML compliant though)
+* Data in states makes it harder to share/encapsulate (UML compliant though)
 * Loosley coupled design is hard to achieve
 * Functional programming emulation
 * Huge complexity may overwhelm in the beginning

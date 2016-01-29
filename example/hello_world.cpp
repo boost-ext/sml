@@ -22,18 +22,14 @@ auto guard = [] {
 
 auto action = [] { std::cout << "action" << std::endl; };
 
-auto idle = msm::state<class idle>{};
-auto s1 = msm::state<class s1>{};
-auto s2 = msm::state<class s2>{};
-
 struct hello_world {
   auto configure() const noexcept {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-        idle(initial) == s1 + event<e1>
-      , s1 == s2 + event<e2> [ guard ] / action
-      , s2 == terminate + event<e3> / [] { std::cout << "in place action" << std::endl; }
+        "idle"_s(initial) == "s1"_s + event<e1>
+      , "s1"_s == "s2"_s + event<e2> [ guard ] / action
+      , "s2"_s == terminate + event<e3> / [] { std::cout << "in place action" << std::endl; }
     );
     // clang-format on
   }
@@ -41,11 +37,12 @@ struct hello_world {
 
 int main() {
   msm::sm<hello_world> sm;
-  assert(sm.is(idle));
+  using namespace msm;
+  assert(sm.is("idle"_s));
   assert(sm.process_event(e1{}));
-  assert(sm.is(s1));
+  assert(sm.is("s1"_s));
   assert(sm.process_event(e2{}));
-  assert(sm.is(s2));
+  assert(sm.is("s2"_s));
   assert(sm.process_event(e3{}));
-  assert(sm.is(msm::terminate));
+  assert(sm.is(terminate));
 }

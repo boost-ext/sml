@@ -35,15 +35,11 @@ auto action = [](int i, auto e) {
 struct example {
   auto configure() const noexcept {
     using namespace msm;
-    state<class idle> idle;
-    state<class s1> s1;
-    state<class s2> s2;
-
     // clang-format off
     return make_transition_table(
-        idle(initial) == s1 + event<e1>
-      , s1 == s2 + event<e2> [ guard ] / action
-      , s2 == terminate + event<e3> / [] { std::cout << "in place action" << std::endl; }
+        "idle"_s(initial) == "s1"_s + event<e1>
+      , "s1"_s == "s2"_s + event<e2> [ guard ] / action
+      , "s2"_s == terminate + event<e3> / [] { std::cout << "in place action" << std::endl; }
     );
     // clang-format on
   }

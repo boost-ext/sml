@@ -16,20 +16,16 @@ struct e2 {
 };
 auto event2 = msm::event<e2>;
 
-auto guard = [](const e2& e) { return e.value; };
-
 struct events {
   auto configure() const noexcept {
     using namespace msm;
-    state<class idle> idle;
-    state<class s1> s1;
-    state<class s2> s2;
+    auto guard = [](const e2& e) { return e.value; };
 
     // clang-format off
     return make_transition_table(
-        idle(initial) == s1 + event<e1>
-      , s1 == s2 + event2 [guard]
-      , s2 == terminate + event<int> / [] (int i) { assert(42 == i); }
+        "idle"_s(initial) == "s1"_s + event<e1>
+      , "s1"_s == "s2"_s + event2 [guard]
+      , "s2"_s == terminate + event<int> / [] (int i) { assert(42 == i); }
     );
     // clang-format on
   }

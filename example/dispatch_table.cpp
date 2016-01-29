@@ -24,13 +24,10 @@ struct event2 {
 struct dispatch_table {
   auto configure() noexcept {
     using namespace msm;
-    state<class idle> idle;
-    state<class s1> s1;
-
     // clang-format off
     return make_transition_table(
-        idle(initial) == s1 + event<event1>
-      , s1 == terminate + event<event2>
+        "idle"_s(initial) == "s1"_s + event<event1>
+      , "s1"_s == terminate + event<event2>
     );
     // clang-format on
   }
