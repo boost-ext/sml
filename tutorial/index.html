@@ -207,11 +207,12 @@ represents current location of the state machine processing.</p>
 auto idle = msm::state&lt;class idle&gt;{};
 </code></pre>
 
-<p>If you happen to have a clang/gcc compiler, you can create a state on the fly by.</p>
+<p>If you happen to have a Clang/GCC compiler, you can create a state on the fly.</p>
 <pre><code class="cpp">using namespace msm;
 auto state  = &quot;idle&quot;_s;
 </code></pre>
 
+<p>Howerver, please notice that above solution is a non-standard extension for Clang/GCC.</p>
 <p><code>msm-lite</code> states cannot have data as data is injected directly into guards/actions instead.</p>
 <p>A state machine might be a state itself.</p>
 <pre><code class="cpp">msm::state&lt;msm::sm&lt;state_machine&gt;&gt; composite;
