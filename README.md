@@ -26,9 +26,9 @@ struct hello_world {
   auto configure() const noexcept {
     using namespace msm;
     return make_transition_table(
-        "idle"_s(initial) == "s1"_s + event<e1>
-      , "s1"_s == "s2"_s + event<e2> [ guard ] / action
-      , "s2"_s == terminate + event<e3> / [] { std::cout << "action" << std::endl; }
+        "idle"_s(initial) == "s1"_s    + event<e1>
+      , "s1"_s            == "s2"_s    + event<e2> [ guard ] / action
+      , "s2"_s            == terminate + event<e3> / [] { std::cout << "action" << std::endl; }
     );
   }
 };
