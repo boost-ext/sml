@@ -30,7 +30,7 @@ Requirements for transition.
 
     using namespace msm;
     auto transition = ("idle"_s == terminate);
-    static_assert(transitional<decltype(transition)>);
+    static_assert(transitional<decltype(transition)>::value);
 
 ![CPP(BTN)](Run_Transitional_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_transitional.cpp)
 
@@ -65,7 +65,7 @@ Requirements for the state machine.
       }
     };
 
-    static_assert(configurable<example>);
+    static_assert(configurable<example>::value);
 
 ![CPP(BTN)](Run_Configurable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_configurable.cpp)
 
@@ -99,8 +99,8 @@ Requirements for action and guards.
     auto guard = [] { return true; };
     auto action = [] { };
 
-    static_assert(callable<bool, decltype(guard)>);
-    static_assert(callable<void, decltype(action)>);
+    static_assert(callable<bool, decltype(guard)>::value);
+    static_assert(callable<void, decltype(action)>::value);
 
 ![CPP(BTN)](Run_Callable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_callable.cpp)
 
@@ -139,7 +139,7 @@ Requirements for the dispatch table.
       event(runtime_event) {}
     };
 
-    static_assert(dispatchable<runtime_event, event>);
+    static_assert(dispatchable<runtime_event, event>::value);
 
 ![CPP(BTN)](Run_Dispatchable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_dispatchable.cpp)
 

@@ -30,12 +30,14 @@ msm::state<class idle> idle;
 auto idle = msm::state<class idle>{};
 ```
 
-If you happen to have a clang/gcc compiler, you can create a state on the fly by.
+If you happen to have a Clang/GCC compiler, you can create a state on the fly.
 
 ```cpp
 using namespace msm;
 auto state  = "idle"_s;
 ```
+
+Howerver, please notice that above solution is a non-standard extension for Clang/GCC.
 
 `msm-lite` states cannot have data as data is injected directly into guards/actions instead.
 
