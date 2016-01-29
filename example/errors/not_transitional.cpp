@@ -15,11 +15,9 @@ struct im_not_a_transition {};
 struct not_transitional {
   auto configure() const noexcept {
     using namespace msm;
-    state<class idle> idle;
-
     // clang-format off
     return make_transition_table(
-        idle(initial) == terminate + event<e1>
+        "idle"_s(initial) == terminate + event<e1>
       , im_not_a_transition{} // not transitional
     );
     // clang-format on

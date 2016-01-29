@@ -14,11 +14,9 @@ struct e1 {};
 struct not_configurable {
   auto setup() const noexcept {  // should be configure
     using namespace msm;
-    state<class idle> idle;
-
     // clang-format off
     return make_transition_table(
-        idle(initial) == terminate + event<e1>
+        "idle"_s(initial) == terminate + event<e1>
     );
     // clang-format on
   }

@@ -121,13 +121,13 @@ make pt # make pt_simple pt_composite pt_complex
 ###Error messages
 
 ***Not configurable***
-![CPP](https://raw.githubusercontent.com/boost-experimental/Boost.MSM-lite/master/example/errors/not_configurable.cpp)
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_configurable.cpp)
 
 ***Not callable***
-![CPP](https://raw.githubusercontent.com/boost-experimental/Boost.MSM-lite/master/example/errors/not_callable.cpp)
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_callable.cpp)
 
 ***Not transitional***
-![CPP](https://raw.githubusercontent.com/boost-experimental/Boost.MSM-lite/master/example/errors/not_transitional.cpp)
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_transitional.cpp)
 
 ***Not dispatchable***
-![CPP](https://raw.githubusercontent.com/boost-experimental/Boost.MSM-lite/master/example/errors/not_dispatchable.cpp)
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_dispatchable.cpp)

@@ -16,11 +16,9 @@ struct im_not_callable {};
 struct not_callable {
   auto configure() const noexcept {
     using namespace msm;
-    state<class idle> idle;
-
     // clang-format off
     return make_transition_table(
-        idle(initial) == terminate + event<e1> / im_not_callable{} // not callable
+        "idle"_s(initial) == terminate + event<e1> / im_not_callable{} // not callable
     );
     // clang-format on
   }
