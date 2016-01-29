@@ -30,20 +30,18 @@ struct sub {
   }
 };
 
+msm::state<msm::sm<sub>> sub_state;
+
 struct composite {
   composite() {}
   auto configure() const noexcept {
     using namespace msm;
-    state<class idle> idle;
-    state<class s1> s1;
-    state<sm<sub>> sub_;
-
     // clang-format off
-      return make_transition_table(
-        idle(initial) == s1 + event<e1>
-      , s1 == sub_ + event<e2> / [] { std::cout << "enter sub sm" << std::endl; }
-      , sub_ == terminate + event<e5> / [] { std::cout << "exit sub sm" << std::endl; }
-        );
+    return make_transition_table(
+      "idle"_s(initial) == "s1"_s + event<e1>
+    , "s1"_s == sub_state + event<e2> / [] { std::cout << "enter sub sm" << std::endl; }
+    , sub_state == terminate + event<e5> / [] { std::cout << "exit sub sm" << std::endl; }
+    );
     // clang-format on
   }
 };
@@ -54,10 +52,27 @@ int main() {
   composite composite_;
   msm::sm<composite> sm{composite_, sub_sm};
 
+  using namespace msm;
+  assert(sm.is("idle"_s));
+  assert(sub_sm.is("idle"_s));
+
   assert(sm.process_event(e1{}));
+  assert(sm.is("s1"_s));
+  assert(sub_sm.is("idle"_s));
+
   assert(sm.process_event(e2{}));  // enter sub sm
+  assert(sm.is(sub_state));
+  assert(sub_sm.is("idle"_s));
+
   assert(sm.process_event(e3{}));  // in sub sm
+  assert(sm.is(sub_state));
+  assert(sub_sm.is("s1"_s));
+
   assert(sm.process_event(e4{}));  // finish sub sm
+  assert(sm.is(sub_state));
+  assert(sub_sm.is(terminate));
+
   assert(sm.process_event(e5{}));  // exit sub sm
-  assert(sm.is(msm::terminate));
+  assert(sm.is(terminate));
+  assert(sub_sm.is(terminate));
 }
