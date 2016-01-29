@@ -46,6 +46,8 @@ int main() {
 }
 ```
 
+---------------------------------------
+
 [](GENERATE_TOC_BEGIN)
 
 * [Introduction](http://boost-experimental.github.io/msm-lite/index.html)
