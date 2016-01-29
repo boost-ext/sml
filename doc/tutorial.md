@@ -300,7 +300,7 @@ void log_state_change(const TSrcState& src, const TDstState& dst) {
 }
 
 #define BOOST_MSM_LOG(T, SM, ...) log_##T<SM>(__VA_ARGS__)
-#include <boost/msm.hpp>
+#include <boost/msm-lite.hpp>
 ```
 
 ![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)

@@ -1,13 +1,13 @@
 ###Quick Start
 
-* Get [boost/Boost.MSM-lite.hpp](https://raw.githubusercontent.com/boost-experimental/Boost.MSM-lite/master/include/boost/Boost.MSM-lite.hpp) header
+* Get [boost/msm-lite.hpp](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp) header
 ```sh
-    wget https://raw.githubusercontent.com/boost-experimental/Boost.MSM-lite/master/include/boost/Boost.MSM-lite.hpp
+    wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp
 ```
 
 * Include the header and define `msm` namespace alias
 ```cpp
-    #include "boost/Boost.MSM-lite.hpp"
+    #include "boost/msm-lite.hpp"
     namespace msm = boost::msm::lite;
 ```
 
@@ -18,7 +18,7 @@
 
 * To run tests
 ```sh
-    git clone https://github.com/boost-experimental/Boost.MSM-lite && cd Boost.MSM-lite && make test
+    git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make test
 ```
 
 ###Dependencies
@@ -27,8 +27,8 @@
 
 ###Supported/tested compilers
 
-* [Clang-3.4+](https://travis-ci.org/boost-experimental/Boost.MSM-lite)
-* [GCC-5.2+](https://travis-ci.org/boost-experimental/Boost.MSM-lite)
+* [Clang-3.4+](https://travis-ci.org/boost-experimental/msm-lite)
+* [GCC-5.2+](https://travis-ci.org/boost-experimental/msm-lite)
 
 ###Configuration
 | Macro                                   | Description |
@@ -41,7 +41,7 @@
 
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |
 | ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Simple Test](https://github.com/boost-experimental/Boost.MSM-lite/tree/master/test/pt/simple) | -O2 -s | 6 | 5 | 12 | 1'000'000 |
+|[Simple Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/simple) | -O2 -s | 6 | 5 | 12 | 1'000'000 |
 
 | Clang-3.7        | Boost.MSM-lite |  Boost.MSM-eUML | Boost.Statechart |
 |------------------|----------------|-----------------|------------------|
@@ -61,7 +61,7 @@
 
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |
 | ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Composite Test](https://github.com/boost-experimental/Boost.MSM-lite/tree/master/test/pt/composite) | -O2 -s | 8 | 5 + 3 | 12 + 4 | 1'000 * 1'000 |
+|[Composite Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/composite) | -O2 -s | 8 | 5 + 3 | 12 + 4 | 1'000 * 1'000 |
 
 | Clang-3.7      | Boost.MSM-lite |  Boost.MSM-eUML | Boost.Statechart |
 |------------------|----------------|-----------------|------------------|
@@ -81,7 +81,7 @@
 
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |
 | ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Complex Test](https://github.com/boost-experimental/Boost.MSM-lite/tree/master/test/pt/complex) | -O2 -s | 50 | 50 | 50 | 1'000'000 |
+|[Complex Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/complex) | -O2 -s | 50 | 50 | 50 | 1'000'000 |
 
 | Clang-3.7        | Boost.MSM-lite |  Boost.MSM-eUML | Boost.Statechart |
 |------------------|----------------|-----------------|------------------|
@@ -101,7 +101,7 @@
 
 | Test |
 | ---- |
-|[Header Test](https://github.com/boost-experimental/Boost.MSM-lite/tree/master/test/pt/header) |
+|[Header Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/header) |
 
 | Clang-3.7        | Boost.MSM-lite |  Boost.MSM-eUML | Boost.Statechart |
 |------------------|----------------|-----------------|------------------|

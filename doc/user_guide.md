@@ -2,7 +2,7 @@
 
 ***Header***
 
-    #include <boost/msm.hpp>
+    #include <boost/msm-lite.hpp>
 
 ***Description***
 
@@ -38,7 +38,7 @@ Requirements for transition.
 
 ***Header***
 
-    #include <boost/msm.hpp>
+    #include <boost/msm-lite.hpp>
 
 ***Description***
 
@@ -75,7 +75,7 @@ Requirements for the state machine.
 
 ***Header***
 
-    #include <boost/msm.hpp>
+    #include <boost/msm-lite.hpp>
 
 ***Description***
 
@@ -110,7 +110,7 @@ Requirements for action and guards.
 
 ***Header***
 
-    #include <boost/msm.hpp>
+    #include <boost/msm-lite.hpp>
 
 ***Description***
 
@@ -149,7 +149,7 @@ Requirements for the dispatch table.
 
 ***Header***
 
-    #include <boost/msm.hpp>
+    #include <boost/msm-lite.hpp>
 
 ***Description***
 
@@ -210,7 +210,7 @@ Represents a state machine state.
 
 ***Header***
 
-    #include <boost/msm.hpp>
+    #include <boost/msm-lite.hpp>
 
 ***Description***
 
@@ -255,7 +255,7 @@ Represents a state machine event.
 
 ***Header***
 
-    #include <boost/msm.hpp>
+    #include <boost/msm-lite.hpp>
 
 ***Description***
 
@@ -295,7 +295,7 @@ Creates a transition table.
 
 ***Header***
 
-    #include <boost/msm.hpp>
+    #include <boost/msm-lite.hpp>
 
 ***Description***
 
@@ -377,7 +377,7 @@ Creates a state machine.
 
 ***Header***
 
-    #include <boost/msm.hpp>
+    #include <boost/msm-lite.hpp>
 
 ***Description***
 
@@ -420,7 +420,7 @@ Creates a state machine with testing capabilities.
 
 ***Header***
 
-    #include <boost/msm.hpp>
+    #include <boost/msm-lite.hpp>
 
 ***Description***
 
@@ -460,7 +460,7 @@ Creates a dispatch table to handle runtime events.
 
 ***Header***
 
-    #include <boost/msm.hpp>
+    #include <boost/msm-lite.hpp>
 
 ***Description***
 
@@ -489,7 +489,7 @@ Add logging support for the state machine.
         printf("[%s]\n", operation);
     }
     #define BOOST_MSM_LOG(T, ...) log(#T)
-    #include "boost/msm.hpp"
+    #include "boost/msm-lite.hpp"
 
     msm::sm<example> sm;
     sm.process_event(event{}); // [process_event]
