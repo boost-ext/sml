@@ -3,7 +3,7 @@ copyright: Copyright &copy; 2016
 site_name: Boost.MSM-lite
 site_url: http://www.mkdocs.org
 site_author: Krzysztof Jusiak
-repo_url: https://github.com/krzysztof-jusiak/msm-lite
+repo_url: https://github.com/boost-experimental/msm-lite
 repo_name: msm-lite
 docs_dir: .
 use_directory_urls: false
