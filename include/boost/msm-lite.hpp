@@ -24,6 +24,9 @@
 #if !defined(__has_builtin)
 #define __has_builtin(...) 0
 #endif
+#if !defined(__has_extension)
+#define __has_extension(...) 0
+#endif
 namespace boost {
 namespace msm {
 namespace lite {
@@ -83,17 +86,20 @@ struct is_same : false_type {};
 template <class T>
 struct is_same<T, T> : true_type {};
 template <class T, class U>
-struct is_base_of : integral_constant<bool, __is_base_of(T, U)> {};
+using is_base_of = integral_constant<bool, __is_base_of(T, U)>;
+#if __has_extension(is_constructible)
+template <class T, class... TArgs>
+using is_constructible = integral_constant<bool, __is_constructible(T, TArgs...)>;
+#else
 template <class T, class... TArgs>
 decltype(void(T(declval<TArgs>()...)), true_type{}) test_is_constructible(int);
 template <class, class...>
 false_type test_is_constructible(...);
 template <class T, class... TArgs>
 using is_constructible = decltype(test_is_constructible<T, TArgs...>(0));
+#endif
 template <class T>
-struct is_trivially_constructible : integral_constant<bool, __is_trivially_constructible(T)> {};
-template <class T>
-using is_trivially_constructible_t = typename is_trivially_constructible<T>::type;
+using is_trivially_constructible = integral_constant<bool, __is_trivially_constructible(T)>;
 template <class T>
 struct remove_reference {
   using type = T;
