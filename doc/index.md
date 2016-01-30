@@ -106,5 +106,5 @@ to avoid it `Boost.MSM-lite` may suits you!
 * Runtime Dispatcher (see [Runtime Dispatcher](examples.md#runtime-dispatcher))
 * Dependency Injection integration (see [Dependency Injection](examples.md#dependency-injection))
 
-###*Acknowledgements*
+###Acknowledgements
 * Thanks to Christophe Henry for a great [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) library
