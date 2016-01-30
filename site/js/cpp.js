@@ -155,6 +155,6 @@ $(document).ready(function () {
 		var id = file.hashCode();
 		var compile = "\/\/ $CXX -std=c++14 " + basename;
 		example = $('<div/>').text(example.substring(i + n + 2)).html();
-        $(this).replaceWith('<button class="btn float" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\', \'' + name + '\')">' + name + '</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"></div>');
+        $(this).replaceWith('<table class="float-left"><tr><td><button class="btn" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\', \'' + name + '\')">' + name + '</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div style=""id="code_listing_' + id + '"></div></td></tr></table>');
     });
 });

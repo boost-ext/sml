@@ -209,6 +209,10 @@ namespace msm = boost::msm::lite;
 <pre><code class="cpp">struct my_event { ... };
 </code></pre>
 
+<p>You can also create event instance in order to simplify transition table notation.</p>
+<pre><code class="cpp">auto event = msm::event&lt;my_event&gt;;
+</code></pre>
+
 <p>A State can have entry/exit behaviour which is executed whenever state is entered or left and
 represents current location of the state machine processing.</p>
 <p>To create a state below snipped might be used.</p>
@@ -222,7 +226,7 @@ auto idle = msm::state&lt;class idle&gt;{};
 auto state  = &quot;idle&quot;_s;
 </code></pre>
 
-<p>Howerver, please notice that above solution is a non-standard extension for Clang/GCC.</p>
+<p>However, please notice that above solution is a non-standard extension for Clang/GCC.</p>
 <p><code>msm-lite</code> states cannot have data as data is injected directly into guards/actions instead.</p>
 <p>A state machine might be a state itself.</p>
 <pre><code class="cpp">msm::state&lt;msm::sm&lt;state_machine&gt;&gt; composite;
@@ -233,8 +237,11 @@ auto state  = &quot;idle&quot;_s;
 <pre><code class="cpp">assert(string(&quot;idle&quot;) == &quot;idle&quot;_s.c_str());
 </code></pre>
 
-<p><img alt="CPP(BTN)" src="../Run_States_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp" />
+<p><img alt="CPP(BTN)" src="../Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/events.cpp" />
+<img alt="CPP(BTN)" src="../Run_States_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp" />
 <img alt="CPP(BTN)" src="../Run_Composite_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
 <h3 id="2-create-guards-and-actions">2. Create guards and actions</h3>
 <p>Guards and actions are callable objects which will be executed by the state machine in order to verify whether a transition, followed by an action should take place.</p>
 <p>Guard is required to return boolean value.</p>
@@ -266,7 +273,9 @@ struct action4 {
 };
 </code></pre>
 
-<p><img alt="CPP(BTN)" src="../Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/action_guards.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Actions_Guards_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/actions_guards.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
 <h3 id="3-create-a-transition-table">3. Create a transition table</h3>
 <p>When we have states and events handy we can finally create a transition table which represents
 our transitions.</p>
@@ -314,6 +323,8 @@ make_transition_table(
 </code></pre>
 
 <p><img alt="CPP(BTN)" src="../Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
 <h3 id="4-set-initial-states">4. Set initial states</h3>
 <p>Initial states tells the state machine where to start.</p>
 <pre><code class="cpp">using namespace msm;
@@ -337,6 +348,8 @@ make_transition_table(
 
 <p><img alt="CPP(BTN)" src="../Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp" />
 <img alt="CPP(BTN)" src="../Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
 <h3 id="5-create-a-state-machine">5. Create a state machine</h3>
 <p>State machine is an abstraction for transition table holding current states and processing events.
 To create a state machine, firstly we have to configure our transition table.</p>
@@ -388,6 +401,8 @@ assert(sm.process_event(e1{}));
 <p><img alt="CPP(BTN)" src="../Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" />
 <img alt="CPP(BTN)" src="../Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp" />
 <img alt="CPP(BTN)" src="../Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
 <h3 id="6-process-events">6. Process events</h3>
 <p>State machine is a simple creature. The main feature of it is to process events.
 In order to do so, <code>process_event</code> method might be used.</p>
@@ -414,6 +429,8 @@ auto dispatch_event = msm::make_dispatch_table&lt;runtime_event, 1 /*min*/, 5 /*
 
 <p><img alt="CPP(BTN)" src="../Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" />
 <img alt="CPP(BTN)" src="../Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
 <h3 id="8-testing-a-state-machine">8. Testing a state machine</h3>
 <p>Sometimes it is useful to verify whether a state machine is in a specific states, for example, whether
 we are in a terminate state or not. We can do it with <code>msm-lite</code> using <code>is</code> or <code>visit_current_states</code>
@@ -437,6 +454,8 @@ assert(sm.is(terminate));
 </code></pre>
 
 <p><img alt="CPP(BTN)" src="../Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
 <h3 id="9-debugging-a-state-machine">9. Debugging a state machine</h3>
 <p><code>msm-lite</code> provides logging capabilities in order to print state machine flow.
 To enable logging you have to define <code>BOOST_MSM_LOG</code>.</p>
@@ -466,6 +485,8 @@ void log_state_change(const TSrcState&amp; src, const TDstState&amp; dst) {
 </code></pre>
 
 <p><img alt="CPP(BTN)" src="../Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
               
             </div>
           </div>
