@@ -2,23 +2,23 @@
 
 * Get [boost/msm-lite.hpp](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp) header
 ```sh
-    wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp
+wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp
 ```
 
 * Include the header and define `msm` namespace alias
 ```cpp
-    #include "boost/msm-lite.hpp"
-    namespace msm = boost::msm::lite;
+#include "boost/msm-lite.hpp"
+namespace msm = boost::msm::lite;
 ```
 
 * Compile with C++14 support
 ```sh
-    $CXX -std=c++14 ...
+$CXX -std=c++14 ...
 ```
 
 * To run tests
 ```sh
-    git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make test
+git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make test
 ```
 
 ###Dependencies
