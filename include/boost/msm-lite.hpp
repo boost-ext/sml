@@ -164,7 +164,7 @@ struct make_index_sequence_impl
 template <>
 struct make_index_sequence_impl<0> : index_sequence<> {};
 template <>
-struct make_index_sequence_impl<1> : index_sequence<1> {};
+struct make_index_sequence_impl<1> : index_sequence<0> {};
 #endif
 template <int N>
 using make_index_sequence = typename make_index_sequence_impl<N>::type;
@@ -231,7 +231,7 @@ auto &get_by_id_impl(tuple_type<N, T> *object) noexcept {
 }
 template <int N, class Tuple>
 auto &get_by_id(Tuple &t) noexcept {
-  return get_by_id_impl<N + 1>(&t);
+  return get_by_id_impl<N>(&t);
 }
 template <class T>
 struct pool_type {
@@ -279,7 +279,7 @@ template <class... Ts>
 struct type_id : type_id_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {};
 template <class T, int, int N>
 constexpr auto get_id_impl(type_id_type<N, T> *) noexcept {
-  return N - 1;
+  return N;
 }
 template <class T, int D>
 constexpr auto get_id_impl(...) noexcept {
@@ -581,7 +581,7 @@ class seq_ : operator_base {
  private:
   template <int... Ns, class TEvent, class TDeps, class SM>
   void for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
-    int _[]{0, (call(aux::get_by_id<Ns - 1>(a), event, deps, sm), 0)...};
+    int _[]{0, (call(aux::get_by_id<Ns>(a), event, deps, sm), 0)...};
     (void)_;
   }
 
@@ -602,7 +602,7 @@ class and_ : operator_base {
   template <int... Ns, class TEvent, class TDeps, class SM>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
     auto result = true;
-    int _[]{0, (call(aux::get_by_id<Ns - 1>(g), event, deps, sm) ? result : result = false)...};
+    int _[]{0, (call(aux::get_by_id<Ns>(g), event, deps, sm) ? result : result = false)...};
     (void)_;
     return result;
   }
@@ -624,7 +624,7 @@ class or_ : operator_base {
   template <int... Ns, class TEvent, class TDeps, class SM>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
     auto result = false;
-    int _[]{0, (call(aux::get_by_id<Ns - 1>(g), event, deps, sm) ? result = true : result)...};
+    int _[]{0, (call(aux::get_by_id<Ns>(g), event, deps, sm) ? result = true : result)...};
     (void)_;
     return result;
   }
@@ -1174,7 +1174,7 @@ class sm {
     static bool (*dispatch_table[])(sm &, const TEvent &,
                                     aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     auto handled = false;
-    int _[]{0, (handled |= dispatch_table[current_state_[Ns - 1]](*this, event, current_state_[Ns - 1]), 0)...};
+    int _[]{0, (handled |= dispatch_table[current_state_[Ns]](*this, event, current_state_[Ns]), 0)...};
     (void)_;
     return handled;
   }
@@ -1192,7 +1192,7 @@ class sm {
                                  const aux::index_sequence<Ns...> &) const noexcept {
     static void (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(const TVisitor &) = {
         &sm::visit_state<TVisitor, TStates>...};
-    int _[]{0, (dispatch_table[current_state_[Ns - 1]](visitor), 0)...};
+    int _[]{0, (dispatch_table[current_state_[Ns]](visitor), 0)...};
     (void)_;
   }
 
@@ -1273,7 +1273,7 @@ auto make_dispatch_table(sm<SM> &fsm, const aux::index_sequence<Ns...> &) noexce
   using events_ids = aux::apply_t<event_id, typename sm<SM>::events>;
   return [&](const TEvent &event, int id) {
     static bool (*dispatch_table[])(
-        sm<SM> &, const TEvent &) = {&get_event_t<Ns - 1 + EventRangeBegin, events_ids>::template execute<sm<SM>, TEvent>...};
+        sm<SM> &, const TEvent &) = {&get_event_t<Ns + EventRangeBegin, events_ids>::template execute<sm<SM>, TEvent>...};
     return dispatch_table[id - EventRangeBegin](fsm, event);
   };
 }
