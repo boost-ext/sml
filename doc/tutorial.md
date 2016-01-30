@@ -19,6 +19,12 @@ An Event is just a unique type, which will be process by the state machine.
 struct my_event { ... };
 ```
 
+You can also create event instance in order to simplify transition table notation.
+
+```cpp
+auto event = msm::event<my_event>;
+```
+
 A State can have entry/exit behaviour which is executed whenever state is entered or left and
 represents current location of the state machine processing.
 
@@ -37,7 +43,7 @@ using namespace msm;
 auto state  = "idle"_s;
 ```
 
-Howerver, please notice that above solution is a non-standard extension for Clang/GCC.
+However, please notice that above solution is a non-standard extension for Clang/GCC.
 
 `msm-lite` states cannot have data as data is injected directly into guards/actions instead.
 
@@ -55,8 +61,13 @@ States are printable too.
 assert(string("idle") == "idle"_s.c_str());
 ```
 
+![CPP(BTN)](Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/events.cpp)
 ![CPP(BTN)](Run_States_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp)
 ![CPP(BTN)](Run_Composite_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp)
+
+&nbsp;
+
+---
 
 ###2. Create guards and actions
 
@@ -93,7 +104,11 @@ struct action4 {
 };
 ```
 
-![CPP(BTN)](Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/action_guards.cpp)
+![CPP(BTN)](Run_Actions_Guards_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/actions_guards.cpp)
+
+&nbsp;
+
+---
 
 ###3. Create a transition table
 
@@ -123,6 +138,10 @@ make_transition_table(
 
 ![CPP(BTN)](Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp)
 
+&nbsp;
+
+---
+
 ###4. Set initial states
 
 Initial states tells the state machine where to start.
@@ -151,6 +170,10 @@ make_transition_table(
 
 ![CPP(BTN)](Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp)
 ![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
+
+&nbsp;
+
+---
 
 ###5. Create a state machine
 
@@ -213,6 +236,10 @@ assert(sm.process_event(e1{}));
 ![CPP(BTN)](Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp)
 ![CPP(BTN)](Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp)
 
+&nbsp;
+
+---
+
 ###6. Process events
 
 State machine is a simple creature. The main feature of it is to process events.
@@ -245,6 +272,10 @@ auto dispatch_event = msm::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max
 ![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
 ![CPP(BTN)](Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp)
 
+&nbsp;
+
+---
+
 ###8. Testing a state machine
 
 Sometimes it is useful to verify whether a state machine is in a specific states, for example, whether
@@ -273,6 +304,10 @@ assert(sm.is(terminate));
 ```
 
 ![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp)
+
+&nbsp;
+
+---
 
 ###9. Debugging a state machine
 
@@ -306,3 +341,7 @@ void log_state_change(const TSrcState& src, const TDstState& dst) {
 ```
 
 ![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)
+
+&nbsp;
+
+---

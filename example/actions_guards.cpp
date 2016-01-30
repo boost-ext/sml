@@ -37,7 +37,7 @@ struct action2 {
   }
 };
 
-struct action_guards {
+struct actions_guards {
   auto configure() const noexcept {
     using namespace msm;
     // clang-format off
@@ -53,7 +53,7 @@ struct action_guards {
 };
 
 int main() {
-  msm::sm<action_guards> sm{42};
+  msm::sm<actions_guards> sm{42};
   assert(sm.process_event(e1{}));
   assert(sm.process_event(e2{}));
   assert(sm.process_event(e3{}));

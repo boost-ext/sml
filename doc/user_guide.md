@@ -34,6 +34,10 @@ Requirements for transition.
 
 ![CPP(BTN)](Run_Transitional_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_transitional.cpp)
 
+&nbsp;
+
+---
+
 ###configurable [concept]
 
 ***Header***
@@ -69,6 +73,8 @@ Requirements for the state machine.
 
 ![CPP(BTN)](Run_Configurable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_configurable.cpp)
 
+&nbsp;
+
 ---
 
 ###callable [concept]
@@ -103,6 +109,8 @@ Requirements for action and guards.
     static_assert(callable<void, decltype(action)>::value);
 
 ![CPP(BTN)](Run_Callable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_callable.cpp)
+
+&nbsp;
 
 ---
 
@@ -142,6 +150,8 @@ Requirements for the dispatch table.
     static_assert(dispatchable<runtime_event, event>::value);
 
 ![CPP(BTN)](Run_Dispatchable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_dispatchable.cpp)
+
+&nbsp;
 
 ---
 
@@ -204,6 +214,8 @@ Represents a state machine state.
 ![CPP(BTN)](Run_Composite_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp)
 ![CPP(BTN)](Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp)
 
+&nbsp;
+
 ---
 
 ###event [core]
@@ -249,6 +261,8 @@ Represents a state machine event.
 
 ![CPP(BTN)](Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/action_guards.cpp)
 
+&nbsp;
+
 ---
 
 ###make_transition_table [state machine]
@@ -288,6 +302,8 @@ Creates a transition table.
     };
 
 ![CPP(BTN)](Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp)
+
+&nbsp;
 
 ---
 
@@ -371,6 +387,8 @@ Creates a state machine.
 ![CPP(BTN)](Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp)
 ![CPP(BTN)](Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp)
 
+&nbsp;
+
 ---
 
 ###testing::sm [testing]
@@ -414,6 +432,8 @@ Creates a state machine with testing capabilities.
 
 ![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp)
 
+&nbsp;
+
 ---
 
 ###make_dispatch_table [extension]
@@ -453,6 +473,8 @@ Creates a dispatch table to handle runtime events.
     assert(dispatch_event(event, event.id));
 
 ![CPP(BTN)](Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp)
+
+&nbsp;
 
 ---
 
@@ -495,5 +517,7 @@ Add logging support for the state machine.
     sm.process_event(event{}); // [process_event]
 
 ![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)
+
+&nbsp;
 
 ---
