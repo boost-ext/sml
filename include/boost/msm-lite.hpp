@@ -21,6 +21,9 @@
 #define BOOST_MSM_DSL_SRC_STATE(s1, s2) s1
 #define BOOST_MSM_DSL_DST_STATE(s1, s2) s2
 #endif
+#if !defined(__has_builtin)
+#define __has_builtin(...) 0
+#endif
 namespace boost {
 namespace msm {
 namespace lite {
@@ -133,6 +136,18 @@ template <int...>
 struct index_sequence {
   using type = index_sequence;
 };
+#if __has_builtin(__make_integer_seq)
+template <class T, T...>
+struct integer_sequence;
+template <int... Ns>
+struct integer_sequence<int, Ns...> {
+  using type = index_sequence<Ns...>;
+};
+template <int N>
+struct make_index_sequence_impl {
+  using type = typename __make_integer_seq<integer_sequence, int, N>::type;
+};
+#else
 template <class, class>
 struct concat;
 template <int... I1, int... I2>
@@ -144,6 +159,7 @@ template <>
 struct make_index_sequence_impl<0> : index_sequence<> {};
 template <>
 struct make_index_sequence_impl<1> : index_sequence<1> {};
+#endif
 template <int N>
 using make_index_sequence = typename make_index_sequence_impl<N>::type;
 template <class...>
