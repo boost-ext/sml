@@ -308,7 +308,6 @@ template <class>
 void configurable_impl(...);
 template <class T>
 struct configurable : aux::is_pool<decltype(configurable_impl<T>(0))> {};
-
 struct callable_fallback {
   void operator()();
 };
@@ -322,7 +321,6 @@ template <class R>
 struct callable_impl<R, aux::true_type> : aux::true_type {};
 template <class R, class T>
 using callable = callable_impl<R, decltype(test_callable<aux::inherit<T, callable_fallback>>(0))>;
-
 template <class...>
 struct is_valid_transition : aux::true_type {};
 template <class S1, class S2, class T>
@@ -370,7 +368,6 @@ struct is_sm<sm<T>> : aux::true_type {};
 struct fsm {
   auto configure() noexcept { return aux::pool<>{}; }
 };
-
 struct operator_base {};
 struct internal_event {};
 struct anonymous : internal_event {};
@@ -398,7 +395,6 @@ struct process_event {
     return process_event_impl<TEvent>{event};
   }
 };
-
 template <class>
 struct event {
   template <class T, BOOST_MSM_REQUIRES(concepts::callable<bool, T>::value)>
@@ -411,15 +407,12 @@ struct event {
     return transition_ea<event, T>{*this, t};
   }
 };
-
 template <class>
 struct state;
-
 template <class>
 struct state_str {
   static auto c_str() noexcept { return __PRETTY_FUNCTION__; }
 };
-
 template <char... Chrs>
 struct state_str<state<aux::string<Chrs...>>> {
   static auto c_str() noexcept {
@@ -427,10 +420,8 @@ struct state_str<state<aux::string<Chrs...>>> {
     return str;
   }
 };
-
 template <char... Chrs, class T>
 struct state_str<state<aux::string<Chrs...>(T)>> : state_str<state<aux::string<Chrs...>>> {};
-
 template <class TState>
 struct state_impl : state_str<TState> {
   template <class T>
@@ -453,23 +444,19 @@ struct state_impl : state_str<TState> {
     return transition_sa<TState, T>{static_cast<const TState &>(*this), t};
   }
 };
-
 struct initial_state {};
 struct terminate_state {};
-
 template <class TState>
 struct state : state_impl<state<TState>> {
   using type = TState;
   static constexpr auto is_initial = false;
   auto operator()(const initial_state &) const noexcept { return state<TState(initial_state)>{}; }
 };
-
 template <class TState>
 struct state<TState(initial_state)> : state_impl<state<TState(initial_state)>> {
   using type = TState;
   static constexpr auto is_initial = true;
 };
-
 template <class, class>
 aux::type_list<> args_impl__(...);
 template <class T, class>
@@ -484,30 +471,24 @@ template <class T, class E>
 auto args__(int) -> aux::function_traits_t<decltype(&T::template operator() < fsm, E > )>;
 template <class T, class E>
 using args_t = decltype(args__<T, E>(0));
-
 template <class, class>
 struct ignore;
-
 template <class E, class... Ts>
 struct ignore<E, aux::type_list<Ts...>> {
   using type = aux::join_t<aux::conditional_t<aux::is_same<E, aux::remove_reference_t<Ts>>::value ||
                                                   aux::is_same<sm<fsm>, aux::remove_reference_t<Ts>>::value,
                                               aux::type_list<>, aux::type_list<Ts>>...>;
 };
-
 template <class T, class E, class = void>
 struct get_deps {
   using type = typename ignore<E, args_t<T, E>>::type;
 };
-
 template <class T, class E>
 using get_deps_t = typename get_deps<T, E>::type;
-
 template <template <class...> class T, class... Ts, class E>
 struct get_deps<T<Ts...>, E, aux::enable_if_t<aux::is_base_of<operator_base, T<Ts...>>::value>> {
   using type = aux::join_t<get_deps_t<Ts, E>...>;
 };
-
 template <class T, class TEvent, class TDeps, class SM,
           aux::enable_if_t<!aux::is_same<TEvent, aux::remove_reference_t<T>>::value &&
                                !aux::is_same<sm<fsm>, aux::remove_reference_t<T>>::value,
@@ -515,19 +496,16 @@ template <class T, class TEvent, class TDeps, class SM,
 decltype(auto) get_arg(const TEvent &, TDeps &deps, SM &) noexcept {
   return aux::get<T>(deps);
 }
-
 template <class T, class TEvent, class TDeps, class SM,
           aux::enable_if_t<aux::is_same<TEvent, aux::remove_reference_t<T>>::value, int> = 0>
 decltype(auto) get_arg(const TEvent &event, TDeps &, SM &) noexcept {
   return event;
 }
-
 template <class T, class TEvent, class TDeps, class SM,
           aux::enable_if_t<aux::is_same<sm<fsm>, aux::remove_reference_t<T>>::value, int> = 0>
 decltype(auto) get_arg(const TEvent &, TDeps &, SM &sm) noexcept {
   return sm;
 }
-
 #if defined(BOOST_MSM_LOG_ENABLED)
 template <class... Ts, class T, class TEvent, class TDeps, class SM>
 auto call_impl(const aux::type<void> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TDeps &deps,
@@ -535,7 +513,6 @@ auto call_impl(const aux::type<void> &, const aux::type_list<Ts...> &, T object,
   object(get_arg<Ts>(event, deps, sm)...);
   BOOST_MSM_LOG(action, SM, object, event);
 }
-
 template <class... Ts, class T, class TEvent, class TDeps, class SM>
 auto call_impl(const aux::type<bool> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TDeps &deps,
                sm<SM> &sm) noexcept {
@@ -544,7 +521,6 @@ auto call_impl(const aux::type<bool> &, const aux::type_list<Ts...> &, T object,
   return result;
 }
 #endif
-
 template <class... Ts, class T, class TEvent, class TDeps, class SM,
           aux::enable_if_t<!aux::is_base_of<operator_base, T>::value, int> = 0>
 auto call_impl(const aux::type_list<Ts...> &args, T object, const TEvent &event, TDeps &deps, sm<SM> &sm) noexcept {
@@ -556,18 +532,15 @@ auto call_impl(const aux::type_list<Ts...> &args, T object, const TEvent &event,
   return object(get_arg<Ts>(event, deps, sm)...);
 #endif
 }
-
 template <class... Ts, class T, class TEvent, class TDeps, class SM,
           aux::enable_if_t<aux::is_base_of<operator_base, T>::value, int> = 0>
 auto call_impl(const aux::type_list<Ts...> &, T object, const TEvent &event, TDeps &deps, sm<SM> &sm) noexcept {
   return object(event, deps, sm);
 }
-
 template <class T, class TEvent, class TDeps, class SM>
 auto call(T object, const TEvent &event, TDeps &deps, sm<SM> &sm) noexcept {
   return call_impl(args_t<T, TEvent>{}, object, event, deps, sm);
 }
-
 template <class... Ts>
 class seq_ : operator_base {
  public:
@@ -587,7 +560,6 @@ class seq_ : operator_base {
 
   aux::tuple<Ts...> a;
 };
-
 template <class... Ts>
 class and_ : operator_base {
  public:
@@ -609,7 +581,6 @@ class and_ : operator_base {
 
   aux::tuple<Ts...> g;
 };
-
 template <class... Ts>
 class or_ : operator_base {
  public:
@@ -631,7 +602,6 @@ class or_ : operator_base {
 
   aux::tuple<Ts...> g;
 };
-
 template <class T>
 class not_ : operator_base {
  public:
@@ -645,7 +615,6 @@ class not_ : operator_base {
  private:
   T g;
 };
-
 template <class E, class G>
 struct transition<event<E>, G> {
   template <class T>
@@ -655,25 +624,21 @@ struct transition<event<E>, G> {
   event<E> e;
   G g;
 };
-
 template <class E, class G, class A>
 struct transition<event<E>, G, A> {
   event<E> e;
   G g;
   A a;
 };
-
 template <class S2, class G, class A>
 struct transition<state<S2>, G, A> : transition<state<S2>, state<S2>, event<anonymous>, G, A> {
   transition(const G &g, const A &a) : transition<state<S2>, state<S2>, event<anonymous>, G, A>{g, a} {}
 };
-
 template <class S1, class S2>
 struct transition<state<S1>, state<S2>> : transition<state<S1>, state<S2>, event<anonymous>, always, none> {
   transition(const state<S1> &, const state<S2> &)
       : transition<state<S1>, state<S2>, event<anonymous>, always, none>{always{}, none{}} {}
 };
-
 template <class S2, class G>
 struct transition_sg<state<S2>, G> : transition<state<S2>, state<S2>, event<anonymous>, G, none> {
   using transition_t = transition<state<S2>, state<S2>, event<anonymous>, G, none>;
@@ -686,18 +651,15 @@ struct transition_sg<state<S2>, G> : transition<state<S2>, state<S2>, event<anon
     return transition<state<S2>, G, T>{g, t};
   }
 };
-
 template <class S2, class A>
 struct transition_sa<state<S2>, A> : transition<state<S2>, state<S2>, event<anonymous>, always, A> {
   transition_sa(const state<S2> &, const A &a) : transition<state<S2>, state<S2>, event<anonymous>, always, A>{always{}, a} {}
 };
-
 template <class S2, class E>
 struct transition<state<S2>, event<E>> {
   const state<S2> &s2;
   event<E> e;
 };
-
 template <class E, class G>
 struct transition_eg<event<E>, G> {
   template <class T>
@@ -707,76 +669,64 @@ struct transition_eg<event<E>, G> {
   event<E> e;
   G g;
 };
-
 template <class E, class A>
 struct transition_ea<event<E>, A> {
   event<E> e;
   A a;
 };
-
 template <class S1, class S2, class G, class A>
 struct transition<state<S1>, transition<state<S2>, G, A>> : transition<state<S1>, state<S2>, event<anonymous>, G, A> {
   transition(const state<S1> &, const transition<state<S2>, G, A> &t)
       : transition<state<S1>, state<S2>, event<anonymous>, G, A>{t.g, t.a} {}
 };
-
 template <class S1, class E, class G, class A>
 struct transition<state<S1>, transition<event<E>, G, A>> : transition<state<S1>, state<S1>, event<E>, G, A> {
   transition(const state<S1> &, const transition<event<E>, G, A> &t)
       : transition<state<S1>, state<S1>, event<E>, G, A>{t.g, t.a} {}
 };
-
 template <class S1, class S2, class E>
 struct transition<state<S1>, transition<state<S2>, event<E>>> : transition<state<S1>, state<S2>, event<E>, always, none> {
   transition(const state<S1> &, const transition<state<S2>, event<E>> &)
       : transition<state<S1>, state<S2>, event<E>, always, none>{always{}, none{}} {}
 };
-
 template <class S1, class S2, class G>
 struct transition<state<S1>, transition_sg<state<S2>, G>> : transition<state<S1>, state<S2>, event<anonymous>, G, none> {
   transition(const state<S1> &, const transition_sg<state<S2>, G> &t)
       : transition<state<S1>, state<S2>, event<anonymous>, G, none>{t.g, none{}} {}
 };
-
 template <class S1, class S2, class A>
 struct transition<state<S1>, transition_sa<state<S2>, A>> : transition<state<S1>, state<S2>, event<anonymous>, always, A> {
   transition(const state<S1> &, const transition_sa<state<S2>, A> &t)
       : transition<state<S1>, state<S2>, event<anonymous>, always, A>{always{}, t.a} {}
 };
-
 template <class S2, class E, class G>
 struct transition<state<S2>, transition_eg<event<E>, G>> : transition<state<S2>, state<S2>, event<E>, G, none> {
   transition(const state<S2> &, const transition_eg<event<E>, G> &t)
       : transition<state<S2>, state<S2>, event<E>, G, none>{t.g, none{}} {}
 };
-
 template <class S1, class S2, class E, class G>
 struct transition<state<S1>, transition<state<S2>, transition_eg<event<E>, G>>>
     : transition<state<S1>, state<S2>, event<E>, G, none> {
   transition(const state<S1> &, const transition<state<S2>, transition_eg<event<E>, G>> &t)
       : transition<state<S1>, state<S2>, event<E>, G, none>{t.g, none{}} {}
 };
-
 template <class S2, class E, class A>
 struct transition<state<S2>, transition_ea<event<E>, A>> : transition<state<S2>, state<S2>, event<E>, always, A> {
   transition(const state<S2> &, const transition_ea<event<E>, A> &t)
       : transition<state<S2>, state<S2>, event<E>, always, A>{always{}, t.a} {}
 };
-
 template <class S1, class S2, class E, class A>
 struct transition<state<S1>, transition<state<S2>, transition_ea<event<E>, A>>>
     : transition<state<S1>, state<S2>, event<E>, always, A> {
   transition(const state<S1> &, const transition<state<S2>, transition_ea<event<E>, A>> &t)
       : transition<state<S1>, state<S2>, event<E>, always, A>{always{}, t.a} {}
 };
-
 template <class S1, class S2, class E, class G, class A>
 struct transition<state<S1>, transition<state<S2>, transition<event<E>, G, A>>>
     : transition<state<S1>, state<S2>, event<E>, G, A> {
   transition(const state<S1> &, const transition<state<S2>, transition<event<E>, G, A>> &t)
       : transition<state<S1>, state<S2>, event<E>, G, A>{t.g, t.a} {}
 };
-
 template <class S1, class S2, class E, class G, class A>
 struct transition<state<S1>, state<S2>, event<E>, G, A> {
   static constexpr auto has_initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
@@ -801,7 +751,6 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> {
   G g;
   A a;
 };
-
 template <class S1, class S2, class E, class A>
 struct transition<state<S1>, state<S2>, event<E>, always, A> {
   static constexpr auto has_initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
@@ -822,7 +771,6 @@ struct transition<state<S1>, state<S2>, event<E>, always, A> {
 
   A a;
 };
-
 template <class S1, class S2, class E, class G>
 struct transition<state<S1>, state<S2>, event<E>, G, none> {
   static constexpr auto has_initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
@@ -845,7 +793,6 @@ struct transition<state<S1>, state<S2>, event<E>, G, none> {
 
   G g;
 };
-
 template <class S1, class S2, class E>
 struct transition<state<S1>, state<S2>, event<E>, always, none> {
   static constexpr auto has_initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
@@ -863,10 +810,8 @@ struct transition<state<S1>, state<S2>, event<E>, always, none> {
     return true;
   }
 };
-
 template <class...>
 struct transition_impl;
-
 template <class T, class... Ts>
 struct transition_impl<T, Ts...> {
   template <class SM, class TEvent>
@@ -877,7 +822,6 @@ struct transition_impl<T, Ts...> {
     return transition_impl<Ts...>::execute(self, event, current_state);
   }
 };
-
 template <class T>
 struct transition_impl<T> {
   template <class SM, class TEvent>
@@ -885,7 +829,6 @@ struct transition_impl<T> {
     return aux::get<T>(self.transitions_).execute(self, event, current_state);
   }
 };
-
 template <>
 struct transition_impl<> {
   template <class SM, class TEvent>
@@ -893,10 +836,8 @@ struct transition_impl<> {
     return false;
   }
 };
-
 template <class...>
 struct transition_sub_impl;
-
 template <class TSM, class T, class... Ts>
 struct transition_sub_impl<TSM, T, Ts...> {
   template <class SM, class TEvent>
@@ -905,7 +846,6 @@ struct transition_sub_impl<TSM, T, Ts...> {
                                                               : transition_impl<T, Ts...>::execute(self, event, current_state);
   }
 };
-
 template <class TSM>
 struct transition_sub_impl<TSM> {
   template <class SM, class TEvent>
@@ -913,163 +853,119 @@ struct transition_sub_impl<TSM> {
     return aux::try_get<TSM>(self.deps_).process_event(event);
   }
 };
-
 template <class, class>
 struct state_mappings;
-
 template <class S, class... Ts>
 struct state_mappings<S, aux::type_list<Ts...>> {
   using element_type = state<S>;
   using types = aux::type_list<Ts...>;
 };
-
 template <class, class>
 struct event_mappings;
-
 template <class E, class... Ts>
 struct event_mappings<E, aux::inherit<Ts...>> {
   using element_type = event<E>;
   using types = aux::type_list<Ts...>;
 };
-
 template <class...>
 struct unique_mappings;
-
 template <class, class...>
 struct unique_mappings_impl;
-
 template <class... Ts>
 using unique_mappings_t = typename unique_mappings<Ts...>::type;
-
 template <class, class, class, class R>
 struct get_mapping : aux::type_list<R> {};
-
 template <class E, class T, class R>
 struct get_mapping<event<E>, event<E>, T, R>
     : aux::type_list<event_mappings<E, aux::apply_t<unique_mappings_t, aux::join_t<typename R::types, typename T::types>>>> {};
-
 template <class S, class T, class R>
 struct get_mapping<state<S>, state<S>, T, R>
     : aux::type_list<state_mappings<S, aux::join_t<typename R::types, typename T::types>>> {};
-
 template <class T, class... Ts>
 struct extend_mapping : aux::join_t<typename get_mapping<typename T::element_type, typename Ts::element_type, T, Ts>::type...> {
 };
-
 template <class T, class... Ts>
 using extend_mapping_t = aux::apply_t<aux::inherit, typename extend_mapping<T, Ts...>::type>;
-
 template <bool, class, class...>
 struct conditional_mapping;
-
 template <class T1, class T2, class... Rs, class... Ts>
 struct conditional_mapping<true, aux::type<T1, aux::inherit<Rs...>>, T2, Ts...> {
   using type = unique_mappings_impl<aux::type<aux::inherit<T1>, extend_mapping_t<T2, Rs...>>, Ts...>;
 };
-
 template <class T1, class T2, class... Rs, class... Ts>
 struct conditional_mapping<false, aux::type<T1, aux::inherit<Rs...>>, T2, Ts...> {
   using type =
       unique_mappings_impl<aux::type<aux::inherit<T1, aux::type<typename T2::element_type>>, aux::inherit<T2, Rs...>>, Ts...>;
 };
-
 template <class T1, class T2, class... Rs, class... Ts>
 struct unique_mappings_impl<aux::type<T1, aux::inherit<Rs...>>, T2, Ts...>
     : conditional_mapping<aux::is_base_of<aux::type<typename T2::element_type>, T1>::value, aux::type<T1, aux::inherit<Rs...>>,
                           T2, Ts...>::type {};
-
 template <class T1, class Rs>
 struct unique_mappings_impl<aux::type<T1, Rs>> : aux::apply_t<aux::inherit, Rs> {};
-
 template <class... Ts>
 struct unique_mappings : unique_mappings_impl<aux::type<aux::none_type, aux::inherit<>>, Ts...> {};
-
 template <class T>
 struct unique_mappings<T> : aux::inherit<T> {};
-
 template <class, class...>
 struct mappings;
-
 template <class... Ts>
 struct mappings<aux::pool<Ts...>>
     : unique_mappings_t<
           event_mappings<typename Ts::event, aux::inherit<state_mappings<typename Ts::src_state, aux::type_list<Ts>>>>...> {};
-
 template <class T>
 using mappings_t = typename mappings<T>::type;
-
 template <class>
 transition_impl<> get_state_mapping_impl(...);
-
 template <class T, class... Ts>
 transition_impl<Ts...> get_state_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
-
 template <class S>
 transition_sub_impl<S> get_sub_state_mapping_impl(...);
-
 template <class T, class... Ts>
 transition_sub_impl<T, Ts...> get_sub_state_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
-
 template <class T, class U>
 struct get_state_mapping {
   using type = decltype(get_state_mapping_impl<T>((U *)0));
 };
-
 template <class T, class U>
 struct get_state_mapping<sm<T>, U> {
   using type = decltype(get_sub_state_mapping_impl<sm<T>>((U *)0));
 };
-
 template <class T, class U>
 using get_state_mapping_t = typename get_state_mapping<T, U>::type;
-
 template <class>
 transition_impl<> get_event_mapping_impl(...);
-
 template <class T, class TMappings>
 TMappings get_event_mapping_impl(event_mappings<T, TMappings> *);
-
 template <class T, class U>
 using get_event_mapping_t = decltype(get_event_mapping_impl<T>((U *)0));
-
 template <class, class TEvent>
 struct get_all_events_impl {
   using type = aux::conditional_t<aux::is_base_of<internal_event, TEvent>::value, aux::type_list<>, aux::type_list<TEvent>>;
 };
-
 template <class T, class TEvent>
 struct get_all_events_impl<sm<T>, TEvent> {
   using type = aux::join_t<aux::type_list<TEvent>, typename sm<T>::events>;
 };
-
 template <class... Ts>
 using get_all_events = aux::join_t<typename get_all_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
-
 template <class... Ts>
 using get_events = aux::type_list<typename Ts::event...>;
-
 template <class... Ts>
 using get_states = aux::join_t<aux::type_list<typename Ts::src_state, typename Ts::dst_state>...>;
-
 template <class... Ts>
 using get_initial_states =
     aux::join_t<aux::conditional_t<Ts::has_initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>...>;
-
 template <class T, class U = T>
 using get_sm = aux::conditional_t<aux::is_trivially_constructible<T>::value, aux::type_list<U>, aux::type_list<U &>>;
-
 template <class>
 struct get_sub_sm : aux::type_list<> {};
-
 template <class T>
 struct get_sub_sm<sm<T>> : get_sm<T, sm<T>> {};
-
 template <class... Ts>
 using get_sub_sms = aux::join_t<typename get_sub_sm<Ts>::type...>;
-
 template <class... Ts>
 using merge_deps = aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>;
-
 template <class SM>
 class sm {
   template <class...>
@@ -1221,7 +1117,6 @@ class sm {
  protected:
   aux::byte current_state_[regions];
 };
-
 template <class TEvent = void>
 struct dispatch_event_impl {
   template <class SM, class T>
@@ -1239,7 +1134,6 @@ struct dispatch_event_impl {
     return sm.process_event(TEvent());
   }
 };
-
 template <>
 struct dispatch_event_impl<void> {
   template <class SM, class T>
@@ -1247,27 +1141,20 @@ struct dispatch_event_impl<void> {
     return false;
   }
 };
-
 template <int, class>
 struct events_ids_impl {};
-
 template <class... Ts>
 struct event_id : events_ids_impl<Ts::id, Ts>... {};
-
 template <int>
 dispatch_event_impl<> get_event_impl(...);
-
 template <int N, class T>
 dispatch_event_impl<T> get_event_impl(events_ids_impl<N, T> *);
-
 template <int N, class T>
 struct get_event {
   using type = decltype(get_event_impl<N>((T *)0));
 };
-
 template <int N, class T>
 using get_event_t = typename get_event<N, T>::type;
-
 template <class TEvent, int EventRangeBegin, class SM, int... Ns>
 auto make_dispatch_table(sm<SM> &fsm, const aux::index_sequence<Ns...> &) noexcept {
   using events_ids = aux::apply_t<event_id, typename sm<SM>::events>;
@@ -1293,60 +1180,47 @@ class sm : public detail::sm<T> {
   }
 };
 }  // testing
-
 template <class T, BOOST_MSM_REQUIRES(concepts::callable<bool, T>::value)>
 auto operator!(const T &t) noexcept {
   return detail::not_<T>(t);
 }
-
 template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
 auto operator&&(const T1 &t1, const T2 &t2) noexcept {
   return detail::and_<T1, T2>(t1, t2);
 }
-
 template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
 auto operator||(const T1 &t1, const T2 &t2) noexcept {
   return detail::or_<T1, T2>(t1, t2);
 }
-
 template <class T1, class T2, BOOST_MSM_REQUIRES(concepts::callable<void, T1>::value &&concepts::callable<void, T2>::value)>
 auto operator, (const T1 &t1, const T2 &t2) noexcept {
   return detail::seq_<T1, T2>(t1, t2);
 }
-
 template <class TEvent>
 detail::event<TEvent> event{};
-
 auto on_entry = event<detail::on_entry>;
 auto on_exit = event<detail::on_exit>;
-
 template <class T>
 using state = detail::state<T>;
-
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
 #endif
-
 #if !defined(_MSC_VER)
 template <class T, T... Chrs>
 auto operator""_s() noexcept {
   return state<aux::string<Chrs...>>{};
 }
 #endif
-
 detail::initial_state initial;
 detail::state<detail::terminate_state> terminate;
 detail::process_event process_event;
-
 template <class... Ts, BOOST_MSM_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
                                                        aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 auto make_transition_table(Ts... ts) noexcept {
   return aux::pool<Ts...>{ts...};
 }
-
 template <class T, BOOST_MSM_REQUIRES(concepts::configurable<T>::value)>
 using sm = detail::sm<T>;
-
 template <class TEvent, int EventRangeBegin, int EventRangeEnd, class SM,
           BOOST_MSM_REQUIRES(concepts::dispatchable<TEvent, typename sm<SM>::events>::value)>
 auto make_dispatch_table(sm<SM> &fsm) noexcept {
