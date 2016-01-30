@@ -188,26 +188,26 @@
 <ul>
 <li>Get <a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp">boost/msm-lite.hpp</a> header</li>
 </ul>
-<pre><code class="sh">    wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp
+<pre><code class="sh">wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp
 </code></pre>
 
 <ul>
 <li>Include the header and define <code>msm</code> namespace alias</li>
 </ul>
-<pre><code class="cpp">    #include &quot;boost/msm-lite.hpp&quot;
-    namespace msm = boost::msm::lite;
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+namespace msm = boost::msm::lite;
 </code></pre>
 
 <ul>
 <li>Compile with C++14 support</li>
 </ul>
-<pre><code class="sh">    $CXX -std=c++14 ...
+<pre><code class="sh">$CXX -std=c++14 ...
 </code></pre>
 
 <ul>
 <li>To run tests</li>
 </ul>
-<pre><code class="sh">    git clone https://github.com/boost-experimental/msm-lite &amp;&amp; cd msm-lite &amp;&amp; make test
+<pre><code class="sh">git clone https://github.com/boost-experimental/msm-lite &amp;&amp; cd msm-lite &amp;&amp; make test
 </code></pre>
 
 <h3 id="dependencies">Dependencies</h3>
