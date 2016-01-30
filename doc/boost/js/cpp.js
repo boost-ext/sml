@@ -1,16 +1,6 @@
 var cpp_code = Array();
 var cpp_output = Array();
-
-String.prototype.hashCode = function() {
-  var hash = 0, i, chr, len;
-  if (this.length === 0) return hash;
-  for (i = 0, len = this.length; i < len; i++) {
-    chr   = this.charCodeAt(i);
-    hash  = ((hash << 5) - hash) + chr;
-    hash |= 0;
-  }
-  return hash + 2147483647 + 1;
-};
+var gid = 0;
 
 function get_cpp_file(file) {
      var cpp_file = new XMLHttpRequest();
@@ -136,7 +126,7 @@ $(document).ready(function () {
 		var example = get_cpp_file(file);
 		var i = example.lastIndexOf("#include")
 		var n = example.substring(i).indexOf('\n');
-		var id = file.hashCode();
+		var id = gid++;
 		var compile = "\/\/ $CXX -std=c++14 " + basename;
 		example = $('<div/>').text(example.substring(i + n + 2)).html();
         $(this).replaceWith('<button class="btn btn-neutral float-right" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\', \'Run this code!\')">Run this code!</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"><pre><code class="cpp">' + compile + '\n\n' + example + '</code></pre></div>');
@@ -152,7 +142,7 @@ $(document).ready(function () {
 		var example = get_cpp_file(file);
 		var i = example.lastIndexOf("#include")
 		var n = example.substring(i).indexOf('\n');
-		var id = file.hashCode();
+		var id = gid++;
 		var compile = "\/\/ $CXX -std=c++14 " + basename;
 		example = $('<div/>').text(example.substring(i + n + 2)).html();
         $(this).replaceWith('<table class="float-left"><tr><td><button class="btn" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\', \'' + name + '\')">' + name + '</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div style=""id="code_listing_' + id + '"></div></td></tr></table>');
