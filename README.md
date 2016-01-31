@@ -60,7 +60,7 @@ int main() {
     * [*Supported* UML features](http://boost-experimental.github.io/msm-lite/index.html#supported-uml-features)
     * [*Dropped* UML features](http://boost-experimental.github.io/msm-lite/index.html#dropped-uml-features)
     * [*Additional* features](http://boost-experimental.github.io/msm-lite/index.html#additional-features)
-    * [*Acknowledgements*](http://boost-experimental.github.io/msm-lite/index.html#acknowledgements)
+    * [Acknowledgements](http://boost-experimental.github.io/msm-lite/index.html#acknowledgements)
 * [Overview](http://boost-experimental.github.io/msm-lite/overview/index.html)
     * [Quick Start](http://boost-experimental.github.io/msm-lite/overview/index.html#quick-start)
     * [Dependencies](http://boost-experimental.github.io/msm-lite/overview/index.html#dependencies)

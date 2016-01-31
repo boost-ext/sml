@@ -202,7 +202,7 @@ msm::sm<example> sm;
 State machine constructor is responsible to provide required dependencies for actions and guards.
 
 ```cpp
-                             /---- event
+                             /---- event (injected from process_event)
                             |
 auto guard = [](double d, auto event) { return true; }
                    |
@@ -211,8 +211,8 @@ auto guard = [](double d, auto event) { return true; }
 auto action = [](int i){}  |
                  |         |
                  |         |
-            /---/  /------/
-           |      /
+                 \-\   /---/
+                   |   |  
 msm::sm<exmple> s{42, 87.0};
 
 msm::sm<exmple> s{87.0, 42}; // order in which parameters have to passed is not specificied
