@@ -242,7 +242,7 @@ assert(sm.process_event(e1{}));
 
 ###6. Process events
 
-State machine is a simple creature. It's main purpose is to process events.
+State machine is a simple creature. Its main purpose is to process events.
 In order to do it, `process_event` method might be used.
 
 ```cpp
