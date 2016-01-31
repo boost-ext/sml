@@ -205,7 +205,7 @@ namespace msm = boost::msm::lite;
 </ul>
 <h3 id="1-create-events-and-states">1. Create events and states</h3>
 <p>State machine is composed of finite number of states and transitions which are triggered via events.</p>
-<p>An Event is just a unique type, which will be process by the state machine.</p>
+<p>An Event is just a unique type, which will be processed by the state machine.</p>
 <pre><code class="cpp">struct my_event { ... };
 </code></pre>
 
@@ -213,15 +213,15 @@ namespace msm = boost::msm::lite;
 <pre><code class="cpp">auto event = msm::event&lt;my_event&gt;;
 </code></pre>
 
-<p>A State can have entry/exit behaviour which is executed whenever state is entered or left and
-represents current location of the state machine processing.</p>
-<p>To create a state below snipped might be used.</p>
+<p>A State can have entry/exit behaviour executed whenever machine enters/leaves State and
+represents current location of the state machine flow.</p>
+<p>To create a state below snippet might be used.</p>
 <pre><code class="cpp">msm::state&lt;class idle&gt; idle;
 // or
 auto idle = msm::state&lt;class idle&gt;{};
 </code></pre>
 
-<p>If you happen to have a Clang/GCC compiler, you can create a state on the fly.</p>
+<p>If you happen to have a Clang/GCC compiler, you can create a State on the fly.</p>
 <pre><code class="cpp">using namespace msm;
 auto state  = &quot;idle&quot;_s;
 </code></pre>
@@ -244,7 +244,7 @@ auto state  = &quot;idle&quot;_s;
 <hr />
 <h3 id="2-create-guards-and-actions">2. Create guards and actions</h3>
 <p>Guards and actions are callable objects which will be executed by the state machine in order to verify whether a transition, followed by an action should take place.</p>
-<p>Guard is required to return boolean value.</p>
+<p>Guard MUST return boolean value.</p>
 <pre><code class="cpp">auto guard1 = [] {
     return true;
 };
@@ -264,7 +264,7 @@ struct guard4 {
 };
 </code></pre>
 
-<p>Action is required not to return.</p>
+<p>Action MUST not return.</p>
 <pre><code class="cpp">auto action1 = [] { };
 auto action2 = [](int, double) { }; // action with dependencies
 auto action3 = [](int, auto event, double) { }; // action with an event and dependencies
@@ -326,7 +326,7 @@ make_transition_table(
 <p>&nbsp;</p>
 <hr />
 <h3 id="4-set-initial-states">4. Set initial states</h3>
-<p>Initial states tells the state machine where to start.</p>
+<p>Initial state tells the state machine where to start.</p>
 <pre><code class="cpp">using namespace msm;
 make_transition_table(
     &quot;src_state&quot;_s(initial) == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
@@ -334,7 +334,7 @@ make_transition_table(
 );
 </code></pre>
 
-<p>You can have more than one initial state. Both initial states will be executed in pseudo parallel way
+<p>You can have more than one initial state. All initial states will be executed in pseudo-parallel way
 and are called orthogonal regions.</p>
 <pre><code class="cpp">using namespace msm;
 make_transition_table(
@@ -352,7 +352,7 @@ make_transition_table(
 <hr />
 <h3 id="5-create-a-state-machine">5. Create a state machine</h3>
 <p>State machine is an abstraction for transition table holding current states and processing events.
-To create a state machine, firstly we have to configure our transition table.</p>
+To create a state machine, we have to configure our transition table.</p>
 <pre><code class="cpp">class example {
 public:
     auto configure() noexcept {
@@ -369,7 +369,7 @@ public:
 <pre><code class="cpp">msm::sm&lt;example&gt; sm;
 </code></pre>
 
-<p>State machine constructor is responsible to provide required dependencies for actions and guards.</p>
+<p>State machine constructor provides required dependencies for actions and guards.</p>
 <pre><code class="cpp">                            /---- event (injected from process_event)
                             |
 auto guard = [](double d, auto event) { return true; }
@@ -386,7 +386,7 @@ msm::sm&lt;exmple&gt; s{42, 87.0};
 msm::sm&lt;exmple&gt; s{87.0, 42}; // order in which parameters have to passed is not specificied
 </code></pre>
 
-<p>Passing and maintaining a lot of dependencies might be tedious and require huge amount of boilerplate code.
+<p>Passing and maintaining a lot of dependencies might be tedious and requires huge amount of boilerplate code.
 In order to avoid it, Dependency Injection Library might be used to automate this process.
 For example, we can use <a href="https://github.com/boost-experimental/di">experimental Boost.DI</a>.</p>
 <pre><code class="cpp">auto injector = di::make_injector(
@@ -404,8 +404,8 @@ assert(sm.process_event(e1{}));
 <p>&nbsp;</p>
 <hr />
 <h3 id="6-process-events">6. Process events</h3>
-<p>State machine is a simple creature. The main feature of it is to process events.
-In order to do so, <code>process_event</code> method might be used.</p>
+<p>State machine is a simple creature. Its main purpose is to process events.
+In order to do it, <code>process_event</code> method might be used.</p>
 <pre><code class="cpp">msm::sm&lt;example&gt; sm;
 
 assert(sm.process_event(my_event{})); // returns true when handled
@@ -428,7 +428,7 @@ assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
 <p>&nbsp;</p>
 <hr />
 <h3 id="8-testing-a-state-machine">8. Testing a state machine</h3>
-<p>Sometimes it is useful to verify whether a state machine is in a specific states, for example, whether
+<p>Sometimes it's useful to verify whether a state machine is in a specific states, for example, if
 we are in a terminate state or not. We can do it with <code>msm-lite</code> using <code>is</code> or <code>visit_current_states</code>
 functionality.</p>
 <pre><code class="cpp">msm::sm&lt;example&gt; sm;
@@ -453,7 +453,7 @@ assert(sm.is(terminate));
 <p>&nbsp;</p>
 <hr />
 <h3 id="9-debugging-a-state-machine">9. Debugging a state machine</h3>
-<p><code>msm-lite</code> provides logging capabilities in order to print state machine flow.
+<p><code>msm-lite</code> provides logging capabilities in order to inspect state machine flow.
 To enable logging you have to define <code>BOOST_MSM_LOG</code>.</p>
 <pre><code class="cpp">template &lt;class SM, class TEvent&gt;
 void log_process_event(const TEvent&amp;) {
