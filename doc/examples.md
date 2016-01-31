@@ -4,8 +4,8 @@
 ###Transitions
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp)
 
-###Action Guards
-![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/action_guards.cpp)
+###Actions Guards
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/actions_guards.cpp)
 
 ###States
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp)
