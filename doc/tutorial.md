@@ -13,7 +13,7 @@ namespace msm = boost::msm::lite;
 
 State machine is composed of finite number of states and transitions which are triggered via events.
 
-An Event is just a unique type, which will be process by the state machine.
+An Event is just a unique type, which will be processed by the state machine.
 
 ```cpp
 struct my_event { ... };
@@ -25,10 +25,10 @@ You can also create event instance in order to simplify transition table notatio
 auto event = msm::event<my_event>;
 ```
 
-A State can have entry/exit behaviour which is executed whenever state is entered or left and
-represents current location of the state machine processing.
+A State can have entry/exit behaviour executed whenever machine enters/leaves State and
+represents current location of the state machine flow.
 
-To create a state below snipped might be used.
+To create a state below snippet might be used.
 
 ```cpp
 msm::state<class idle> idle;
@@ -36,7 +36,7 @@ msm::state<class idle> idle;
 auto idle = msm::state<class idle>{};
 ```
 
-If you happen to have a Clang/GCC compiler, you can create a state on the fly.
+If you happen to have a Clang/GCC compiler, you can create a State on the fly.
 
 ```cpp
 using namespace msm;
@@ -73,7 +73,7 @@ assert(string("idle") == "idle"_s.c_str());
 
 Guards and actions are callable objects which will be executed by the state machine in order to verify whether a transition, followed by an action should take place.
 
-Guard is required to return boolean value.
+Guard MUST return boolean value.
 ```cpp
 auto guard1 = [] {
 	return true;
@@ -94,7 +94,7 @@ struct guard4 {
 };
 ```
 
-Action is required not to return.
+Action MUST not return.
 ```cpp
 auto action1 = [] { };
 auto action2 = [](int, double) { }; // action with dependencies
@@ -144,7 +144,7 @@ make_transition_table(
 
 ###4. Set initial states
 
-Initial states tells the state machine where to start.
+Initial state tells the state machine where to start.
 
 ```cpp
 using namespace msm;
@@ -154,7 +154,7 @@ make_transition_table(
 );
 ```
 
-You can have more than one initial state. Both initial states will be executed in pseudo parallel way
+You can have more than one initial state. All initial states will be executed in pseudo-parallel way
 and are called orthogonal regions.
 
 ```cpp
@@ -178,7 +178,7 @@ make_transition_table(
 ###5. Create a state machine
 
 State machine is an abstraction for transition table holding current states and processing events.
-To create a state machine, firstly we have to configure our transition table.
+To create a state machine, we have to configure our transition table.
 
 ```cpp
 class example {
@@ -199,7 +199,7 @@ Having transition table configured we can create a state machine.
 msm::sm<example> sm;
 ```
 
-State machine constructor is responsible to provide required dependencies for actions and guards.
+State machine constructor provides required dependencies for actions and guards.
 
 ```cpp
                             /---- event (injected from process_event)
@@ -218,7 +218,7 @@ msm::sm<exmple> s{42, 87.0};
 msm::sm<exmple> s{87.0, 42}; // order in which parameters have to passed is not specificied
 ```
 
-Passing and maintaining a lot of dependencies might be tedious and require huge amount of boilerplate code.
+Passing and maintaining a lot of dependencies might be tedious and requires huge amount of boilerplate code.
 In order to avoid it, Dependency Injection Library might be used to automate this process.
 For example, we can use [experimental Boost.DI](https://github.com/boost-experimental/di).
 
@@ -242,8 +242,8 @@ assert(sm.process_event(e1{}));
 
 ###6. Process events
 
-State machine is a simple creature. The main feature of it is to process events.
-In order to do so, `process_event` method might be used.
+State machine is a simple creature. Its main purpose is to process events.
+In order to do it, `process_event` method might be used.
 
 ```cpp
 msm::sm<example> sm;
@@ -274,7 +274,7 @@ assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
 
 ###8. Testing a state machine
 
-Sometimes it is useful to verify whether a state machine is in a specific states, for example, whether
+Sometimes it's useful to verify whether a state machine is in a specific states, for example, if
 we are in a terminate state or not. We can do it with `msm-lite` using `is` or `visit_current_states`
 functionality.
 
@@ -307,7 +307,7 @@ assert(sm.is(terminate));
 
 ###9. Debugging a state machine
 
-`msm-lite` provides logging capabilities in order to print state machine flow.
+`msm-lite` provides logging capabilities in order to inspect state machine flow.
 To enable logging you have to define `BOOST_MSM_LOG`.
 
 ```cpp
