@@ -207,7 +207,7 @@
         }, 
         {
             "location": "/examples/index.html", 
-            "text": "Hello World\n\n\n\n\nTransitions\n\n\n\n\nAction Guards\n\n\n\n\nStates\n\n\n\n\nEvents\n\n\n\n\nOrthogonal Regions\n\n\n\n\nComposite\n\n\n\n\neUML Emulation\n\n\n\n\nLogging\n\n\n\n\nTesting\n\n\n\n\nDependency Injection\n\n\n\n\nRuntime Dispatcher", 
+            "text": "Hello World\n\n\n\n\nTransitions\n\n\n\n\nActions Guards\n\n\n\n\nStates\n\n\n\n\nEvents\n\n\n\n\nOrthogonal Regions\n\n\n\n\nComposite\n\n\n\n\neUML Emulation\n\n\n\n\nLogging\n\n\n\n\nTesting\n\n\n\n\nDependency Injection\n\n\n\n\nRuntime Dispatcher", 
             "title": "Examples"
         }, 
         {
@@ -221,9 +221,9 @@
             "title": "Transitions"
         }, 
         {
-            "location": "/examples/index.html#action-guards", 
+            "location": "/examples/index.html#actions-guards", 
             "text": "", 
-            "title": "Action Guards"
+            "title": "Actions Guards"
         }, 
         {
             "location": "/examples/index.html#states", 
