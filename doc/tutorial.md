@@ -25,8 +25,8 @@ You can also create event instance in order to simplify transition table notatio
 auto event = msm::event<my_event>;
 ```
 
-A State can have entry/exit behaviour executed whenever State is entered or left and
-represents current location of the state machine processing.
+A State can have entry/exit behaviour executed whenever machine enters/leaves State and
+represents current location of the state machine flow.
 
 To create a state below snippet might be used.
 
