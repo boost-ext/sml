@@ -202,7 +202,7 @@ msm::sm<example> sm;
 State machine constructor is responsible to provide required dependencies for actions and guards.
 
 ```cpp
-                             /---- event (injected from process_event)
+                            /---- event (injected from process_event)
                             |
 auto guard = [](double d, auto event) { return true; }
                    |
@@ -255,18 +255,14 @@ assert(!sm.process_event(int{})); // not handled by the state machine
 `msm-lite` also provides a way to dispatch dynamically created events into the state machine.
 
 ```cpp
-struct runtime_event {
-  int id = 0;
-};
-struct event1 {
-  static constexpr auto id = 1;
+struct game_over {
+  static constexpr auto id = SDL_QUIT;
+  // explicit game_over(const SDL_Event&) noexcept; // optional, when defined runtime event will be passed
 };
 
-auto dispatch_event = msm::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max*/>(sm);
-  {
-    runtime_event event{1};
-    assert(dispatch_event(event, event.id)); // will call sm.process(event1{});
-  }
+auto dispatch_event = msm::make_dispatch_table<SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT>(sm);
+SDL_Event event{SDL_QUIT};
+assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
 ```
 
 ![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)

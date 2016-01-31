@@ -142,12 +142,17 @@ Requirements for the dispatch table.
 
     struct runtime_event { };
 
-    struct event {
-      static constexpr auto id = 42;
-      event(runtime_event) {}
+    struct event1 {
+      static constexpr auto id = 1;
     };
 
-    static_assert(dispatchable<runtime_event, event>::value);
+    struct event2 {
+      static constexpr auto id = 2;
+      explicit event2(const runtime_event&) {}
+    };
+
+    static_assert(dispatchable<runtime_event, event1>::value);
+    static_assert(dispatchable<runtime_event, event2>::value);
 
 ![CPP(BTN)](Run_Dispatchable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_dispatchable.cpp)
 
