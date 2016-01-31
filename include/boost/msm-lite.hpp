@@ -970,10 +970,8 @@ template <class SM>
 class sm {
   template <class...>
   friend struct transition;
-
   template <class...>
   friend struct transition_impl;
-
   template <class...>
   friend struct transition_sub_impl;
 
@@ -996,6 +994,7 @@ class sm {
  public:
   using states = states_t;
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_all_events, transitions_t>>;
+  using transitions = transitions_t;
 
   sm(sm &&) noexcept = default;
   sm(const sm &) noexcept = delete;
