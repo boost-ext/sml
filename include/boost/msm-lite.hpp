@@ -218,13 +218,11 @@ template <class, class...>
 struct tuple_impl;
 template <int... Ns, class... Ts>
 struct tuple_impl<index_sequence<Ns...>, Ts...> : tuple_type<Ns, Ts>... {
+  using boost_di_inject__ = aux::type_list<Ts...>;
   explicit tuple_impl(Ts... ts) noexcept : tuple_type<Ns, Ts>{ts}... {}
 };
 template <class... Ts>
-struct tuple : tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {
-  using boost_di_inject__ = aux::type_list<Ts...>;
-  using tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>::tuple_impl;
-};
+using tuple = tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
 template <int N, class T>
 auto &get_by_id_impl(tuple_type<N, T> *object) noexcept {
   return static_cast<tuple_type<N, T> &>(*object).value;
