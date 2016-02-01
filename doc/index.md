@@ -88,7 +88,7 @@ to avoid it `Boost.MSM-lite` may suits you!
 
 ###*Supported* UML features
 
-* Transitions / Internal transitions / Anonymous transitions / No transition (see [Transitions](examples.md#transitions))
+* Transitions / Internal transitions / Anonymous transitions / No transition (see [Transitions](examples.md#transitions), [Events](examples.md#events))
 * Actions / Guards (see [Action/Guards](examples.md#action-guards))
 * State entry / exit actions (see [States](examples.md#states))
 * Orthogonal regions (see [Orthogonal Regions](examples.md#orthogonal-regions))
@@ -107,3 +107,9 @@ to avoid it `Boost.MSM-lite` may suits you!
 
 ###Acknowledgements
 * Thanks to Christophe Henry for a great [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) library
+
+---
+
+![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
+![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp)
+![CPP(BTN)](Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/plant_uml.cpp)
