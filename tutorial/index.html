@@ -213,6 +213,12 @@ namespace msm = boost::msm::lite;
 <pre><code class="cpp">auto event = msm::event&lt;my_event&gt;;
 </code></pre>
 
+<p>If you happen to have a Clang/GCC compiler, you can create an Event on the fly.</p>
+<pre><code class="cpp">using namespace msm;
+auto event  = &quot;event&quot;_t;
+</code></pre>
+
+<p>However, such event will not store any data.</p>
 <p>A State can have entry/exit behaviour executed whenever machine enters/leaves State and
 represents current location of the state machine flow.</p>
 <p>To create a state below snippet might be used.</p>
