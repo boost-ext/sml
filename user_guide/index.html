@@ -318,7 +318,8 @@ struct event2 {
 static_assert(dispatchable&lt;runtime_event, event1&gt;::value);
 static_assert(dispatchable&lt;runtime_event, event2&gt;::value);
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Dispatchable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_dispatchable.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Dispatchable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_dispatchable.cpp" />
+<img alt="CPP(BTN)" src="../Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="state-core">state [core]</h3>
@@ -629,7 +630,8 @@ struct event1 {
 auto dispatch_event = msm::make_dispatch_table&lt;runtime_event, 1 /*min*/, 5 /*max*/&gt;(sm);
 assert(dispatch_event(event, event.id));
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp" />
+<img alt="CPP(BTN)" src="../Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="boost_msm_log-debugging">BOOST_MSM_LOG [debugging]</h3>
@@ -702,7 +704,8 @@ assert(dispatch_event(event, event.id));
 msm::sm&lt;example&gt; sm;
 sm.process_event(event{}); // [process_event]
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp" />
+<img alt="CPP(BTN)" src="../Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/plant_uml.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
               
