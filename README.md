@@ -59,7 +59,6 @@ int main() {
     * [Boost.MSM-lite design goals](http://boost-experimental.github.io/msm-lite/index.html#boostmsm-lite-design-goals)
     * [What 'lite' implies?](http://boost-experimental.github.io/msm-lite/index.html#what-lite-implies)
     * [*Supported* UML features](http://boost-experimental.github.io/msm-lite/index.html#supported-uml-features)
-    * [*Dropped* UML features](http://boost-experimental.github.io/msm-lite/index.html#dropped-uml-features)
     * [*Additional* features](http://boost-experimental.github.io/msm-lite/index.html#additional-features)
     * [Acknowledgements](http://boost-experimental.github.io/msm-lite/index.html#acknowledgements)
 * [Overview](http://boost-experimental.github.io/msm-lite/overview/index.html)

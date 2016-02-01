@@ -103,10 +103,6 @@ to avoid it `Boost.MSM-lite` may suits you!
 * Orthogonal regions (see [Orthogonal Regions](examples.md#orthogonal-regions))
 * Sub / Composite state machines (see [Composite](examples.md#composite))
 
-###*Dropped* UML features
-
-* Explicit entry/exit pseudo states
-
 ###*Additional* features
 
 * Logging (see [Logging](examples.md#logging))
