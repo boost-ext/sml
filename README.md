@@ -53,6 +53,7 @@ int main() {
 * [Introduction](http://boost-experimental.github.io/msm-lite/index.html)
     * [UML State Machine](http://boost-experimental.github.io/msm-lite/index.html#uml-state-machine)
     * [Do I need a State Machine?](http://boost-experimental.github.io/msm-lite/index.html#do-i-need-a-state-machine)
+    * [Real Life examples?](http://boost-experimental.github.io/msm-lite/index.html#real-life-examples)
     * [Why Boost.MSM-lite?](http://boost-experimental.github.io/msm-lite/index.html#why-boostmsm-lite)
     * [Problems with Boost.MSM - eUML](http://boost-experimental.github.io/msm-lite/index.html#problems-with-boostmsm-euml)
     * [Boost.MSM-lite design goals](http://boost-experimental.github.io/msm-lite/index.html#boostmsm-lite-design-goals)
