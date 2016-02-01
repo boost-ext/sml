@@ -31,7 +31,8 @@ struct sdl_event_impl {
 template <SDL_EventType Id>
 decltype(msm::event<sdl_event_impl<Id>>) sdl_event{};
 
-auto is_space = [](auto event) { return event.data.key == SDLK_SPACE; };
+template <int Key>
+auto is_key = [](auto event) { return event.data.key == Key; };
 
 struct sdl2 {
   auto configure() const noexcept {
@@ -42,7 +43,7 @@ struct sdl2 {
         "idle"_s(initial) == "wait_for_user_input"_s
           / [] { std::cout << "initialization" << std::endl; }
 
-      , "wait_for_user_input"_s == "key_pressed"_s + sdl_event<SDL_KEYUP> [ is_space ]
+      , "wait_for_user_input"_s == "key_pressed"_s + sdl_event<SDL_KEYUP> [ is_key<SDLK_SPACE> ]
           / [] { std::cout << "space pressed" << std::endl; }
 
       , "key_pressed"_s == terminate + sdl_event<SDL_MOUSEBUTTONUP>
