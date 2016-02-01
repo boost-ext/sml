@@ -9,6 +9,8 @@
 #include <cassert>
 #include <iostream>
 
+namespace msm = boost::msm::lite;
+
 // Fake SDL2
 enum { SDLK_SPACE = ' ' };
 enum SDL_EventType { SDL_FIRST_EVENT = 0, SDL_QUIT, SDL_KEYUP, SDL_MOUSEBUTTONUP, SDL_LAST_EVENT };
@@ -19,17 +21,15 @@ struct SDL_Event {
 };
 //
 
-namespace msm = boost::msm::lite;
-
-template <int Id>
+template <SDL_EventType Id>
 struct sdl_event_impl {
   static constexpr auto id = Id;
   explicit sdl_event_impl(const SDL_Event& data) noexcept : data(data) {}
   SDL_Event data;
 };
 
-template <int Id>
-msm::detail::event<sdl_event_impl<Id>> sdl_event{};
+template <SDL_EventType Id>
+decltype(msm::event<sdl_event_impl<Id>>) sdl_event{};
 
 auto is_space = [](auto event) { return event.data.key == SDLK_SPACE; };
 
