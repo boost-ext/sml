@@ -212,7 +212,7 @@ auto action = [](int i){}  |
                  |         |
                  |         |
                  \-\   /---/
-                   |   |  
+                   |   |
 msm::sm<exmple> s{42, 87.0};
 
 msm::sm<exmple> s{87.0, 42}; // order in which parameters have to passed is not specificied
@@ -267,6 +267,7 @@ assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
 
 ![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
 ![CPP(BTN)](Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp)
+![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp)
 
 &nbsp;
 
@@ -337,6 +338,7 @@ void log_state_change(const TSrcState& src, const TDstState& dst) {
 ```
 
 ![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)
+![CPP(BTN)](Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/plant_uml.cpp)
 
 &nbsp;
 

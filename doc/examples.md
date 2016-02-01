@@ -19,18 +19,24 @@
 ###Composite
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp)
 
-###eUML Emulation
-![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp)
-
 ###Logging
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)
 
 ###Testing
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp)
 
+###Runtime Dispatcher
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp)
+
+###eUML Emulation
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp)
+
 ###Dependency Injection
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp)
 
-###Runtime Dispatcher
-![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp)
+###SDL2 Integration
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp)
+
+###Plant UML Integration
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/plant_uml.cpp)
 

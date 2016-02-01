@@ -405,11 +405,17 @@ struct event {
     return transition_ea<event, T>{*this, t};
   }
 };
+struct initial_state {};
+struct terminate_state {};
 template <class>
 struct state;
 template <class>
 struct state_str {
   static auto c_str() noexcept { return __PRETTY_FUNCTION__; }
+};
+template <>
+struct state_str<state<terminate_state>> {
+  static auto c_str() noexcept { return "terminate"; }
 };
 template <char... Chrs>
 struct state_str<state<aux::string<Chrs...>>> {
@@ -442,8 +448,6 @@ struct state_impl : state_str<TState> {
     return transition_sa<TState, T>{static_cast<const TState &>(*this), t};
   }
 };
-struct initial_state {};
-struct terminate_state {};
 template <class TState>
 struct state : state_impl<state<TState>> {
   using type = TState;
@@ -731,6 +735,8 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> {
   using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
+  using guard = G;
+  using action = A;
   using deps = aux::apply_t<aux::unique_t, aux::join_t<get_deps_t<G, E>, get_deps_t<A, E>>>;
 
   transition(const G &g, const A &a) : g(g), a(a) {}
@@ -755,6 +761,8 @@ struct transition<state<S1>, state<S2>, event<E>, always, A> {
   using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
+  using guard = always;
+  using action = A;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<A, E>>;
 
   transition(const always &, const A &a) : a(a) {}
@@ -775,6 +783,8 @@ struct transition<state<S1>, state<S2>, event<E>, G, none> {
   using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
+  using guard = G;
+  using action = none;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<G, E>>;
 
   transition(const G &g, const none &) : g(g) {}
@@ -797,6 +807,8 @@ struct transition<state<S1>, state<S2>, event<E>, always, none> {
   using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
+  using guard = always;
+  using action = none;
   using deps = aux::type_list<>;
 
   transition(const always &, const none &) {}
@@ -992,7 +1004,7 @@ class sm {
  public:
   using states = states_t;
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_all_events, transitions_t>>;
-  using transitions = transitions_t;
+  using transitions = aux::apply_t<aux::type_list, transitions_t>;
 
   sm(sm &&) noexcept = default;
   sm(const sm &) noexcept = delete;

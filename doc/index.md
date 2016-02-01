@@ -82,7 +82,7 @@ to avoid it `Boost.MSM-lite` may suits you!
 ###What 'lite' implies?
 
 * Minimal learning curve
-* Only crucial features
+* Only crucial features in the core plus policies/extensions
 * Guaranteed performance and quick compilation times
 * No dependencies
 
@@ -96,7 +96,6 @@ to avoid it `Boost.MSM-lite` may suits you!
 
 ###*Dropped* UML features
 
-* Shallow/Deep history
 * Explicit entry/exit pseudo states
 
 ###*Additional* features

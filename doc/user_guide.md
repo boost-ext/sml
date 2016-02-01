@@ -155,6 +155,7 @@ Requirements for the dispatch table.
     static_assert(dispatchable<runtime_event, event2>::value);
 
 ![CPP(BTN)](Run_Dispatchable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_dispatchable.cpp)
+![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp)
 
 &nbsp;
 
@@ -478,6 +479,7 @@ Creates a dispatch table to handle runtime events.
     assert(dispatch_event(event, event.id));
 
 ![CPP(BTN)](Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp)
+![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp)
 
 &nbsp;
 
@@ -499,8 +501,8 @@ Add logging support for the state machine.
 
 | Expression | Requirement | Description | Returns |
 | ---------- | ----------- | ----------- | ------- |
-| `T` | - | process_event/guard/action/state_change | Operation type | 
-| `SM` | - | - | [state machine](#sm-state-machine) type |
+| `T`   | - | process_event/guard/action/state_change | Operation type |
+| `SM`  | - | - | [state machine](#sm-state-machine) type |
 | `...` | - | process_event -> (event) | log process event |
 | `...` | - | guard -> (guard, event, result) | log guard call |
 | `...` | - | action -> (action, event) | log action call |
@@ -522,6 +524,7 @@ Add logging support for the state machine.
     sm.process_event(event{}); // [process_event]
 
 ![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)
+![CPP(BTN)](Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/plant_uml.cpp)
 
 &nbsp;
 
