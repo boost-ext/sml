@@ -631,6 +631,30 @@ test is_state = [] {
   expect(sm.is(s2));
 };
 
+test events = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+          "idle"_s(initial) == "s1"_s + "e1"_t
+        , "s1"_s == "s2"_s + "e2"_t
+        , "s2"_s == terminate + "e3"_t / [](auto) { }
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  using namespace msm;
+  expect(sm.process_event("e1"_t));
+  expect(sm.is("s1"_s));
+  expect(sm.process_event("e2"_t));
+  expect(sm.is("s2"_s));
+  expect(sm.process_event("e3"_t));
+  expect(sm.is(terminate));
+};
+
 test orthogonal_regions = [] {
   struct c {
     auto configure() noexcept {
@@ -702,7 +726,7 @@ test state_names = [] {
 
   msm::sm<c> sm;
   sm.visit_current_states([](auto state) { expect(std::string{"idle"} == std::string{state.c_str()}); });
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
   sm.visit_current_states([](auto state) { expect(std::string{"s1"} == std::string{state.c_str()}); });
 };
 
@@ -801,7 +825,7 @@ test composite = [] {
   expect(sm.process_event(e1()));
   expect(c_.a_initial);
 
-  sm.process_event(e2());
+  expect(sm.process_event(e2()));
   expect(c_.a_enter_sub_sm);
   expect(0 == sub_.a_in_sub);
 
@@ -852,7 +876,7 @@ test composite_def_ctor = [] {
   expect(sm.is(idle));
   expect(sm.process_event(e1()));
 
-  sm.process_event(e2());
+  expect(sm.process_event(e2()));
   expect(0 == in_sub);
 
   expect(sm.process_event(e3()));
@@ -908,7 +932,7 @@ test composite_transition_the_same_event = [] {
 
   expect(!sm.process_event(e4()));
 
-  sm.process_event(e1());
+  expect(sm.process_event(e1()));
   expect(sm.is(sub_state));
   expect(subsm.is(s1));
 
@@ -960,7 +984,7 @@ test composite_custom_ctor = [] {
     expect(sm.is(idle));
     expect(sm.process_event(e1()));
 
-    sm.process_event(e2());
+    expect(sm.process_event(e2()));
     expect(0 == in_sub);
 
     expect(sm.process_event(e3()));

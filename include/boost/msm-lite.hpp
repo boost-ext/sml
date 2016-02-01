@@ -1026,6 +1026,11 @@ class sm {
     return process_event_impl<get_event_mapping_t<TEvent, mappings_t>>(event, states_t{}, aux::make_index_sequence<regions>{});
   }
 
+  template <class TEvent>
+  bool process_event(const event<TEvent> &) noexcept {
+    return process_event(TEvent{});
+  }
+
   template <class TVisitor, BOOST_MSM_REQUIRES(concepts::callable<void, TVisitor>::value)>
   void visit_current_states(const TVisitor &visitor) const noexcept(noexcept(visitor(state<initial_state>{}))) {
     visit_current_states_impl(visitor, states_t{}, aux::make_index_sequence<regions>{});
@@ -1218,6 +1223,10 @@ using state = detail::state<T>;
 template <class T, T... Chrs>
 auto operator""_s() noexcept {
   return state<aux::string<Chrs...>>{};
+}
+template <class T, T... Chrs>
+auto operator""_t() noexcept {
+  return event<aux::string<Chrs...>>;
 }
 #endif
 detail::initial_state initial;

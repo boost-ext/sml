@@ -25,6 +25,15 @@ You can also create event instance in order to simplify transition table notatio
 auto event = msm::event<my_event>;
 ```
 
+If you happen to have a Clang/GCC compiler, you can create an Event on the fly.
+
+```cpp
+using namespace msm;
+auto event  = "event"_t;
+```
+
+However, such event will not store any data.
+
 A State can have entry/exit behaviour executed whenever machine enters/leaves State and
 represents current location of the state machine flow.
 
