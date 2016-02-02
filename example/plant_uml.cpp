@@ -48,7 +48,7 @@ void dump_transition() noexcept {
     dst_state = "[*]";
   }
 
-  if (T::has_initial) {
+  if (T::initial) {
     std::cout << "[*] --> " << src_state << std::endl;
   }
 
