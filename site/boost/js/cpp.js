@@ -74,9 +74,9 @@ function compile_and_run(id) {
               "file" : "boost/msm-lite.hpp"
             , "code" : get_cpp_file("https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp")
            }]
-         , "options": "warning,cpp-pedantic-errors,optimize,boost-nothing,c++1y"
-		 , "compiler" : "clang-head"
-         , "compiler-option-raw": "-I." + "\n" + "-fno-color-diagnostics"
+       , "options": "warning,cpp-pedantic-errors,optimize,boost-nothing,c++1y"
+       , "compiler" : "clang-head"
+       , "compiler-option-raw": "-I." + "\n" + "-fno-color-diagnostics"
     }));
 }
 

@@ -234,11 +234,11 @@ auto state  = &quot;idle&quot;_s;
 
 <p>However, please notice that above solution is a non-standard extension for Clang/GCC.</p>
 <p><code>msm-lite</code> states cannot have data as data is injected directly into guards/actions instead.</p>
-<p>A state machine might be a state itself.</p>
+<p>A state machine might be a State itself.</p>
 <pre><code class="cpp">msm::state&lt;msm::sm&lt;state_machine&gt;&gt; composite;
 </code></pre>
 
-<p><code>msm-lite</code> supports <code>terminate</code> state, which stops process events to be processed.</p>
+<p><code>msm-lite</code> supports <code>terminate</code> state, which stops events to be processed.</p>
 <p>States are printable too.</p>
 <pre><code class="cpp">assert(string(&quot;idle&quot;) == &quot;idle&quot;_s.c_str());
 </code></pre>
@@ -325,10 +325,12 @@ our transitions.</p>
 <pre><code class="cpp">using namespace msm;
 make_transition_table(
     &quot;src_state&quot;_s == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action
+, &quot;ds_state&quot;_s == terminate + &quot;other_event&quot;_t
 );
 </code></pre>
 
-<p><img alt="CPP(BTN)" src="../Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp" />
+<img alt="CPP(BTN)" src="../Run_UML_Notation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/uml_notation.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="4-set-initial-states">4. Set initial states</h3>
@@ -337,6 +339,15 @@ make_transition_table(
 make_transition_table(
     &quot;src_state&quot;_s(initial) == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
     &quot;dst_state&quot;_s          == terminate     + event&lt;game_over&gt;
+);
+</code></pre>
+
+<p>You can also use UML notation to express it using <code>'*'</code> instead of <code>initial</code>.
+<code>terminate</code> state might be expressed via <code>X</code> in UML notation.</p>
+<pre><code class="cpp">using namespace msm;
+make_transition_table(
+    &quot;src_state&quot;_s('*') == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
+    &quot;dst_state&quot;_s      == X             + event&lt;game_over&gt;
 );
 </code></pre>
 
@@ -353,6 +364,7 @@ make_transition_table(
 </code></pre>
 
 <p><img alt="CPP(BTN)" src="../Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp" />
+<img alt="CPP(BTN)" src="../Run_UML_Notation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/uml_notation.cpp" />
 <img alt="CPP(BTN)" src="../Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
@@ -416,6 +428,14 @@ In order to do it, <code>process_event</code> method might be used.</p>
 
 assert(sm.process_event(my_event{})); // returns true when handled
 assert(!sm.process_event(int{})); // not handled by the state machine
+</code></pre>
+
+<p>Process event might be also triggerd on transition table.</p>
+<pre><code>using namespace msm;
+return make_transition_table(
+  &quot;s1&quot;_s(initial) == &quot;s2&quot;_s     + event&lt;my_event&gt;  / process_event(other_event{})
+  &quot;s2&quot;_s          == terminate  + event&lt;other_event&gt;
+);
 </code></pre>
 
 <p><code>msm-lite</code> also provides a way to dispatch dynamically created events into the state machine.</p>
