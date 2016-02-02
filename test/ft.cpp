@@ -1289,6 +1289,26 @@ test sm_testing = [] {
   }
 };
 
+test uml_notation = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+          idle('*') == s1 + event<e1>
+        , s1 == X + event<e2>
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  expect(sm.process_event(e1{}));
+  expect(sm.is(s1));
+  expect(sm.process_event(e2{}));
+  expect(sm.is(msm::X));
+};
+
 // clang-format off
 #if __has_include(<boost/di.hpp>)
 // clang-format on

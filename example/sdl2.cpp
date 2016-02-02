@@ -11,15 +11,33 @@
 
 namespace msm = boost::msm::lite;
 
-// Fake SDL2
+// clang-format off
+#if __has_include(<SDL2/SDL_events.h>)
+#include <SDL2/SDL_events.h>
+// clang-format on
+#else
 enum { SDLK_SPACE = ' ' };
-enum SDL_EventType { SDL_FIRST_EVENT = 0, SDL_QUIT, SDL_KEYUP, SDL_MOUSEBUTTONUP, SDL_LAST_EVENT };
-struct SDL_Event {
+enum SDL_EventType { SDL_FIRSTEVENT = 0, SDL_QUIT, SDL_KEYUP, SDL_MOUSEBUTTONUP, SDL_LASTEVENT };
+struct SDL_KeyboardEvent {
   SDL_EventType type;
-  int key = 0;
-  bool button = false;
+  struct {
+    int sym;
+  } keysym;
 };
-//
+struct SDL_MouseButtonEvent {
+  SDL_EventType type;
+  int button;
+};
+struct SDL_QuitEvent {
+  SDL_EventType type;
+};
+union SDL_Event {
+  SDL_EventType type;
+  SDL_KeyboardEvent key;
+  SDL_MouseButtonEvent button;
+  SDL_QuitEvent quit;
+};
+#endif
 
 template <SDL_EventType Id>
 struct sdl_event_impl {
@@ -31,7 +49,7 @@ struct sdl_event_impl {
 template <SDL_EventType Id>
 decltype(msm::event<sdl_event_impl<Id>>) sdl_event{};
 
-auto is_key = [](auto key) { return [=](auto event) { return event.data.key == key; }; };
+auto is_key = [](auto key) { return [=](auto event) { return event.data.key.keysym.sym == key; }; };
 
 struct sdl2 {
   auto configure() const noexcept {
@@ -58,22 +76,34 @@ struct sdl2 {
 
 int main() {
   msm::sm<sdl2> sm;
-  auto dispatch_event = msm::make_dispatch_table<SDL_Event, SDL_FIRST_EVENT, SDL_LAST_EVENT>(sm);
+  auto dispatch_event = msm::make_dispatch_table<SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT>(sm);
+
+  SDL_Event event;
+
+  // while (SDL_PollEvent(&event)) {
+  //   dispatch_event(event, event.type)
+  // };
 
   {
-    SDL_Event event{SDL_KEYUP};
-    event.key = SDLK_SPACE;
+    SDL_KeyboardEvent keyboard_event;
+    keyboard_event.type = SDL_KEYUP;
+    keyboard_event.keysym.sym = SDLK_SPACE;
+    event.key = keyboard_event;
     assert(dispatch_event(event, event.type));
   }
 
   {
-    SDL_Event event{SDL_MOUSEBUTTONUP};
-    event.button = true;
+    SDL_MouseButtonEvent mousebutton_event;
+    mousebutton_event.type = SDL_MOUSEBUTTONUP;
+    mousebutton_event.button = 1;
+    event.button = mousebutton_event;
     assert(dispatch_event(event, event.type));
   }
 
   {
-    SDL_Event event{SDL_QUIT};
+    SDL_QuitEvent quit_event;
+    quit_event.type = SDL_QUIT;
+    event.quit = quit_event;
     assert(dispatch_event(event, event.type));
   }
 

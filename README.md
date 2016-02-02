@@ -101,6 +101,7 @@ int main() {
     * [Logging](http://boost-experimental.github.io/msm-lite/examples/index.html#logging)
     * [Testing](http://boost-experimental.github.io/msm-lite/examples/index.html#testing)
     * [Runtime Dispatcher](http://boost-experimental.github.io/msm-lite/examples/index.html#runtime-dispatcher)
+    * [UML Notation](http://boost-experimental.github.io/msm-lite/examples/index.html#uml-notation)
     * [eUML Emulation](http://boost-experimental.github.io/msm-lite/examples/index.html#euml-emulation)
     * [Dependency Injection](http://boost-experimental.github.io/msm-lite/examples/index.html#dependency-injection)
     * [SDL2 Integration](http://boost-experimental.github.io/msm-lite/examples/index.html#sdl2-integration)

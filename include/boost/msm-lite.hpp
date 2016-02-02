@@ -407,6 +407,7 @@ struct event {
 };
 struct initial_state {};
 struct terminate_state {};
+struct history_state {};
 template <class>
 struct state;
 template <class>
@@ -453,6 +454,7 @@ struct state : state_impl<state<TState>> {
   using type = TState;
   static constexpr auto is_initial = false;
   auto operator()(const initial_state &) const noexcept { return state<TState(initial_state)>{}; }
+  auto operator()(const char &) const noexcept { return state<TState(initial_state)>{}; }
 };
 template <class TState>
 struct state<TState(initial_state)> : state_impl<state<TState(initial_state)>> {
@@ -1231,6 +1233,9 @@ auto operator""_t() noexcept {
 #endif
 detail::initial_state initial;
 detail::state<detail::terminate_state> terminate;
+const auto &X = terminate;
+detail::history_state history;
+const auto &H = history;
 detail::process_event process_event;
 template <class... Ts, BOOST_MSM_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
                                                        aux::bool_list<concepts::transitional<Ts>::value...>>::value)>

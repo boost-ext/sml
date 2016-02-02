@@ -13,6 +13,7 @@ namespace msm = boost::msm::lite;
 
 struct e1 {};
 struct e2 {};
+struct e3 {};
 
 struct transitions {
   auto configure() const noexcept {
@@ -21,7 +22,8 @@ struct transitions {
     return make_transition_table(
         "idle"_s(initial) == "s1"_s  / [] { std::cout << "anonymous transition" << std::endl; }
       , "s1"_s + event<e1> / [] { std::cout << "internal transition" << std::endl; }
-      , "s1"_s == terminate + event<e2>
+      , "s1"_s == "s2"_s + event<e2> / ([] { std::cout << "process internal event" << std::endl; }, process_event(e3{}))
+      , "s2"_s == terminate + event<e3>
     );
     // clang-format on
   }

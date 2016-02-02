@@ -56,13 +56,13 @@ However, please notice that above solution is a non-standard extension for Clang
 
 `msm-lite` states cannot have data as data is injected directly into guards/actions instead.
 
-A state machine might be a state itself.
+A state machine might be a State itself.
 
 ```cpp
 msm::state<msm::sm<state_machine>> composite;
 ```
 
-`msm-lite` supports `terminate` state, which stops process events to be processed.
+`msm-lite` supports `terminate` state, which stops events to be processed.
 
 States are printable too.
 
@@ -142,10 +142,12 @@ To create a transition table [`make_transition_table`](user_guide.md#make_transi
 using namespace msm;
 make_transition_table(
 	"src_state"_s == "dst_state"_s + event<my_event> [ guard ] / action
+, "ds_state"_s == terminate + "other_event"_t
 );
 ```
 
 ![CPP(BTN)](Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp)
+![CPP(BTN)](Run_UML_Notation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/uml_notation.cpp)
 
 &nbsp;
 
@@ -160,6 +162,17 @@ using namespace msm;
 make_transition_table(
 	"src_state"_s(initial) == "dst_state"_s + event<my_event> [ guard ] / action,
 	"dst_state"_s          == terminate     + event<game_over>
+);
+```
+
+You can also use UML notation to express it using `'*'` instead of `initial`.
+`terminate` state might be expressed via `X` in UML notation.
+
+```cpp
+using namespace msm;
+make_transition_table(
+	"src_state"_s('*') == "dst_state"_s + event<my_event> [ guard ] / action,
+	"dst_state"_s      == X             + event<game_over>
 );
 ```
 
@@ -178,6 +191,7 @@ make_transition_table(
 ```
 
 ![CPP(BTN)](Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp)
+![CPP(BTN)](Run_UML_Notation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/uml_notation.cpp)
 ![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
 
 &nbsp;
@@ -259,6 +273,16 @@ msm::sm<example> sm;
 
 assert(sm.process_event(my_event{})); // returns true when handled
 assert(!sm.process_event(int{})); // not handled by the state machine
+```
+
+Process event might be also triggerd on transition table.
+
+```
+using namespace msm;
+return make_transition_table(
+  "s1"_s(initial) == "s2"_s     + event<my_event>  / process_event(other_event{})
+  "s2"_s          == terminate  + event<other_event>
+);
 ```
 
 `msm-lite` also provides a way to dispatch dynamically created events into the state machine.
