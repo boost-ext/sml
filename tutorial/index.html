@@ -252,15 +252,15 @@ auto state  = &quot;idle&quot;_s;
 <p>Guards and actions are callable objects which will be executed by the state machine in order to verify whether a transition, followed by an action should take place.</p>
 <p>Guard MUST return boolean value.</p>
 <pre><code class="cpp">auto guard1 = [] {
-    return true;
+  return true;
 };
 
 auto guard2 = [](int, double) { // guard with dependencies
-    return true;
+  return true;
 };
 
 auto guard3 = [](int, auto event, double) { // guard with an event and dependencies
-    return true;
+  return true;
 };
 
 struct guard4 {
@@ -324,7 +324,7 @@ our transitions.</p>
 <p>To create a transition table <a href="../user_guide/index.html#make_transition_table-state-machine"><code>make_transition_table</code></a> is provided.</p>
 <pre><code class="cpp">using namespace msm;
 make_transition_table(
-    &quot;src_state&quot;_s == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action
+  &quot;src_state&quot;_s == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action
 , &quot;ds_state&quot;_s == terminate + &quot;other_event&quot;_t
 );
 </code></pre>
@@ -337,8 +337,8 @@ make_transition_table(
 <p>Initial state tells the state machine where to start.</p>
 <pre><code class="cpp">using namespace msm;
 make_transition_table(
-    &quot;src_state&quot;_s(initial) == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
-    &quot;dst_state&quot;_s          == terminate     + event&lt;game_over&gt;
+  &quot;src_state&quot;_s(initial) == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
+  &quot;dst_state&quot;_s          == terminate     + event&lt;game_over&gt;
 );
 </code></pre>
 
@@ -346,8 +346,8 @@ make_transition_table(
 <code>terminate</code> state might be expressed via <code>X</code> in UML notation.</p>
 <pre><code class="cpp">using namespace msm;
 make_transition_table(
-    &quot;src_state&quot;_s('*') == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
-    &quot;dst_state&quot;_s      == X             + event&lt;game_over&gt;
+  &quot;src_state&quot;_s('*') == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
+  &quot;dst_state&quot;_s      == X             + event&lt;game_over&gt;
 );
 </code></pre>
 
@@ -355,11 +355,11 @@ make_transition_table(
 and are called orthogonal regions.</p>
 <pre><code class="cpp">using namespace msm;
 make_transition_table(
-    &quot;region_1&quot;_s(initial) == &quot;dst_state1&quot;_s + event&lt;my_event1&gt; [ guard ] / action,
-    &quot;dst_state1&quot;_s          == terminate    + event&lt;game_over&gt;
+  &quot;region_1&quot;_s(initial) == &quot;dst_state1&quot;_s + event&lt;my_event1&gt; [ guard ] / action,
+  &quot;dst_state1&quot;_s          == terminate    + event&lt;game_over&gt;
 
-    &quot;region_2&quot;_s(initial) == &quot;dst_state2&quot;_s + event&lt;my_event2&gt; [ guard ] / action,
-    &quot;dst_state2&quot;_s          == terminate    + event&lt;game_over&gt;
+  &quot;region_2&quot;_s(initial) == &quot;dst_state2&quot;_s + event&lt;my_event2&gt; [ guard ] / action,
+  &quot;dst_state2&quot;_s          == terminate    + event&lt;game_over&gt;
 );
 </code></pre>
 
@@ -373,13 +373,13 @@ make_transition_table(
 To create a state machine, we have to configure our transition table.</p>
 <pre><code class="cpp">class example {
 public:
-    auto configure() noexcept {
-        using namespace msm;
-        return make_transition_table(
-            &quot;src_state&quot;_s(initial) == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
-            &quot;dst_state&quot;_s          == terminate     + event&lt;game_over&gt;
-        );
-    }
+  auto configure() noexcept {
+    using namespace msm;
+    return make_transition_table(
+      &quot;src_state&quot;_s(initial) == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
+      &quot;dst_state&quot;_s          == terminate     + event&lt;game_over&gt;
+    );
+  }
 };
 </code></pre>
 
