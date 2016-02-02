@@ -331,7 +331,7 @@ struct is_valid_transition<detail::terminate_state, Ts...> {};
 aux::false_type transitional_impl(...);
 template <class T>
 auto transitional_impl(T &&t) -> is_valid_transition<typename T::src_state, typename T::dst_state, typename T::event,
-                                                     typename T::deps, decltype(T::has_initial)>;
+                                                     typename T::deps, decltype(T::initial), decltype(T::history)>;
 template <class T>
 struct transitional : decltype(transitional_impl(aux::declval<T>())) {};
 template <class>
@@ -455,14 +455,23 @@ struct state_impl : state_str<TState> {
 template <class TState>
 struct state : state_impl<state<TState>> {
   using type = TState;
-  static constexpr auto is_initial = false;
+  static constexpr auto initial = false;
+  static constexpr auto history = false;
+  auto operator()(const char & /*'*'*/) const noexcept { return state<TState(initial_state)>{}; }
   auto operator()(const initial_state &) const noexcept { return state<TState(initial_state)>{}; }
-  auto operator()(const char &) const noexcept { return state<TState(initial_state)>{}; }
+  auto operator()(const history_state &) const noexcept { return state<TState(history_state)>{}; }
 };
 template <class TState>
 struct state<TState(initial_state)> : state_impl<state<TState(initial_state)>> {
   using type = TState;
-  static constexpr auto is_initial = true;
+  static constexpr auto initial = true;
+  static constexpr auto history = false;
+};
+template <class TState>
+struct state<TState(history_state)> : state_impl<state<TState(history_state)>> {
+  using type = TState;
+  static constexpr auto initial = true;
+  static constexpr auto history = true;
 };
 template <class, class>
 aux::type_list<> args_impl__(...);
@@ -736,7 +745,8 @@ struct transition<state<S1>, transition<state<S2>, transition<event<E>, G, A>>>
 };
 template <class S1, class S2, class E, class G, class A>
 struct transition<state<S1>, state<S2>, event<E>, G, A> {
-  static constexpr auto has_initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
+  static constexpr auto initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::initial;
+  static constexpr auto history = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::history;
   using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
@@ -762,7 +772,8 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> {
 };
 template <class S1, class S2, class E, class A>
 struct transition<state<S1>, state<S2>, event<E>, always, A> {
-  static constexpr auto has_initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
+  static constexpr auto initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::initial;
+  static constexpr auto history = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::history;
   using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
@@ -784,7 +795,8 @@ struct transition<state<S1>, state<S2>, event<E>, always, A> {
 };
 template <class S1, class S2, class E, class G>
 struct transition<state<S1>, state<S2>, event<E>, G, none> {
-  static constexpr auto has_initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
+  static constexpr auto initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::initial;
+  static constexpr auto history = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::history;
   using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
@@ -808,7 +820,8 @@ struct transition<state<S1>, state<S2>, event<E>, G, none> {
 };
 template <class S1, class S2, class E>
 struct transition<state<S1>, state<S2>, event<E>, always, none> {
-  static constexpr auto has_initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::is_initial;
+  static constexpr auto initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::initial;
+  static constexpr auto history = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::history;
   using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
   using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
   using event = E;
@@ -970,7 +983,10 @@ template <class... Ts>
 using get_states = aux::join_t<aux::type_list<typename Ts::src_state, typename Ts::dst_state>...>;
 template <class... Ts>
 using get_initial_states =
-    aux::join_t<aux::conditional_t<Ts::has_initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>...>;
+    aux::join_t<aux::conditional_t<Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>...>;
+template <class... Ts>
+using get_history_states =
+    aux::join_t<aux::conditional_t<Ts::history, aux::type_list<typename Ts::src_state>, aux::type_list<>>...>;
 template <class T, class U = T>
 using get_sm = aux::conditional_t<aux::is_trivially_constructible<T>::value, aux::type_list<U>, aux::type_list<U &>>;
 template <class>
@@ -983,6 +999,8 @@ template <class... Ts>
 using merge_deps = aux::apply_t<aux::unique_t, aux::join_t<typename Ts::deps...>>;
 template <class SM>
 class sm {
+  template <class>
+  friend class sm;
   template <class...>
   friend struct transition;
   template <class...>
@@ -995,6 +1013,7 @@ class sm {
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
   using initial_states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_initial_states, transitions_t>>;
+  using history_states_t = aux::apply_t<get_history_states, transitions_t>;
   using sub_sms_t = aux::apply_t<get_sub_sms, states_t>;
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
   using events_ids_t = aux::apply_t<aux::pool, events_t>;
@@ -1129,6 +1148,26 @@ class sm {
     current_state = new_state;
     process_internal_event(on_entry{});
   }
+
+  template <class TSrcState, class T>
+  void update_current_state(aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
+                            const state<sm<T>> &dst_state) noexcept {
+    process_internal_event(on_exit{});
+    BOOST_MSM_LOG(state_change, SM, src_state, dst_state);
+    (void)src_state;
+    (void)dst_state;
+    current_state = new_state;
+    process_internal_event(on_entry{});
+    initialize_impl<sm<T>>(typename sm<T>::history_states_t{});
+  }
+
+  template <class T>
+  void initialize_impl(const aux::type_list<> &) noexcept {
+    aux::try_get<T>(deps_).initialize(typename T::initial_states_t{});
+  }
+
+  template <class, class... Ts>
+  void initialize_impl(const aux::type_list<Ts...> &) noexcept {}
 
   deps_t deps_;
   transitions_t transitions_;

@@ -91,8 +91,8 @@ to avoid it `Boost.MSM-lite` may suits you!
 ###What 'lite' implies?
 
 * Minimal learning curve
-* Only crucial features in the core plus policies/extensions
-* Guaranteed performance and quick compilation times
+* Maximized performance
+* Guaranteed quick compilation times
 * No dependencies
 
 ###*Supported* UML features
@@ -102,6 +102,7 @@ to avoid it `Boost.MSM-lite` may suits you!
 * State entry / exit actions (see [States](examples.md#states))
 * Orthogonal regions (see [Orthogonal Regions](examples.md#orthogonal-regions))
 * Sub / Composite state machines (see [Composite](examples.md#composite))
+* History (see [History](examples.md#history))
 
 ###*Additional* features
 

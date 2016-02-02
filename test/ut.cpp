@@ -250,21 +250,24 @@ struct transition1 {
   using dst_state = void;
   using event = void;
   using deps = aux::pool<>;
-  static constexpr auto has_initial = false;
+  static constexpr auto initial = false;
+  static constexpr auto history = false;
 };
 struct transition2 {
   using src_state = void;
   using dst_state = void;
   // using event = void;
   using deps = aux::pool<>;
-  static constexpr auto has_initial = false;
+  static constexpr auto initial = false;
+  static constexpr auto history = false;
 };
 struct transition3 {
   using src_state = void;
   using dst_state = void;
   using event = void;
   using deps = aux::pool<>;
-  static constexpr auto /*has_*/ initial = false;
+  static constexpr auto /*initial*/ INITIAL = false;
+  static constexpr auto history = false;
 };
 
 test transitional_concept = [] {

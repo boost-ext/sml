@@ -19,6 +19,9 @@
 ###Composite
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp)
 
+###History
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/history.cpp)
+
 ###Logging
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)
 

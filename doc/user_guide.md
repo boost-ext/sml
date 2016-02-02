@@ -17,7 +17,8 @@ Requirements for transition.
         typename T::dst_state;
         typename T::event;
         typename T::deps;
-        T::has_initial;
+        T::initial;
+        T::history;
         { transition.execute() } -> bool;
       }
     }

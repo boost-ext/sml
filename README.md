@@ -98,6 +98,7 @@ int main() {
     * [Events](http://boost-experimental.github.io/msm-lite/examples/index.html#events)
     * [Orthogonal Regions](http://boost-experimental.github.io/msm-lite/examples/index.html#orthogonal-regions)
     * [Composite](http://boost-experimental.github.io/msm-lite/examples/index.html#composite)
+    * [History](http://boost-experimental.github.io/msm-lite/examples/index.html#history)
     * [Logging](http://boost-experimental.github.io/msm-lite/examples/index.html#logging)
     * [Testing](http://boost-experimental.github.io/msm-lite/examples/index.html#testing)
     * [Runtime Dispatcher](http://boost-experimental.github.io/msm-lite/examples/index.html#runtime-dispatcher)
