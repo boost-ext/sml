@@ -443,7 +443,7 @@ Creates a state machine with testing capabilities.
 
 ---
 
-###make_dispatch_table [extension]
+###make_dispatch_table [utility]
 
 ***Header***
 

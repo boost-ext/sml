@@ -1,17 +1,17 @@
 ###Hello World
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
 
-###Transitions
-![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp)
-
-###Actions Guards
-![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/actions_guards.cpp)
+###Events
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/events.cpp)
 
 ###States
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp)
 
-###Events
-![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/events.cpp)
+###Actions Guards
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/actions_guards.cpp)
+
+###Transitions
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp)
 
 ###Orthogonal Regions
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp)
