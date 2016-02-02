@@ -103,7 +103,7 @@ function get_example(id, file) {
     cpp_output[id].setOption("theme", 'mdn-like');
 
     cpp_code[id].setValue(get_cpp_file(file));
-	cpp_code[id].setCursor(cpp_code[id].lineCount(), 0);
+	  cpp_code[id].setCursor(cpp_code[id].lineCount() / 2, 0);
 }
 
 Element.prototype.remove = function() {
