@@ -351,6 +351,16 @@ make_transition_table(
 );
 </code></pre>
 
+<p>Initial/Current state might be remembered by the State Machine so that whenever it will reentered
+the last active state will reactivated. In order to enable history you just have
+to replace <code>initial</code> with <code>history</code> or <code>H</code> when declaring the initial state.</p>
+<pre><code class="cpp">using namespace msm;
+make_transition_table(
+  &quot;src_state&quot;_s(history) == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
+  &quot;dst_state&quot;_s      == X             + event&lt;game_over&gt;
+);
+</code></pre>
+
 <p>You can have more than one initial state. All initial states will be executed in pseudo-parallel way
 and are called orthogonal regions.</p>
 <pre><code class="cpp">using namespace msm;
@@ -365,7 +375,7 @@ make_transition_table(
 
 <p><img alt="CPP(BTN)" src="../Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp" />
 <img alt="CPP(BTN)" src="../Run_UML_Notation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/uml_notation.cpp" />
-<img alt="CPP(BTN)" src="../Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" /></p>
+<img alt="CPP(BTN)" src="../Run_History_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/history.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="5-create-a-state-machine">5. Create a state machine</h3>
