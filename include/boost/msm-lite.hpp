@@ -297,7 +297,8 @@ struct get_size<T<Ts...>> {
 namespace detail {
 struct on_entry;
 struct on_exit;
-}
+struct terminate_state;
+}  // detail
 namespace concepts {
 #define BOOST_MSM_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0
 template <class T>
@@ -321,10 +322,12 @@ template <class R, class T>
 using callable = callable_impl<R, decltype(test_callable<aux::inherit<T, callable_fallback>>(0))>;
 template <class...>
 struct is_valid_transition : aux::true_type {};
-template <class S1, class S2, class T>
-struct is_valid_transition<S1, S2, detail::on_entry, T> : aux::is_same<S1, S2> {};
-template <class S1, class S2, class T>
-struct is_valid_transition<S1, S2, detail::on_exit, T> : aux::is_same<S1, S2> {};
+template <class S1, class S2, class... Ts>
+struct is_valid_transition<S1, S2, detail::on_entry, Ts...> : aux::is_same<S1, S2> {};
+template <class S1, class S2, class... Ts>
+struct is_valid_transition<S1, S2, detail::on_exit, Ts...> : aux::is_same<S1, S2> {};
+template <class... Ts>
+struct is_valid_transition<detail::terminate_state, Ts...> {};
 aux::false_type transitional_impl(...);
 template <class T>
 auto transitional_impl(T &&t) -> is_valid_transition<typename T::src_state, typename T::dst_state, typename T::event,
