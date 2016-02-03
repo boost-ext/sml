@@ -72,7 +72,7 @@ to avoid it `Boost.MSM-lite` may suits you!
 * Keep the Boost.MSM - eUML 'goodies'
     * Performance (see [Performance](overview.md#performance))
     * Memory usage (see [Performance](overview.md#performance))
-    * eUML DSL (s1 == s2 + event [ guard ] / action)
+    * eUML DSL (src_state + event [ guard ] / action -> dst_state)
     * UML standard compliant (As much as possible)
 
 >
