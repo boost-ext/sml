@@ -355,6 +355,31 @@ test transitions_dsl = [] {
   expect(sm.is(s4));
 };
 
+test transitions_dsl_mix = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      auto yes = [] { return true; };
+      auto no = [] { return false; };
+
+      // clang-format off
+      return make_transition_table(
+          s1 <= *idle + event<e1>
+        , s1 + event<e2> = s2
+        , s3 <= s2 + event<e3> [no]
+        , s2 + event<e3> [yes] = s4
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  expect(sm.process_event(e1{}));
+  expect(sm.process_event(e2{}));
+  expect(sm.process_event(e3{}));
+  expect(sm.is(s4));
+};
+
 test transition_loop = [] {
   struct c {
     auto configure() noexcept {

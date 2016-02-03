@@ -42,19 +42,19 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 | ---- | -------- | ------ | ------ | ----------- | -------------- |
 |[Simple Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/simple) | -O2 -s | 6 | 5 | 12 | 1'000'000 |
 
-| Clang-3.7        | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.Statechart] |
-|------------------|----------------|------------------|--------------------|
-| Compilation time | 0.307s         | 3.855s           | 1.061s             |
-| Execution time   | 15ms           | 17ms             | 1232ms             |
-| Memory usage     | 14b            | 32b              | 200b               |
-| Executable size  | 11K            | 91K              | 59K                |
+| Clang-3.7        | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] |[Boost.Statechart] |
+|------------------|----------------|------------------|--------------------|-------------------|
+| Compilation time | 0.307s         | 3.855s           | 8.818s             | 1.061s            |
+| Execution time   | 15ms           | 17ms             | 100ms              | 1232ms            |
+| Memory usage     | 14b            | 32b              | 112b               | 200b              |
+| Executable size  | 11K            | 91K              | 43K                | 59K               |
 
-| GCC-6.0          | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.Statechart] |
-|------------------|----------------|------------------|--------------------|
-| Compilation time | 0.386s         | 7.879s           | 1.790s             |
-| Execution time   | 15ms           | 20ms             | 929ms              |
-| Memory usage     | 14b            | 32b              | 224b               |
-| Executable size  | 11K            | 67K              | 63K                |
+| GCC-6.0          | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] |[Boost.Statechart] |
+|------------------|----------------|------------------|--------------------|-------------------|
+| Compilation time | 0.386s         | 7.879s           | 19.049s            | 1.790s            |
+| Execution time   | 15ms           | 20ms             | 48ms               | 929ms             |
+| Memory usage     | 14b            | 32b              | 112b               | 224b              |
+| Executable size  | 11K            | 67K              | 51K                | 63K               |
 
 ---------------------------------------
 
@@ -102,13 +102,13 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 | ---- |
 |[Header Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/header) |
 
-| Clang-3.7        | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.Statechart] |
-|------------------|----------------|------------------|--------------------|
-| Compilation time | 0.060s         | 2.072s           | 0.552s             |
+| Clang-3.7        | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
+|------------------|----------------|------------------|--------------------|--------------------|
+| Compilation time | 0.060s         | 2.072s           | 2.504s             | 0.552s             |
 
-| GCC-6.0          | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.Statechart] |
-|------------------|----------------|------------------|--------------------|
-| Compilation time | 0.073s         | 3.197s           | 0.704s             |
+| GCC-6.0          | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
+|------------------|----------------|------------------|--------------------|--------------------|
+| Compilation time | 0.073s         | 3.197s           | 3.986s             | 0.704s             |
 
 
 * To run benchmarks
@@ -132,4 +132,5 @@ make pt # make pt_simple pt_composite pt_complex
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_dispatchable.cpp)
 
 [Boost.MSM-eUML]: http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html
+[Boost.MSM3-eUML2]: https://htmlpreview.github.io/?https://raw.githubusercontent.com/boostorg/msm/msm3/doc/HTML/ch03s05.html
 [Boost.Statechart]: http://www.boost.org/doc/libs/1_60_0/libs/statechart/doc/tutorial.html
