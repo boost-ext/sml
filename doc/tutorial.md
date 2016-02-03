@@ -62,7 +62,11 @@ A state machine might be a State itself.
 msm::state<msm::sm<state_machine>> composite;
 ```
 
-`msm-lite` supports `terminate` state, which stops events to be processed.
+`msm-lite` supports `terminate` state, which stops events to be processed. It defined by `X`.
+
+```cpp
+  "state"_s = X;
+```
 
 States are printable too.
 
@@ -128,26 +132,50 @@ our transitions.
 
 * Transition Table DSL
 
+    * Postfix Notation
+
     | Expression | Description |
     |------------|-------------|
     | state + event<e> [ guard ] | internal transition on event e when guard |
-    | src\_state == dst\_state / [] {} | anonymous transition with action |
-    | src\_state == dst\_state + event<e> | transition on event e without guard or action |
-    | src\_state == dst\_state + event<e> [ guard ] / action | transition from src\_state to dst\_state on event e with guard and action |
-    | src\_state == dst\_state + event<e> [ guard && (![]{return true;} && guard2) ] / (action, action2, []{}) | transition from src\_state to dst\_state on event e with guard and action |
+    | src\_state / [] {} = dst\_state | anonymous transition with action |
+    | src\_state + event<e> = dst\_state | transition on event e without guard or action |
+    | src\_state + event<e> [ guard ] / action = dst\_state | transition from src\_state to dst\_state on event e with guard and action |
+    | src\_state + event<e> [ guard && (![]{return true;} && guard2) ] / (action, action2, []{}) = dst\_state | transition from src\_state to dst\_state on event e with guard and action |
+
+    * Prefix Notation
+
+    | Expression | Description |
+    |------------|-------------|
+    | state + event<e> [ guard ] | internal transition on event e when guard |
+    | dst\_state <= src\_state / [] {} | anonymous transition with action |
+    | dst\_state <= src\_state + event<e> | transition on event e without guard or action |
+    | dst\_state <= src\_state + event<e> [ guard ] / action | transition from src\_state to dst\_state on event e with guard and action |
+    | dst\_state <= src\_state + event<e> [ guard && (![]{return true;} && guard2) ] / (action, action2, []{}) | transition from src\_state to dst\_state on event e with guard and action |
 
 To create a transition table [`make_transition_table`](user_guide.md#make_transition_table-state-machine) is provided.
 
 ```cpp
-using namespace msm;
+using namespace msm; // Postfix Notation
+
 make_transition_table(
-  "src_state"_s == "dst_state"_s + event<my_event> [ guard ] / action
-, "ds_state"_s == terminate + "other_event"_t
+ *"src_state"_s + event<my_event> [ guard ] / action = "dst_state"_s
+, "dst_state"_s + "other_event"_t = X
+);
+```
+
+or
+
+```cpp
+using namespace msm; // Prefix Notation
+
+make_transition_table(
+  "dst_state"_s <= *"src_state"_s + event<my_event> [ guard ] / action
+, X             <= "dst_state"_s  + "other_event"_t
 );
 ```
 
 ![CPP(BTN)](Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp)
-![CPP(BTN)](Run_UML_Notation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/uml_notation.cpp)
+![CPP(BTN)](Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp)
 
 &nbsp;
 
@@ -155,36 +183,25 @@ make_transition_table(
 
 ###4. Set initial states
 
-Initial state tells the state machine where to start.
+Initial state tells the state machine where to start. It can be set by prefixing a State with `*`.
 
 ```cpp
 using namespace msm;
 make_transition_table(
-  "src_state"_s(initial) == "dst_state"_s + event<my_event> [ guard ] / action,
-  "dst_state"_s          == terminate     + event<game_over>
-);
-```
-
-You can also use UML notation to express it using `'*'` instead of `initial`.
-`terminate` state might be expressed via `X` in UML notation.
-
-```cpp
-using namespace msm;
-make_transition_table(
-  *"src_state"_s  == "dst_state"_s + event<my_event> [ guard ] / action,
-  "dst_state"_s   == X             + event<game_over>
+ *"src_state"_s + event<my_event> [ guard ] / action = "dst_state"_s,
+  "dst_state"_s + event<game_over> = X
 );
 ```
 
 Initial/Current state might be remembered by the State Machine so that whenever it will reentered
 the last active state will reactivated. In order to enable history you just have
-to replace `initial` with `history` or `H` when declaring the initial state.
+to replace `*` with postfixed `(H)` when declaring the initial state.
 
 ```cpp
 using namespace msm;
 make_transition_table(
-  "src_state"_s(history) == "dst_state"_s + event<my_event> [ guard ] / action,
-  "dst_state"_s      == X             + event<game_over>
+  "src_state"_s(H) + event<my_event> [ guard ] / action = "dst_state"_s,
+  "dst_state"_s    + event<game_over>                   = X
 );
 ```
 
@@ -194,16 +211,15 @@ and are called orthogonal regions.
 ```cpp
 using namespace msm;
 make_transition_table(
-  "region_1"_s(initial) == "dst_state1"_s + event<my_event1> [ guard ] / action,
-  "dst_state1"_s          == terminate    + event<game_over>
+ *"region_1"_s   + event<my_event1> [ guard ] / action = "dst_state1"_s,
+  "dst_state1"_s + event<game_over> = X,
 
-  "region_2"_s(initial) == "dst_state2"_s + event<my_event2> [ guard ] / action,
-  "dst_state2"_s          == terminate    + event<game_over>
+ *"region_2"_s   + event<my_event2> [ guard ] / action = "dst_state2"_s,
+  "dst_state2"_s + event<game_over> = X
 );
 ```
 
 ![CPP(BTN)](Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp)
-![CPP(BTN)](Run_UML_Notation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/uml_notation.cpp)
 ![CPP(BTN)](Run_History_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/history.cpp)
 
 &nbsp;
@@ -221,8 +237,8 @@ public:
   auto configure() noexcept {
     using namespace msm;
     return make_transition_table(
-      "src_state"_s(initial) == "dst_state"_s + event<my_event> [ guard ] / action,
-      "dst_state"_s          == terminate     + event<game_over>
+     *"src_state"_s + event<my_event> [ guard ] / action = "dst_state"_s,
+      "dst_state"_s + event<game_over> = X
     );
   }
 };
@@ -269,7 +285,6 @@ assert(sm.process_event(e1{}));
 
 ![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
 ![CPP(BTN)](Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp)
-![CPP(BTN)](Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp)
 
 &nbsp;
 
@@ -287,13 +302,13 @@ assert(sm.process_event(my_event{})); // returns true when handled
 assert(!sm.process_event(int{})); // not handled by the state machine
 ```
 
-Process event might be also triggerd on transition table.
+Process event might be also triggered on transition table.
 
 ```
 using namespace msm;
 return make_transition_table(
-  "s1"_s(initial) == "s2"_s     + event<my_event>  / process_event(other_event{})
-  "s2"_s          == terminate  + event<other_event>
+ *"s1"_s + event<my_event>  / process_event(other_event{}) = "s2"_s,
+  "s2"_s + event<other_event> = X
 );
 ```
 
@@ -327,7 +342,7 @@ functionality.
 ```cpp
 msm::sm<example> sm;
 assert(sm.process_event(my_event{}));
-assert(sm.is(terminate)); // is(terminate, s1, ...) when you have orthogonal regions
+assert(sm.is(X)); // is(X, s1, ...) when you have orthogonal regions
 
 //or
 
@@ -342,7 +357,7 @@ in a requested state.
 testing::sm<example> sm{fake_data...};
 sm.set_current_states("s3"_s); // set_current_states("s3"_s, "s1"_s, ...) for orthogonal regions
 assert(sm.process_event(event{}));
-assert(sm.is(terminate));
+assert(sm.is(X));
 ```
 
 ![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp)

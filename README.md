@@ -25,10 +25,19 @@ auto action = [] { std::cout << "action" << std::endl; };
 struct hello_world {
   auto configure() const noexcept {
     using namespace msm;
+
+    // postfix notation
     return make_transition_table(
-        "idle"_s(initial) == "s1"_s    + event<e1>
-      , "s1"_s            == "s2"_s    + event<e2> [ guard ] / action
-      , "s2"_s            == terminate + event<e3> / [] { std::cout << "action" << std::endl; }
+       *"idle"_s + event<e1> = "s1"_s
+      , "s1"_s   + event<e2> [ guard ] / action = "s2"_s
+      , "s2"_s   + event<e3> / [] { std::cout << "action" << std::endl; } = X
+    );
+
+    // prefix notation
+    return make_transition_table(
+       "s1"_s <= *"idle"_s + event<e1>
+     , "s2"_s <= "s1"_s    + event<e2> [ guard ] / action
+     , X      <= "s2"_s    + event<e3> / [] { std::cout << "action" << std::endl; }
     );
   }
 };
@@ -88,21 +97,20 @@ int main() {
     * [make_transition_table [state machine]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#make_transition_table-state-machine)
     * [sm [state machine]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#sm-state-machine)
     * [testing::sm [testing]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#testingsm-testing)
-    * [make_dispatch_table [extension]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#make_dispatch_table-extension)
+    * [make_dispatch_table [utility]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#make_dispatch_table-utility)
     * [BOOST_MSM_LOG [debugging]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#boost_msm_log-debugging)
 * [Examples](http://boost-experimental.github.io/msm-lite/examples/index.html)
     * [Hello World](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)
-    * [Transitions](http://boost-experimental.github.io/msm-lite/examples/index.html#transitions)
-    * [Actions Guards](http://boost-experimental.github.io/msm-lite/examples/index.html#actions-guards)
-    * [States](http://boost-experimental.github.io/msm-lite/examples/index.html#states)
     * [Events](http://boost-experimental.github.io/msm-lite/examples/index.html#events)
+    * [States](http://boost-experimental.github.io/msm-lite/examples/index.html#states)
+    * [Actions Guards](http://boost-experimental.github.io/msm-lite/examples/index.html#actions-guards)
+    * [Transitions](http://boost-experimental.github.io/msm-lite/examples/index.html#transitions)
     * [Orthogonal Regions](http://boost-experimental.github.io/msm-lite/examples/index.html#orthogonal-regions)
     * [Composite](http://boost-experimental.github.io/msm-lite/examples/index.html#composite)
     * [History](http://boost-experimental.github.io/msm-lite/examples/index.html#history)
     * [Logging](http://boost-experimental.github.io/msm-lite/examples/index.html#logging)
     * [Testing](http://boost-experimental.github.io/msm-lite/examples/index.html#testing)
     * [Runtime Dispatcher](http://boost-experimental.github.io/msm-lite/examples/index.html#runtime-dispatcher)
-    * [UML Notation](http://boost-experimental.github.io/msm-lite/examples/index.html#uml-notation)
     * [eUML Emulation](http://boost-experimental.github.io/msm-lite/examples/index.html#euml-emulation)
     * [Dependency Injection](http://boost-experimental.github.io/msm-lite/examples/index.html#dependency-injection)
     * [SDL2 Integration](http://boost-experimental.github.io/msm-lite/examples/index.html#sdl2-integration)

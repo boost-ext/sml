@@ -30,8 +30,16 @@ Requirements for transition.
 ***Example***
 
     using namespace msm;
-    auto transition = ("idle"_s == terminate);
+
+    {
+    auto transition = ("idle"_s = X); // Postfix Notation
     static_assert(transitional<decltype(transition)>::value);
+    }
+
+    {
+    auto transition = (X <= "idle"_s); // Prefix Notation
+    static_assert(transitional<decltype(transition)>::value);
+    }
 
 ![CPP(BTN)](Run_Transitional_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_transitional.cpp)
 
@@ -177,8 +185,13 @@ Represents a state machine state.
     template<class TState> // no requirements, TState may be a state machine
     class state {
     public:
+      initial operator*() const noexcept; // no requirements
+
       template <class T> // no requirements
-      auto operator==(const T &) const noexcept;
+      auto operator<=(const T &) const noexcept;
+
+      template <class T> // no requirements
+      auto operator=(const T &) const noexcept;
 
       template <class T> // no requirements
       auto operator+(const T &) const noexcept;
@@ -196,8 +209,7 @@ Represents a state machine state.
     state<unspecified> operator""_s() noexcept;
 
     // predefined states
-    state<unspecified> terminate;
-    state<unspecified> initial;
+    state<unspecified> X;
 
 ***Requirements***
 
@@ -213,9 +225,9 @@ Represents a state machine state.
     auto idle = state<class idle>{};
     auto idle = "idle"_s;
 
-    auto initial_state = idle(initial);
-
-    auto last_state = terminate;
+    auto initial_state = *idle;
+    auto history_state = idle(H);
+    auto terminate_state = X;
 
 ![CPP(BTN)](Run_States_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp)
 ![CPP(BTN)](Run_Composite_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp)
@@ -297,8 +309,12 @@ Creates a transition table.
 
 ***Example***
 
-    auto transition_table = make_transition_table(
-      "idle_s"(initial) == terminate + event<int> / [] {}
+    auto transition_table_postfix_notation = make_transition_table(
+      *"idle_s" + event<int> / [] {} = X
+    );
+
+    auto transition_table_prefix_notation = make_transition_table(
+      X <= *"idle_s" + event<int> / [] {}
     );
 
     class example {
@@ -322,15 +338,16 @@ Creates a transition table.
 
 ***Description***
 
-Creates a state machine.
+Creates a State Machine.
 
 ***Synopsis***
 
     template<class T> requires configurable<T>
     class sm {
     public:
-      using states = unspecified;
-      using events = unspecified;
+      using states = unspecified; // unique list of states
+      using events = unspecified; // unique list of events which can be handled by the State Machine
+      using transitions = unspecified; // list of transitions
 
       sm(sm &&) = default;
       sm(const sm &) = delete;
@@ -365,7 +382,7 @@ Creates a state machine.
     msm::sm<T>{...};
     sm.process_event(TEvent{});
     sm.visit_current_states([](auto state){});
-    sm.is(terminate);
+    sm.is(X);
     sm.is(s1, s2);
 
 ***Example***
@@ -377,7 +394,7 @@ Creates a state machine.
       auto configure() const noexcept {
       using namespace msm;
         return make_transition_table(
-          "idle"_s(initial) == terminate + event<my_event> / [](int i) { std::cout << i << std::endl; }
+          *"idle"_s + event<my_event> / [](int i) { std::cout << i << std::endl; } = X
         );
       }
     };
@@ -386,7 +403,7 @@ Creates a state machine.
     assert(sm.is("idle"_s));
     assert(!sm.process_event(int{})); // no handled
     assert(sm.process_event(my_event{})); // handled
-    assert(sm.is(terminate));
+    assert(sm.is(X));
 
     sm.visit_current_states([](auto state) { std::cout << state.c_str() << std::endl; });
 
@@ -435,7 +452,7 @@ Creates a state machine with testing capabilities.
     msm::testing::sm<T>{inject_fake_data...};
     sm.set_current_states("s1"_s);
     sm.process_event(TEvent{});
-    sm.is(terminate);
+    sm.is(X);
 
 ![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp)
 
