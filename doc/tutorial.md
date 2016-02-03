@@ -171,8 +171,8 @@ You can also use UML notation to express it using `'*'` instead of `initial`.
 ```cpp
 using namespace msm;
 make_transition_table(
-  "src_state"_s('*') == "dst_state"_s + event<my_event> [ guard ] / action,
-  "dst_state"_s      == X             + event<game_over>
+  *"src_state"_s  == "dst_state"_s + event<my_event> [ guard ] / action,
+  "dst_state"_s   == X             + event<game_over>
 );
 ```
 

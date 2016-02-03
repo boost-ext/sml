@@ -565,7 +565,7 @@ test transition_types = [] {
         , s5 == end / (action1, action2)
         , idle(H) == s1 + event<e1>
         , idle(history) == s1 + event<e1> [c_guard{} && guard1]
-        , idle('*') == s1 + event<e1> [guard1] / action1
+        , *idle == s1 + event<e1> [guard1] / action1
         , idle == s1 + event<e1> / action1
         , idle == s1 + event<e1> / (action1, c_action{})
         , idle == s1 + event<e1> [guard1 && guard2] / (action1, action2)
@@ -977,7 +977,7 @@ test composite_history = [] {
 
       // clang-format off
       return make_transition_table(
-          idle('*') == sub_state + event<e1>
+          *idle == sub_state + event<e1>
         , sub_state == "s1"_s + event<e3>
         , "s1"_s == sub_state + event<e4>
         , sub_state == X + event<e5>
@@ -1367,7 +1367,7 @@ test uml_notation = [] {
       using namespace msm;
       // clang-format off
       return make_transition_table(
-          idle('*') == s1 + event<e1>
+          *idle == s1 + event<e1>
         , s1 == X + event<e2>
       );
       // clang-format on

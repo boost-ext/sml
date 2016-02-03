@@ -457,7 +457,7 @@ struct state : state_impl<state<TState>> {
   using type = TState;
   static constexpr auto initial = false;
   static constexpr auto history = false;
-  auto operator()(const char & /*'*'*/) const noexcept { return state<TState(initial_state)>{}; }
+  auto operator*() const noexcept { return state<TState(initial_state)>{}; }
   auto operator()(const initial_state &) const noexcept { return state<TState(initial_state)>{}; }
   auto operator()(const history_state &) const noexcept { return state<TState(history_state)>{}; }
 };

@@ -18,9 +18,9 @@ struct uml_notation {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-        "idle"_s('*') == "s1"_s + "e1"_t [ guard ] / action
-      , "s1"_s        == "s2"_s + "e2"_t [ guard ] / action
-      , "s2"_s        == X      + "e3"_t [ guard ] / action
+        *"idle"_s == "s1"_s + "e1"_t [ guard ] / action
+      , "s1"_s    == "s2"_s + "e2"_t [ guard ] / action
+      , "s2"_s    == X      + "e3"_t [ guard ] / action
     );
     // clang-format on
   }
