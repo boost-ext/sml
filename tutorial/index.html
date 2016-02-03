@@ -346,8 +346,8 @@ make_transition_table(
 <code>terminate</code> state might be expressed via <code>X</code> in UML notation.</p>
 <pre><code class="cpp">using namespace msm;
 make_transition_table(
-  &quot;src_state&quot;_s('*') == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
-  &quot;dst_state&quot;_s      == X             + event&lt;game_over&gt;
+  *&quot;src_state&quot;_s  == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
+  &quot;dst_state&quot;_s   == X             + event&lt;game_over&gt;
 );
 </code></pre>
 
