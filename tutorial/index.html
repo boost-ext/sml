@@ -238,7 +238,10 @@ auto state  = &quot;idle&quot;_s;
 <pre><code class="cpp">msm::state&lt;msm::sm&lt;state_machine&gt;&gt; composite;
 </code></pre>
 
-<p><code>msm-lite</code> supports <code>terminate</code> state, which stops events to be processed.</p>
+<p><code>msm-lite</code> supports <code>terminate</code> state, which stops events to be processed. It defined by <code>X</code>.</p>
+<pre><code class="cpp">  &quot;state&quot;_s = X;
+</code></pre>
+
 <p>States are printable too.</p>
 <pre><code class="cpp">assert(string(&quot;idle&quot;) == &quot;idle&quot;_s.c_str());
 </code></pre>
@@ -289,6 +292,9 @@ our transitions.</p>
 <ul>
 <li>
 <p>Transition Table DSL</p>
+<ul>
+<li>Postfix Notation</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -302,19 +308,52 @@ our transitions.</p>
 <td>internal transition on event e when guard</td>
 </tr>
 <tr>
-<td>src_state == dst_state / [] {}</td>
+<td>src_state / [] {} = dst_state</td>
 <td>anonymous transition with action</td>
 </tr>
 <tr>
-<td>src_state == dst_state + event<e></td>
+<td>src_state + event<e> = dst_state</td>
 <td>transition on event e without guard or action</td>
 </tr>
 <tr>
-<td>src_state == dst_state + event<e> [ guard ] / action</td>
+<td>src_state + event<e> [ guard ] / action = dst_state</td>
 <td>transition from src_state to dst_state on event e with guard and action</td>
 </tr>
 <tr>
-<td>src_state == dst_state + event<e> [ guard &amp;&amp; (![]{return true;} &amp;&amp; guard2) ] / (action, action2, []{})</td>
+<td>src_state + event<e> [ guard &amp;&amp; (![]{return true;} &amp;&amp; guard2) ] / (action, action2, []{}) = dst_state</td>
+<td>transition from src_state to dst_state on event e with guard and action</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Prefix Notation</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Expression</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>state + event<e> [ guard ]</td>
+<td>internal transition on event e when guard</td>
+</tr>
+<tr>
+<td>dst_state &lt;= src_state / [] {}</td>
+<td>anonymous transition with action</td>
+</tr>
+<tr>
+<td>dst_state &lt;= src_state + event<e></td>
+<td>transition on event e without guard or action</td>
+</tr>
+<tr>
+<td>dst_state &lt;= src_state + event<e> [ guard ] / action</td>
+<td>transition from src_state to dst_state on event e with guard and action</td>
+</tr>
+<tr>
+<td>dst_state &lt;= src_state + event<e> [ guard &amp;&amp; (![]{return true;} &amp;&amp; guard2) ] / (action, action2, []{})</td>
 <td>transition from src_state to dst_state on event e with guard and action</td>
 </tr>
 </tbody>
@@ -322,42 +361,43 @@ our transitions.</p>
 </li>
 </ul>
 <p>To create a transition table <a href="../user_guide/index.html#make_transition_table-state-machine"><code>make_transition_table</code></a> is provided.</p>
-<pre><code class="cpp">using namespace msm;
+<pre><code class="cpp">using namespace msm; // Postfix Notation
+
 make_transition_table(
-  &quot;src_state&quot;_s == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action
-, &quot;ds_state&quot;_s == terminate + &quot;other_event&quot;_t
+ *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s
+, &quot;dst_state&quot;_s + &quot;other_event&quot;_t = X
+);
+</code></pre>
+
+<p>or</p>
+<pre><code class="cpp">using namespace msm; // Prefix Notation
+
+make_transition_table(
+  &quot;dst_state&quot;_s &lt;= *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action
+, X             &lt;= &quot;dst_state&quot;_s  + &quot;other_event&quot;_t
 );
 </code></pre>
 
 <p><img alt="CPP(BTN)" src="../Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp" />
-<img alt="CPP(BTN)" src="../Run_UML_Notation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/uml_notation.cpp" /></p>
+<img alt="CPP(BTN)" src="../Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="4-set-initial-states">4. Set initial states</h3>
-<p>Initial state tells the state machine where to start.</p>
+<p>Initial state tells the state machine where to start. It can be set by prefixing a State with <code>*</code>.</p>
 <pre><code class="cpp">using namespace msm;
 make_transition_table(
-  &quot;src_state&quot;_s(initial) == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
-  &quot;dst_state&quot;_s          == terminate     + event&lt;game_over&gt;
-);
-</code></pre>
-
-<p>You can also use UML notation to express it using <code>'*'</code> instead of <code>initial</code>.
-<code>terminate</code> state might be expressed via <code>X</code> in UML notation.</p>
-<pre><code class="cpp">using namespace msm;
-make_transition_table(
-  *&quot;src_state&quot;_s  == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
-  &quot;dst_state&quot;_s   == X             + event&lt;game_over&gt;
+ *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s,
+  &quot;dst_state&quot;_s + event&lt;game_over&gt; = X
 );
 </code></pre>
 
 <p>Initial/Current state might be remembered by the State Machine so that whenever it will reentered
 the last active state will reactivated. In order to enable history you just have
-to replace <code>initial</code> with <code>history</code> or <code>H</code> when declaring the initial state.</p>
+to replace <code>*</code> with postfixed <code>(H)</code> when declaring the initial state.</p>
 <pre><code class="cpp">using namespace msm;
 make_transition_table(
-  &quot;src_state&quot;_s(history) == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
-  &quot;dst_state&quot;_s      == X             + event&lt;game_over&gt;
+  &quot;src_state&quot;_s(H) + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s,
+  &quot;dst_state&quot;_s    + event&lt;game_over&gt;                   = X
 );
 </code></pre>
 
@@ -365,16 +405,15 @@ make_transition_table(
 and are called orthogonal regions.</p>
 <pre><code class="cpp">using namespace msm;
 make_transition_table(
-  &quot;region_1&quot;_s(initial) == &quot;dst_state1&quot;_s + event&lt;my_event1&gt; [ guard ] / action,
-  &quot;dst_state1&quot;_s          == terminate    + event&lt;game_over&gt;
+ *&quot;region_1&quot;_s   + event&lt;my_event1&gt; [ guard ] / action = &quot;dst_state1&quot;_s,
+  &quot;dst_state1&quot;_s + event&lt;game_over&gt; = X,
 
-  &quot;region_2&quot;_s(initial) == &quot;dst_state2&quot;_s + event&lt;my_event2&gt; [ guard ] / action,
-  &quot;dst_state2&quot;_s          == terminate    + event&lt;game_over&gt;
+ *&quot;region_2&quot;_s   + event&lt;my_event2&gt; [ guard ] / action = &quot;dst_state2&quot;_s,
+  &quot;dst_state2&quot;_s + event&lt;game_over&gt; = X
 );
 </code></pre>
 
 <p><img alt="CPP(BTN)" src="../Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp" />
-<img alt="CPP(BTN)" src="../Run_UML_Notation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/uml_notation.cpp" />
 <img alt="CPP(BTN)" src="../Run_History_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/history.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
@@ -386,8 +425,8 @@ public:
   auto configure() noexcept {
     using namespace msm;
     return make_transition_table(
-      &quot;src_state&quot;_s(initial) == &quot;dst_state&quot;_s + event&lt;my_event&gt; [ guard ] / action,
-      &quot;dst_state&quot;_s          == terminate     + event&lt;game_over&gt;
+     *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s,
+      &quot;dst_state&quot;_s + event&lt;game_over&gt; = X
     );
   }
 };
@@ -427,8 +466,7 @@ assert(sm.process_event(e1{}));
 </code></pre>
 
 <p><img alt="CPP(BTN)" src="../Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" />
-<img alt="CPP(BTN)" src="../Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp" />
-<img alt="CPP(BTN)" src="../Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp" /></p>
+<img alt="CPP(BTN)" src="../Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="6-process-events">6. Process events</h3>
@@ -440,11 +478,11 @@ assert(sm.process_event(my_event{})); // returns true when handled
 assert(!sm.process_event(int{})); // not handled by the state machine
 </code></pre>
 
-<p>Process event might be also triggerd on transition table.</p>
+<p>Process event might be also triggered on transition table.</p>
 <pre><code>using namespace msm;
 return make_transition_table(
-  &quot;s1&quot;_s(initial) == &quot;s2&quot;_s     + event&lt;my_event&gt;  / process_event(other_event{})
-  &quot;s2&quot;_s          == terminate  + event&lt;other_event&gt;
+ *&quot;s1&quot;_s + event&lt;my_event&gt;  / process_event(other_event{}) = &quot;s2&quot;_s,
+  &quot;s2&quot;_s + event&lt;other_event&gt; = X
 );
 </code></pre>
 
@@ -470,7 +508,7 @@ we are in a terminate state or not. We can do it with <code>msm-lite</code> usin
 functionality.</p>
 <pre><code class="cpp">msm::sm&lt;example&gt; sm;
 assert(sm.process_event(my_event{}));
-assert(sm.is(terminate)); // is(terminate, s1, ...) when you have orthogonal regions
+assert(sm.is(X)); // is(X, s1, ...) when you have orthogonal regions
 
 //or
 
@@ -483,7 +521,7 @@ in a requested state.</p>
 <pre><code class="cpp">testing::sm&lt;example&gt; sm{fake_data...};
 sm.set_current_states(&quot;s3&quot;_s); // set_current_states(&quot;s3&quot;_s, &quot;s1&quot;_s, ...) for orthogonal regions
 assert(sm.process_event(event{}));
-assert(sm.is(terminate));
+assert(sm.is(X));
 </code></pre>
 
 <p><img alt="CPP(BTN)" src="../Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp" /></p>

@@ -224,8 +224,16 @@ concept bool transitional() {
 </code></pre>
 <p><strong><em>Example</em></strong></p>
 <pre><code>using namespace msm;
-auto transition = ("idle"_s == terminate);
+
+{
+auto transition = ("idle"_s = X); // Postfix Notation
 static_assert(transitional&lt;decltype(transition)&gt;::value);
+}
+
+{
+auto transition = (X &lt;= "idle"_s); // Prefix Notation
+static_assert(transitional&lt;decltype(transition)&gt;::value);
+}
 </code></pre>
 <p><img alt="CPP(BTN)" src="../Run_Transitional_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_transitional.cpp" /></p>
 <p>&nbsp;</p>
@@ -333,8 +341,13 @@ static_assert(dispatchable&lt;runtime_event, event2&gt;::value);
 <pre><code>template&lt;class TState&gt; // no requirements, TState may be a state machine
 class state {
 public:
+  initial operator*() const noexcept; // no requirements
+
   template &lt;class T&gt; // no requirements
-  auto operator==(const T &amp;) const noexcept;
+  auto operator&lt;=(const T &amp;) const noexcept;
+
+  template &lt;class T&gt; // no requirements
+  auto operator=(const T &amp;) const noexcept;
 
   template &lt;class T&gt; // no requirements
   auto operator+(const T &amp;) const noexcept;
@@ -352,8 +365,7 @@ template &lt;class T, T... Chrs&gt;
 state&lt;unspecified&gt; operator""_s() noexcept;
 
 // predefined states
-state&lt;unspecified&gt; terminate;
-state&lt;unspecified&gt; initial;
+state&lt;unspecified&gt; X;
 </code></pre>
 <p><strong><em>Requirements</em></strong></p>
 <ul>
@@ -367,9 +379,9 @@ state&lt;unspecified&gt; initial;
 auto idle = state&lt;class idle&gt;{};
 auto idle = "idle"_s;
 
-auto initial_state = idle(initial);
-
-auto last_state = terminate;
+auto initial_state = *idle;
+auto history_state = idle(H);
+auto terminate_state = X;
 </code></pre>
 <p><img alt="CPP(BTN)" src="../Run_States_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp" />
 <img alt="CPP(BTN)" src="../Run_Composite_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp" />
@@ -431,8 +443,12 @@ auto make_transition_table(Ts...) noexcept;
 <pre><code>make_transition_table(transitions...);
 </code></pre>
 <p><strong><em>Example</em></strong></p>
-<pre><code>auto transition_table = make_transition_table(
-  "idle_s"(initial) == terminate + event&lt;int&gt; / [] {}
+<pre><code>auto transition_table_postfix_notation = make_transition_table(
+  *"idle_s" + event&lt;int&gt; / [] {} = X
+);
+
+auto transition_table_prefix_notation = make_transition_table(
+  X &lt;= *"idle_s" + event&lt;int&gt; / [] {}
 );
 
 class example {
@@ -450,13 +466,14 @@ public:
 <pre><code>#include &lt;boost/msm-lite.hpp&gt;
 </code></pre>
 <p><strong><em>Description</em></strong></p>
-<p>Creates a state machine.</p>
+<p>Creates a State Machine.</p>
 <p><strong><em>Synopsis</em></strong></p>
 <pre><code>template&lt;class T&gt; requires configurable&lt;T&gt;
 class sm {
 public:
-  using states = unspecified;
-  using events = unspecified;
+  using states = unspecified; // unique list of states
+  using events = unspecified; // unique list of events which can be handled by the State Machine
+  using transitions = unspecified; // list of transitions
 
   sm(sm &amp;&amp;) = default;
   sm(const sm &amp;) = delete;
@@ -524,7 +541,7 @@ public:
 <pre><code>msm::sm&lt;T&gt;{...};
 sm.process_event(TEvent{});
 sm.visit_current_states([](auto state){});
-sm.is(terminate);
+sm.is(X);
 sm.is(s1, s2);
 </code></pre>
 <p><strong><em>Example</em></strong></p>
@@ -535,7 +552,7 @@ public:
   auto configure() const noexcept {
   using namespace msm;
     return make_transition_table(
-      "idle"_s(initial) == terminate + event&lt;my_event&gt; / [](int i) { std::cout &lt;&lt; i &lt;&lt; std::endl; }
+      *"idle"_s + event&lt;my_event&gt; / [](int i) { std::cout &lt;&lt; i &lt;&lt; std::endl; } = X
     );
   }
 };
@@ -544,7 +561,7 @@ msm::sm&lt;example&gt; sm{42};
 assert(sm.is("idle"_s));
 assert(!sm.process_event(int{})); // no handled
 assert(sm.process_event(my_event{})); // handled
-assert(sm.is(terminate));
+assert(sm.is(X));
 
 sm.visit_current_states([](auto state) { std::cout &lt;&lt; state.c_str() &lt;&lt; std::endl; });
 </code></pre>
@@ -597,7 +614,7 @@ sm.set_current_states("s1"_s);
 <pre><code>msm::testing::sm&lt;T&gt;{inject_fake_data...};
 sm.set_current_states("s1"_s);
 sm.process_event(TEvent{});
-sm.is(terminate);
+sm.is(X);
 </code></pre>
 <p><img alt="CPP(BTN)" src="../Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp" /></p>
 <p>&nbsp;</p>
