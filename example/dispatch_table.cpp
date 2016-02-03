@@ -26,8 +26,8 @@ struct dispatch_table {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-        "idle"_s(initial) == "s1"_s + event<event1>
-      , "s1"_s == terminate + event<event2>
+       *"idle"_s + event<event1> = "s1"_s
+      , "s1"_s + event<event2> = X
     );
     // clang-format on
   }
@@ -48,5 +48,5 @@ int main() {
     assert(dispatch_event(event, event.id));
   }
 
-  assert(sm.is(msm::terminate));
+  assert(sm.is(msm::X));
 }

@@ -23,10 +23,10 @@ struct events {
 
     // clang-format off
     return make_transition_table(
-        "idle"_s(initial) == "s1"_s + event<e1>
-      , "s1"_s == "s2"_s + event2 [guard]
-      , "s2"_s == "s3"_s + "e3"_t
-      , "s3"_s == terminate + event<int> / [] (int i) { assert(42 == i); }
+       *"idle"_s + event<e1> = "s1"_s
+      , "s1"_s + event2 [guard] = "s2"_s
+      , "s2"_s + "e3"_t = "s3"_s
+      , "s3"_s + event<int> / [] (int i) { assert(42 == i); } = X
     );
     // clang-format on
   }
@@ -39,5 +39,5 @@ int main() {
   assert(sm.process_event(e2{}));
   assert(sm.process_event("e3"_t));
   assert(sm.process_event(42));
-  assert(sm.is(terminate));
+  assert(sm.is(X));
 }

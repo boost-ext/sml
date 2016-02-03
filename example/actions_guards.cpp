@@ -42,11 +42,11 @@ struct actions_guards {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-        "idle"_s(initial) == "s1"_s + event<e1>
-      , "s1"_s == "s2"_s + event<e2> [ guard1 ] / action1
-      , "s2"_s == "s3"_s + event<e3> [ guard1 && ![] { return false;} ] / (action1, action2{})
-      , "s3"_s == "s4"_s + event<e4> [ !guard1 || guard2 ] / (action1, [] { std::cout << "action3" << std::endl; })
-      , "s3"_s == terminate + event<e4> [ guard1 ] / ([] { std::cout << "action4" << std::endl; })
+       *"idle"_s + event<e1> = "s1"_s
+      , "s1"_s + event<e2> [ guard1 ] / action1 = "s2"_s
+      , "s2"_s + event<e3> [ guard1 && ![] { return false;} ] / (action1, action2{}) = "s3"_s
+      , "s3"_s + event<e4> [ !guard1 || guard2 ] / (action1, [] { std::cout << "action3" << std::endl; }) = "s4"_s
+      , "s3"_s + event<e4> [ guard1 ] / ([] { std::cout << "action4" << std::endl; }) = X
     );
     // clang-format on
   }
@@ -58,5 +58,5 @@ int main() {
   assert(sm.process_event(e2{}));
   assert(sm.process_event(e3{}));
   assert(sm.process_event(e4{}));
-  assert(sm.is(msm::terminate));
+  assert(sm.is(msm::X));
 }

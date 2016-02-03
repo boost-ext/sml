@@ -5,7 +5,6 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#define BOOST_MSM_DSL_DST_STATE_FIRST  // dst == src + event [ guard ] / action
 #include "boost/msm-lite.hpp"
 #include <cassert>
 
@@ -49,9 +48,9 @@ class euml_emulation {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-	    s1 		  == idle(initial) + event1,
-	    s2 		  == s1 		   + event2 [ guard ],
-	    terminate == s2 		   + event3 [ guard ] / action
+      s1 <= *idle + event1,
+      s2 <= s1    + event2 [ guard ],
+      X  <= s2    + event3 [ guard ] / action
     );
     // clang-format on
   }
@@ -66,6 +65,6 @@ int main() {
   assert(sm.process_event(e2{}));
   assert(sm.is(s2));
   assert(sm.process_event(e3{}));
-  assert(sm.is(msm::terminate));
+  assert(sm.is(msm::X));
   assert(123 == d.get());
 }

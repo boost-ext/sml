@@ -17,7 +17,7 @@ struct not_transitional {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-        "idle"_s(initial) == terminate + event<e1>
+        *"idle"_s + event<e1> = X
       , im_not_a_transition{} // not transitional
     );
     // clang-format on

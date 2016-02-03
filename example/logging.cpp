@@ -52,7 +52,7 @@ struct logging {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-        "idle"_s(initial) == "s1"_s + event<e1> [ guard && guard ] / action
+       *"idle"_s + event<e1> [ guard && guard ] / action = "s1"_s
     );
     // clang-format on
   }

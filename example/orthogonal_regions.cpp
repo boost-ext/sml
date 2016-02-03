@@ -19,11 +19,11 @@ struct orthogonal_regions {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-      "idle"_s(initial) == "s1"_s + event<e1>
-    , "s1"_s == terminate + event<e2>
+     *"idle"_s + event<e1> = "s1"_s
+    , "s1"_s + event<e2> = X
 
-    , "idle2"_s(initial) == "s2"_s + event<e2>
-    , "s2"_s == terminate + event<e3>
+    ,*"idle2"_s + event<e2> = "s2"_s
+    , "s2"_s + event<e3> = X
     );
     // clang-format on
   }
@@ -36,7 +36,7 @@ int main() {
   assert(sm.process_event(e1{}));
   assert(sm.is("s1"_s, "idle2"_s));
   assert(sm.process_event(e2{}));
-  assert(sm.is(terminate, "s2"_s));
+  assert(sm.is(X, "s2"_s));
   assert(sm.process_event(e3{}));
-  assert(sm.is(terminate, terminate));
+  assert(sm.is(X, X));
 }

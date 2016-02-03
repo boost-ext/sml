@@ -35,7 +35,6 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 | ----------------------------------------|------------ |
 | `BOOST_MSM_VERSION`                     | Current version of Boost.MSM-lite (ex. 1'0'0) |
 | [`BOOST_MSM_LOG`](user_guide.md#boost_msm_log-debugging) | Enables logging system  (see [Logging](examples.md#logging)) |
-| `BOOST_MSM_DSL_DST_STATE_FIRST`      | dst\_state == src\_state (see [eUML emulation](examples.md#euml-emulation)) |
 
 ###Performance
 

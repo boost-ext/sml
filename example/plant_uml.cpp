@@ -31,10 +31,10 @@ struct plant_uml {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-        "idle"_s(initial) == "s1"_s + event<e1>
-      , "s1"_s == "s2"_s + event<e2> [ guard ] / action
-      , "s2"_s == "s1"_s + event<e3> [ guard ]
-      , "s2"_s == terminate + event<e4> / action
+       *"idle"_s + event<e1> = "s1"_s
+      , "s1"_s + event<e2> [ guard ] / action = "s2"_s
+      , "s2"_s + event<e3> [ guard ] = "s1"_s
+      , "s2"_s + event<e4> / action = X
     );
     // clang-format on
   }
@@ -42,9 +42,9 @@ struct plant_uml {
 
 template <class T>
 void dump_transition() noexcept {
-  auto src_state = msm::state<typename T::src_state>::c_str();
+  auto src_state = std::string{msm::state<typename T::src_state>::c_str()};
   auto dst_state = std::string{msm::state<typename T::dst_state>::c_str()};
-  if (dst_state == "terminate") {
+  if (dst_state == "X") {
     dst_state = "[*]";
   }
 

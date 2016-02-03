@@ -27,9 +27,9 @@ struct hello_world {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-        "idle"_s(initial) == "s1"_s + event<e1>
-      , "s1"_s == "s2"_s + event<e2> [ guard ] / action
-      , "s2"_s == terminate + event<e3> / [] { std::cout << "in place action" << std::endl; }
+       *"idle"_s + event<e1> = "s1"_s
+      , "s1"_s + event<e2> [ guard ] / action = "s2"_s
+      , "s2"_s + event<e3> / [] { std::cout << "in place action" << std::endl; } = X
     );
     // clang-format on
   }
@@ -44,5 +44,5 @@ int main() {
   assert(sm.process_event(e2{}));
   assert(sm.is("s2"_s));
   assert(sm.process_event(e3{}));
-  assert(sm.is(terminate));
+  assert(sm.is(X));
 }

@@ -23,11 +23,11 @@ struct states {
 
     // clang-format off
     return make_transition_table(
-        idle(initial) == "s1"_s + event<e1>
-	  , "s1"_s + msm::on_entry / [] { std::cout << "s1 on entry" << std::endl; }
-	  , "s1"_s + msm::on_exit / [] { std::cout << "s1 on exit" << std::endl; }
-      , "s1"_s == s2 + event<e2>
-      , s2 == terminate + event<e3>
+       *idle + event<e1> = "s1"_s
+	    , "s1"_s + msm::on_entry / [] { std::cout << "s1 on entry" << std::endl; }
+	    , "s1"_s + msm::on_exit / [] { std::cout << "s1 on exit" << std::endl; }
+      , "s1"_s + event<e2> = s2
+      , s2 + event<e3> = X
     );
     // clang-format on
   }
@@ -38,5 +38,5 @@ int main() {
   assert(sm.process_event(e1{}));
   assert(sm.process_event(e2{}));
   assert(sm.process_event(e3{}));
-  assert(sm.is(msm::terminate));
+  assert(sm.is(msm::X));
 }

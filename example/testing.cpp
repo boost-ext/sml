@@ -27,9 +27,9 @@ struct fsm {
 
     // clang-format off
     return make_transition_table(
-        "idle"_s(initial) == "s1"_s + event<e1>
-      , "s1"_s == "s2"_s + event<e2>
-      , "s2"_s == terminate + event<e3> [guard] / action // transition under test
+       *"idle"_s + event<e1> = "s1"_s
+      , "s1"_s + event<e2> = "s2"_s
+      , "s2"_s + event<e3> [guard] / action = X // transition under test
     );
     // clang-format on
   }
@@ -41,6 +41,6 @@ int main() {
   testing::sm<fsm> sm{fake_data};
   sm.set_current_states("s2"_s);
   assert(sm.process_event(e3{}));
-  assert(sm.is(terminate));
-  assert(fake_data.value == 42);
+  assert(sm.is(X));
+  assert(fake_data.value = 42);
 }

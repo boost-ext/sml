@@ -23,8 +23,8 @@ struct sub {
     using namespace msm;
     // clang-format off
       return make_transition_table(
-        "idle"_s(initial) == "s1"_s + event<e3> / [] { std::cout << "in sub sm" << std::endl; }
-      , "s1"_s == terminate + event<e4> / [] { std::cout << "finish sub sm" << std::endl; }
+       *"idle"_s + event<e3> / [] { std::cout << "in sub sm" << std::endl; } = "s1"_s
+      , "s1"_s + event<e4> / [] { std::cout << "finish sub sm" << std::endl; } = X
       );
     // clang-format on
   }
@@ -38,9 +38,9 @@ struct composite {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-      "idle"_s(initial) == "s1"_s + event<e1>
-    , "s1"_s == sub_state + event<e2> / [] { std::cout << "enter sub sm" << std::endl; }
-    , sub_state == terminate + event<e5> / [] { std::cout << "exit sub sm" << std::endl; }
+     *"idle"_s + event<e1> = "s1"_s
+    , "s1"_s + event<e2> / [] { std::cout << "enter sub sm" << std::endl; } = sub_state
+    , sub_state + event<e5> / [] { std::cout << "exit sub sm" << std::endl; } = X
     );
     // clang-format on
   }
@@ -70,9 +70,9 @@ int main() {
 
   assert(sm.process_event(e4{}));  // finish sub sm
   assert(sm.is(sub_state));
-  assert(sub_sm.is(terminate));
+  assert(sub_sm.is(X));
 
   assert(sm.process_event(e5{}));  // exit sub sm
-  assert(sm.is(terminate));
-  assert(sub_sm.is(terminate));
+  assert(sm.is(X));
+  assert(sub_sm.is(X));
 }

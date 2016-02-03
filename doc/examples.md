@@ -31,9 +31,6 @@
 ###Runtime Dispatcher
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp)
 
-###UML Notation
-![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/uml_notation.cpp)
-
 ###eUML Emulation
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp)
 

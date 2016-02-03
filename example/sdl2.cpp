@@ -57,16 +57,16 @@ struct sdl2 {
     // clang-format off
     return make_transition_table(
       //------------------------------------------------------------------------------//
-        "idle"_s(initial) == "wait_for_user_input"_s
+        "wait_for_user_input"_s <= *"idle"_s
           / [] { std::cout << "initialization" << std::endl; }
 
-      , "wait_for_user_input"_s == "key_pressed"_s + sdl_event<SDL_KEYUP> [ is_key(SDLK_SPACE) ]
+      , "key_pressed"_s <= "wait_for_user_input"_s + sdl_event<SDL_KEYUP> [ is_key(SDLK_SPACE) ]
           / [] { std::cout << "space pressed" << std::endl; }
 
-      , "key_pressed"_s == terminate + sdl_event<SDL_MOUSEBUTTONUP>
+      , X <= "key_pressed"_s + sdl_event<SDL_MOUSEBUTTONUP>
           / [] { std::cout << "mouse button pressed" << std::endl; }
       //------------------------------------------------------------------------------//
-      , "waiting_for_quit"_s(initial) == terminate + sdl_event<SDL_QUIT>
+      , X <= *"waiting_for_quit"_s + sdl_event<SDL_QUIT>
           / [] { std::cout << "quit" << std::endl; }
       //------------------------------------------------------------------------------//
     );
@@ -107,5 +107,5 @@ int main() {
     assert(dispatch_event(event, event.type));
   }
 
-  assert(sm.is(msm::terminate, msm::terminate));
+  assert(sm.is(msm::X, msm::X));
 }

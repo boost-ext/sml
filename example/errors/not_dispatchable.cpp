@@ -17,7 +17,7 @@ struct not_dispatchable {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-        "idle"_s(initial) == terminate + event<e1>
+        *"idle"_s + event<e1> = X
     );
     // clang-format on
   }

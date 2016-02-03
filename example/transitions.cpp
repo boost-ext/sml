@@ -20,10 +20,10 @@ struct transitions {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-        "idle"_s(initial) == "s1"_s  / [] { std::cout << "anonymous transition" << std::endl; }
+       *"idle"_s  / [] { std::cout << "anonymous transition" << std::endl; } = "s1"_s
       , "s1"_s + event<e1> / [] { std::cout << "internal transition" << std::endl; }
-      , "s1"_s == "s2"_s + event<e2> / ([] { std::cout << "process internal event" << std::endl; }, process_event(e3{}))
-      , "s2"_s == terminate + event<e3>
+      , "s1"_s + event<e2> / ([] { std::cout << "process internal event" << std::endl; }, process_event(e3{})) = "s2"_s
+      , "s2"_s + event<e3> = X
     );
     // clang-format on
   }
@@ -33,5 +33,5 @@ int main() {
   msm::sm<transitions> sm;
   assert(sm.process_event(e1{}));
   assert(sm.process_event(e2{}));
-  assert(sm.is(msm::terminate));
+  assert(sm.is(msm::X));
 }

@@ -37,9 +37,9 @@ struct example {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-        "idle"_s(initial) == "s1"_s + event<e1>
-      , "s1"_s == "s2"_s + event<e2> [ guard ] / action
-      , "s2"_s == terminate + event<e3> / [] { std::cout << "in place action" << std::endl; }
+       *"idle"_s + event<e1> = "s1"_s
+      , "s1"_s + event<e2> [ guard ] / action = "s2"_s
+      , "s2"_s + event<e3> / [] { std::cout << "in place action" << std::endl; } = X
     );
     // clang-format on
   }
@@ -55,7 +55,7 @@ class controller {
     assert(sm.process_event(e1{}));
     assert(sm.process_event(e2{}));
     assert(sm.process_event(e3{}));
-    assert(sm.is(msm::terminate));
+    assert(sm.is(msm::X));
   }
 
  private:

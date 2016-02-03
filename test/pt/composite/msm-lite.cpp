@@ -40,10 +40,10 @@ struct playing {
 
     // clang-format off
     return make_transition_table(
-      Song1(initial) == Song2 + event<NextSong> / start_next_song,
-      Song2 == Song1 + event<PreviousSong> / start_prev_song,
-      Song2 == Song3 + event<NextSong> / start_next_song,
-      Song3 == Song2 + event<PreviousSong> / start_prev_song
+      Song2 <= *Song1 + event<NextSong> / start_next_song,
+      Song1 <= Song2 + event<PreviousSong> / start_prev_song,
+      Song3 <= Song2 + event<NextSong> / start_next_song,
+      Song2 <= Song3 + event<PreviousSong> / start_prev_song
     );
     // clang-format on
   }
@@ -60,18 +60,18 @@ struct player {
 
     // clang-format off
     return make_transition_table(
-      Stopped == Playing + event<play> / start_playback,
-      Stopped == Open + event<open_close> / open_drawer,
-      Stopped == Stopped + event<stop> / stopped_again,
-      Open == Empty + event<open_close> / close_drawer,
-      Empty(initial) == Open + event<open_close> / open_drawer,
-      Empty == Stopped + event<cd_detected> / store_cd_info,
-      Playing == Stopped + event<stop> / stop_playback,
-      Playing == Paused + event<pause> / pause_playback,
-      Playing == Open + event<open_close> / stop_and_open,
-      Paused == Playing + event<end_pause> / resume_playback,
-      Paused == Stopped + event<stop> / stop_playback,
-      Paused == Open + event<open_close> / stop_and_open
+      Playing <= Stopped + event<play> / start_playback,
+      Open <= Stopped + event<open_close> / open_drawer,
+      Stopped <= Stopped + event<stop> / stopped_again,
+      Empty <= Open + event<open_close> / close_drawer,
+      Open <= *Empty + event<open_close> / open_drawer,
+      Stopped <= Empty + event<cd_detected> / store_cd_info,
+      Stopped <= Playing + event<stop> / stop_playback,
+      Paused <= Playing + event<pause> / pause_playback,
+      Open <= Playing + event<open_close> / stop_and_open,
+      Playing <= Paused + event<end_pause> / resume_playback,
+      Stopped <= Paused + event<stop> / stop_playback,
+      Open <= Paused + event<open_close> / stop_and_open
     );
     // clang-format on
   }

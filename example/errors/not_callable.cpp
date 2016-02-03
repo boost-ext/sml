@@ -18,7 +18,7 @@ struct not_callable {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-        "idle"_s(initial) == terminate + event<e1> / im_not_callable{} // not callable
+        *"idle"_s + event<e1> / im_not_callable{} = X // not callable
     );
     // clang-format on
   }

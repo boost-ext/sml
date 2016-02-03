@@ -14,13 +14,6 @@
 #else
 #define BOOST_MSM_LOG_ENABLED
 #endif
-#if defined(BOOST_MSM_DSL_DST_STATE_FIRST)
-#define BOOST_MSM_DSL_SRC_STATE(s1, s2) s2
-#define BOOST_MSM_DSL_DST_STATE(s1, s2) s1
-#else
-#define BOOST_MSM_DSL_SRC_STATE(s1, s2) s1
-#define BOOST_MSM_DSL_DST_STATE(s1, s2) s2
-#endif
 #if !defined(__has_builtin)
 #define __has_builtin(...) 0
 #endif
@@ -433,20 +426,17 @@ struct state_str<state<aux::string<Chrs...>(T)>> : state_str<state<aux::string<C
 template <class TState>
 struct state_impl : state_str<TState> {
   template <class T>
-  auto operator==(const T &t) const noexcept {
+  auto operator<=(const T &t) const noexcept {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
-
   template <class T>
   auto operator+(const T &t) const noexcept {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
-
   template <class T, BOOST_MSM_REQUIRES(concepts::callable<bool, T>::value)>
   auto operator[](const T &t) const noexcept {
     return transition_sg<TState, T>{static_cast<const TState &>(*this), t};
   }
-
   template <class T, BOOST_MSM_REQUIRES(concepts::callable<void, T>::value)>
   auto operator/(const T &t) const noexcept {
     return transition_sa<TState, T>{static_cast<const TState &>(*this), t};
@@ -460,18 +450,30 @@ struct state : state_impl<state<TState>> {
   auto operator*() const noexcept { return state<TState(initial_state)>{}; }
   auto operator()(const initial_state &) const noexcept { return state<TState(initial_state)>{}; }
   auto operator()(const history_state &) const noexcept { return state<TState(history_state)>{}; }
+  template <class T>
+  auto operator=(const T &t) const noexcept {
+    return transition<T, state>{t, *this};
+  }
 };
 template <class TState>
 struct state<TState(initial_state)> : state_impl<state<TState(initial_state)>> {
   using type = TState;
   static constexpr auto initial = true;
   static constexpr auto history = false;
+  template <class T>
+  auto operator=(const T &t) const noexcept {
+    return transition<T, state>{t, *this};
+  }
 };
 template <class TState>
 struct state<TState(history_state)> : state_impl<state<TState(history_state)>> {
   using type = TState;
   static constexpr auto initial = true;
   static constexpr auto history = true;
+  template <class T>
+  auto operator=(const T &t) const noexcept {
+    return transition<T, state>{t, *this};
+  }
 };
 template <class, class>
 aux::type_list<> args_impl__(...);
@@ -648,7 +650,13 @@ struct transition<event<E>, G, A> {
 };
 template <class S2, class G, class A>
 struct transition<state<S2>, G, A> : transition<state<S2>, state<S2>, event<anonymous>, G, A> {
+  using transition<state<S2>, state<S2>, event<anonymous>, G, A>::g;
+  using transition<state<S2>, state<S2>, event<anonymous>, G, A>::a;
   transition(const G &g, const A &a) : transition<state<S2>, state<S2>, event<anonymous>, G, A>{g, a} {}
+  template <class T>
+  auto operator=(const T &) const noexcept {
+    return transition<T, state<S2>, event<anonymous>, G, A>{g, a};
+  }
 };
 template <class S1, class S2>
 struct transition<state<S1>, state<S2>> : transition<state<S1>, state<S2>, event<anonymous>, always, none> {
@@ -657,22 +665,32 @@ struct transition<state<S1>, state<S2>> : transition<state<S1>, state<S2>, event
 };
 template <class S2, class G>
 struct transition_sg<state<S2>, G> : transition<state<S2>, state<S2>, event<anonymous>, G, none> {
-  using transition_t = transition<state<S2>, state<S2>, event<anonymous>, G, none>;
-  using transition_t::g;
-
+  using transition<state<S2>, state<S2>, event<anonymous>, G, none>::g;
   transition_sg(const state<S2> &, const G &g) : transition<state<S2>, state<S2>, event<anonymous>, G, none>{g, none{}} {}
-
   template <class T>
   auto operator/(const T &t) const noexcept {
     return transition<state<S2>, G, T>{g, t};
   }
+  template <class T>
+  auto operator=(const T &) const noexcept {
+    return transition<T, state<S2>, event<anonymous>, G, none>{g, none{}};
+  }
 };
 template <class S2, class A>
 struct transition_sa<state<S2>, A> : transition<state<S2>, state<S2>, event<anonymous>, always, A> {
+  using transition<state<S2>, state<S2>, event<anonymous>, always, A>::a;
   transition_sa(const state<S2> &, const A &a) : transition<state<S2>, state<S2>, event<anonymous>, always, A>{always{}, a} {}
+  template <class T>
+  auto operator=(const T &) const noexcept {
+    return transition<T, state<S2>, event<anonymous>, always, A>{always{}, a};
+  }
 };
 template <class S2, class E>
 struct transition<state<S2>, event<E>> {
+  template <class T>
+  auto operator=(const T &) const noexcept {
+    return transition<T, state<S2>, event<E>, always, none>{always{}, none{}};
+  }
   const state<S2> &s2;
   event<E> e;
 };
@@ -697,8 +715,14 @@ struct transition<state<S1>, transition<state<S2>, G, A>> : transition<state<S1>
 };
 template <class S1, class E, class G, class A>
 struct transition<state<S1>, transition<event<E>, G, A>> : transition<state<S1>, state<S1>, event<E>, G, A> {
+  using transition<state<S1>, state<S1>, event<E>, G, A>::g;
+  using transition<state<S1>, state<S1>, event<E>, G, A>::a;
   transition(const state<S1> &, const transition<event<E>, G, A> &t)
       : transition<state<S1>, state<S1>, event<E>, G, A>{t.g, t.a} {}
+  template <class T>
+  auto operator=(const T &) const noexcept {
+    return transition<T, state<S1>, event<E>, G, A>{g, a};
+  }
 };
 template <class S1, class S2, class E>
 struct transition<state<S1>, transition<state<S2>, event<E>>> : transition<state<S1>, state<S2>, event<E>, always, none> {
@@ -717,8 +741,13 @@ struct transition<state<S1>, transition_sa<state<S2>, A>> : transition<state<S1>
 };
 template <class S2, class E, class G>
 struct transition<state<S2>, transition_eg<event<E>, G>> : transition<state<S2>, state<S2>, event<E>, G, none> {
+  using transition<state<S2>, state<S2>, event<E>, G, none>::g;
   transition(const state<S2> &, const transition_eg<event<E>, G> &t)
       : transition<state<S2>, state<S2>, event<E>, G, none>{t.g, none{}} {}
+  template <class T>
+  auto operator=(const T &) const noexcept {
+    return transition<T, state<S2>, event<E>, G, none>{g, none{}};
+  }
 };
 template <class S1, class S2, class E, class G>
 struct transition<state<S1>, transition<state<S2>, transition_eg<event<E>, G>>>
@@ -728,8 +757,13 @@ struct transition<state<S1>, transition<state<S2>, transition_eg<event<E>, G>>>
 };
 template <class S2, class E, class A>
 struct transition<state<S2>, transition_ea<event<E>, A>> : transition<state<S2>, state<S2>, event<E>, always, A> {
+  using transition<state<S2>, state<S2>, event<E>, always, A>::a;
   transition(const state<S2> &, const transition_ea<event<E>, A> &t)
       : transition<state<S2>, state<S2>, event<E>, always, A>{always{}, t.a} {}
+  template <class T>
+  auto operator=(const T &) const noexcept {
+    return transition<T, state<S2>, event<E>, always, A>{always{}, a};
+  }
 };
 template <class S1, class S2, class E, class A>
 struct transition<state<S1>, transition<state<S2>, transition_ea<event<E>, A>>>
@@ -745,10 +779,10 @@ struct transition<state<S1>, transition<state<S2>, transition<event<E>, G, A>>>
 };
 template <class S1, class S2, class E, class G, class A>
 struct transition<state<S1>, state<S2>, event<E>, G, A> {
-  static constexpr auto initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::initial;
-  static constexpr auto history = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::history;
-  using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
-  using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
+  static constexpr auto initial = state<S2>::initial;
+  static constexpr auto history = state<S2>::history;
+  using src_state = typename state<S2>::type;
+  using dst_state = typename state<S1>::type;
   using event = E;
   using guard = G;
   using action = A;
@@ -772,10 +806,10 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> {
 };
 template <class S1, class S2, class E, class A>
 struct transition<state<S1>, state<S2>, event<E>, always, A> {
-  static constexpr auto initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::initial;
-  static constexpr auto history = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::history;
-  using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
-  using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
+  static constexpr auto initial = state<S2>::initial;
+  static constexpr auto history = state<S2>::history;
+  using src_state = typename state<S2>::type;
+  using dst_state = typename state<S1>::type;
   using event = E;
   using guard = always;
   using action = A;
@@ -795,10 +829,10 @@ struct transition<state<S1>, state<S2>, event<E>, always, A> {
 };
 template <class S1, class S2, class E, class G>
 struct transition<state<S1>, state<S2>, event<E>, G, none> {
-  static constexpr auto initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::initial;
-  static constexpr auto history = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::history;
-  using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
-  using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
+  static constexpr auto initial = state<S2>::initial;
+  static constexpr auto history = state<S2>::history;
+  using src_state = typename state<S2>::type;
+  using dst_state = typename state<S1>::type;
   using event = E;
   using guard = G;
   using action = none;
@@ -820,10 +854,10 @@ struct transition<state<S1>, state<S2>, event<E>, G, none> {
 };
 template <class S1, class S2, class E>
 struct transition<state<S1>, state<S2>, event<E>, always, none> {
-  static constexpr auto initial = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::initial;
-  static constexpr auto history = state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::history;
-  using src_state = typename state<BOOST_MSM_DSL_SRC_STATE(S1, S2)>::type;
-  using dst_state = typename state<BOOST_MSM_DSL_DST_STATE(S1, S2)>::type;
+  static constexpr auto initial = state<S2>::initial;
+  static constexpr auto history = state<S2>::history;
+  using src_state = typename state<S2>::type;
+  using dst_state = typename state<S1>::type;
   using event = E;
   using guard = always;
   using action = none;
@@ -1273,11 +1307,8 @@ auto operator""_t() noexcept {
   return event<aux::string<Chrs...>>;
 }
 #endif
-detail::initial_state initial;
-detail::state<detail::terminate_state> terminate;
-const auto &X = terminate;
-detail::history_state history;
-const auto &H = history;
+detail::state<detail::terminate_state> X;
+detail::history_state H;
 detail::process_event process_event;
 template <class... Ts, BOOST_MSM_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
                                                        aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
