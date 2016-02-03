@@ -85,7 +85,7 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 | Clang-3.7        | Boost.MSM-lite |  Boost.MSM-eUML | Boost.Statechart |
 |------------------|----------------|-----------------|------------------|
 | Compilation time | 0.765s         | 1m15.935s       | 3.661s           |
-| Execution time   | 70ms           | 81ms            | 6221ms           |
+| Execution time   | 69ms           | 81ms            | 6221ms           |
 | Memory usage     | 102b           | 120b            | 200b             |
 | Executable size  | 35K            | 611K            | 343K             |
 
