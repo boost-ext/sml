@@ -529,7 +529,7 @@ assert(sm.is(X));
 <hr />
 <h3 id="9-debugging-a-state-machine">9. Debugging a state machine</h3>
 <p><code>msm-lite</code> provides logging capabilities in order to inspect state machine flow.
-To enable logging you have to define <code>BOOST_MSM_LOG</code>.</p>
+To enable logging you have to define <code>BOOST_MSM_LITE_LOG</code>.</p>
 <pre><code class="cpp">template &lt;class SM, class TEvent&gt;
 void log_process_event(const TEvent&amp;) {
   printf(&quot;[%s][process_event] %s\n&quot;, typeid(SM).name(), typeid(TEvent).name());
@@ -551,7 +551,7 @@ void log_state_change(const TSrcState&amp; src, const TDstState&amp; dst) {
   printf(&quot;[%s][transition] %s -&gt; %s\n&quot;, typeid(SM).name(), src.c_str(), dst.c_str());
 }
 
-#define BOOST_MSM_LOG(T, SM, ...) log_##T&lt;SM&gt;(__VA_ARGS__)
+#define BOOST_MSM_LITE_LOG(T, SM, ...) log_##T&lt;SM&gt;(__VA_ARGS__)
 #include &lt;boost/msm-lite.hpp&gt;
 </code></pre>
 
