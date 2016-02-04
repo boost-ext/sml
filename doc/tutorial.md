@@ -271,7 +271,7 @@ msm::sm<exmple> s{87.0, 42}; // order in which parameters have to passed is not 
 
 Passing and maintaining a lot of dependencies might be tedious and requires huge amount of boilerplate code.
 In order to avoid it, Dependency Injection Library might be used to automate this process.
-For example, we can use [experimental Boost.DI](https://github.com/boost-experimental/di).
+For example, we can use [Experimental Boost.DI](https://github.com/boost-experimental/di).
 
 ```cpp
 auto injector = di::make_injector(
@@ -307,7 +307,7 @@ Process event might be also triggered on transition table.
 ```
 using namespace msm;
 return make_transition_table(
- *"s1"_s + event<my_event>  / process_event(other_event{}) = "s2"_s,
+ *"s1"_s + event<my_event> / process_event(other_event{}) = "s2"_s,
   "s2"_s + event<other_event> = X
 );
 ```
