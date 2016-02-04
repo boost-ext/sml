@@ -455,7 +455,7 @@ msm::sm&lt;exmple&gt; s{87.0, 42}; // order in which parameters have to passed i
 
 <p>Passing and maintaining a lot of dependencies might be tedious and requires huge amount of boilerplate code.
 In order to avoid it, Dependency Injection Library might be used to automate this process.
-For example, we can use <a href="https://github.com/boost-experimental/di">experimental Boost.DI</a>.</p>
+For example, we can use <a href="https://github.com/boost-experimental/di">Experimental Boost.DI</a>.</p>
 <pre><code class="cpp">auto injector = di::make_injector(
     di::bind&lt;&gt;.to(42)
   , di::bind&lt;interface&gt;.to&lt;implementation&gt;()
@@ -481,7 +481,7 @@ assert(!sm.process_event(int{})); // not handled by the state machine
 <p>Process event might be also triggered on transition table.</p>
 <pre><code>using namespace msm;
 return make_transition_table(
- *&quot;s1&quot;_s + event&lt;my_event&gt;  / process_event(other_event{}) = &quot;s2&quot;_s,
+ *&quot;s1&quot;_s + event&lt;my_event&gt; / process_event(other_event{}) = &quot;s2&quot;_s,
   &quot;s2&quot;_s + event&lt;other_event&gt; = X
 );
 </code></pre>
