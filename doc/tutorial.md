@@ -369,7 +369,7 @@ assert(sm.is(X));
 ###9. Debugging a state machine
 
 `msm-lite` provides logging capabilities in order to inspect state machine flow.
-To enable logging you have to define `BOOST_MSM_LOG`.
+To enable logging you have to define `BOOST_MSM_LITE_LOG`.
 
 ```cpp
 template <class SM, class TEvent>
@@ -393,7 +393,7 @@ void log_state_change(const TSrcState& src, const TDstState& dst) {
   printf("[%s][transition] %s -> %s\n", typeid(SM).name(), src.c_str(), dst.c_str());
 }
 
-#define BOOST_MSM_LOG(T, SM, ...) log_##T<SM>(__VA_ARGS__)
+#define BOOST_MSM_LITE_LOG(T, SM, ...) log_##T<SM>(__VA_ARGS__)
 #include <boost/msm-lite.hpp>
 ```
 

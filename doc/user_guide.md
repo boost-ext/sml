@@ -503,7 +503,7 @@ Creates a dispatch table to handle runtime events.
 
 ---
 
-###BOOST_MSM_LOG [debugging]
+###BOOST_MSM_LITE_LOG [debugging]
 
 ***Header***
 
@@ -515,7 +515,7 @@ Add logging support for the state machine.
 
 ***Synopsis***
 
-    #define BOOST_MSM_LOG(T, SM, ...)
+    #define BOOST_MSM_LITE_LOG(T, SM, ...)
 
 | Expression | Requirement | Description | Returns |
 | ---------- | ----------- | ----------- | ------- |
@@ -528,14 +528,14 @@ Add logging support for the state machine.
 
 ***Semantics***
 
-    BOOST_MSM_LOG(state_change, sm<example>, current_state, new_state)
+    BOOST_MSM_LITE_LOG(state_change, sm<example>, current_state, new_state)
 
 ***Example***
 
     void log(const char* operation, ...) noexcept {
         printf("[%s]\n", operation);
     }
-    #define BOOST_MSM_LOG(T, ...) log(#T)
+    #define BOOST_MSM_LITE_LOG(T, ...) log(#T)
     #include "boost/msm-lite.hpp"
 
     msm::sm<example> sm;

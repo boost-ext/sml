@@ -29,7 +29,7 @@ void log_state_change(const TSrcState& src, const TDstState& dst) {
   printf("[%s][transition] %s -> %s\n", typeid(SM).name(), src.c_str(), dst.c_str());
 }
 
-#define BOOST_MSM_LOG(T, SM, ...) log_##T<SM>(__VA_ARGS__)
+#define BOOST_MSM_LITE_LOG(T, SM, ...) log_##T<SM>(__VA_ARGS__)
 #include "boost/msm-lite.hpp"
 #include <cassert>
 #include <iostream>

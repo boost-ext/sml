@@ -31,10 +31,10 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 * [GCC-5.2+](https://travis-ci.org/boost-experimental/msm-lite)
 
 ###Configuration
-| Macro                                                    | Description                                                  |
-| ---------------------------------------------------------|--------------------------------------------------------------|
-| `BOOST_MSM_VERSION`                                      | Current version of Boost.MSM-lite (ex. 1'0'0)                |
-| [`BOOST_MSM_LOG`](user_guide.md#boost_msm_log-debugging) | Enables logging system  (see [Logging](examples.md#logging)) |
+| Macro                                                         | Description                                                  |
+| --------------------------------------------------------------|--------------------------------------------------------------|
+| `BOOST_MSM_LITE_VERSION`                                      | Current version of Boost.MSM-lite (ex. 1'0'0)                |
+| [`BOOST_MSM_LITE_LOG`](user_guide.md#boost_msm_log-debugging) | Enables logging system  (see [Logging](examples.md#logging)) |
 
 ###Performance
 
