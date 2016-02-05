@@ -126,32 +126,32 @@ BOOST_MSM_EUML_DECLARE_STATE_MACHINE((transition_table,                         
 typedef msm::back::state_machine<player_> player;
 
 int main() {
-  player p2;
-  p2.start();
+  player sm;
+  sm.start();
 
   benchmark_execution_speed([&] {
     for (auto i = 0; i < 1'000; ++i) {
-      p2.process_event(open_close);
-      p2.process_event(open_close);
-      p2.process_event(cd_detected);
-      p2.process_event(play);
+      sm.process_event(open_close);
+      sm.process_event(open_close);
+      sm.process_event(cd_detected);
+      sm.process_event(play);
       for (auto j = 0; j < 1'000; ++j) {
-        p2.process_event(next_song);
-        p2.process_event(next_song);
-        p2.process_event(previous_song);
-        p2.process_event(previous_song);
+        sm.process_event(next_song);
+        sm.process_event(next_song);
+        sm.process_event(previous_song);
+        sm.process_event(previous_song);
       }
 
-      p2.process_event(pause_);
+      sm.process_event(pause_);
       // go back to Playing
-      p2.process_event(end_pause);
-      p2.process_event(pause_);
-      p2.process_event(stop);
+      sm.process_event(end_pause);
+      sm.process_event(pause_);
+      sm.process_event(stop);
       // event leading to the same state
-      p2.process_event(stop);
-      p2.process_event(open_close);
-      p2.process_event(open_close);
+      sm.process_event(stop);
+      sm.process_event(open_close);
+      sm.process_event(open_close);
     }
   });
-  benchmark_memory_usage(p2);
+  benchmark_memory_usage(sm);
 }

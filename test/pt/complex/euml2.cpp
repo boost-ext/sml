@@ -25,6 +25,8 @@ struct base_state {
 };
 
 struct player_ : msm::front::state_machine_def<player_, base_state> {
+  using no_exception_thrown = int;
+  using no_message_queue = int;
   using initial_state = BOOST_MSM_EUML2_STATE("idle", player_);
 
   // clang-format off

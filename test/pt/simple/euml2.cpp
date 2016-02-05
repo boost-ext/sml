@@ -24,24 +24,26 @@ struct base_state {
 };
 
 struct player_ : public msm::front::state_machine_def<player_, base_state> {
+  using no_exception_thrown = int;
+  using no_message_queue = int;
   using initial_state = BOOST_MSM_EUML2_STATE("Empty", player_);
 
   // clang-format off
   EUML2_STT(
-      player_,
-      EUML2_STT_CFG(),
-      EUML2_ROW("Stopped + play / start_playback        -> Playing"),
-      EUML2_ROW("Pause   + end_pause / resume_playback  -> Playing"),
-      EUML2_ROW("Open    + open_close / close_drawer    -> Empty"),
-      EUML2_ROW("Empty   + open_close / open_drawer     -> Open"),
-      EUML2_ROW("Pause   + open_close / stop_and_open   -> Open"),
-      EUML2_ROW("Stopped + open_close / open_drawer     -> Open"),
-      EUML2_ROW("Playing + open_close / stop_and_open   -> Open"),
-      EUML2_ROW("Playing + pause / pause_playback       -> Pause"),
-      EUML2_ROW("Playing + stop / stop_playback         -> Stopped"),
-      EUML2_ROW("Pause   + stop / stop_playback         -> Stopped"),
-      EUML2_ROW("Empty   + cd_detected / store_cd_info  -> Stopped"),
-      EUML2_ROW("Stopped + stop / stopped_again         -> Stopped")
+    player_,
+    EUML2_STT_CFG(),
+    EUML2_ROW("Stopped + play / start_playback        -> Playing"),
+    EUML2_ROW("Pause   + end_pause / resume_playback  -> Playing"),
+    EUML2_ROW("Open    + open_close / close_drawer    -> Empty"),
+    EUML2_ROW("Empty   + open_close / open_drawer     -> Open"),
+    EUML2_ROW("Pause   + open_close / stop_and_open   -> Open"),
+    EUML2_ROW("Stopped + open_close / open_drawer     -> Open"),
+    EUML2_ROW("Playing + open_close / stop_and_open   -> Open"),
+    EUML2_ROW("Playing + pause / pause_playback       -> Pause"),
+    EUML2_ROW("Playing + stop / stop_playback         -> Stopped"),
+    EUML2_ROW("Pause   + stop / stop_playback         -> Stopped"),
+    EUML2_ROW("Empty   + cd_detected / store_cd_info  -> Stopped"),
+    EUML2_ROW("Stopped + stop / stopped_again         -> Stopped")
   )
   // clang-format on
 };
