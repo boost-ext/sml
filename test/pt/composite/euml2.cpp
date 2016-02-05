@@ -38,6 +38,9 @@ struct playing_ : msm::front::state_machine_def<playing_, base_state> {
       EUML2_ROW("Song3 + previous_song / start_prev_song -> Song2")
   )
   // clang-format on
+
+  template <class FSM, class Event>
+  void no_transition(Event const&, FSM&, int) {}
 };
 
 typedef msm::back::state_machine<playing_> Playing;
@@ -56,6 +59,9 @@ struct player_ : msm::front::state_machine_def<player_, base_state> {
             EUML2_ROW("Pause + stop / stop_playback -> Stopped"), EUML2_ROW("Empty + cd_detected / store_cd_info -> Stopped"),
             EUML2_ROW("Stopped + stop / stopped_again -> Stopped"))
   // clang format-on
+
+  template <class FSM, class Event>
+  void no_transition(Event const&, FSM&, int) {}
 };
 
 typedef msm::back::state_machine<player_> player;

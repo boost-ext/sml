@@ -85,6 +85,9 @@ struct player_ : msm::front::state_machine_def<player_, base_state> {
       EUML2_ROW("s49  + e50 [ guard ] / action -> idle")
   )
   // clang-format on
+
+  template <class FSM, class Event>
+  void no_transition(Event const&, FSM&, int) {}
 };
 
 typedef msm::back::state_machine<player_> player;
