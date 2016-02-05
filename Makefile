@@ -19,9 +19,9 @@ all: test example pt
 pt: pt_header pt_simple pt_composite pt_complex
 
 pt_%:
-	#time $(CXX) test/pt/$*/msm-lite.cpp -O2 -s -I include -I test/pt -std=c++1y && ./a.out && ls -lh a.out
-	#time $(CXX) test/pt/$*/sc.cpp -ftemplate-depth=1024 -O2 -s -I include -I test/pt -std=c++1y && ./a.out && ls -lh a.out
-	#time $(CXX) test/pt/$*/euml.cpp -ftemplate-depth=1024 -O2 -s -I include -lboost_system -I test/pt -std=c++1y && ./a.out && ls -lh a.out
+	time $(CXX) test/pt/$*/msm-lite.cpp -O2 -s -I include -I test/pt -std=c++1y && ./a.out && ls -lh a.out
+	time $(CXX) test/pt/$*/sc.cpp -ftemplate-depth=1024 -O2 -s -I include -I test/pt -std=c++1y && ./a.out && ls -lh a.out
+	time $(CXX) test/pt/$*/euml.cpp -ftemplate-depth=1024 -O2 -s -I include -lboost_system -I test/pt -std=c++1y && ./a.out && ls -lh a.out
 	time $(CXX) test/pt/$*/euml2.cpp -O2 -s -I include -I test/pt -std=c++1y -lboost_system && ./a.out && ls -lh a.out
 
 test: $(patsubst %.cpp, %.out, $(shell find test -maxdepth 1 -iname "*.cpp"))
