@@ -8,7 +8,7 @@ repo_name: msm-lite
 docs_dir: .
 use_directory_urls: false
 theme_dir: boost
-google_analytics: ['UA-73083568-1', 'boost-experimental.github.io/msm-lite']
+google_analytics: ['UA-73083568-1', 'auto']
 extra_javascript: []
 extra_css: []
 
