@@ -357,7 +357,7 @@ Creates a State Machine.
       sm(TDeps&&...) noexcept;
 
       template<class TEvent> // no requirements
-      bool process_event(const TEvent&) noexcept;
+      bool process_event(const TEvent&) noexcept(noexcept(guard)... && noexcept(actions..));
 
       template <class TVisitor> requires callable<void, TVisitor>
       void visit_current_states(const TVisitor &) const noexcept(noexcept(visitor(state{})));

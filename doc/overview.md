@@ -36,6 +36,22 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 | `BOOST_MSM_LITE_VERSION`                                      | Current version of Boost.MSM-lite (ex. 1'0'0)                |
 | [`BOOST_MSM_LITE_LOG`](user_guide.md#boost_msm_log-debugging) | Enables logging system  (see [Logging](examples.md#logging)) |
 
+###Exception Safety
+
+Boost.MSM-lite is not using exceptions internally and therefore might be compiled with `-fno-exceptions`.
+Check [User Guide](user_guide.md) to verify which API's are marked `noexcept`.
+
+* When guard/action throws an exception [State Machine](user_guide.md##sm-state-machine) will stay in a defined state.
+
+    | Expression | Description |
+    | ---------- | ----------- |
+    | If `guard` throws an exception | Current state is NOT changed, process event is canceled |
+    | If `action` throws an exception | Current state IS changed to the new one, process event is canceled |
+
+###Thread Safety
+
+Boost.MSM-lite is thread safe.
+
 ###Performance
 
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |

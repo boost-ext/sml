@@ -71,6 +71,8 @@ int main() {
     * [Dependencies](http://boost-experimental.github.io/msm-lite/overview/index.html#dependencies)
     * [Supported/tested compilers](http://boost-experimental.github.io/msm-lite/overview/index.html#supportedtested-compilers)
     * [Configuration](http://boost-experimental.github.io/msm-lite/overview/index.html#configuration)
+    * [Exception Safety](http://boost-experimental.github.io/msm-lite/overview/index.html#exception-safety)
+    * [Thread Safety](http://boost-experimental.github.io/msm-lite/overview/index.html#thread-safety)
     * [Performance](http://boost-experimental.github.io/msm-lite/overview/index.html#performance)
     * [Error messages](http://boost-experimental.github.io/msm-lite/overview/index.html#error-messages)
 * [Tutorial](http://boost-experimental.github.io/msm-lite/tutorial/index.html)
