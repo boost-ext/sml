@@ -14,6 +14,11 @@ Introduction
 | - | - |
 | Your scalable C++14 header only eUML-like meta state machine library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-experimental/msm-lite" data-style="mega" data-count-href="/boost-experimental/msm-lite/stargazers" data-count-api="/repos/boost-experimental/msm-lite#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-experimental/msm-lite on GitHub">GitHub</a> |
 
+<div class="important">
+<h3 class="wy-text-neutral"><span class="fa fa-info-circle wy-text-info"></span>&nbsp; Latest Release: <b>v1.0.0</b> (January 28, 2016)</h3>
+<a href="https://github.com/boost-experimental/msm-lite/releases" class="btn btn-success" style="margin-bottom:8px;" role="button"><span class="fa fa-download"></span>&nbsp; <b>Download</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="CHANGELOG/index.html" class="btn btn-info" style="margin-bottom:8px;" role="button"><span class="fa fa-reorder"></span>&nbsp; <b>Changelog</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="tutorial/index.html" class="btn btn-warning" style="margin-bottom:8px;" role="button"><span class="fa fa-gear"></span>&nbsp; <b>Tutorial</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="examples/index.html" class="btn btn-danger" style="margin-bottom:8px;" role="button"><span class="fa fa-book"></span>&nbsp; <b>Examples</b></a>
+</div>
+
 ###UML State Machine
 
 * [State Machine](https://en.wikipedia.org/wiki/UML_state_machine)

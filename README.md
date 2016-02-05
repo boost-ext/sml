@@ -94,7 +94,7 @@ int main() {
     * [sm [state machine]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#sm-state-machine)
     * [testing::sm [testing]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#testingsm-testing)
     * [make_dispatch_table [utility]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#make_dispatch_table-utility)
-    * [BOOST_MSM_LOG [debugging]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#boost_msm_log-debugging)
+    * [BOOST_MSM_LITE_LOG [debugging]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#boost_msm_lite_log-debugging)
 * [Examples](http://boost-experimental.github.io/msm-lite/examples/index.html)
     * [Hello World](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)
     * [Events](http://boost-experimental.github.io/msm-lite/examples/index.html#events)
