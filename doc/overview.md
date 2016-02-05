@@ -49,7 +49,7 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 | Memory usage     | 14b            | 32b              | 28b                | 200b              |
 | Executable size  | 11K            | 91K              | 15K                | 59K               |
 
-| GCC-6.0          | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] |[Boost.Statechart] |
+| GCC-5.2          | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] |[Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|-------------------|
 | Compilation time | 0.386s         | 7.879s           | 17.101s            | 1.790s            |
 | Execution time   | 15ms           | 19ms             | 21ms               | 929ms             |
@@ -69,7 +69,7 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 | Memory usage     | 20b            | 60b              | 52b                | 200b               |
 | Executable size  | 15K            | 111K             | 15K + boost_system | 83K                |
 
-| GCC-6.0          | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
+| GCC-5.2          | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|--------------------|
 | Compilation time | 0.435s         | 9.363s           | 23.404s            | 2.037s             |
 | Execution time   | 9ms            | 13ms             | 12ms               | 404ms              |
@@ -89,7 +89,7 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 | Memory usage     | 102b           | 120b             | 72b                | 200b               |
 | Executable size  | 35K            | 611K             | 31K + boost_system | 343K               |
 
-| GCC-6.0          | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
+| GCC-5.2          | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|--------------------|
 | Compilation time | 0.996s         | 52.238s          | 1m41.045s          | 4.997s             |
 | Execution time   | 72ms           | 77ms             | 91ms               | 5520ms             |
@@ -106,7 +106,7 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 |------------------|----------------|------------------|--------------------|--------------------|
 | Compilation time | 0.060s         | 2.072s           | 2.504s             | 0.552s             |
 
-| GCC-6.0          | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
+| GCC-5.2          | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|--------------------|
 | Compilation time | 0.073s         | 3.197s           | 3.986s             | 0.704s             |
 
