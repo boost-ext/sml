@@ -5,6 +5,15 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#if defined(CHECK_COMPILE_TIME)
+template <class T>
+void benchmark_execution_speed(const T& expr) noexcept {
+  expr();
+}
+
+template <class T>
+void benchmark_memory_usage(const T&) noexcept {}
+#else
 #include <chrono>
 #include <iostream>
 
@@ -21,3 +30,4 @@ template <class T>
 void benchmark_memory_usage(const T& object) noexcept {
   std::cout << "memory usage: " << sizeof(object) << "b" << std::endl;
 }
+#endif
