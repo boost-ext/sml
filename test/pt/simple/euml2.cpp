@@ -7,11 +7,11 @@
 // under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+#define BOOST_MPL_LIMIT_STRING_SIZE 64
+#define MPLLIBS_LIMIT_STRING_SIZE BOOST_MPL_LIMIT_STRING_SIZE
 #include "benchmark.hpp"
 #include <boost/msm/back/state_machine.hpp>
 #include <boost/msm/front/state_machine_def.hpp>
-#define BOOST_MPL_LIMIT_STRING_SIZE 64
-#define MPLLIBS_LIMIT_STRING_SIZE BOOST_MPL_LIMIT_STRING_SIZE
 #include <boost/msm/front/euml2/euml2.hpp>
 
 namespace msm = boost::msm;
