@@ -483,7 +483,7 @@ public:
   sm(TDeps&amp;&amp;...) noexcept;
 
   template&lt;class TEvent&gt; // no requirements
-  bool process_event(const TEvent&amp;) noexcept;
+  bool process_event(const TEvent&amp;) noexcept(noexcept(guard)... &amp;&amp; noexcept(actions..));
 
   template &lt;class TVisitor&gt; requires callable&lt;void, TVisitor&gt;
   void visit_current_states(const TVisitor &amp;) const noexcept(noexcept(visitor(state{})));
