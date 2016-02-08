@@ -1162,11 +1162,11 @@ class sm {
   void initialize(const aux::type_list<> &) BOOST_MSM_LITE_NOEXCEPT {}
 
   template <class TEvent, BOOST_MSM_LITE_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
-  bool process_internal_event(const TEvent &event) BOOST_MSM_LITE_NOEXCEPT {
+  bool process_internal_event(const TEvent &event) BOOST_MSM_LITE_NOEXCEPT(is_noexcept) {
     return process_event(event);
   }
 
-  bool process_internal_event(...) BOOST_MSM_LITE_NOEXCEPT { return false; }
+  bool process_internal_event(...) BOOST_MSM_LITE_NOEXCEPT(is_noexcept) { return false; }
 
   template <class TMappings, class TEvent, class... TStates>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &, const aux::index_sequence<0> &)

@@ -266,6 +266,9 @@ Represents a state machine event.
     auto on_entry = event<unspecified>;
     auto on_exit = event<unspecified>;
 
+    template<class TEvent> unexpected_event{};
+    template<class T> exception{};
+
 ***Requirements***
 
 * [callable](#callable-concept)
@@ -279,6 +282,7 @@ Represents a state machine event.
     auto my_int_event = event<int>;
 
 ![CPP(BTN)](Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/action_guards.cpp)
+![CPP(BTN)](Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp)
 
 &nbsp;
 
@@ -357,7 +361,7 @@ Creates a State Machine.
       sm(TDeps&&...) noexcept;
 
       template<class TEvent> // no requirements
-      bool process_event(const TEvent&) noexcept(noexcept(guard)... && noexcept(actions..));
+      bool process_event(const TEvent&) noexcept(noexcept(T.configure()))
 
       template <class TVisitor> requires callable<void, TVisitor>
       void visit_current_states(const TVisitor &) const noexcept(noexcept(visitor(state{})));

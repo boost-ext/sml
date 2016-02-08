@@ -22,6 +22,9 @@
 ###History
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/history.cpp)
 
+###Errors handling
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors_handling.cpp)
+
 ###Logging
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)
 

@@ -333,7 +333,72 @@ assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
 
 ---
 
-###8. Testing a state machine
+###8. Error handling
+
+Different errors may occur when processing events. Firstly, event might not be handled (transition has not happened).
+In such scenario `process_event` returns false and `unexpected_event` is fired.
+
+```cpp
+make_transition_table(
+ *"src_state"_s + event<my_event> [ guard ] / action = "dst_state"_s
+, "src_state"_s + unexpected_event<some_event> = X
+);
+```
+
+Usually, it is handy to create additional orthogonal region in order to handle unexpected scenarios.
+This way State in which unexpected event occurred does not matter.
+
+```cpp
+make_transition_table(
+ *"idle"_s + event<my_event> [ guard ] / action = "s1"_s
+, "s1"_s + event<other_event> [ guard ] / action = "s2"_s
+, "s2"_s + event<yet_another_event> [ guard ] / action = X
+
+,*"error_handler"_s + unexpected_event<some_event> = X
+);
+```
+
+We can always check whether a State Machine is in terminate state by.
+```cpp
+assert(sm.is(msm::X)); // doesn't matter how many regions there are
+```
+
+However, unexpected events do not cover all problems we can get into. Sometimes, exception might be thrown (when they are enabled).
+Boost.MSM-lite handles those the same way as unexpected events via `exception` event.
+Please notice that for performance reasons when exceptions are enabled (__cpp_exceptions == true) `noexcept` should be added
+onto `configure` in order to disable handling exceptions when they can not be thrown.
+
+```cpp
+class example {
+public:
+  auto configure() noexcept; // no exceptions handling, terminate will be called when throw will happen
+}
+```
+
+```cpp
+class example {
+public:
+  auto configure(); // okay, guards/actions may throw now
+}
+```
+
+```cpp
+make_transition_table(
+ *"idle"_s + event<event> / [] { throw std::runtime_error{"error"}; }
+
+,*"error_handler"_s + exception<std::runtime_error> = X
+, "error_handler"_s + exception<std::logic_error> = X
+, "error_handler"_s + exception<> / [] { cleanup...; } = X // any exception
+);
+```
+
+![CPP(BTN)](Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp)
+
+&nbsp;
+
+---
+
+###9. Testing a state machine
 
 Sometimes it's useful to verify whether a state machine is in a specific states, for example, if
 we are in a terminate state or not. We can do it with `msm-lite` using `is` or `visit_current_states`
@@ -366,7 +431,7 @@ assert(sm.is(X));
 
 ---
 
-###9. Debugging a state machine
+###10. Debugging a state machine
 
 `msm-lite` provides logging capabilities in order to inspect state machine flow.
 To enable logging you have to define `BOOST_MSM_LITE_LOG`.
