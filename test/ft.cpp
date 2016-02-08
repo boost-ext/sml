@@ -521,18 +521,23 @@ test transition_process_event = [] {
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
-        , s1 + event<e2> / process_event(e3{}) = s2
-        , s2 + event<e3> = X
+        , s1 + event<e2> / process_event(e3{}) = X
+        , s1 + event<e3> / [this] { a_called++; }
       );
       // clang-format on
     }
+
+    int a_called = 0;
   };
 
-  msm::sm<c> sm;
+  c c_;
+  msm::sm<c> sm{c_};
   expect(sm.is(idle));
   expect(sm.process_event(e1{}));
   expect(sm.is(s1));
+  expect(!c_.a_called);
   expect(sm.process_event(e2{}));  // + process_event(e3{})
+  expect(1 == c_.a_called);
   expect(sm.is(msm::X));
 };
 
@@ -595,7 +600,7 @@ test transition_types = [] {
 
       // clang-format off
       return make_transition_table(
-        *idle + event<e1> [guard1] / (action1, []{}) = s1
+         *idle + event<e1> [guard1] / (action1, []{}) = s1
         , s1 + event<e2> / ([] { }) = s2
         , s2 + event<e4> / process_event(e5{}) = s1
         , s1 / [] {}
@@ -606,7 +611,7 @@ test transition_types = [] {
         , s3 + event<e4> / [] { }
         , s3 + event<e5> [guard1] / action1
         , s1 [guard1 && guard1 && [] { return true; }] = s2
-        , (*s3) [guard1]  = s2
+        , (*s3) [guard1] = s2
         , s2 [guard1 && !guard2] = s3
         , s3 [guard1] / action1 = s4
         , s4 / action1 = s5
@@ -622,6 +627,27 @@ test transition_types = [] {
         , idle + event<e2> [guard1 || guard2] / (action1, action2, []{}, [](int, auto, float){}) = s1
         , idle + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float){}) = X
         , idle + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto) { return false; } ] / (action1, action2, []{}, [](int, auto, double){}) = X
+        //
+        , s1 <= *idle + event<e1> [guard1] / (action1, []{})
+        , s2 <= s1 + event<e2> / ([] { })
+        , s1 <= s2 + event<e4> / process_event(e5{})
+        , s2 <= s1 [guard1 && guard1 && [] { return true; }]
+        , s2 <= (*s3) [guard1]
+        , s2 <= s3 [guard1 && !guard2]
+        , s3 <= s4 [guard1] / action1
+        , s4 <= s5 / action1
+        , end <= s5 / (action1, action2)
+        , s1 <= idle(H) + event<e1>
+        , s1 <= idle(H) + event<e1> [c_guard{} && guard1]
+        ,*s1 <= idle + event<e1> [guard1] / action1
+        , s1 <= idle + event<e1> / action1
+        , s1 <= idle + event<e1> / (action1, c_action{})
+        , s1 <= idle + event<e1> [guard1 && guard2] / (action1, action2)
+        , s1 <= idle + event<e1> [guard1 && guard2] / (action1, action2, []{})
+        , s1 <= idle + event<e1> [guard1 || !guard2] / (action1, action2, []{}, [](auto){})
+        , s1 <= idle + event<e2> [guard1 || guard2] / (action1, action2, []{}, [](int, auto, float){})
+        , X <= idle + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float){})
+        , X <= idle + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto) { return false; } ] / (action1, action2, []{}, [](int, auto, double){})
       );
       // clang-format on
     }

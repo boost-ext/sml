@@ -100,14 +100,14 @@ Boost.MSM-lite is thread safe.
 
 | Clang-3.7        | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|--------------------|
-| Compilation time | 0.619s         | 1m15.935s        | 43.341s            | 3.661s             |
+| Compilation time | 0.582s         | 1m15.935s        | 43.341s            | 3.661s             |
 | Execution time   | 69ms           | 81ms             | 78ms               | 6221ms             |
 | Memory usage     | 102b           | 120b             | 72b                | 200b               |
 | Executable size  | 35K            | 611K             | 31K + boost_system | 343K               |
 
 | GCC-5.2          | Boost.MSM-lite | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|--------------------|
-| Compilation time | 0.824s         | 52.238s          | 1m41.045s          | 4.997s             |
+| Compilation time | 0.816s         | 52.238s          | 1m41.045s          | 4.997s             |
 | Execution time   | 72ms           | 77ms             | 91ms               | 5520ms             |
 | Memory usage     | 102b           | 120b             | 72b                | 224b               |
 | Executable size  | 35K            | 271K             | 47K + boost_system | 215K               |
