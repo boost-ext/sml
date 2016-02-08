@@ -176,3 +176,23 @@ test exception_orthogonal_handler_generic_handler = [] {
   expect(sm.process_event(e1{}));  // throws exception1
   expect(sm.is(idle, msm::X));
 };
+
+test exception_orthogonal_handler_generic_handler_with_exception = [] {
+  struct c {
+    auto configure() const {  // noexcept
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+        *idle + event<e1> / [] { throw exception1{}; } = s1
+
+      , *error + exception<exception1> / [] { throw exception2{}; }
+      , *error + exception<> = X
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  expect(sm.process_event(e1{}));  // throws exception1
+  expect(sm.is(idle, msm::X));
+};

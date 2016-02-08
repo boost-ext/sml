@@ -1162,11 +1162,11 @@ class sm {
   void initialize(const aux::type_list<> &) BOOST_MSM_LITE_NOEXCEPT {}
 
   template <class TEvent, BOOST_MSM_LITE_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
-  bool process_internal_event(const TEvent &event) BOOST_MSM_LITE_NOEXCEPT(is_noexcept) {
+  bool process_internal_event(const TEvent &event) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
     return process_event(event);
   }
 
-  bool process_internal_event(...) BOOST_MSM_LITE_NOEXCEPT(is_noexcept) { return false; }
+  bool process_internal_event(...) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) { return false; }
 
   template <class TMappings, class TEvent, class... TStates>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &, const aux::index_sequence<0> &)
@@ -1203,14 +1203,14 @@ class sm {
     }
   }
 
-  bool process_exception(const aux::type_list<> &) { return process_internal_event(exception<_>{}); }
+  bool process_exception(const aux::type_list<> &) { return process_event(exception<_>{}); }
 
   template <class E, class... Es>
   bool process_exception(const aux::type_list<E, Es...> &) {
     try {
       throw;
     } catch (const typename E::type &e) {
-      return process_internal_event(E{e});
+      return process_event(E{e});
     } catch (...) {
       return process_exception(aux::type_list<Es...>{});
     }
