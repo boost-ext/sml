@@ -120,10 +120,13 @@
                 <li class="toctree-l3"><a href="#6-process-events">6. Process events</a></li>
                 
             
-                <li class="toctree-l3"><a href="#8-testing-a-state-machine">8. Testing a state machine</a></li>
+                <li class="toctree-l3"><a href="#8-error-handling">8. Error handling</a></li>
                 
             
-                <li class="toctree-l3"><a href="#9-debugging-a-state-machine">9. Debugging a state machine</a></li>
+                <li class="toctree-l3"><a href="#9-testing-a-state-machine">9. Testing a state machine</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#10-debugging-a-state-machine">10. Debugging a state machine</a></li>
                 
             
             </ul>
@@ -502,7 +505,59 @@ assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
 <img alt="CPP(BTN)" src="../Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
-<h3 id="8-testing-a-state-machine">8. Testing a state machine</h3>
+<h3 id="8-error-handling">8. Error handling</h3>
+<p>Different errors may occur when processing events. Firstly, event might not be handled (transition has not happened).
+In such scenario <code>process_event</code> returns false and <code>unexpected_event</code> is fired.</p>
+<pre><code class="cpp">make_transition_table(
+ *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s
+, &quot;src_state&quot;_s + unexpected_event&lt;some_event&gt; = X
+);
+</code></pre>
+
+<p>Usually, it is handy to create additional orthogonal region in order to handle unexpected scenarios.
+This way State in which unexpected event occurred does not matter.</p>
+<pre><code class="cpp">make_transition_table(
+ *&quot;idle&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;s1&quot;_s
+, &quot;s1&quot;_s + event&lt;other_event&gt; [ guard ] / action = &quot;s2&quot;_s
+, &quot;s2&quot;_s + event&lt;yet_another_event&gt; [ guard ] / action = X
+
+,*&quot;error_handler&quot;_s + unexpected_event&lt;some_event&gt; = X
+);
+</code></pre>
+
+<p>We can always check whether a State Machine is in terminate state by.</p>
+<pre><code class="cpp">assert(sm.is(msm::X)); // doesn't matter how many regions there are
+</code></pre>
+
+<p>However, unexpected events do not cover all problems we can get into. Sometimes, exception might be thrown (when they are enabled).
+Boost.MSM-lite handles those the same way as unexpected events via <code>exception</code> event.
+Please notice that for performance reasons when exceptions are enabled (__cpp_exceptions == true) <code>noexcept</code> should be added
+onto <code>configure</code> in order to disable handling exceptions when they can not be thrown.</p>
+<pre><code class="cpp">class example {
+public:
+  auto configure() noexcept; // no exceptions handling, terminate will be called when throw will happen
+}
+</code></pre>
+
+<pre><code class="cpp">class example {
+public:
+  auto configure(); // okay, guards/actions may throw now
+}
+</code></pre>
+
+<pre><code class="cpp">make_transition_table(
+ *&quot;idle&quot;_s + event&lt;event&gt; / [] { throw std::runtime_error{&quot;error&quot;}; }
+
+,*&quot;error_handler&quot;_s + exception&lt;std::runtime_error&gt; = X
+, &quot;error_handler&quot;_s + exception&lt;std::logic_error&gt; = X
+, &quot;error_handler&quot;_s + exception&lt;&gt; / [] { cleanup...; } = X // any exception
+);
+</code></pre>
+
+<p><img alt="CPP(BTN)" src="../Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
+<h3 id="9-testing-a-state-machine">9. Testing a state machine</h3>
 <p>Sometimes it's useful to verify whether a state machine is in a specific states, for example, if
 we are in a terminate state or not. We can do it with <code>msm-lite</code> using <code>is</code> or <code>visit_current_states</code>
 functionality.</p>
@@ -527,7 +582,7 @@ assert(sm.is(X));
 <p><img alt="CPP(BTN)" src="../Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
-<h3 id="9-debugging-a-state-machine">9. Debugging a state machine</h3>
+<h3 id="10-debugging-a-state-machine">10. Debugging a state machine</h3>
 <p><code>msm-lite</code> provides logging capabilities in order to inspect state machine flow.
 To enable logging you have to define <code>BOOST_MSM_LITE_LOG</code>.</p>
 <pre><code class="cpp">template &lt;class SM, class TEvent&gt;

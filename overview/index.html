@@ -245,33 +245,16 @@ namespace msm = boost::msm::lite;
 </tbody>
 </table>
 <h3 id="exception-safety">Exception Safety</h3>
-<p>Boost.MSM-lite is not using exceptions internally and therefore might be compiled with <code>-fno-exceptions</code>.
-Check <a href="../user_guide/index.html">User Guide</a> to verify which API's are marked <code>noexcept</code>.</p>
 <ul>
-<li>
-<p>When guard/action throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will stay in a defined state.</p>
-<table>
-<thead>
-<tr>
-<th>Expression</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>If <code>guard</code> throws an exception</td>
-<td>Current state is NOT changed, process event is canceled</td>
-</tr>
-<tr>
-<td>If <code>action</code> throws an exception</td>
-<td>Current state IS changed to the new one, process event is canceled</td>
-</tr>
-</tbody>
-</table>
-</li>
+<li>Boost.MSM-lite is not using exceptions internally and therefore might be compiled with <code>-fno-exceptions</code>.</li>
+<li>Check <a href="../user_guide/index.html">User Guide</a> to verify which API's are marked <code>noexcept</code>.</li>
+<li>When guard/action throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will stay in a current state.</li>
+<li>Exceptions might be caught using transition table via <code>exception</code> event. See <a href="../tutorial/index.html#8-error-handling">Error handling</a>.</li>
 </ul>
 <h3 id="thread-safety">Thread Safety</h3>
-<p>Boost.MSM-lite is thread safe.</p>
+<ul>
+<li>Boost.MSM-lite is thread safe.</li>
+</ul>
 <h3 id="performance">Performance</h3>
 <table>
 <thead>

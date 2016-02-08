@@ -411,6 +411,9 @@ event&lt;TEvent&gt; event{};
 // predefined events
 auto on_entry = event&lt;unspecified&gt;;
 auto on_exit = event&lt;unspecified&gt;;
+
+template&lt;class TEvent&gt; unexpected_event{};
+template&lt;class T&gt; exception{};
 </code></pre>
 <p><strong><em>Requirements</em></strong></p>
 <ul>
@@ -422,7 +425,8 @@ auto on_exit = event&lt;unspecified&gt;;
 <p><strong><em>Example</em></strong></p>
 <pre><code>auto my_int_event = event&lt;int&gt;;
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/action_guards.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/action_guards.cpp" />
+<img alt="CPP(BTN)" src="../Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="make_transition_table-state-machine">make_transition_table [state machine]</h3>
@@ -483,7 +487,7 @@ public:
   sm(TDeps&amp;&amp;...) noexcept;
 
   template&lt;class TEvent&gt; // no requirements
-  bool process_event(const TEvent&amp;) noexcept(noexcept(guard)... &amp;&amp; noexcept(actions..));
+  bool process_event(const TEvent&amp;) noexcept(noexcept(T.configure()))
 
   template &lt;class TVisitor&gt; requires callable&lt;void, TVisitor&gt;
   void visit_current_states(const TVisitor &amp;) const noexcept(noexcept(visitor(state{})));
