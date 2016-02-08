@@ -33,8 +33,8 @@ test: $(patsubst %.cpp, %.out, $(shell find test -maxdepth 1 -iname "*.cpp"))
 test/%.out:
 	$(CXX) test/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.out && $($(MEMCHECK)) test/$*.out
 
-test/%_except.out:
-	$(CXX) test/$*_except.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*_except.out && $($(MEMCHECK)) test/$*_except.out
+test/ft_except.out:
+	$(CXX) test/ft_except.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/ft_except.out && $($(MEMCHECK)) test/ft_except.out
 
 example: $(patsubst %.cpp, %.out, $(shell find example -iname "*.cpp"))
 

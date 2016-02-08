@@ -414,6 +414,11 @@ struct exception {
   using type = T;
   T exception;
 };
+template <class TEvent>
+struct unexpected_event {
+  using type = TEvent;
+  TEvent event;
+};
 struct initial_state {};
 struct terminate_state {};
 struct history_state {};
