@@ -398,7 +398,7 @@ make_transition_table(
 
 ---
 
-###9. Testing a state machine
+###9. Testing
 
 Sometimes it's useful to verify whether a state machine is in a specific states, for example, if
 we are in a terminate state or not. We can do it with `msm-lite` using `is` or `visit_current_states`
@@ -431,7 +431,7 @@ assert(sm.is(X));
 
 ---
 
-###10. Debugging a state machine
+###10. Debugging
 
 `msm-lite` provides logging capabilities in order to inspect state machine flow.
 To enable logging you have to define `BOOST_MSM_LITE_LOG`.
