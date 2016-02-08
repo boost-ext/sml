@@ -222,7 +222,7 @@
         }, 
         {
             "location": "/examples/index.html", 
-            "text": "Hello World\n\n\n\n\nEvents\n\n\n\n\nStates\n\n\n\n\nActions Guards\n\n\n\n\nTransitions\n\n\n\n\nOrthogonal Regions\n\n\n\n\nComposite\n\n\n\n\nHistory\n\n\n\n\nErrors handling\n\n\n\n\nLogging\n\n\n\n\nTesting\n\n\n\n\nRuntime Dispatcher\n\n\n\n\neUML Emulation\n\n\n\n\nDependency Injection\n\n\n\n\nSDL2 Integration\n\n\n\n\nPlant UML Integration", 
+            "text": "Hello World\n\n\n\n\nEvents\n\n\n\n\nStates\n\n\n\n\nActions Guards\n\n\n\n\nTransitions\n\n\n\n\nOrthogonal Regions\n\n\n\n\nComposite\n\n\n\n\nHistory\n\n\n\n\nError handling\n\n\n\n\nLogging\n\n\n\n\nTesting\n\n\n\n\nRuntime Dispatcher\n\n\n\n\neUML Emulation\n\n\n\n\nDependency Injection\n\n\n\n\nSDL2 Integration\n\n\n\n\nPlant UML Integration", 
             "title": "Examples"
         }, 
         {
@@ -266,9 +266,9 @@
             "title": "History"
         }, 
         {
-            "location": "/examples/index.html#errors-handling", 
+            "location": "/examples/index.html#error-handling", 
             "text": "", 
-            "title": "Errors handling"
+            "title": "Error handling"
         }, 
         {
             "location": "/examples/index.html#logging", 
