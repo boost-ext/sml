@@ -21,6 +21,7 @@ struct e2 {};
 struct e3 {};
 struct e4 {};
 struct e5 {};
+struct e6 {};
 
 auto idle = msm::state<class idle>{};
 auto idle2 = msm::state<class idle2>{};
@@ -1172,7 +1173,6 @@ test composite_with_orthogonal_regions = [] {
     sub() {}
     auto configure() noexcept {
       using namespace msm;
-
       // clang-format off
       return make_transition_table(
          *idle + event<e4> = s1
@@ -1186,7 +1186,6 @@ test composite_with_orthogonal_regions = [] {
     c() {}
     auto configure() noexcept {
       using namespace msm;
-
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
@@ -1220,6 +1219,58 @@ test composite_with_orthogonal_regions = [] {
   expect(sm.process_event(e3()));
   expect(subsm.is(s2));
   expect(sm.is(msm::X, msm::X));
+};
+
+test composite_with_orthogonal_regions_explicit_entry = [] {
+  struct sub {
+    sub() {}
+    auto configure() noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+         (*idle) + event<e1> = s1
+        , s1 + event<e2> = s2
+        // ----------------------------------
+        , (*idle2) + event<e3> = s2
+        , s2 + event<e4> = X
+      );
+      // clang-format on
+    }
+  };
+
+  static msm::state<msm::sm<sub>> sub_state;
+
+  struct c {
+    c() {}
+    auto configure() noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+       *sub_state + event<e5> = s1
+      , s1 + event<e6> = sub_state(s1) // explicit entry
+      );
+      // clang-format on
+    }
+  };
+
+  sub sub_;
+  msm::sm<sub> subsm{sub_};
+  c c_;
+  msm::sm<c> sm{c_, subsm};
+  expect(sm.is(sub_state));
+  expect(subsm.is(idle, idle2));
+
+  expect(sm.process_event(e1()));
+  expect(sm.is(sub_state));
+  expect(subsm.is(s1, idle2));
+
+  expect(sm.process_event(e5()));
+  expect(sm.is(s1));
+  expect(subsm.is(s1, idle2));
+
+  expect(sm.process_event(e6()));
+  expect(sm.is(sub_state));
+  // expect(subsm.is(s1, idle2));
 };
 
 struct runtime_event {

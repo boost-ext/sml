@@ -34,8 +34,13 @@ inline namespace v_1_0_0 {
 namespace aux {
 using byte = unsigned char;
 struct none_type {};
-template <char...>
-struct string {};
+template <char... Chrs>
+struct string {
+  static auto c_str() BOOST_MSM_LITE_NOEXCEPT {
+    static char str[] = {Chrs..., 0};
+    return str;
+  }
+};
 template <class...>
 struct type {};
 template <class T, T>
@@ -433,12 +438,7 @@ struct state_str<state<terminate_state>> {
   static auto c_str() BOOST_MSM_LITE_NOEXCEPT { return "terminate"; }
 };
 template <char... Chrs>
-struct state_str<state<aux::string<Chrs...>>> {
-  static auto c_str() BOOST_MSM_LITE_NOEXCEPT {
-    static char str[] = {Chrs..., 0};
-    return str;
-  }
-};
+struct state_str<state<aux::string<Chrs...>>> : aux::string<Chrs...> {};
 template <char... Chrs, class T>
 struct state_str<state<aux::string<Chrs...>(T)>> : state_str<state<aux::string<Chrs...>>> {};
 template <class TState>
@@ -469,6 +469,10 @@ struct state : state_impl<state<TState>> {
   auto operator()(const initial_state &) const BOOST_MSM_LITE_NOEXCEPT { return state<TState(initial_state)>{}; }
   auto operator()(const history_state &) const BOOST_MSM_LITE_NOEXCEPT { return state<TState(history_state)>{}; }
   template <class T>
+  auto operator()(const state<T> &) const BOOST_MSM_LITE_NOEXCEPT {
+    return state<TState(T)>{};
+  }
+  template <class T>
   auto operator=(const T &t) const BOOST_MSM_LITE_NOEXCEPT {
     return transition<T, state>{t, *this};
   }
@@ -492,6 +496,12 @@ struct state<TState(history_state)> : state_impl<state<TState(history_state)>> {
   auto operator=(const T &t) const BOOST_MSM_LITE_NOEXCEPT {
     return transition<T, state>{t, *this};
   }
+};
+template <class TState, class TInnerState>
+struct state<TState(TInnerState)> : state_impl<state<TState(TInnerState)>> {
+  using type = TState;
+  static constexpr auto initial = false;
+  static constexpr auto history = false;
 };
 template <class, class>
 aux::type_list<> args_impl__(...);
@@ -1088,6 +1098,9 @@ class sm {
   using dependable = aux::is_same<aux::bool_list<aux::always<TDeps>::value...>,
                                   aux::bool_list<aux::is_base_of<aux::pool_type<TDeps>, deps_t>::value...>>;
 
+  template <class... TStates>
+  using get_ids = aux::index_sequence<aux::get_id<states_ids_t, -1, TStates>()...>;
+
  public:
   using states = states_t;
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_all_events, transitions_t>>;
@@ -1273,6 +1286,19 @@ class sm {
 
   template <class, class... Ts>
   void initialize_impl(const aux::type_list<Ts...> &) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {}
+
+  template <class TState>
+  static constexpr auto get_region() noexcept {
+    return get_region_impl(aux::get_id<states_ids_t, -1, typename TState::type>(), aux::apply_t<get_ids, initial_states_t>{});
+  }
+
+  template <int... Ids>
+  static constexpr auto get_region_impl(int id, const aux::index_sequence<Ids...> &) noexcept {
+    auto region = 0, i = 0;
+    int _[]{0, (id < Ids ? region : region = i, ++i)...};
+    (void)_;
+    return region;
+  };
 
   deps_t deps_;
   transitions_t transitions_;
