@@ -14,7 +14,7 @@
 #else
 #define BOOST_MSM_LITE_LOG_ENABLED
 #endif
-#if defined(__cpp_exceptions)
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
 #define BOOST_MSM_LITE_NOEXCEPT noexcept
 #define BOOST_MSM_LITE_NOEXCEPT_IF(...) noexcept(__VA_ARGS__)
 #else
@@ -1093,7 +1093,7 @@ class sm {
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_all_events, transitions_t>>;
   using transitions = aux::apply_t<aux::type_list, transitions_t>;
 
-#if defined(__cpp_exceptions)
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
   using exceptions = aux::apply_t<aux::unique_t, aux::apply_t<get_exceptions, events_t>>;
   static constexpr auto is_noexcept = BOOST_MSM_LITE_NOEXCEPT_IF(aux::declval<SM>().configure());
 #endif
@@ -1115,7 +1115,7 @@ class sm {
   template <class TEvent>
   bool process_event(const TEvent &event) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
     BOOST_MSM_LITE_LOG(process_event, SM, event);
-#if defined(__cpp_exceptions)
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
     return process_event_noexcept(event, aux::integral_constant<bool, is_noexcept>{});
 #else
     return process_event_impl<get_event_mapping_t<TEvent, mappings_t>>(event, states_t{}, aux::make_index_sequence<regions>{});
@@ -1187,7 +1187,7 @@ class sm {
     return handled;
   }
 
-#if defined(__cpp_exceptions)
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
   template <class TEvent>
   bool process_event_noexcept(const TEvent &event, const aux::true_type &) noexcept {
     return process_event_impl<get_event_mapping_t<TEvent, mappings_t>>(event, states_t{}, aux::make_index_sequence<regions>{});
