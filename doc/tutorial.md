@@ -152,6 +152,17 @@ our transitions.
     | dst\_state <= src\_state + event<e> [ guard ] / action | transition from src\_state to dst\_state on event e with guard and action |
     | dst\_state <= src\_state + event<e> [ guard && (![]{return true;} && guard2) ] / (action, action2, []{}) | transition from src\_state to dst\_state on event e with guard and action |
 
+* Transition flow
+
+```
+src_state + event [ guard ] / action = dst_state
+                                     ^
+                                     |
+                                     |
+                                    1. src_state + on_exit
+                                    2. dst_state + on_entry
+```
+
 To create a transition table [`make_transition_table`](user_guide.md#make_transition_table-state-machine) is provided.
 
 ```cpp
