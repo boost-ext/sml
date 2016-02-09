@@ -1298,7 +1298,7 @@ class sm {
     int _[]{0, (id < Ids ? region : region = i, ++i)...};
     (void)_;
     return region;
-  };
+  }
 
   deps_t deps_;
   transitions_t transitions_;
