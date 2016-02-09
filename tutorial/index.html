@@ -362,7 +362,18 @@ our transitions.</p>
 </tbody>
 </table>
 </li>
+<li>
+<p>Transition flow</p>
+</li>
 </ul>
+<pre><code>src_state + event [ guard ] / action = dst_state
+                                     ^
+                                     |
+                                     |
+                                    1. src_state + on_exit
+                                    2. dst_state + on_entry
+</code></pre>
+
 <p>To create a transition table <a href="../user_guide/index.html#make_transition_table-state-machine"><code>make_transition_table</code></a> is provided.</p>
 <pre><code class="cpp">using namespace msm; // Postfix Notation
 
