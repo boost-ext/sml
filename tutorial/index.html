@@ -542,7 +542,7 @@ This way State in which unexpected event occurred does not matter.</p>
 
 <p>However, unexpected events do not cover all problems we can get into. Sometimes, exception might be thrown (when they are enabled).
 Boost.MSM-lite handles those the same way as unexpected events via <code>exception</code> event.
-Please notice that for performance reasons when exceptions are enabled (__cpp_exceptions == true) <code>noexcept</code> should be added
+Please notice that for performance reasons when exceptions are enabled (__cpp_exceptions defined) <code>noexcept</code> should be added
 onto <code>configure</code> in order to disable handling exceptions when they can not be thrown.</p>
 <pre><code class="cpp">class example {
 public:
