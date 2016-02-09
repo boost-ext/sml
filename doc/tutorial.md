@@ -376,7 +376,7 @@ assert(sm.is(msm::X)); // doesn't matter how many regions there are
 
 However, unexpected events do not cover all problems we can get into. Sometimes, exception might be thrown (when they are enabled).
 Boost.MSM-lite handles those the same way as unexpected events via `exception` event.
-Please notice that for performance reasons when exceptions are enabled (__cpp_exceptions == true) `noexcept` should be added
+Please notice that for performance reasons when exceptions are enabled (__cpp_exceptions defined) `noexcept` should be added
 onto `configure` in order to disable handling exceptions when they can not be thrown.
 
 ```cpp
