@@ -1199,7 +1199,7 @@ class sm {
   template <class... TStates>
   void initialize(const aux::type_list<TStates...> &) BOOST_MSM_LITE_NOEXCEPT {
     auto region = 0, i = region;
-    int _[]{0, (region = i, current_state_[region] = aux::get_id<states_ids_t, 0, TStates>(), i++, 0)...};
+    int _[]{0, (region = i, current_state_[region] = aux::get_id<states_ids_t, 0, TStates>(), ++i, 0)...};
     (void)_;
     process_internal_event(anonymous{});
   }
@@ -1415,8 +1415,9 @@ class sm : public detail::sm<T> {
 
   template <class... TStates>
   void set_current_states(const detail::state<TStates> &...) BOOST_MSM_LITE_NOEXCEPT {
-    decltype(detail::sm<T>::current_state_) new_states = {aux::get_id<states_ids_t, 0, TStates>()...};
-    *detail::sm<T>::current_state_ = *new_states;
+    auto region = 0, i = region;
+    int _[]{0, (region = i, detail::sm<T>::current_state_[region] = aux::get_id<states_ids_t, 0, TStates>(), ++i, 0)...};
+    (void)_;
   }
 };
 }  // testing

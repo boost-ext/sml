@@ -585,6 +585,7 @@ struct c_guard {
 };
 
 struct c_action {
+  explicit c_action(int) {}
   template <class T>
   void operator()(const T &) noexcept {}
 };
@@ -621,7 +622,7 @@ test transition_types = [] {
         , idle(H) + event<e1> [c_guard{} && guard1] = s1
         ,*idle + event<e1> [guard1] / action1 = s1
         , idle + event<e1> / action1 = s1
-        , idle + event<e1> / (action1, c_action{}) = s1
+        , idle + event<e1> / (action1, c_action{1}) = s1
         , idle + event<e1> [guard1 && guard2] / (action1, action2) = s1
         , idle + event<e1> [guard1 && guard2] / (action1, action2, []{}) = s1
         , idle + event<e1> [guard1 || !guard2] / (action1, action2, []{}, [](auto){}) = s1
@@ -642,7 +643,7 @@ test transition_types = [] {
         , s1 <= idle(H) + event<e1> [c_guard{} && guard1]
         ,*s1 <= idle + event<e1> [guard1] / action1
         , s1 <= idle + event<e1> / action1
-        , s1 <= idle + event<e1> / (action1, c_action{})
+        , s1 <= idle + event<e1> / (action1, c_action{1}, c_action{2})
         , s1 <= idle + event<e1> [guard1 && guard2] / (action1, action2)
         , s1 <= idle + event<e1> [guard1 && guard2] / (action1, action2, []{})
         , s1 <= idle + event<e1> [guard1 || !guard2] / (action1, action2, []{}, [](auto){})
@@ -1601,6 +1602,28 @@ test sm_testing = [] {
     expect(sm.is(s2));
     expect(12 == fake_data.value);
   }
+};
+
+test sm_testing_orthogonal_regions = [] {
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+       *idle + event<e1> = s1
+      , s1 + event<e2> = X
+
+      ,*idle2 + event<e1> = s3
+      , s3 + event<e2> = X
+      );
+      // clang-format on
+    }
+  };
+
+  msm::testing::sm<c> sm;
+  expect(sm.is(idle, idle2));
+  sm.set_current_states(s1, s3);
+  expect(sm.is(s1, s3));
 };
 
 test uml_notation = [] {
