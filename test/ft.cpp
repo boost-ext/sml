@@ -265,7 +265,7 @@ test operators = [] {
 
       // clang-format off
       return make_transition_table(
-         *idle + event<e1> [ yes || no ] / (action, action) = s1
+         *idle + event<e1> [ yes || no ] / ([](int&i) {++i;}, action) = s1
         , s1 + event<e1> [ !no && yes ] / action = s2
         , s2 + event<e1> [ no && yes ] / (action, [](int&i) {i++;}) = s3
         , s2 + event<e2> [ yes && [] { return true; } ] / (action, [](int&i) {i++;}) = s3
@@ -611,7 +611,7 @@ test transition_types = [] {
         , idle = s1
         , s3 + event<e4> / [] { }
         , s3 + event<e5> [guard1] / action1
-        , s1 [guard1 && guard1 && [] { return true; }] = s2
+        , s1 [guard1 && [] { return true; }] = s2
         , (*s3) [guard1] = s2
         , s2 [guard1 && !guard2] = s3
         , s3 [guard1] / action1 = s4
@@ -632,7 +632,7 @@ test transition_types = [] {
         , s1 <= *idle + event<e1> [guard1] / (action1, []{})
         , s2 <= s1 + event<e2> / ([] { })
         , s1 <= s2 + event<e4> / process_event(e5{})
-        , s2 <= s1 [guard1 && guard1 && [] { return true; }]
+        , s2 <= s1 [guard1 && [] { return true; }]
         , s2 <= (*s3) [guard1]
         , s2 <= s3 [guard1 && !guard2]
         , s3 <= s4 [guard1] / action1
