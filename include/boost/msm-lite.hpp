@@ -443,6 +443,7 @@ template <char... Chrs, class T>
 struct state_str<state<aux::string<Chrs...>(T)>> : state_str<state<aux::string<Chrs...>>> {};
 template <class TState>
 struct state_impl : state_str<TState> {
+  using explicit_states = aux::type_list<>;
   template <class T>
   auto operator<=(const T &t) const BOOST_MSM_LITE_NOEXCEPT {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
@@ -468,9 +469,9 @@ struct state : state_impl<state<TState>> {
   auto operator*() const BOOST_MSM_LITE_NOEXCEPT { return state<TState(initial_state)>{}; }
   auto operator()(const initial_state &) const BOOST_MSM_LITE_NOEXCEPT { return state<TState(initial_state)>{}; }
   auto operator()(const history_state &) const BOOST_MSM_LITE_NOEXCEPT { return state<TState(history_state)>{}; }
-  template <class T>
-  auto operator()(const state<T> &) const BOOST_MSM_LITE_NOEXCEPT {
-    return state<TState(T)>{};
+  template <class... Ts>
+  auto operator()(const state<Ts> &...) const BOOST_MSM_LITE_NOEXCEPT {
+    return state<TState(Ts...)>{};
   }
   template <class T>
   auto operator=(const T &t) const BOOST_MSM_LITE_NOEXCEPT {
@@ -497,9 +498,10 @@ struct state<TState(history_state)> : state_impl<state<TState(history_state)>> {
     return transition<T, state>{t, *this};
   }
 };
-template <class TState, class TInnerState>
-struct state<TState(TInnerState)> : state_impl<state<TState(TInnerState)>> {
+template <class TState, class... TExplicitStates>
+struct state<TState(TExplicitStates...)> : state_impl<state<TState(TExplicitStates...)>> {
   using type = TState;
+  using explicit_states = aux::type_list<TExplicitStates...>;
   static constexpr auto initial = false;
   static constexpr auto history = false;
 };
@@ -827,8 +829,8 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> {
   auto execute(SM &self, const E &event, aux::byte &current_state) BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
     if (call(g, event, self.deps_, self)) {
       call(a, event, self.deps_, self);
-      self.update_current_state(current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{},
-                                state<dst_state>{});
+      self.template update_current_state<typename state<S1>::explicit_states>(
+          current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{}, state<dst_state>{});
       return true;
     }
     return false;
@@ -853,8 +855,8 @@ struct transition<state<S1>, state<S2>, event<E>, always, A> {
   template <class SM>
   auto execute(SM &self, const E &event, aux::byte &current_state) BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
     call(a, event, self.deps_, self);
-    self.update_current_state(current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{},
-                              state<dst_state>{});
+    self.template update_current_state<typename state<S1>::explicit_states>(
+        current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{}, state<dst_state>{});
     return true;
   }
 
@@ -876,8 +878,8 @@ struct transition<state<S1>, state<S2>, event<E>, G, none> {
   template <class SM>
   auto execute(SM &self, const E &event, aux::byte &current_state) BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
     if (call(g, event, self.deps_, self)) {
-      self.update_current_state(current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{},
-                                state<dst_state>{});
+      self.template update_current_state<typename state<S1>::explicit_states>(
+          current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{}, state<dst_state>{});
       return true;
     }
     return false;
@@ -900,8 +902,8 @@ struct transition<state<S1>, state<S2>, event<E>, always, none> {
 
   template <class SM>
   auto execute(SM &self, const E &, aux::byte &current_state) BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
-    self.update_current_state(current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{},
-                              state<dst_state>{});
+    self.template update_current_state<typename state<S1>::explicit_states>(
+        current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{}, state<dst_state>{});
     return true;
   }
 };
@@ -1059,7 +1061,7 @@ using get_initial_states =
     aux::join_t<aux::conditional_t<Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>...>;
 template <class... Ts>
 using get_history_states =
-    aux::join_t<aux::conditional_t<Ts::history, aux::type_list<typename Ts::src_state>, aux::type_list<>>...>;
+    aux::join_t<aux::conditional_t<!Ts::history && Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>...>;
 template <class T, class U = T>
 using get_sm = aux::conditional_t<aux::is_trivially_constructible<T>::value, aux::type_list<U>, aux::type_list<U &>>;
 template <class>
@@ -1074,6 +1076,8 @@ template <class SM>
 class sm {
   template <class>
   friend class sm;
+  template <class>
+  friend struct state;
   template <class...>
   friend struct transition;
   template <class...>
@@ -1086,7 +1090,10 @@ class sm {
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
   using initial_states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_initial_states, transitions_t>>;
-  using history_states_t = aux::apply_t<get_history_states, transitions_t>;
+  using initial_states_ids_t = aux::apply_t<aux::type_id, initial_states_t>;
+  using initial_but_not_history_states_t = aux::apply_t<get_history_states, transitions_t>;
+  using has_history_states = aux::integral_constant<bool, aux::get_size<initial_states_t>::value !=
+                                                              aux::get_size<initial_but_not_history_states_t>::value>;
   using sub_sms_t = aux::apply_t<get_sub_sms, states_t>;
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
   using events_ids_t = aux::apply_t<aux::pool, events_t>;
@@ -1252,11 +1259,11 @@ class sm {
     visitor(state<TState>{});
   }
 
-  template <class TState>
+  template <class, class TState>
   void update_current_state(aux::byte &, const aux::byte &, const TState &, const TState &)
       BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {}
 
-  template <class TSrcState, class TDstState>
+  template <class, class TSrcState, class TDstState>
   void update_current_state(aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
                             const TDstState &dst_state) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
     process_internal_event(on_exit{});
@@ -1267,7 +1274,7 @@ class sm {
     process_internal_event(on_entry{});
   }
 
-  template <class TSrcState, class T>
+  template <class TExplicit, class TSrcState, class T>
   void update_current_state(aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
                             const state<sm<T>> &dst_state) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
     process_internal_event(on_exit{});
@@ -1276,20 +1283,36 @@ class sm {
     (void)dst_state;
     current_state = new_state;
     process_internal_event(on_entry{});
-    initialize_impl<sm<T>>(typename sm<T>::history_states_t{});
+    update_composite_states<sm<T>>(TExplicit{}, typename sm<T>::has_history_states{},
+                                   typename sm<T>::initial_but_not_history_states_t{});
   }
 
-  template <class T>
-  void initialize_impl(const aux::type_list<> &) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
+  template <class T, class... Ts>  // explicit
+  void update_composite_states(const aux::type_list<Ts...> &, ...) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
+    auto &sm = aux::try_get<T>(deps_);
+    int _[]{0, (sm.current_state_[sm.template get_region<Ts>()] = aux::get_id<typename T::states_ids_t, -1, Ts>(), 0)...};
+    (void)_;
+    // TODO
+  }
+
+  template <class T, class... Ts, class... THs>  // history states, no explicit
+  void update_composite_states(const aux::type_list<> &, const aux::true_type &, const aux::type_list<THs...> &)
+      BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
+    auto &sm = aux::try_get<T>(deps_);
+    int _[]{0, (sm.current_state_[aux::get_id<typename T::initial_states_ids_t, -1, THs>()] =
+                    aux::get_id<typename T::states_ids_t, -1, THs>(),
+                0)...};
+    (void)_;
+  }
+
+  template <class T>  // just initials, no explicit
+  void update_composite_states(const aux::type_list<> &, const aux::false_type &, ...) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
     aux::try_get<T>(deps_).initialize(typename T::initial_states_t{});
   }
 
-  template <class, class... Ts>
-  void initialize_impl(const aux::type_list<Ts...> &) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {}
-
   template <class TState>
   static constexpr auto get_region() noexcept {
-    return get_region_impl(aux::get_id<states_ids_t, -1, typename TState::type>(), aux::apply_t<get_ids, initial_states_t>{});
+    return get_region_impl(aux::get_id<states_ids_t, -1, TState>(), aux::apply_t<get_ids, initial_states_t>{});
   }
 
   template <int... Ids>
@@ -1298,7 +1321,7 @@ class sm {
     int _[]{0, (id < Ids ? region : region = i, ++i)...};
     (void)_;
     return region;
-  }
+  };
 
   deps_t deps_;
   transitions_t transitions_;
