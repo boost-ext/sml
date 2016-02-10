@@ -110,6 +110,23 @@ test apply_types = [] {
   static_expect(is_same<types, apply_t<identity, types>>::value);
 };
 
+test tuple_empty = [] {
+  tuple<> t;
+  (void)t;
+};
+
+test tuple_basic = [] {
+  tuple<int, double> t{42, 87.0};
+  expect(42 == get_by_id<0>(t));
+  expect(87.0 == get_by_id<1>(t));
+};
+
+test tuple_same_types = [] {
+  tuple<int, int> t{42, 87};
+  expect(42 == get_by_id<0>(t));
+  expect(87 == get_by_id<1>(t));
+};
+
 test pool_empty = [] {
   pool<> p;
   static_expect(0 == get_size<decltype(p)>::value);
@@ -134,6 +151,8 @@ test pool_init_from_other_pool = [] {
 
 test pool_is_pool = [] {
   static_expect(!is_pool<int>::value);
+  static_expect(!is_pool<tuple<>>::value);
+  static_expect(!is_pool<tuple<int>>::value);
   static_expect(is_pool<pool<>>::value);
   static_expect(is_pool<pool<int, double>>::value);
 };

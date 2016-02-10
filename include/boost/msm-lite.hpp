@@ -215,6 +215,27 @@ struct apply<T, U<Ts...>> {
 };
 template <template <class...> class T, class D>
 using apply_t = typename apply<T, D>::type;
+template <int, class T>
+struct tuple_type {
+  T value;
+};
+template <class, class...>
+struct tuple_impl;
+template <int... Ns, class... Ts>
+struct tuple_impl<index_sequence<Ns...>, Ts...> : tuple_type<Ns, Ts>... {
+  using boost_di_inject__ = aux::type_list<Ts...>;
+  explicit tuple_impl(Ts... ts) BOOST_MSM_LITE_NOEXCEPT : tuple_type<Ns, Ts>{ts}... {}
+};
+template <class... Ts>
+using tuple = tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
+template <int N, class T>
+auto &get_by_id_impl(tuple_type<N, T> *object) BOOST_MSM_LITE_NOEXCEPT {
+  return static_cast<tuple_type<N, T> &>(*object).value;
+}
+template <int N, class Tuple>
+auto &get_by_id(Tuple &t) BOOST_MSM_LITE_NOEXCEPT {
+  return get_by_id_impl<N>(&t);
+}
 template <class T>
 struct pool_type {
   T value;
@@ -602,12 +623,18 @@ class seq_ : operator_base {
 
   template <class TEvent, class TDeps, class SM>
   void operator()(const TEvent &event, TDeps &deps, SM &self) BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
-    int _[]{0, (call(aux::get<Ts>(a), event, deps, self), 0)...};
-    (void)_;
+    for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps, self);
   }
 
  private:
-  aux::pool<Ts...> a;
+  template <int... Ns, class TEvent, class TDeps, class SM>
+  void for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &self)
+      BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
+    int _[]{0, (call(aux::get_by_id<Ns>(a), event, deps, self), 0)...};
+    (void)_;
+  }
+
+  aux::tuple<Ts...> a;
 };
 template <class... Ts>
 class and_ : operator_base {
@@ -616,14 +643,20 @@ class and_ : operator_base {
 
   template <class TEvent, class TDeps, class SM>
   auto operator()(const TEvent &event, TDeps &deps, SM &self) BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
+    return for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps, self);
+  }
+
+ private:
+  template <int... Ns, class TEvent, class TDeps, class SM>
+  auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &self)
+      BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
     auto result = true;
-    int _[]{0, (call(aux::get<Ts>(g), event, deps, self) ? result : result = false)...};
+    int _[]{0, (call(aux::get_by_id<Ns>(g), event, deps, self) ? result : result = false)...};
     (void)_;
     return result;
   }
 
- private:
-  aux::pool<Ts...> g;
+  aux::tuple<Ts...> g;
 };
 template <class... Ts>
 class or_ : operator_base {
@@ -632,14 +665,20 @@ class or_ : operator_base {
 
   template <class TEvent, class TDeps, class SM>
   auto operator()(const TEvent &event, TDeps &deps, SM &self) BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
+    return for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps, self);
+  }
+
+ private:
+  template <int... Ns, class TEvent, class TDeps, class SM>
+  auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &self)
+      BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
     auto result = false;
-    int _[]{0, (call(aux::get<Ts>(g), event, deps, self) ? result = true : result)...};
+    int _[]{0, (call(aux::get_by_id<Ns>(g), event, deps, self) ? result = true : result)...};
     (void)_;
     return result;
   }
 
- private:
-  aux::pool<Ts...> g;
+  aux::tuple<Ts...> g;
 };
 template <class T>
 class not_ : operator_base {
