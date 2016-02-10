@@ -298,6 +298,25 @@ template <template <class...> class T, class... Ts>
 struct get_size<T<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
+template <int... Ts>
+constexpr auto max() noexcept {
+  auto max = 0;
+  int _[]{0, (Ts > max ? max = Ts : max)...};
+  (void)_;
+  return max;
+}
+template <class... Ts>
+struct variant {
+  using ids_t = type_id<Ts...>;
+  alignas(max<alignof(Ts)...>()) byte data[max<sizeof(Ts)...>()];
+  int id = -1;
+
+  template <class T>
+  void init(T object) noexcept {
+    id = get_id<ids_t, -1, T>();
+    new (&data) T(static_cast<T &&>(object));
+  }
+};
 }  // aux
 namespace detail {
 struct on_entry;
@@ -402,6 +421,12 @@ struct process_event {
     return process_event_impl<TEvent>{event};
   }
 };
+#if defined(BOOST_MSM_LITE_DEFER_LIMIT_SIZE)
+struct defer {
+  template <class TEvent>
+  auto operator()(const TEvent &) BOOST_MSM_LITE_NOEXCEPT {}
+};
+#endif
 template <class>
 struct event {
   template <class T, BOOST_MSM_LITE_REQUIRES(concepts::callable<bool, T>::value)>
@@ -1321,10 +1346,13 @@ class sm {
     int _[]{0, (id < Ids ? region : region = i, ++i)...};
     (void)_;
     return region;
-  };
+  }
 
   deps_t deps_;
   transitions_t transitions_;
+
+#if defined(BOOST_MSM_LITE_DEFER_LIMIT_SIZE)
+#endif
 
  protected:
   aux::byte current_state_[regions];
