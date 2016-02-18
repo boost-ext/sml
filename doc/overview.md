@@ -25,7 +25,7 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 
 * No external dependencies are required (neither STL nor Boost)
 
-###Supported/tested compilers
+###Supported/Tested compilers
 
 * [Clang-3.4+](https://travis-ci.org/boost-experimental/msm-lite)
 * [GCC-5.2+](https://travis-ci.org/boost-experimental/msm-lite)

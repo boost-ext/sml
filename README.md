@@ -69,7 +69,7 @@ int main() {
 * [Overview](http://boost-experimental.github.io/msm-lite/overview/index.html)
     * [Quick Start](http://boost-experimental.github.io/msm-lite/overview/index.html#quick-start)
     * [Dependencies](http://boost-experimental.github.io/msm-lite/overview/index.html#dependencies)
-    * [Supported/tested compilers](http://boost-experimental.github.io/msm-lite/overview/index.html#supportedtested-compilers)
+    * [Supported/Tested compilers](http://boost-experimental.github.io/msm-lite/overview/index.html#supportedtested-compilers)
     * [Configuration](http://boost-experimental.github.io/msm-lite/overview/index.html#configuration)
     * [Exception Safety](http://boost-experimental.github.io/msm-lite/overview/index.html#exception-safety)
     * [Thread Safety](http://boost-experimental.github.io/msm-lite/overview/index.html#thread-safety)
