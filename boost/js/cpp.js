@@ -159,7 +159,7 @@ $(document).ready(function () {
       var id = gid++;
       var compile = "\/\/ $CXX -std=c++14 " + basename;
       example = $('<div/>').text(example_result.replace(/[\n]{3,}/g, "\n")).html();
-      $(this).replaceWith('<button style="position: relative; top: 60px; right: 20px; z-index: 10;" class="btn btn-neutral float-right" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\', \'Run this code!\')">Run this code!</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"><pre><code style="line-height: 11px; width: 100%" class="cpp hljs">' + compile + '\n' + example + '</code></pre></div>');
+      $(this).replaceWith('<button style="position: relative; top: 60px; right: 20px; z-index: 10;" class="btn btn-neutral float-right" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\', \'Run this code!\')">Run this code!</button><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea><div id="code_listing_' + id + '"><pre><code style="line-height: 12px; width: 100%" class="cpp hljs">' + compile + '\n' + example + '</code></pre></div>');
     });
 
     $('img[alt="CPP(BTN)"]').each(function () {
@@ -224,9 +224,9 @@ $(document).ready(function () {
       var id = gid++;
       var ex = cleanup(example_result);
       var ts = cleanup(test_result);
-      var height = Math.max(ex.split("\n").length, ts.split("\n").length) * 12;
+      var height = Math.max(ex.split("\n").length, ts.split("\n").length) * 13;
       example = $('<div/>').text(ex).html();
       test = $('<div/>').text(ts).html();
-      $(this).replaceWith('<table style="table-layout: fixed; border-collapse:collapse; padding:0; height: 30px; width: 100%; border: 1px;"><thead><tr><th>' + name + '</th><th><button class="btn btn-neutral" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\', \'Test this code!\')">Test this code!</button><div id="code_listing_' + id + '"></th></tr></thead><tbody><tr><td><pre><code class="cpp hljs" style="line-height: 11px; height: ' + height + 'px;">' + example + '</code></pre></td><td><pre><code class="cpp hljs" style="line-height: 11px; height: ' + height + 'px;">' + test + '</code></pre></td></tr></tbody></table><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea></div>');
+      $(this).replaceWith('<table style="table-layout: fixed; border-collapse:collapse; padding:0; height: 30px; width: 100%; border: 1px;"><thead><tr><th>' + name + '</th><th><button class="btn btn-neutral" id="run_it_btn_' + id + '" onclick="cpp(' + id + ', \'' + file + '\', \'Test this code!\')">Test this code!</button><div id="code_listing_' + id + '"></th></tr></thead><tbody><tr><td><pre><code class="cpp hljs" style="line-height: 12px; height: ' + height + 'px;">' + example + '</code></pre></td><td><pre><code class="cpp hljs" style="line-height: 12px; height: ' + height + 'px;">' + test + '</code></pre></td></tr></tbody></table><textarea style="display: none" id="code_' + id + '"></textarea><br /><textarea style="display: none" id="output_' + id + '"></textarea></div>');
     });
 });
