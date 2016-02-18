@@ -77,7 +77,7 @@ function compile_and_run(id) {
            }]
          , "options": "warning,cpp-pedantic-errors,optimize,boost-nothing,c++1y"
          , "compiler" : "clang-head"
-         , "compiler-option-raw": "-I." + "\n" + "-fno-color-diagnostics"
+         , "compiler-option-raw": "-I." + "\n" + "-I/usr/local/boost-1.60.0/include" + "\n" + "-fno-color-diagnostics"
     }));
 }
 
