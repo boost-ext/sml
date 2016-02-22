@@ -41,8 +41,7 @@
 
   <script src="../js/cpp.js"></script>
   <script src="../js/gitter.js"></script>
-  <script src="../js/html.js"></script>
-  <script src="../js/youtube.js"></script> 
+  <script src="../js/utility.js"></script> 
 
   
   <script>
@@ -120,13 +119,13 @@
                 <li class="toctree-l3"><a href="#6-process-events">6. Process events</a></li>
                 
             
-                <li class="toctree-l3"><a href="#8-error-handling">8. Error handling</a></li>
+                <li class="toctree-l3"><a href="#8-handle-errors">8. Handle errors</a></li>
                 
             
-                <li class="toctree-l3"><a href="#9-testing">9. Testing</a></li>
+                <li class="toctree-l3"><a href="#9-test-it">9. Test it</a></li>
                 
             
-                <li class="toctree-l3"><a href="#10-debugging">10. Debugging</a></li>
+                <li class="toctree-l3"><a href="#10-debug-it">10. Debug it</a></li>
                 
             
             </ul>
@@ -516,7 +515,7 @@ assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
 <img alt="CPP(BTN)" src="../Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
-<h3 id="8-error-handling">8. Error handling</h3>
+<h3 id="8-handle-errors">8. Handle errors</h3>
 <p>Different errors may occur when processing events. Firstly, event might not be handled (transition has not happened).
 In such scenario <code>process_event</code> returns false and <code>unexpected_event</code> is fired.</p>
 <pre><code class="cpp">make_transition_table(
@@ -568,7 +567,7 @@ public:
 <p><img alt="CPP(BTN)" src="../Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
-<h3 id="9-testing">9. Testing</h3>
+<h3 id="9-test-it">9. Test it</h3>
 <p>Sometimes it's useful to verify whether a state machine is in a specific states, for example, if
 we are in a terminate state or not. We can do it with <code>msm-lite</code> using <code>is</code> or <code>visit_current_states</code>
 functionality.</p>
@@ -593,7 +592,7 @@ assert(sm.is(X));
 <p><img alt="CPP(BTN)" src="../Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
-<h3 id="10-debugging">10. Debugging</h3>
+<h3 id="10-debug-it">10. Debug it</h3>
 <p><code>msm-lite</code> provides logging capabilities in order to inspect state machine flow.
 To enable logging you have to define <code>BOOST_MSM_LITE_LOG</code>.</p>
 <pre><code class="cpp">template &lt;class SM, class TEvent&gt;
