@@ -344,7 +344,7 @@ assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
 
 ---
 
-###8. Error handling
+###8. Handle errors
 
 Different errors may occur when processing events. Firstly, event might not be handled (transition has not happened).
 In such scenario `process_event` returns false and `unexpected_event` is fired.
@@ -409,7 +409,7 @@ make_transition_table(
 
 ---
 
-###9. Testing
+###9. Test it
 
 Sometimes it's useful to verify whether a state machine is in a specific states, for example, if
 we are in a terminate state or not. We can do it with `msm-lite` using `is` or `visit_current_states`
@@ -442,7 +442,7 @@ assert(sm.is(X));
 
 ---
 
-###10. Debugging
+###10. Debug it
 
 `msm-lite` provides logging capabilities in order to inspect state machine flow.
 To enable logging you have to define `BOOST_MSM_LITE_LOG`.
