@@ -46,22 +46,22 @@ function cpp(id, file, text) {
 
 function compile_and_run(id) {
     document.getElementById("compile_and_run_" + id).firstChild.data = "Compiling...";
-    cpp_output[id].setValue("");
+    cpp_output[id].setValue("Compiling...");
     var http = new XMLHttpRequest();
     http.open("POST", "http://melpon.org/wandbox/api/compile.json", true);
     http.onreadystatechange = function(){
         if (http.readyState == 4 && http.status == 200) {
             var output_json = JSON.parse(http.response);
             if ('status' in output_json && output_json.status == "0") {
+                cpp_output[id].setValue("Running... [OK]");
                 if ('program_message' in output_json) {
-                    cpp_output[id].setValue(output_json.program_message);
+                    cpp_output[id].setValue(cpp_output[id].getValue() + "\n" + output_json.program_message);
                 }
-                cpp_output[id].setValue(cpp_output[id].getValue() + "\n-------\nExit: " + output_json.status);
             } else if ('compiler_error' in output_json) {
-                cpp_output[id].setValue(output_json.compiler_error);
+                cpp_output[id].setValue("Compiling... [FAIL]\n" + output_json.compiler_error);
             } else if ('signal' in output_json) {
                 if ('program_message' in output_json) {
-                    cpp_output[id].setValue(output_json.program_message);
+                    cpp_output[id].setValue("Running... [FAIL]\n" + output_json.program_message);
                 }
             }
             document.getElementById("compile_and_run_" + id).firstChild.data = "Compile & Run (Ctrl+Enter)";
@@ -75,9 +75,9 @@ function compile_and_run(id) {
               "file" : "boost/msm-lite.hpp"
             , "code" : get_cpp_file("https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp")
            }]
-         , "options": "warning,cpp-pedantic-errors,optimize,boost-nothing,c++1y"
+         , "options": "warning,cpp-pedantic-errors,optimize,boost-1.60,c++1y"
          , "compiler" : "clang-head"
-         , "compiler-option-raw": "-I." + "\n" + "-I/usr/local/boost-1.60.0/include" + "\n" + "-fno-color-diagnostics"
+         , "compiler-option-raw": "-I." + "\n" + "-fno-color-diagnostics"
     }));
 }
 
