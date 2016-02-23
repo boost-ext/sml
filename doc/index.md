@@ -118,3 +118,4 @@ to avoid it `Boost.MSM-lite` may suits you!
 
 ###Acknowledgements
 * Thanks to Christophe Henry for a great [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) library
+* Thanks to Vicente J. Botet Escriba for useful suggestions how to improve Boost.MSM-lite 
