@@ -54,8 +54,14 @@ style_check:
 static_check:
 	$(CLANG_TIDY) test/ut.cpp test/ft.cpp -- -std=c++1y -I include -I test -include test.hpp
 
-doc:
-	cd doc && $(MKDOCS) build --clean --theme-dir $(MKDOCS_THEME) --site-dir $(MKDOCS_SITE)
+doc: doc_$(MKDOCS_THEME)
+
+doc_%:
+	cd doc && $(MKDOCS) build --clean --theme-dir themes/$* --site-dir $(MKDOCS_SITE)
+
+doc_boost:
+	cd doc && python themes/boost/scripts/update_markdown.py . https://raw.githubusercontent.com/boost-experimental/msm-lite/master
+	cd doc && $(MKDOCS) build --clean --theme-dir themes/boost --site-dir $(MKDOCS_SITE)
 
 readme:
 	cd doc && $(PYTHON) scripts/update_readme_toc.py mkdocs.yml ../README.md http://boost-experimental.github.io/msm-lite
