@@ -1,4 +1,4 @@
 ((window.gitter = {}).chat = {}).options = {
-  room: 'boost-experimental/msm-lite'
+  room: 'boost-experimental/di'
 };
 $.getScript('https://sidecar.gitter.im/dist/sidecar.v1.js', function() { });

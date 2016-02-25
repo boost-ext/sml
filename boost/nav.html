@@ -1,0 +1,17 @@
+<div class="toc">
+<p><b>Table of Contents</b></p>
+<dl class="toc">
+{% for nav_item in nav %}
+    {% if nav_item.children %}
+        <dt><span class="section"><a href="{{ nav_item.url }}">{{ nav_item.title }}</a></span></dt>
+        <dd><dl>
+            {% for nav_item in nav_item.children %}
+                <dt><span class="section"><a href="{{ nav_item.url }}">{{ nav_item.title }}</a></span></dt>
+            {% endfor %}
+        </dl></dd>
+    {% else %}
+        <dt><span class="section"><a href="{{ nav_item.url }}">{{ nav_item.title }}</a></span></dt>
+    {% endif %}
+{% endfor %}
+</dl>
+</div>
