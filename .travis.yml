@@ -92,8 +92,8 @@ script:
     pip install --user travis https://github.com/mkdocs/mkdocs/archive/b30f38fe299738e8ce614e53c3342cc8bef02b5b.zip --upgrade
     && git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && rm -rf *
     && git checkout -b gh-pages -t origin/gh-pages && git reset --hard && cd ..
-    && MKDOCS_THEME=boost-experimental MKDOCS_SITE=../di make doc
-    && MKDOCS_THEME=boost MKDOCS_SITE=../di/boost make doc readme
+    && MKDOCS_THEME=boost-experimental MKDOCS_SITE=../msm-lite make doc
+    && MKDOCS_THEME=boost MKDOCS_SITE=../msm-lite/boost make doc readme
     && cd msm-lite && git add -A . && git commit -am "doc update"
     && git push --force --quiet "https://${GH_TOKEN}@github.com/boost-experimental/msm-lite.git"); fi
 
