@@ -8,18 +8,17 @@
 <title>{% if page_title %}{{ page_title }} - {% endif %}{{ site_name }}</title>
 
 <link href="{{ base_url }}/css/boostbook.css" rel="stylesheet">
-<link href="{{ base_url }}/css/styles/github.css" rel="stylesheet">
-<link rel="stylesheet" href="{{ base_url }}/css/codemirror.css">
-<link rel="stylesheet" href="{{ base_url }}/css/highlight.css">
+<link href="{{ base_url }}/css/github.css" rel="stylesheet">
+
 {%- for path in extra_css %}
 <link href="{{ path }}" rel="stylesheet">
 {%- endfor %}
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 
-<table cellpadding="2" width="100%"><tr>
-<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="{{ base_url }}/images/boost.png"></td>
-</tr></table>
+<div width="100%">
+<img alt="Boost C++ Libraries" width="277" height="86" src="{{ base_url }}/images/boost.png">
+</div>
 
 <hr>
 <div class="spirit-nav">
@@ -67,17 +66,20 @@ hljs.initHighlightingOnLoad();
 <script src="{{ path }}"></script>
 {%- endfor %}
 
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">{% if copyright %}{{ copyright }}{% endif %}
+<div class="copyright-footer">{% if copyright %}{{ copyright }}{% endif %}
       <p>Distributed under the Boost Software License, Version 1.0.
       (See accompanying file <code class="filename">LICENSE_1_0.txt</code> or copy at
       <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 
 </div>
+
+<hr>
+<div class="spirit-nav">
+<a accesskey="p"  {% if previous_page %}href="{{ previous_page.url }}"{% endif %}><img src="{{ base_url }}/images/prev.png" alt="Prev"></a><a accesskey="u" href="{{ homepage_url }}"><img src="{{ base_url }}/images/up.png" alt="Up"></a><a accesskey="h" href="{{ homepage_url }}"><img src="{{ base_url }}/images/home.png" alt="Home"></a><a accesskey="n"  {% if next_page %}href="{{ next_page.url }}"{% endif %}><img src="{{ base_url }}/images/next.png" alt="Next"></a>
+</div>
+
 <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
 <select onChange="window.location.href=this.value" style="position: absolute; top: 20px; right: 30px; z-index: 10;">
     <option value="https://boost-experimental.github.io/msm-lite">Theme: Boost-Experimental</option>
