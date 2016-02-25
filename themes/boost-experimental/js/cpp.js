@@ -72,8 +72,8 @@ function compile_and_run(id) {
         JSON.stringify({
           "code" : cpp_code[id].getValue()
         , "codes" : [{
-              "file" : "boost/di.hpp"
-            , "code" : get_cpp_file("https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/di.hpp")
+              "file" : "boost/msm-lite.hpp"
+            , "code" : get_cpp_file("https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp")
            }]
          , "options": "warning,cpp-pedantic-errors,optimize,boost-1.60,c++1y"
          , "compiler" : "clang-head"
