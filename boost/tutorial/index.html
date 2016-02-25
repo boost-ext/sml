@@ -126,9 +126,11 @@ auto state  = &quot;idle&quot;_s;
 <pre><code class="cpp">assert(string(&quot;idle&quot;) == &quot;idle&quot;_s.c_str());
 </code></pre>
 
-<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/events.cpp">Get Events Example</a>]
-[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp">Get States Example</a>]
-[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp">Get Composite Example</a>]</p>
+<ul>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/events.cpp"> Events Example</a></li>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp"> States Example</a></li>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp"> Composite Example</a></li>
+</ul>
 <p>&nbsp;</p>
 <hr />
 <h3 id="2-create-guards-and-actions">2. Create guards and actions</h3>
@@ -162,7 +164,9 @@ struct action4 {
 };
 </code></pre>
 
-<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/actions_guards.cpp">Get Actions Guards Example</a>]</p>
+<ul>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/actions_guards.cpp"> Actions Guards Example</a></li>
+</ul>
 <p>&nbsp;</p>
 <hr />
 <h3 id="3-create-a-transition-table">3. Create a transition table</h3>
@@ -269,8 +273,10 @@ make_transition_table(
 );
 </code></pre>
 
-<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp">Get Transition Table Example</a>]
-[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp">Get eUML Emulation Example</a>]</p>
+<ul>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp"> Transition Table Example</a></li>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp"> eUML Emulation Example</a></li>
+</ul>
 <p>&nbsp;</p>
 <hr />
 <h3 id="4-set-initial-states">4. Set initial states</h3>
@@ -304,8 +310,10 @@ make_transition_table(
 );
 </code></pre>
 
-<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp">Get Orthogonal Regions Example</a>]
-[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/history.cpp">Get History Example</a>]</p>
+<ul>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp"> Orthogonal Regions Example</a></li>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/history.cpp"> History Example</a></li>
+</ul>
 <p>&nbsp;</p>
 <hr />
 <h3 id="5-create-a-state-machine">5. Create a state machine</h3>
@@ -356,8 +364,10 @@ auto sm = injector.create&lt;sm&lt;example&gt;&gt;();
 assert(sm.process_event(e1{}));
 </code></pre>
 
-<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp">Get Hello World Example</a>]
-[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp">Get Dependency Injection Example</a>]</p>
+<ul>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp"> Hello World Example</a></li>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp"> Dependency Injection Example</a></li>
+</ul>
 <p>&nbsp;</p>
 <hr />
 <h3 id="6-process-events">6. Process events</h3>
@@ -388,9 +398,11 @@ SDL_Event event{SDL_QUIT};
 assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
 </code></pre>
 
-<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp">Get Hello World Example</a>]
-[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp">Get Dispatch Table Example</a>]
-[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp">Get SDL2 Integration Example</a>]</p>
+<ul>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp"> Hello World Example</a></li>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp"> Dispatch Table Example</a></li>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp"> SDL2 Integration Example</a></li>
+</ul>
 <p>&nbsp;</p>
 <hr />
 <h3 id="8-handle-errors">8. Handle errors</h3>
@@ -442,7 +454,9 @@ public:
 );
 </code></pre>
 
-<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp">Get Error Handling Example</a>]</p>
+<ul>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp"> Error Handling Example</a></li>
+</ul>
 <p>&nbsp;</p>
 <hr />
 <h3 id="9-test-it">9. Test it</h3>
@@ -467,7 +481,9 @@ assert(sm.process_event(event{}));
 assert(sm.is(X));
 </code></pre>
 
-<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp">Get Testing Example</a>]</p>
+<ul>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp"> Testing Example</a></li>
+</ul>
 <p>&nbsp;</p>
 <hr />
 <h3 id="10-debug-it">10. Debug it</h3>
@@ -498,8 +514,10 @@ void log_state_change(const TSrcState&amp; src, const TDstState&amp; dst) {
 #include &lt;boost/msm-lite.hpp&gt;
 </code></pre>
 
-<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp">Get Logging Example</a>]
-[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/plant_uml.cpp">Get Plant UML Example</a>]</p>
+<ul>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp"> Logging Example</a></li>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/plant_uml.cpp"> Plant UML Example</a></li>
+</ul>
 <p>&nbsp;</p>
 <hr />
 </div>
