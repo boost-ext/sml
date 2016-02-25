@@ -119,48 +119,853 @@
 </ul>
 <hr />
 <h3 id="hello-world">Hello World</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" /></p>
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;cassert&gt;
+#include &lt;iostream&gt;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {};
+struct e2 {};
+struct e3 {};
+
+auto guard = [] {
+  std::cout &lt;&lt; &quot;guard&quot; &lt;&lt; std::endl;
+  return true;
+};
+
+auto action = [] { std::cout &lt;&lt; &quot;action&quot; &lt;&lt; std::endl; };
+
+struct hello_world {
+  auto configure() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+       *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + event&lt;e2&gt; [ guard ] / action = &quot;s2&quot;_s
+      , &quot;s2&quot;_s + event&lt;e3&gt; / [] { std::cout &lt;&lt; &quot;in place action&quot; &lt;&lt; std::endl; } = X
+    );
+  }
+};
+
+int main() {
+  msm::sm&lt;hello_world&gt; sm;
+  using namespace msm;
+  assert(sm.is(&quot;idle&quot;_s));
+  assert(sm.process_event(e1{}));
+  assert(sm.is(&quot;s1&quot;_s));
+  assert(sm.process_event(e2{}));
+  assert(sm.is(&quot;s2&quot;_s));
+  assert(sm.process_event(e3{}));
+  assert(sm.is(X));
+}
+</code></pre>
+
 <h3 id="events">Events</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/events.cpp" /></p>
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;cassert&gt;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {};
+struct e2 {
+  bool value = true;
+};
+auto event2 = msm::event&lt;e2&gt;;
+
+struct events {
+  auto configure() const noexcept {
+    using namespace msm;
+    auto guard = [](const e2&amp; e) { return e.value; };
+
+    return make_transition_table(
+       *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + event2 [guard] = &quot;s2&quot;_s
+      , &quot;s2&quot;_s + &quot;e3&quot;_t = &quot;s3&quot;_s
+      , &quot;s3&quot;_s + event&lt;int&gt; / [] (int i) { assert(42 == i); } = X
+    );
+  }
+};
+
+int main() {
+  msm::sm&lt;events&gt; sm;
+  using namespace msm;
+  assert(sm.process_event(e1{}));
+  assert(sm.process_event(e2{}));
+  assert(sm.process_event(&quot;e3&quot;_t));
+  assert(sm.process_event(42));
+  assert(sm.is(X));
+}
+</code></pre>
+
 <h3 id="states">States</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp" /></p>
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;iostream&gt;
+#include &lt;cassert&gt;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {};
+struct e2 {};
+struct e3 {};
+
+struct states {
+  auto configure() const noexcept {
+    using namespace msm;
+    state&lt;class idle&gt; idle;
+    auto s2 = state&lt;class s2&gt;{};
+
+    return make_transition_table(
+       *idle + event&lt;e1&gt; = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + msm::on_entry / [] { std::cout &lt;&lt; &quot;s1 on entry&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + msm::on_exit / [] { std::cout &lt;&lt; &quot;s1 on exit&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + event&lt;e2&gt; = s2
+      , s2 + event&lt;e3&gt; = X
+    );
+  }
+};
+
+int main() {
+  msm::sm&lt;states&gt; sm;
+  assert(sm.process_event(e1{}));
+  assert(sm.process_event(e2{}));
+  assert(sm.process_event(e3{}));
+  assert(sm.is(msm::X));
+}
+</code></pre>
+
 <h3 id="actions-guards">Actions Guards</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/actions_guards.cpp" /></p>
+<pre><code class="cpp">
+#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;cassert&gt;
+#include &lt;typeinfo&gt;
+#include &lt;iostream&gt;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {};
+struct e2 {};
+struct e3 {};
+struct e4 {};
+
+auto guard1 = [] {
+  std::cout &lt;&lt; &quot;guard1&quot; &lt;&lt; std::endl;
+  return true;
+};
+
+auto guard2 = [](int i) {
+  assert(42 == i);
+  std::cout &lt;&lt; &quot;guard2&quot; &lt;&lt; std::endl;
+  return false;
+};
+
+auto action1 = [](auto e) { std::cout &lt;&lt; &quot;action1: &quot; &lt;&lt; typeid(e).name() &lt;&lt; std::endl; };
+struct action2 {
+  void operator()(int i) {
+    assert(42 == i);
+    std::cout &lt;&lt; &quot;action2&quot; &lt;&lt; std::endl;
+  }
+};
+
+struct actions_guards {
+  auto configure() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+       *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + event&lt;e2&gt; [ guard1 ] / action1 = &quot;s2&quot;_s
+      , &quot;s2&quot;_s + event&lt;e3&gt; [ guard1 &amp;&amp; ![] { return false;} ] / (action1, action2{}) = &quot;s3&quot;_s
+      , &quot;s3&quot;_s + event&lt;e4&gt; [ !guard1 || guard2 ] / (action1, [] { std::cout &lt;&lt; &quot;action3&quot; &lt;&lt; std::endl; }) = &quot;s4&quot;_s
+      , &quot;s3&quot;_s + event&lt;e4&gt; [ guard1 ] / ([] { std::cout &lt;&lt; &quot;action4&quot; &lt;&lt; std::endl; }) = X
+    );
+  }
+};
+
+int main() {
+  msm::sm&lt;actions_guards&gt; sm{42};
+  assert(sm.process_event(e1{}));
+  assert(sm.process_event(e2{}));
+  assert(sm.process_event(e3{}));
+  assert(sm.process_event(e4{}));
+  assert(sm.is(msm::X));
+}
+</code></pre>
+
 <h3 id="transitions">Transitions</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp" /></p>
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;cassert&gt;
+#include &lt;iostream&gt;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {};
+struct e2 {};
+struct e3 {};
+
+struct transitions {
+  auto configure() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+       *&quot;idle&quot;_s  / [] { std::cout &lt;&lt; &quot;anonymous transition&quot; &lt;&lt; std::endl; } = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + event&lt;e1&gt; / [] { std::cout &lt;&lt; &quot;internal transition&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + event&lt;e2&gt; / ([] { std::cout &lt;&lt; &quot;process internal event&quot; &lt;&lt; std::endl; }, process_event(e3{})) = X
+      , &quot;s1&quot;_s + event&lt;e3&gt; / [] { std::cout &lt;&lt; &quot;process event: e3&quot;; }
+    );
+  }
+};
+
+int main() {
+  msm::sm&lt;transitions&gt; sm;
+  assert(sm.process_event(e1{}));
+  assert(sm.process_event(e2{}));
+  assert(sm.is(msm::X));
+}
+</code></pre>
+
 <h3 id="orthogonal-regions">Orthogonal Regions</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp" /></p>
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;cassert&gt;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {};
+struct e2 {};
+struct e3 {};
+
+struct orthogonal_regions {
+  auto configure() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+     *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
+    , &quot;s1&quot;_s + event&lt;e2&gt; = X
+
+    ,*&quot;idle2&quot;_s + event&lt;e2&gt; = &quot;s2&quot;_s
+    , &quot;s2&quot;_s + event&lt;e3&gt; = X
+    );
+  }
+};
+
+int main() {
+  msm::sm&lt;orthogonal_regions&gt; sm;
+  using namespace msm;
+  assert(sm.is(&quot;idle&quot;_s, &quot;idle2&quot;_s));
+  assert(sm.process_event(e1{}));
+  assert(sm.is(&quot;s1&quot;_s, &quot;idle2&quot;_s));
+  assert(sm.process_event(e2{}));
+  assert(sm.is(X, &quot;s2&quot;_s));
+  assert(sm.process_event(e3{}));
+  assert(sm.is(X, X));
+}
+</code></pre>
+
 <h3 id="composite">Composite</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp" /></p>
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;iostream&gt;
+#include &lt;cassert&gt;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {};
+struct e2 {};
+struct e3 {};
+struct e4 {};
+struct e5 {};
+
+struct sub {
+  sub() {}
+  auto configure() const noexcept {
+    using namespace msm;
+      return make_transition_table(
+       *&quot;idle&quot;_s + event&lt;e3&gt; / [] { std::cout &lt;&lt; &quot;in sub sm&quot; &lt;&lt; std::endl; } = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + event&lt;e4&gt; / [] { std::cout &lt;&lt; &quot;finish sub sm&quot; &lt;&lt; std::endl; } = X
+      );
+  }
+};
+
+msm::state&lt;msm::sm&lt;sub&gt;&gt; sub_state;
+
+struct composite {
+  composite() {}
+  auto configure() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+     *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
+    , &quot;s1&quot;_s + event&lt;e2&gt; / [] { std::cout &lt;&lt; &quot;enter sub sm&quot; &lt;&lt; std::endl; } = sub_state
+    , sub_state + event&lt;e5&gt; / [] { std::cout &lt;&lt; &quot;exit sub sm&quot; &lt;&lt; std::endl; } = X
+    );
+  }
+};
+
+int main() {
+  sub sub_;
+  msm::sm&lt;sub&gt; sub_sm{sub_};
+  composite composite_;
+  msm::sm&lt;composite&gt; sm{composite_, sub_sm};
+
+  using namespace msm;
+  assert(sm.is(&quot;idle&quot;_s));
+  assert(sub_sm.is(&quot;idle&quot;_s));
+
+  assert(sm.process_event(e1{}));
+  assert(sm.is(&quot;s1&quot;_s));
+  assert(sub_sm.is(&quot;idle&quot;_s));
+
+  assert(sm.process_event(e2{}));  // enter sub sm
+  assert(sm.is(sub_state));
+  assert(sub_sm.is(&quot;idle&quot;_s));
+
+  assert(sm.process_event(e3{}));  // in sub sm
+  assert(sm.is(sub_state));
+  assert(sub_sm.is(&quot;s1&quot;_s));
+
+  assert(sm.process_event(e4{}));  // finish sub sm
+  assert(sm.is(sub_state));
+  assert(sub_sm.is(X));
+
+  assert(sm.process_event(e5{}));  // exit sub sm
+  assert(sm.is(X));
+  assert(sub_sm.is(X));
+}
+</code></pre>
+
 <h3 id="history">History</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/history.cpp" /></p>
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;iostream&gt;
+#include &lt;cassert&gt;
+
+namespace msm = boost::msm::lite;
+
+struct sub {
+  auto configure() const noexcept {
+    using namespace msm;
+      return make_transition_table(
+        &quot;s1&quot;_s &lt;= &quot;idle&quot;_s(H) + &quot;e1&quot;_t / [] { std::cout &lt;&lt; &quot;in sub&quot; &lt;&lt; std::endl; }
+      , X      &lt;= &quot;s1&quot;_s      + &quot;e2&quot;_t / [] { std::cout &lt;&lt; &quot;in sub again&quot; &lt;&lt; std::endl; }
+      );
+  }
+};
+
+struct history {
+  auto configure() const noexcept {
+    using namespace msm;
+    state&lt;sm&lt;sub&gt;&gt; sub_state;
+
+    return make_transition_table(
+      sub_state &lt;= *&quot;idle&quot;_s + &quot;e1&quot;_t / [] { std::cout &lt;&lt; &quot;enter sub&quot; &lt;&lt; std::endl; }
+    , &quot;s1&quot;_s    &lt;= sub_state + &quot;e3&quot;_t / [] { std::cout &lt;&lt; &quot;exit sub&quot; &lt;&lt; std::endl; }
+    , sub_state &lt;= &quot;s1&quot;_s    + &quot;e4&quot;_t / [] { std::cout &lt;&lt; &quot;enter sub again&quot; &lt;&lt; std::endl; }
+    );
+  }
+};
+
+int main() {
+  msm::sm&lt;history&gt; sm;
+  using namespace msm;
+  assert(sm.process_event(&quot;e1&quot;_t));
+  assert(sm.process_event(&quot;e1&quot;_t));  // enter sub
+  assert(sm.process_event(&quot;e3&quot;_t));  // exit sub
+  assert(sm.process_event(&quot;e4&quot;_t));  // enter sub
+  assert(sm.process_event(&quot;e2&quot;_t));  // in sub again (history)
+}
+</code></pre>
+
 <h3 id="error-handling">Error handling</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp" /></p>
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;cassert&gt;
+#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+
+namespace msm = boost::msm::lite;
+
+struct error_handling {
+  auto configure() const /*noexcept*/ {  // noexcept will call terminate
+    using namespace msm;
+    return make_transition_table(
+       *&quot;idle&quot;_s + &quot;event1&quot;_t / [] { throw std::runtime_error{&quot;error&quot;}; }
+      , &quot;idle&quot;_s + &quot;event2&quot;_t / [] { throw 0; }
+
+      , *&quot;error_handling&quot;_s + exception&lt;std::runtime_error&gt; / [] { std::cout &lt;&lt; &quot;exception caught&quot; &lt;&lt; std::endl; }
+      ,  &quot;error_handling&quot;_s + exception&lt;&gt; / [] { std::cout &lt;&lt; &quot;generic exception caught, terminate...&quot; &lt;&lt; std::endl; } = X
+    );
+  }
+};
+
+int main() {
+  using namespace msm;
+  sm&lt;error_handling&gt; sm;
+  assert(sm.process_event(&quot;event1&quot;_t));
+  assert(sm.is(&quot;idle&quot;_s, &quot;error_handling&quot;_s));
+  assert(sm.process_event(&quot;event2&quot;_t));
+  assert(sm.is(&quot;idle&quot;_s, X));
+  assert(sm.is(X));  // any region is terminated
+}
+</code></pre>
+
 <h3 id="logging">Logging</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp" /></p>
+<pre><code class="cpp">#include &lt;cstdio&gt;
+#include &lt;typeinfo&gt;
+
+template &lt;class SM, class TEvent&gt;
+void log_process_event(const TEvent&amp;) {
+  printf(&quot;[%s][process_event] %s\n&quot;, typeid(SM).name(), typeid(TEvent).name());
+}
+
+template &lt;class SM, class TGuard, class TEvent&gt;
+void log_guard(const TGuard&amp;, const TEvent&amp;, bool result) {
+  printf(&quot;[%s][guard] %s %s %s\n&quot;, typeid(SM).name(), typeid(TGuard).name(), typeid(TEvent).name(),
+         (result ? &quot;[OK]&quot; : &quot;[Reject]&quot;));
+}
+
+template &lt;class SM, class TAction, class TEvent&gt;
+void log_action(const TAction&amp;, const TEvent&amp;) {
+  printf(&quot;[%s][action] %s %s\n&quot;, typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name());
+}
+
+template &lt;class SM, class TSrcState, class TDstState&gt;
+void log_state_change(const TSrcState&amp; src, const TDstState&amp; dst) {
+  printf(&quot;[%s][transition] %s -&gt; %s\n&quot;, typeid(SM).name(), src.c_str(), dst.c_str());
+}
+
+#define BOOST_MSM_LITE_LOG(T, SM, ...) log_##T&lt;SM&gt;(__VA_ARGS__)
+#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;cassert&gt;
+#include &lt;iostream&gt;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {};
+struct e2 {};
+
+struct guard {
+  bool operator()() const { return true; }
+} guard;
+
+struct action {
+  void operator()() {}
+} action;
+
+struct logging {
+  auto configure() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+       *&quot;idle&quot;_s + event&lt;e1&gt; [ guard &amp;&amp; guard ] / action = &quot;s1&quot;_s
+    );
+  }
+};
+
+int main() {
+  msm::sm&lt;logging&gt; sm;
+  assert(sm.process_event(e1{}));
+  assert(!sm.process_event(e2{}));
+}
+</code></pre>
+
 <h3 id="testing">Testing</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp" /></p>
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;cassert&gt;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {};
+struct e2 {};
+struct e3 {};
+
+struct data {
+  int value = 0;
+};
+
+struct fsm {
+  auto configure() const noexcept {
+    using namespace msm;
+
+    auto guard = [](data&amp; d) { return !d.value; };
+    auto action = [](data&amp; d) { d.value = 42; };
+
+    return make_transition_table(
+       *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + event&lt;e2&gt; = &quot;s2&quot;_s
+      , &quot;s2&quot;_s + event&lt;e3&gt; [guard] / action = X // transition under test
+    );
+  }
+};
+
+int main() {
+  using namespace msm;
+  data fake_data{0};
+  testing::sm&lt;fsm&gt; sm{fake_data};
+  sm.set_current_states(&quot;s2&quot;_s);
+  assert(sm.process_event(e3{}));
+  assert(sm.is(X));
+  assert(fake_data.value = 42);
+}
+</code></pre>
+
 <h3 id="runtime-dispatcher">Runtime Dispatcher</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp" /></p>
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;cassert&gt;
+
+namespace msm = boost::msm::lite;
+
+struct runtime_event {
+  int id = 0;
+};
+struct event1 {
+  static constexpr auto id = 1;
+  event1(const runtime_event &amp;) {}
+};
+struct event2 {
+  static constexpr auto id = 2;
+};
+
+struct dispatch_table {
+  auto configure() noexcept {
+    using namespace msm;
+    return make_transition_table(
+       *&quot;idle&quot;_s + event&lt;event1&gt; = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + event&lt;event2&gt; = X
+    );
+  }
+};
+
+int main() {
+  msm::sm&lt;dispatch_table&gt; sm;
+
+  auto dispatch_event = msm::make_dispatch_table&lt;runtime_event, 1 /*min*/, 5 /*max*/&gt;(sm);
+
+  {
+    runtime_event event{1};
+    assert(dispatch_event(event, event.id));
+  }
+
+  {
+    runtime_event event{2};
+    assert(dispatch_event(event, event.id));
+  }
+
+  assert(sm.is(msm::X));
+}
+</code></pre>
+
 <h3 id="euml-emulation">eUML Emulation</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp" /></p>
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;cassert&gt;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {};
+struct e2 {};
+struct e3 {};
+
+auto event1 = msm::event&lt;e1&gt;;
+auto event2 = msm::event&lt;e2&gt;;
+auto event3 = msm::event&lt;e3&gt;;
+
+auto idle = msm::state&lt;class idle&gt;{};
+auto s1 = msm::state&lt;class s1&gt;{};
+auto s2 = msm::state&lt;class s2&gt;{};
+
+struct data {
+  void set(int value) noexcept { i = value; }
+  int get() const noexcept { return i; }
+  int i = 0;
+};
+
+struct {
+  template &lt;class FSM, class TEvent&gt;
+  bool operator()(msm::sm&lt;FSM&gt;&amp;, const TEvent&amp;, data&amp; d) const noexcept {
+    return d.get() == 42;
+  }
+} guard;
+
+struct {
+  template &lt;class FSM, class TEvent&gt;
+  void operator()(msm::sm&lt;FSM&gt;&amp;, const TEvent&amp;, data&amp; d) noexcept {
+    d.set(123);
+  }
+} action;
+
+class euml_emulation {
+ public:
+  auto configure() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+      s1 &lt;= *idle + event1,
+      s2 &lt;= s1    + event2 [ guard ],
+      X  &lt;= s2    + event3 [ guard ] / action
+    );
+  }
+};
+
+int main() {
+  data d{42};
+  msm::sm&lt;euml_emulation&gt; sm{d};
+  assert(sm.is(idle));
+  assert(sm.process_event(e1{}));
+  assert(sm.is(s1));
+  assert(sm.process_event(e2{}));
+  assert(sm.is(s2));
+  assert(sm.process_event(e3{}));
+  assert(sm.is(msm::X));
+  assert(123 == d.get());
+}
+</code></pre>
+
 <h3 id="dependency-injection">Dependency Injection</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp" /></p>
+<pre><code class="cpp">#if __has_include(&lt;boost/di.hpp&gt;)
+#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;boost/di.hpp&gt;
+#include &lt;cassert&gt;
+#include &lt;typeinfo&gt;
+#include &lt;iostream&gt;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {};
+struct e2 {};
+struct e3 {};
+
+auto guard = [](int i, double d) {
+  assert(42 == i);
+  assert(87.0 == d);
+  std::cout &lt;&lt; &quot;guard&quot; &lt;&lt; std::endl;
+  return true;
+};
+
+auto action = [](int i, auto e) {
+  assert(42 == i);
+  std::cout &lt;&lt; &quot;action: &quot; &lt;&lt; typeid(e).name() &lt;&lt; std::endl;
+};
+
+struct example {
+  auto configure() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+       *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + event&lt;e2&gt; [ guard ] / action = &quot;s2&quot;_s
+      , &quot;s2&quot;_s + event&lt;e3&gt; / [] { std::cout &lt;&lt; &quot;in place action&quot; &lt;&lt; std::endl; } = X
+    );
+  }
+};
+
+namespace di = boost::di;
+
+class controller {
+ public:
+  explicit controller(msm::sm&lt;example&gt;&amp; sm) : sm(sm) {}
+
+  void start() {
+    assert(sm.process_event(e1{}));
+    assert(sm.process_event(e2{}));
+    assert(sm.process_event(e3{}));
+    assert(sm.is(msm::X));
+  }
+
+ private:
+  msm::sm&lt;example&gt;&amp; sm;
+};
+
+int main() {
+  auto injector = di::make_injector(di::bind&lt;&gt;.to(42), di::bind&lt;&gt;.to(87.0));
+  injector.create&lt;controller&gt;().start();
+}
+#else
+int main() {}
+#endif
+</code></pre>
+
 <h3 id="sdl2-integration">SDL2 Integration</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp" /></p>
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;cassert&gt;
+#include &lt;iostream&gt;
+
+namespace msm = boost::msm::lite;
+
+#if __has_include(&lt;SDL2/SDL_events.h&gt;)
+#include &lt;SDL2/SDL_events.h&gt;
+#else
+enum { SDLK_SPACE = ' ' };
+enum SDL_EventType { SDL_FIRSTEVENT = 0, SDL_QUIT, SDL_KEYUP, SDL_MOUSEBUTTONUP, SDL_LASTEVENT };
+struct SDL_KeyboardEvent {
+  SDL_EventType type;
+  struct {
+    int sym;
+  } keysym;
+};
+struct SDL_MouseButtonEvent {
+  SDL_EventType type;
+  int button;
+};
+struct SDL_QuitEvent {
+  SDL_EventType type;
+};
+union SDL_Event {
+  SDL_EventType type;
+  SDL_KeyboardEvent key;
+  SDL_MouseButtonEvent button;
+  SDL_QuitEvent quit;
+};
+#endif
+
+template &lt;SDL_EventType Id&gt;
+struct sdl_event_impl {
+  static constexpr auto id = Id;
+  explicit sdl_event_impl(const SDL_Event&amp; data) noexcept : data(data) {}
+  SDL_Event data;
+};
+
+template &lt;SDL_EventType Id&gt;
+decltype(msm::event&lt;sdl_event_impl&lt;Id&gt;&gt;) sdl_event{};
+
+auto is_key = [](auto key) { return [=](auto event) { return event.data.key.keysym.sym == key; }; };
+
+struct sdl2 {
+  auto configure() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+      //------------------------------------------------------------------------------//
+        &quot;wait_for_user_input&quot;_s &lt;= *&quot;idle&quot;_s
+          / [] { std::cout &lt;&lt; &quot;initialization&quot; &lt;&lt; std::endl; }
+
+      , &quot;key_pressed&quot;_s &lt;= &quot;wait_for_user_input&quot;_s + sdl_event&lt;SDL_KEYUP&gt; [ is_key(SDLK_SPACE) ]
+          / [] { std::cout &lt;&lt; &quot;space pressed&quot; &lt;&lt; std::endl; }
+
+      , X &lt;= &quot;key_pressed&quot;_s + sdl_event&lt;SDL_MOUSEBUTTONUP&gt;
+          / [] { std::cout &lt;&lt; &quot;mouse button pressed&quot; &lt;&lt; std::endl; }
+      //------------------------------------------------------------------------------//
+      , X &lt;= *&quot;waiting_for_quit&quot;_s + sdl_event&lt;SDL_QUIT&gt;
+          / [] { std::cout &lt;&lt; &quot;quit&quot; &lt;&lt; std::endl; }
+      //------------------------------------------------------------------------------//
+    );
+  }
+};
+
+int main() {
+  msm::sm&lt;sdl2&gt; sm;
+  auto dispatch_event = msm::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
+
+  SDL_Event event;
+
+  // while (SDL_PollEvent(&amp;event)) {
+  //   dispatch_event(event, event.type)
+  // };
+
+  {
+    SDL_KeyboardEvent keyboard_event;
+    keyboard_event.type = SDL_KEYUP;
+    keyboard_event.keysym.sym = SDLK_SPACE;
+    event.key = keyboard_event;
+    assert(dispatch_event(event, event.type));
+  }
+
+  {
+    SDL_MouseButtonEvent mousebutton_event;
+    mousebutton_event.type = SDL_MOUSEBUTTONUP;
+    mousebutton_event.button = 1;
+    event.button = mousebutton_event;
+    assert(dispatch_event(event, event.type));
+  }
+
+  {
+    SDL_QuitEvent quit_event;
+    quit_event.type = SDL_QUIT;
+    event.quit = quit_event;
+    assert(dispatch_event(event, event.type));
+  }
+
+  assert(sm.is(msm::X, msm::X));
+}
+</code></pre>
+
 <h3 id="plant-uml-integration">Plant UML Integration</h3>
-<p><img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/plant_uml.cpp" /></p>
+<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+#include &lt;cassert&gt;
+#include &lt;iostream&gt;
+#include &lt;typeinfo&gt;
+#include &lt;string&gt;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {};
+struct e2 {};
+struct e3 {};
+struct e4 {};
+
+struct guard {
+  bool operator()() const { return true; }
+} guard;
+
+struct action {
+  void operator()() {}
+} action;
+
+struct plant_uml {
+  auto configure() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+       *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + event&lt;e2&gt; [ guard ] / action = &quot;s2&quot;_s
+      , &quot;s2&quot;_s + event&lt;e3&gt; [ guard ] = &quot;s1&quot;_s
+      , &quot;s2&quot;_s + event&lt;e4&gt; / action = X
+    );
+  }
+};
+
+template &lt;class T&gt;
+void dump_transition() noexcept {
+  auto src_state = std::string{msm::state&lt;typename T::src_state&gt;::c_str()};
+  auto dst_state = std::string{msm::state&lt;typename T::dst_state&gt;::c_str()};
+  if (dst_state == &quot;X&quot;) {
+    dst_state = &quot;[*]&quot;;
+  }
+
+  if (T::initial) {
+    std::cout &lt;&lt; &quot;[*] --&gt; &quot; &lt;&lt; src_state &lt;&lt; std::endl;
+  }
+
+  std::cout &lt;&lt; src_state &lt;&lt; &quot; --&gt; &quot; &lt;&lt; dst_state;
+
+  const auto has_event = !msm::aux::is_same&lt;typename T::event, msm::detail::anonymous&gt;::value;
+  const auto has_guard = !msm::aux::is_same&lt;typename T::guard, msm::detail::always&gt;::value;
+  const auto has_action = !msm::aux::is_same&lt;typename T::action, msm::detail::none&gt;::value;
+
+  if (has_event || has_guard || has_action) {
+    std::cout &lt;&lt; &quot; :&quot;;
+  }
+
+  if (has_event) {
+    std::cout &lt;&lt; &quot; &quot; &lt;&lt; typeid(typename T::event).name();
+  }
+
+  if (has_guard) {
+    std::cout &lt;&lt; &quot; [&quot; &lt;&lt; typeid(typename T::guard).name() &lt;&lt; &quot;]&quot;;
+  }
+
+  if (has_action) {
+    std::cout &lt;&lt; &quot; / &quot; &lt;&lt; typeid(typename T::action).name();
+  }
+
+  std::cout &lt;&lt; std::endl;
+}
+
+template &lt;template &lt;class...&gt; class T, class... Ts&gt;
+void dump_transitions(const T&lt;Ts...&gt;&amp;) noexcept {
+  int _[]{0, (dump_transition&lt;Ts&gt;(), 0)...};
+  (void)_;
+}
+
+template &lt;class SM&gt;
+void dump(const SM&amp;) noexcept {
+  std::cout &lt;&lt; &quot;@startuml&quot; &lt;&lt; std::endl &lt;&lt; std::endl;
+  dump_transitions(typename SM::transitions{});
+  std::cout &lt;&lt; std::endl &lt;&lt; &quot;@enduml&quot; &lt;&lt; std::endl;
+}
+
+int main() {
+  msm::sm&lt;plant_uml&gt; sm;
+  dump(sm);
+}
+</code></pre>
 </div>
 
-<script src="../js/jquery-2.1.1.min.js"></script>
 <script src="../js/highlight.pack.js"></script>
-<script src="../js/codemirror/codemirror.js"></script>
-<script src="../js/codemirror/clike.js"></script>
-<script src="../js/codemirror/active-line.js"></script>
-
-<script src="../js/cpp.js"></script>
-<script src="../js/gitter.js"></script>
-<script src="../js/utility.js"></script>
 
 <script>
 hljs.configure({languages:['cpp']});
@@ -180,8 +985,8 @@ hljs.initHighlightingOnLoad();
 </div>
 <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
 <select onChange="window.location.href=this.value" style="position: absolute; top: 20px; right: 30px; z-index: 10;">
-  <option value="https://boost-experimental.github.io/di/boost">Theme: Boost</option>
-  <option value="https://boost-experimental.github.io/di">Theme: Boost-Experimental</option>
+    <option value="https://boost-experimental.github.io/msm-lite">Theme: Boost-Experimental</option>
+    <option value="https://boost-experimental.github.io/msm-lite/boost" selected>Theme: Boost</option>
 </select>
 </body>
 </html>

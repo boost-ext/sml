@@ -115,7 +115,7 @@ auto transition = (X &lt;= "idle"_s); // Prefix Notation
 static_assert(transitional&lt;decltype(transition)&gt;::value);
 }
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Transitional_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_transitional.cpp" /></p>
+<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_transitional.cpp">Get Transitional Example</a>]</p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="configurable-concept">configurable [concept]</h3>
@@ -144,7 +144,7 @@ concept bool configurable() {
 
 static_assert(configurable&lt;example&gt;::value);
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Configurable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_configurable.cpp" /></p>
+<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_configurable.cpp">Get Configurable Example</a>]</p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="callable-concept">callable [concept]</h3>
@@ -171,7 +171,7 @@ auto action = [] { };
 static_assert(callable&lt;bool, decltype(guard)&gt;::value);
 static_assert(callable&lt;void, decltype(action)&gt;::value);
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Callable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_callable.cpp" /></p>
+<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_callable.cpp">Get Callable Example</a>]</p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="dispatchable-concept">dispatchable [concept]</h3>
@@ -207,8 +207,8 @@ struct event2 {
 static_assert(dispatchable&lt;runtime_event, event1&gt;::value);
 static_assert(dispatchable&lt;runtime_event, event2&gt;::value);
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Dispatchable_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_dispatchable.cpp" />
-<img alt="CPP(BTN)" src="../Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp" /></p>
+<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_dispatchable.cpp">Get Dispatchable Example</a>]
+[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp">Get SDL2 Integration Example</a>]</p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="state-core">state [core]</h3>
@@ -263,9 +263,9 @@ auto initial_state = *idle;
 auto history_state = idle(H);
 auto terminate_state = X;
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_States_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp" />
-<img alt="CPP(BTN)" src="../Run_Composite_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp" />
-<img alt="CPP(BTN)" src="../Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp" /></p>
+<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp">Get States Example</a>]
+[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp">Get Composite Example</a>]
+[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp">Get Orthogonal Regions Example</a>]</p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="event-core">event [core]</h3>
@@ -305,8 +305,8 @@ template&lt;class T&gt; exception{};
 <p><strong><em>Example</em></strong></p>
 <pre><code>auto my_int_event = event&lt;int&gt;;
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/action_guards.cpp" />
-<img alt="CPP(BTN)" src="../Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp" /></p>
+<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/action_guards.cpp">Get Events Example</a>]
+[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp">Get Error Handling Example</a>]</p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="make_transition_table-state-machine">make_transition_table [state machine]</h3>
@@ -342,7 +342,7 @@ public:
   }
 };
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp" /></p>
+<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp">Get Transition Table Example</a>]</p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="sm-state-machine">sm [state machine]</h3>
@@ -449,9 +449,9 @@ assert(sm.is(X));
 
 sm.visit_current_states([](auto state) { std::cout &lt;&lt; state.c_str() &lt;&lt; std::endl; });
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" />
-<img alt="CPP(BTN)" src="../Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp" />
-<img alt="CPP(BTN)" src="../Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp" /></p>
+<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp">Get Hello World Example</a>]
+[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp">Get Dependency Injection Example</a>]
+[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp">Get eUML Emulation Example</a>]</p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="testingsm-testing">testing::sm [testing]</h3>
@@ -500,7 +500,7 @@ sm.set_current_states("s1"_s);
 sm.process_event(TEvent{});
 sm.is(X);
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp" /></p>
+<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp">Get Testing Example</a>]</p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="make_dispatch_table-utility">make_dispatch_table [utility]</h3>
@@ -532,8 +532,8 @@ struct event1 {
 auto dispatch_event = msm::make_dispatch_table&lt;runtime_event, 1 /*min*/, 5 /*max*/&gt;(sm);
 assert(dispatch_event(event, event.id));
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp" />
-<img alt="CPP(BTN)" src="../Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp" /></p>
+<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp">Get Dispatch Table Example</a>]
+[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp">Get SDL2 Integration Example</a>]</p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="boost_msm_lite_log-debugging">BOOST_MSM_LITE_LOG [debugging]</h3>
@@ -606,21 +606,13 @@ assert(dispatch_event(event, event.id));
 msm::sm&lt;example&gt; sm;
 sm.process_event(event{}); // [process_event]
 </code></pre>
-<p><img alt="CPP(BTN)" src="../Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp" />
-<img alt="CPP(BTN)" src="../Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/plant_uml.cpp" /></p>
+<p>[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp">Get Logging Example</a>]
+[<a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/plant_uml.cpp">Get Plant UML Example</a>]</p>
 <p>&nbsp;</p>
 <hr />
 </div>
 
-<script src="../js/jquery-2.1.1.min.js"></script>
 <script src="../js/highlight.pack.js"></script>
-<script src="../js/codemirror/codemirror.js"></script>
-<script src="../js/codemirror/clike.js"></script>
-<script src="../js/codemirror/active-line.js"></script>
-
-<script src="../js/cpp.js"></script>
-<script src="../js/gitter.js"></script>
-<script src="../js/utility.js"></script>
 
 <script>
 hljs.configure({languages:['cpp']});
@@ -640,8 +632,8 @@ hljs.initHighlightingOnLoad();
 </div>
 <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
 <select onChange="window.location.href=this.value" style="position: absolute; top: 20px; right: 30px; z-index: 10;">
-  <option value="https://boost-experimental.github.io/di/boost">Theme: Boost</option>
-  <option value="https://boost-experimental.github.io/di">Theme: Boost-Experimental</option>
+    <option value="https://boost-experimental.github.io/msm-lite">Theme: Boost-Experimental</option>
+    <option value="https://boost-experimental.github.io/msm-lite/boost" selected>Theme: Boost</option>
 </select>
 </body>
 </html>
