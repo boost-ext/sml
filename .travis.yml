@@ -89,10 +89,12 @@ script:
   - if [ "${CXX}" != "" ] && [ "${COVERAGE}" != "" ]; then (travis_wait make test); fi
   - if [ "${CHECK}" != "" ]; then (travis_wait make style_check static_check); fi
   - if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${DOCUMENTATION}" != "" ]; then (
-    pip install --user travis https://github.com/mkdocs/mkdocs/archive/0.15.0.zip
-    && make doc && git clone https://github.com/boost-experimental/msm-lite.git
-    && cd msm-lite && git checkout -b gh-pages -t origin/gh-pages && git reset --hard
-    && rm -rf * && cp -r ../doc/site/* . && git add -A . && git commit -am "doc update"
+    pip install --user travis https://github.com/mkdocs/mkdocs/archive/b30f38fe299738e8ce614e53c3342cc8bef02b5b.zip --upgrade
+    && git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && rm -rf *
+    && git checkout -b gh-pages -t origin/gh-pages && git reset --hard && cd ..
+    && MKDOCS_THEME=themes/boost-experimental MKDOCS_SITE=../msm-lite make doc
+    && MKDOCS_THEME=themes/boost MKDOCS_SITE=../msm-lite/boost make doc readme
+    && cd msm-lite && git add -A . && git commit -am "doc update"
     && git push --force --quiet "https://${GH_TOKEN}@github.com/boost-experimental/msm-lite.git"); fi
 
 after_success:

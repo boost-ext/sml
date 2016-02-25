@@ -13,6 +13,8 @@ CLANG_FORMAT?=clang-format
 CLANG_TIDY?=clang-tidy
 PYTHON?=python
 MKDOCS?=mkdocs
+MKDOCS_THEME?=themes/boost-experimental
+MKDOCS_SITE?=site
 
 all: test example pt
 
@@ -53,7 +55,10 @@ static_check:
 	$(CLANG_TIDY) test/ut.cpp test/ft.cpp -- -std=c++1y -I include -I test -include test.hpp
 
 doc:
-	cd doc && $(MKDOCS) build --clean && $(PYTHON) boost/scripts/update_readme_toc.py mkdocs.yml ../README.md http://boost-experimental.github.io/msm-lite
+	cd doc && $(MKDOCS) build --clean --theme-dir $(MKDOCS_THEME) --site-dir $(MKDOCS_SITE)
+
+readme:
+	cd doc && $(PYTHON) scripts/update_readme_toc.py mkdocs.yml ../README.md http://boost-experimental.github.io/msm-lite
 
 clean:
 	find example test -iname "*.out" | xargs rm -f
