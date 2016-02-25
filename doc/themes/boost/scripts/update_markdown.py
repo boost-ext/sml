@@ -33,8 +33,6 @@ def update_md(filename):
       print_cpp("../" + line.split("(")[2][len(sys.argv[2])+1:].split(")")[0])
     elif line.find("[CPP(SPLIT)]") != -1:
       print_cpp("../" + line.split("(")[2][len(sys.argv[2])+1:].split(")")[0])
-      href = line.split("(")[1].split(")")[0]
-      print "* [" + href + "](" + href + ")"
     elif line.find("[IFRAME]") != -1:
       src = line.split("(")[1].split(")")[0]
       print "[" + src + "](" + src + ")"
