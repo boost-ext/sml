@@ -771,3 +771,21 @@ span.purple { color: purple; }
 span.gold { color: gold; }
 span.silver { color: silver; } /* lighter gray */
 span.gray { color: #808080; } /* light gray */
+
+table {
+  border:1px solid #C0C0C0;
+  border-collapse:collapse;
+  margin-bottom: 20px;
+  padding:5px;
+  width: 100%;
+  font-size: 90%;
+}
+th {
+  border:1px solid #C0C0C0;
+  padding:5px;
+  background:#F0F0F0;
+}
+td {
+  border:1px solid #C0C0C0;
+  padding:5px;
+}
