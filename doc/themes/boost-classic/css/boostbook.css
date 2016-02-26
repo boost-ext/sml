@@ -773,6 +773,7 @@ span.silver { color: silver; } /* lighter gray */
 span.gray { color: #808080; } /* light gray */
 
 table {
+  table-layout: fixed;
   border:1px solid #C0C0C0;
   border-collapse:collapse;
   margin-bottom: 20px;
@@ -787,5 +788,12 @@ th {
 }
 td {
   border:1px solid #C0C0C0;
+  padding:5px;
+}
+span.warning {
+  display: inline-block;
+  border:1px solid #C0C0C0;
+  border-collapse:collapse;
+  margin-bottom: 20px;
   padding:5px;
 }

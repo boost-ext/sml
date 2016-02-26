@@ -59,9 +59,9 @@ doc: doc_$(MKDOCS_THEME)
 doc_%:
 	cd doc && $(MKDOCS) build --clean --theme-dir themes/$* --site-dir $(MKDOCS_SITE)
 
-doc_boost:
-	cd doc && python themes/boost/scripts/update_markdown.py . https://raw.githubusercontent.com/boost-experimental/msm-lite/master
-	cd doc && $(MKDOCS) build --clean --theme-dir themes/boost --site-dir $(MKDOCS_SITE)
+doc_boost-classic:
+	cd doc && python themes/boost-classic/scripts/update_markdown.py . https://raw.githubusercontent.com/boost-experimental/msm-lite/master
+	cd doc && $(MKDOCS) build --clean --theme-dir themes/boost-classic --site-dir $(MKDOCS_SITE)
 
 readme:
 	cd doc && $(PYTHON) scripts/update_readme_toc.py mkdocs.yml ../README.md http://boost-experimental.github.io/msm-lite
