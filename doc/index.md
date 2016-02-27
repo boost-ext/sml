@@ -26,7 +26,7 @@ Introduction
 * [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html)
 
 ###Do I need a State Machine?
-State Machine design pattern allows you to avoid maintaining following spaghetti code.
+State Machine design pattern prevents you from creating and maintaining spaghetti code.
 
 ```cpp
 void some_function() {
@@ -42,7 +42,7 @@ void some_function() {
 ```
 
 If above code looks somewhat similar to your code base or if you like
-to avoid it `Boost.MSM-lite` may suits you!
+to avoid it `Boost.MSM-lite` may suit you!
 
 ###Real Life examples?
 
@@ -55,13 +55,13 @@ to avoid it `Boost.MSM-lite` may suits you!
 
 ###Why Boost.MSM-lite?
 
-* [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
+* [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) is awesome, however it has a few huge limitations making it unusable on a large scale projects;
   Boost.MSM-lite, therefore, is trying to address those issues.
 
 ###Problems with Boost.MSM - eUML
 
 * Horrible compilation times (see [Performance](overview.md#performance))
-* Produces huge binaries (see [Performance](overview.md#performance))
+* Huge resulting binaries (see [Performance](overview.md#performance))
 * Based on too many macros
 * Horrible and long error messages (see [Error Messages](overview.md#error-messages))
 * Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, state entry/exit actions)

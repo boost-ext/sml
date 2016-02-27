@@ -217,7 +217,7 @@ make_transition_table(
 ```
 
 You can have more than one initial state. All initial states will be executed in pseudo-parallel way
-and are called orthogonal regions.
+. Such states are called `Orthogonal regions`.
 
 ```cpp
 using namespace msm;
@@ -330,7 +330,8 @@ struct game_over {
   static constexpr auto id = SDL_QUIT;
   // explicit game_over(const SDL_Event&) noexcept; // optional, when defined runtime event will be passed
 };
-
+enum SDL_EventType { SDL_FIRSTEVENT = 0, SDL_QUIT, SDL_KEYUP, SDL_MOUSEBUTTONUP, SDL_LASTEVENT };
+//create dispatcher from state machine and range of events
 auto dispatch_event = msm::make_dispatch_table<SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT>(sm);
 SDL_Event event{SDL_QUIT};
 assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
@@ -346,7 +347,7 @@ assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
 
 ###8. Handle errors
 
-Different errors may occur when processing events. Firstly, event might not be handled (transition has not happened).
+Unhandled events / transition failed. 
 In such scenario `process_event` returns false and `unexpected_event` is fired.
 
 ```cpp
@@ -356,15 +357,15 @@ make_transition_table(
 );
 ```
 
-Usually, it is handy to create additional orthogonal region in order to handle unexpected scenarios.
-This way State in which unexpected event occurred does not matter.
+Usually, it's handy to create additional `Orthogonal region` to cover this scenario,
+This way State causing unexpected event does not matter.
 
 ```cpp
 make_transition_table(
  *"idle"_s + event<my_event> [ guard ] / action = "s1"_s
 , "s1"_s + event<other_event> [ guard ] / action = "s2"_s
 , "s2"_s + event<yet_another_event> [ guard ] / action = X
-
+// terminate (=X) the Machine or reset to another state
 ,*"error_handler"_s + unexpected_event<some_event> = X
 );
 ```
@@ -374,15 +375,14 @@ We can always check whether a State Machine is in terminate state by.
 assert(sm.is(msm::X)); // doesn't matter how many regions there are
 ```
 
-However, unexpected events do not cover all problems we can get into. Sometimes, exception might be thrown (when they are enabled).
-Boost.MSM-lite handles those the same way as unexpected events via `exception` event.
+When exceptions are enabled Boost.MSM-lite handles them the same way as unexpected events - via \`exception` event.
 Please notice that for performance reasons when exceptions are enabled (__cpp_exceptions defined) `noexcept` should be added
 onto `configure` in order to disable handling exceptions when they can not be thrown.
 
 ```cpp
 class example {
 public:
-  auto configure() noexcept; // no exceptions handling, terminate will be called when throw will happen
+  auto configure() noexcept; // no exceptions handling, terminate will be called on exception
 }
 ```
 
@@ -411,7 +411,7 @@ make_transition_table(
 
 ###9. Test it
 
-Sometimes it's useful to verify whether a state machine is in a specific states, for example, if
+Sometimes it's useful to verify whether a state machine is in a specific state, for example, if
 we are in a terminate state or not. We can do it with `msm-lite` using `is` or `visit_current_states`
 functionality.
 
