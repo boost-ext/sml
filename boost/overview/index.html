@@ -121,9 +121,9 @@ namespace msm = boost::msm::lite;
 </table>
 <h3 id="exception-safety">Exception Safety</h3>
 <ul>
-<li>Boost.MSM-lite is not using exceptions internally and therefore might be compiled with <code>-fno-exceptions</code>.</li>
+<li>Boost.MSM-lite doesn't use exceptions internally and therefore might be compiled with <code>-fno-exceptions</code>.</li>
 <li>Check <a href="../user_guide/index.html">User Guide</a> to verify which API's are marked <code>noexcept</code>.</li>
-<li>When guard/action throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will stay in a current state.</li>
+<li>If guard/action throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will stay in a current state.</li>
 <li>Exceptions might be caught using transition table via <code>exception</code> event. See <a href="../tutorial/index.html#8-error-handling">Error handling</a>.</li>
 </ul>
 <h3 id="thread-safety">Thread Safety</h3>
