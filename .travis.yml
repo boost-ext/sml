@@ -50,7 +50,7 @@ matrix:
     addons:
       apt:
         packages: ["clang-3.8", "valgrind"]
-        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise"]
+        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"]
   - os: linux
     env: CXX=g++-5 MEMCHECK=VALGRIND
     addons:
