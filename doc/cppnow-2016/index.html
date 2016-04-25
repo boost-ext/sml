@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Experimental Boost.MSM-lite</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/league.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+			<div class="slides">
+
+		  <section data-background-size="100%" data-background="images/king_logo.png"></section>
+          <section data-markdown=""
+                   data-separator="^====+$"
+                   data-separator-vertical="^----+$"
+                   data-notes="^Note:"
+
+data-background-size="100%"
+	 data-background="images/king.png"
+				   >
+					<script type="text/template">
+
+C++Now 2016
+
+## C++14 version of Boost.MSM-eUML which compiles up to 60x faster whilst being slightly faster too!
+Kris Jusiak
+
+==============================================================================
+
+##UML State Machine
+
+----
+
+UML state machine, also known as UML statechart, is a significantly enhanced realization of the mathematical concept of a finite automaton in computer science applications as expressed in the Unified Modeling Language (UML) notation
+
+----
+
+![State Machine](images/state_machine.png)
+
+----
+
+##State Machine Concepts
+
+----
+
+A state machine is a concrete model describing the behavior of a system. It is composed of a finite number of states and transitions.
+
+![State Machine](images/sm.gif)
+
+----
+
+A state has no sub states, can have data, entry and exit behaviors and deferred eve
+
+![State](images/state.gif)
+
+----
+
+A transition is the switching between active states, triggered by an event. Actions and guard conditions can be attached to the transition.
+
+![Transition](images/transition.jpg)
+
+----
+
+An initial state marks the first active state of a state machine. It has no real existence and neither has the transition originating from it.
+
+![Initial State](images/init_state.gif)
+
+----
+
+The terminate pseudo state terminates the execution of a state machine.
+
+![Teriminate State](images/terminate.gif)
+
+----
+
+A composite state is a state containing a region or decomposed in two or more regions.
+
+----
+
+A submachine is a state machine inserted as a state in another state machine. 
+
+----
+
+Orthogonal regions have its own set of mutually exclusive set of states and transitions.
+
+![Composite](images/regions.gif)
+
+==============================================================================
+
+#Experimental Boost.MSM-lite
+
+==============================================================================
+
+##Motivation
+
+----
+
+##Do I need a State Machine?
+State Machine design pattern allows you to AVOID maintaining following spaghetti code.
+
+----
+
+```cpp
+void some_function() {
+  ...
+  if ((is_running && !is_jumping) || just_started) {
+      ...
+  } else if (is_boss_level && extra_feature_enabled && !ab_test) {
+      ...
+  } else {
+      ...
+  }
+}
+```
+
+----
+
+##Why Boost.MSM-lite?
+
+----
+
+[Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
+  Boost.MSM-lite, therefore, is trying to address those issues.
+
+----
+
+##Problems with Boost.MSM - eUML
+
+----
+
+Horrible compilation times
+
+----
+
+Produces huge binaries
+
+----
+
+Based on too many macros
+
+----
+
+Horrible and long error messages
+
+----
+
+Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, state entry/exit actions)
+
+----
+
+A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)
+
+----
+
+Data in states makes it harder to share/encapsulate (UML compliant though)
+
+----
+
+Loosley coupled design is hard to achieve
+
+----
+
+Functional programming emulation
+
+----
+
+Huge complexity may overwhelm in the beginning
+
+----
+
+A lot of Boost dependencies
+
+----
+
+##Design goals
+
+----
+
+* Keep the Boost.MSM - eUML 'goodies'
+    * Performance
+    * Memory usage
+    * eUML DSL (src_state + event [ guard ] / action -> dst_state)
+    * UML standard compliant (As much as possible)
+
+----
+
+* Eliminate Boost.MSM - eUML problems
+    * Compilation times
+    * Binary size
+    * Reduce complexity by eliminating less used features
+    * Short and informative error messages
+    * Less boilerplate / no macros
+    * Improve visibility by having all actions on transition table
+
+----
+
+	* Allows loosely coupled design
+    * Functional programming support using lamda expressions
+    * No dependencies / one header (1k lines)
+
+----
+
+##What 'lite' implies?
+
+----
+
+* Minimal learning curve
+* Maximized performance
+* Guaranteed quick compilation times
+* No dependencies
+
+----
+
+##Supported UML features
+
+----
+
+* Transitions / Internal transitions / Anonymous transitions / No transition
+* Actions / Guards
+* State entry / exit actions
+* Orthogonal regions
+* Sub / Composite state machines
+* History
+
+----
+
+##Additional features
+
+----
+
+* Logging
+* Testing
+* Runtime Dispatcher
+* Dependency Injection integration
+
+==============================================================================
+
+#Overview
+
+----
+
+Dependencies
+
+----
+
+No external dependencies are required (neither STL nor Boost)
+
+----
+
+Supported/Tested compilers
+
+----
+
+  * [Clang-3.4+](https://travis-ci.org/boost-experimental/msm-lite)
+  * [GCC-5.2+](https://travis-ci.org/boost-experimental/msm-lite)
+
+
+==============================================================================
+
+###Boost.MSM-lite vs Boost.MSM-eUML vs Boost.Statechart
+
+| Test | CXXFLAGS | Events | States | Transitions | Process Events |
+| ---- | -------- | ------ | ------ | ----------- | -------------- |
+|[Simple Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/simple) | -O2 -s | 6 | 5 | 12 | 1'000'000 |
+
+----
+
+| Clang-3.7        | Boost.MSM-lite | Boost.MSM-eUML | Boost.MSM3-eUML2 |Boost.Statechart |
+|------------------|----------------|------------------|--------------------|-------------------|
+| Compilation time | 0.144s         | 3.855s           | 8.699s             | 1.028s            |
+| Execution time   | 15ms           | 17ms             | 17ms               | 1232ms            |
+| Memory usage     | 14b            | 32b              | 28b                | 200b              |
+| Executable size  | 11K            | 91K              | 15K + boost_system | 59K               |
+
+----
+
+| GCC-5.2          | Boost.MSM-lite | Boost.MSM-eUML | Boost.MSM3-eUML2 | Boost.Statechart |
+|------------------|----------------|------------------|--------------------|-------------------|
+| Compilation time | 0.175s         | 7.879s           | 17.101s            | 1.790s            |
+| Execution time   | 15ms           | 19ms             | 21ms               | 929ms             |
+| Memory usage     | 14b            | 32b              | 28b                | 224b              |
+| Executable size  | 11K            | 67K              | 15K + boost_system | 63K               |
+
+----
+
+| Test | CXXFLAGS | Events | States | Transitions | Process Events |
+| ---- | -------- | ------ | ------ | ----------- | -------------- |
+|[Composite Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/composite) | -O2 -s | 8 | 5 + 3 | 12 + 4 | 1'000 * 1'000 |
+
+----
+
+| Clang-3.7        | Boost.MSM-lite | Boost.MSM-eUML | Boost.MSM3-eUML2 | Boost.Statechart |
+|------------------|----------------|------------------|--------------------|--------------------|
+| Compilation time | 0.184s         | 4.526s           | 10.599s            | 1.293s             |
+| Execution time   | 10ms           | 14ms             | 10ms               | 491ms              |
+| Memory usage     | 20b            | 60b              | 52b                | 200b               |
+| Executable size  | 15K            | 111K             | 15K + boost_system | 83K                |
+
+----
+
+| GCC-5.2          | Boost.MSM-lite | Boost.MSM-eUML | Boost.MSM3-eUML2 | Boost.Statechart |
+|------------------|----------------|------------------|--------------------|--------------------|
+| Compilation time | 0.248s         | 9.363s           | 23.404s            | 2.037s             |
+| Execution time   | 9ms            | 13ms             | 12ms               | 404ms              |
+| Memory usage     | 20b            | 60b              | 52b                | 224b               |
+| Executable size  | 12K            | 91K              | 15K + boost_system | 83K                |
+
+----
+
+| Test | CXXFLAGS | Events | States | Transitions | Process Events |
+| ---- | -------- | ------ | ------ | ----------- | -------------- |
+|[Complex Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/complex) | -O2 -s | 50 | 50 | 50 | 1'000'000 |
+
+----
+
+| Clang-3.7        | Boost.MSM-lite | Boost.MSM-eUML | Boost.MSM3-eUML2 | Boost.Statechart |
+|------------------|----------------|------------------|--------------------|--------------------|
+| Compilation time | 0.582s         | 1m15.935s        | 43.341s            | 3.661s             |
+| Execution time   | 69ms           | 81ms             | 78ms               | 6221ms             |
+| Memory usage     | 102b           | 120b             | 72b                | 200b               |
+| Executable size  | 35K            | 611K             | 31K + boost_system | 343K               |
+
+----
+
+| GCC-5.2          | Boost.MSM-lite | Boost.MSM-eUML | Boost.MSM3-eUML2 | Boost.Statechart |
+|------------------|----------------|------------------|--------------------|--------------------|
+| Compilation time | 0.816s         | 52.238s          | 1m41.045s          | 4.997s             |
+| Execution time   | 72ms           | 77ms             | 91ms               | 5520ms             |
+| Memory usage     | 102b           | 120b             | 72b                | 224b               |
+| Executable size  | 35K            | 271K             | 47K + boost_system | 215K               |
+
+==============================================================================
+
+##Tutorial
+
+----
+
+##Create events and states
+
+----
+
+An Event is just a unique type, which will be processed by the state machine.
+
+```cpp
+struct my_event { ... };
+```
+
+If you happen to have a Clang/GCC compiler, you can create an Event on the fly.
+
+```cpp
+using namespace msm;
+auto event  = "event"_t;
+```
+
+-----
+
+A State can have entry/exit behaviour executed whenever machine enters/leaves State and
+represents current location of the state machine flow.
+
+To create a state below snippet might be used.
+
+```cpp
+msm::state<class idle> idle;
+// or
+auto idle = msm::state<class idle>{};
+```
+
+If you happen to have a Clang/GCC compiler, you can create a State on the fly.
+
+```cpp
+using namespace msm;
+auto state  = "idle"_s;
+```
+
+----
+
+##Create guards and actions
+
+----
+
+Guards and actions are callable objects which will be executed by the state machine in order to verify whether a transition, followed by an action should take place.
+
+----
+
+Guard MUST return boolean value.
+
+----
+
+```cpp
+auto guard1 = [] {
+  return true;
+};
+```
+
+----
+
+```cpp
+auto guard2 = [](int, double) {
+  return true;
+};
+```
+
+----
+
+```cpp
+auto guard3 = [](int, auto event, double) {
+  return true;
+};
+```
+
+----
+
+Action MUST not return.
+
+----
+
+```cpp
+auto action1 = [] { };
+```
+
+----
+
+```cpp
+auto action2 = [](int, double) { };
+```
+
+----
+
+```cpp
+auto action3 = [](int, auto event, double) { };
+```
+
+----
+
+##Create a transition table
+
+----
+
+`msm-lite` is using eUML-like DSL in order to be as close as possible to UML design.
+
+----
+
+| Expression | Description |
+|------------|-------------|
+| state + event<e> [ guard ] | internal transition on event e when guard |
+| src\_state / [] {} = dst\_state | anonymous transition with action |
+| src\_state + event<e> = dst\_state | transition on event e without guard or action |
+
+----
+
+| Expression | Description |
+|------------|-------------|
+| src\_state + event<e> [ guard ] / action = dst\_state | transition from src\_state to dst\_state on event e with guard and action |
+| src\_state + event<e> [ guard && (![]{return true;} && guard2) ] / (action, action2, []{}) = dst\_state | transition from src\_state to dst\_state on event e with guard and action |
+
+----
+
+Transition flow
+
+----
+
+```
+src_state + event [ guard ] / action = dst_state
+                                     ^
+                                     |
+                                     |
+                                    1. src_state + on_exit
+                                    2. dst_state + on_entry
+```
+
+----
+
+```cpp
+using namespace msm;
+
+make_transition_table(...);
+```
+
+----
+
+##Set initial states
+
+----
+
+Initial state tells the state machine where to start.
+
+----
+
+```cpp
+using namespace msm;
+
+make_transition_table(
+ *"src_state"_s + event<my_event> [guard] / action = "dst_state"_s
+, "dst_state"_s + event<game_over> = X
+);
+```
+
+----
+
+##Set initial states
+
+----
+
+Initial/Current state might be remembered by the State Machine so that whenever it will reentered
+the last active state will reactivated.
+
+----
+
+```cpp
+using namespace msm;
+make_transition_table(
+ "src_state"_s(H) + event<my_event> [guard]/ action = "dst_state"_s
+,"dst_state"_s    + event<game_over>                 = X
+);
+```
+
+----
+
+You can have more than one initial state. All initial states will be executed in pseudo-parallel way
+and are called orthogonal regions.
+
+----
+
+```cpp
+using namespace msm;
+make_transition_table(
+ *"region_1"_s   + event<my_event1> [guard]/action = "dst_state1"_s
+, "dst_state1"_s + event<game_over> = X,
+
+ *"region_2"_s   + event<my_event2> [guard]/action = "dst_state2"_s
+, "dst_state2"_s + event<game_over> = X
+);
+```
+
+----
+
+To create a state machine, we have to configure our transition table.
+
+----
+
+```cpp
+class example {
+public:
+  auto configure() noexcept {
+    using namespace msm;
+    return make_transition_table(
+     *"src"_s + event<my_event> [ guard ] / action = "dst"_s,
+      "dst"_s + event<game_over> = X
+    );
+  }
+};
+```
+
+----
+
+```cpp
+msm::sm<example> sm;
+```
+
+----
+
+State machine constructor provides required dependencies for actions and guards.
+
+----
+
+```cpp
+                            /-- event (injected from process_event)
+                            |
+auto guard = [](double d, auto event) { return true; }
+                   |
+                   \-------\
+                           |
+auto action = [](int i){}  |
+                 |         |
+                 |         |
+                 \-\   /---/
+                   |   |
+msm::sm<exmple> s{42, 87.0};
+
+// order in which parameters have to passed is not specificied
+msm::sm<exmple> s{87.0, 42};
+```
+
+----
+
+Or use experimental Boost.DI!
+
+```cpp
+auto injector = di::make_injector<example>();
+```
+
+----
+
+State machine is a simple creature. Its main purpose is to process events.
+In order to do it, `process_event` method might be used.
+
+-----
+
+```cpp
+msm::sm<example> sm;
+
+// returns true when handled
+assert(sm.process_event(my_event{}));
+
+// not handled by the state machine
+assert(!sm.process_event(int{}));
+```
+
+----
+
+##Dispatch events
+
+----
+
+`msm-lite` also provides a way to dispatch dynamically created events into the state machine.
+
+----
+
+```cpp
+struct game_over {
+  static constexpr auto id = SDL_QUIT;
+  // explicit game_over(const SDL_Event&) noexcept;
+};
+
+auto dispatch_event =
+  msm::make_dispatch_table<SDL_Event
+                         , SDL_FIRSTEVENT
+                         , SDL_LASTEVENT>(sm);
+
+SDL_Event event{SDL_QUIT};
+
+// will call sm.process(game_over{});
+assert(dispatch_event(event, event.type));
+```
+
+----
+
+##Handle errors - Unexpected Events
+
+----
+
+Different errors may occur when processing events. Firstly, event might not be handled (transition has not happened).
+In such scenario `process_event` returns false and `unexpected_event` is fired.
+
+----
+
+```cpp
+make_transition_table(
+ *"src"_s + event<my_event> [ guard ] / action = "dst"_s
+, "src"_s + unexpected_event<some_event> = X
+);
+```
+
+----
+
+##Exceptions
+
+----
+
+```cpp
+make_transition_table(
+ *"idle"_s + event<event> / []{throw std::runtime_error{"error"};}
+ //--------------------------------------------------------------//
+,*"error_handler"_s + exception<std::runtime_error> = X
+, "error_handler"_s + exception<std::logic_error> = X
+, "error_handler"_s + exception<> / [] { cleanup...; } = X
+);
+```
+
+-----
+
+##Test it
+
+-----
+
+Verify current state?
+
+----
+
+```cpp
+msm::sm<example> sm;
+assert(sm.process_event(my_event{}));
+
+// is(X, s1, ...) when you have orthogonal regions
+assert(sm.is(X));
+
+//or
+
+sm.visit_current_states([](auto state) {
+  std::cout << state.c_str() << std::endl;
+});
+```
+
+----
+
+Verify transitions?
+
+----
+
+```cpp
+testing::sm<example> sm{fake_data...};
+// set_current_states("s3"_s, "s1"_s, ...) for orthogonal regions
+sm.set_current_states("s3"_s);
+assert(sm.process_event(event{}));
+assert(sm.is(X));
+```
+
+----
+
+##Debug it
+
+----
+
+`msm-lite` provides logging capabilities in order to inspect state machine flow.
+To enable logging you have to define `BOOST_MSM_LITE_LOG`.
+
+----
+
+```cpp
+template <class SM, class TEvent>
+void log_process_event(const TEvent&) {
+  printf("[%s][process_event] %s\n", typeid(SM).name()
+                                   , typeid(TEvent).name());
+}
+```
+
+----
+
+```cpp
+template <class SM, class TAction, class TEvent>
+void log_guard(const TAction&, const TEvent&, bool result) {
+  printf("[%s][guard] %s %s %s\n", typeid(SM).name()
+                                 , typeid(TAction).name()
+                                 , typeid(TEvent).name()
+                                 , (result ? "[OK]" : "[Reject]"));
+}
+```
+
+----
+
+##Debug it
+
+----
+
+```cpp
+template <class SM, class TAction, class TEvent>
+void log_action(const TAction&, const TEvent&) {
+  printf("[%s][action] %s %s\n", typeid(SM).name()
+                               , typeid(TAction).name()
+                               , typeid(TEvent).name());
+}
+```
+
+----
+
+```cpp
+template <class SM, class TSrcState, class TDstState>
+void log_state_change(const TSrcState& src, const TDstState& dst) {
+  printf("[%s][transition] %s -> %s\n", typeid(SM).name()
+                                      , src.c_str()
+                                      , dst.c_str());
+}
+```
+
+==============================================================================
+
+##Performance
+
+----
+
+Compilation times
+
+----
+
+Jump table generated at compile time
+
+----
+
+```cpp
+bool (*dispatch_table[])(sm &, const TEvent &, aux::byte &) = {
+  &get_state_mapping_t<
+    TStates
+  , TMappings
+  >::template execute<sm, TEvent>...
+};
+
+return dispatch_table[current_state_[0]](
+  *this, event, current_state_[0]
+);
+```
+
+----
+
+```cpp
+  template <class TEvent>
+  bool process_event(const TEvent &event) noexcept(is_noexcept) {
+    return process_event_impl<
+      get_event_mapping_t<TEvent, mappings_t>
+    >(event, states_t{}, aux::make_index_sequence<regions>{});
+  }
+```
+
+----
+
+```cpp
+template <class>
+transition_impl<> get_event_mapping_impl(...);
+
+template <class T, class TMappings>
+TMappings get_event_mapping_impl(event_mappings<T, TMappings> *);
+
+template <class T, class U>
+using get_event_mapping_t =
+  decltype(get_event_mapping_impl<T>((U *)0));
+```
+
+----
+
+```cpp
+template <class, class>
+struct event_mappings;
+
+template <class E, class... Ts>
+struct event_mappings<E, inherit<Ts...>> {
+  using element_type = event<E>;
+  using types = type_list<Ts...>;
+};
+```
+
+----
+
+```cpp
+template <class T> struct unique_mappings<T> : aux::inherit<T> {};
+template <class, class...> struct mappings;
+
+template <class... Ts>
+struct mappings<aux::pool<Ts...>>
+  : unique_mappings_t<
+      event_mappings<
+        typename Ts::event
+      , inherit<
+          state_mappings<
+            typename Ts::src_state
+          , aux::type_list<Ts>
+          >>>...> {};
+
+template <class T>
+using mappings_t = typename mappings<T>::type;
+```
+
+----
+
+```cpp
+template <class T, class U>
+struct get_state_mapping {
+  using type = decltype(get_state_mapping_impl<T>((U *)0));
+};
+template <class T, class U>
+struct get_state_mapping<sm<T>, U> {
+  using type = decltype(get_sub_state_mapping_impl<sm<T>>((U *)0));
+};
+template <class T, class U>
+using get_state_mapping_t =
+  typename get_state_mapping<T, U>::type;
+```
+
+==============================================================================
+
+##Questions?
+
+* Documentation
+    * http://boost-experimental.github.io/msm-lite
+
+* Source Code
+    * https://github.com/boost-experimental/msm-lite
+
+* Try it online
+    * http://boost-experimental.github.io/msm-lite/examples
+					</script>
+
+		  <section data-background-size="100%" data-background="images/king_logo.png">Thank you</section>
+
+				</section>
+
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+
+        // Display controls in the bottom right corner
+        controls: true,
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Vertical centering of slides
+        center: true,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // Turns fragments on and off globally
+        fragments: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: true,
+
+        // Hides the address bar on mobile devices
+        hideAddressBar: true,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Transition speed
+        transitionSpeed: 'default', // default/fast/slow
+
+        // Transition style for full page slide backgrounds
+        backgroundTransition: 'default', // none/fade/slide/convex/concave/zoom
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Parallax background image
+        parallaxBackgroundImage: '', // e.g. "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'"
+
+        // Parallax background size
+        parallaxBackgroundSize: '', // CSS syntax, e.g. "2100px 900px"
+
+        // Number of pixels to move the parallax background per slide
+        // - Calculated automatically unless specified
+        // - Set to 0 to disable movement along an axis
+        parallaxBackgroundHorizontal: null,
+        parallaxBackgroundVertical: null,
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
