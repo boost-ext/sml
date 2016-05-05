@@ -19,6 +19,14 @@
 
     
     <url>
+     <loc>http://boost-experimental.github.io/msm-lite/benchmarks/index.html</loc>
+     <lastmod>2016-05-05</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
      <loc>http://boost-experimental.github.io/msm-lite/tutorial/index.html</loc>
      <lastmod>2016-05-05</lastmod>
      <changefreq>daily</changefreq>

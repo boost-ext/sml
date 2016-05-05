@@ -28,31 +28,21 @@
 			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
 			document.getElementsByTagName( 'head' )[0].appendChild( link );
 		</script>
-
-		<!--[if lt IE 9]>
-		<script src="lib/js/html5shiv.js"></script>
-		<![endif]-->
 	</head>
 
 	<body>
 
 		<div class="reveal">
 			<div class="slides">
-
-		  <section data-background-size="100%" data-background="images/king_logo.png"></section>
           <section data-markdown=""
                    data-separator="^====+$"
                    data-separator-vertical="^----+$"
-                   data-notes="^Note:"
-
-data-background-size="100%"
-	 data-background="images/king.png"
-				   >
+                   data-notes="^Note:">
 					<script type="text/template">
-
 C++Now 2016
 
-## C++14 version of Boost.MSM-eUML which compiles up to 60x faster whilst being slightly faster too!
+# C++14 Meta State Machine Library
+
 Kris Jusiak
 
 ==============================================================================
@@ -117,16 +107,11 @@ Orthogonal regions have its own set of mutually exclusive set of states and tran
 
 ==============================================================================
 
-#Experimental Boost.MSM-lite
-
-==============================================================================
-
-##Motivation
+##Do I need a State Machine?
 
 ----
 
-##Do I need a State Machine?
-State Machine design pattern allows you to AVOID maintaining following spaghetti code.
+###State Machine design pattern allows you to AVOID maintaining following spaghetti code
 
 ----
 
@@ -145,103 +130,19 @@ void some_function() {
 
 ----
 
-##Why Boost.MSM-lite?
+TODO example
+
+==============================================================================
+
+##Experimental Boost.MSM-lite vs Boost.MSM-eUML vs Boost.Statechart
 
 ----
 
-[Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) is awesome, however it has a few huge limitations which stop it from being used it on a larger scale;
-  Boost.MSM-lite, therefore, is trying to address those issues.
+##Features
 
 ----
 
-##Problems with Boost.MSM - eUML
-
-----
-
-Horrible compilation times
-
-----
-
-Produces huge binaries
-
-----
-
-Based on too many macros
-
-----
-
-Horrible and long error messages
-
-----
-
-Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, state entry/exit actions)
-
-----
-
-A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)
-
-----
-
-Data in states makes it harder to share/encapsulate (UML compliant though)
-
-----
-
-Loosley coupled design is hard to achieve
-
-----
-
-Functional programming emulation
-
-----
-
-Huge complexity may overwhelm in the beginning
-
-----
-
-A lot of Boost dependencies
-
-----
-
-##Design goals
-
-----
-
-* Keep the Boost.MSM - eUML 'goodies'
-    * Performance
-    * Memory usage
-    * eUML DSL (src_state + event [ guard ] / action -> dst_state)
-    * UML standard compliant (As much as possible)
-
-----
-
-* Eliminate Boost.MSM - eUML problems
-    * Compilation times
-    * Binary size
-    * Reduce complexity by eliminating less used features
-    * Short and informative error messages
-    * Less boilerplate / no macros
-    * Improve visibility by having all actions on transition table
-
-----
-
-	* Allows loosely coupled design
-    * Functional programming support using lamda expressions
-    * No dependencies / one header (1k lines)
-
-----
-
-##What 'lite' implies?
-
-----
-
-* Minimal learning curve
-* Maximized performance
-* Guaranteed quick compilation times
-* No dependencies
-
-----
-
-##Supported UML features
+##UML features
 
 ----
 
@@ -254,7 +155,7 @@ A lot of Boost dependencies
 
 ----
 
-##Additional features
+##Other features
 
 ----
 
@@ -263,31 +164,19 @@ A lot of Boost dependencies
 * Runtime Dispatcher
 * Dependency Injection integration
 
-==============================================================================
+----
 
-#Overview
+##Benchmarks
 
 ----
 
-Dependencies
+###Environment
 
 ----
 
-No external dependencies are required (neither STL nor Boost)
+###2.3 GHz Intel Core i7 / 16 GB 1600 Mhz DDR3
 
 ----
-
-Supported/Tested compilers
-
-----
-
-  * [Clang-3.4+](https://travis-ci.org/boost-experimental/msm-lite)
-  * [GCC-5.2+](https://travis-ci.org/boost-experimental/msm-lite)
-
-
-==============================================================================
-
-###Boost.MSM-lite vs Boost.MSM-eUML vs Boost.Statechart
 
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |
 | ---- | -------- | ------ | ------ | ----------- | -------------- |
@@ -359,9 +248,190 @@ Supported/Tested compilers
 | Memory usage     | 102b           | 120b             | 72b                | 224b               |
 | Executable size  | 35K            | 271K             | 47K + boost_system | 215K               |
 
+
 ==============================================================================
 
-##Tutorial
+##Experimental Boost.MSM-lite
+
+==============================================================================
+
+##Motivation
+
+----
+
+##[Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) is awesome, but...
+
+----
+
+##Problems with Boost.MSM - eUML
+
+----
+
+###Long compilation times
+
+----
+
+###Huge binaries
+
+----
+
+###Long error messages
+
+----
+
+###Based on macros
+
+----
+
+###Functional programming emulation (C++03)
+
+==============================================================================
+
+##Overview
+
+----
+
+2016
+
+---
+
+Version C++14 - v1.0.0
+
+---
+
+https://github.com/boost-experimental/msm-lite
+
+----
+
+* One header (boost/msm-lite.hpp)
+* 1.5k lines
+* Neither Boost nor STL is required
+* No 'virtual' methods
+* No 'exceptions' (-fno-exceptions)
+
+----
+
+##Tested compilers
+
+----
+
+* [Clang-3.4+](https://travis-ci.org/boost-experimental/msm-lite)
+
+* [GCC-5.2+](https://travis-ci.org/boost-experimental/msm-lite)
+
+==============================================================================
+
+##Design
+
+----
+
+##Goals
+
+----
+
+###Keep the Boost.MSM-eUML 'goodies'
+
+----
+
+###Design (front/back-end)
+
+----
+
+###Max performance
+
+----
+
+###Low memory usage
+
+----
+
+###eUML DSL
+
+> `src_state + event [ guard ] / action -> dst_state`
+
+----
+
+###UML standard compliant (As much as possible)
+
+----
+
+##Eliminate Boost.MSM - eUML problems
+
+----
+
+###Speed up compilation times
+
+* ####Up to 60x faster
+
+----
+
+###Reduce binary size
+
+* ####3x smaller
+
+----
+
+###Better error messages
+
+* ####Concepts emulation / no `MPL`
+
+----
+
+###Less boilerplate
+
+* ####No macros
+
+----
+
+###Take advantage of modern C++ functional capabilities
+
+* ####Lambdas as guards and actions
+
+----
+
+###Architecture
+
+----
+
+###Compile-time + run-time
+
+---
+
+> Generate jump table at compile-time
+> and operates on it at run-time
+
+----
+
+##Front-end
+
+----
+
+###Responsible for providing an unified list of transitions
+
+----
+
+###DSL
+
+> Domain Specific language
+
+----
+
+```cpp
+"src_state"_s + event [ guard ] / action = "dst_state"_s
+```
+
+----
+
+##Back-end
+
+----
+
+###Responsible for operating on transitions
+
+
+==============================================================================
+
+##User Guide
 
 ----
 
@@ -794,145 +864,6 @@ void log_state_change(const TSrcState& src, const TDstState& dst) {
 
 ==============================================================================
 
-##Performance
-
-----
-
-Compilation times
-
-----
-
-Jump table generated at compile time
-
-----
-
-```cpp
-bool (*dispatch_table[])(sm &, const TEvent &, aux::byte &) = {
-  &get_state_mapping_t<
-    TStates
-  , TMappings
-  >::template execute<sm, TEvent>...
-};
-
-return dispatch_table[current_state_[0]](
-  *this, event, current_state_[0]
-);
-```
-
-----
-
-```cpp
-  template <class TEvent>
-  bool process_event(const TEvent &event) noexcept(is_noexcept) {
-    return process_event_impl<
-      get_event_mapping_t<TEvent, mappings_t>
-    >(event, states_t{}, aux::make_index_sequence<regions>{});
-  }
-```
-
-----
-
-```cpp
-template <class>
-transition_impl<> get_event_mapping_impl(...);
-
-template <class T, class TMappings>
-TMappings get_event_mapping_impl(event_mappings<T, TMappings> *);
-
-template <class T, class U>
-using get_event_mapping_t =
-  decltype(get_event_mapping_impl<T>((U *)0));
-```
-
-----
-
-```cpp
-template <class, class>
-struct event_mappings;
-
-template <class E, class... Ts>
-struct event_mappings<E, inherit<Ts...>> {
-  using element_type = event<E>;
-  using types = type_list<Ts...>;
-};
-```
-
-----
-
-```cpp
-template <class T> struct unique_mappings<T> : aux::inherit<T> {};
-template <class, class...> struct mappings;
-
-template <class... Ts>
-struct mappings<aux::pool<Ts...>>
-  : unique_mappings_t<
-      event_mappings<
-        typename Ts::event
-      , inherit<
-          state_mappings<
-            typename Ts::src_state
-          , aux::type_list<Ts>
-          >>>...> {};
-
-template <class T>
-using mappings_t = typename mappings<T>::type;
-```
-
-----
-
-```cpp
-template <class T, class U>
-struct get_state_mapping {
-  using type = decltype(get_state_mapping_impl<T>((U *)0));
-};
-template <class T, class U>
-struct get_state_mapping<sm<T>, U> {
-  using type = decltype(get_sub_state_mapping_impl<sm<T>>((U *)0));
-};
-template <class T, class U>
-using get_state_mapping_t =
-  typename get_state_mapping<T, U>::type;
-```
-
-
-##Design
-
-----
-
-###Compile-time + run-time
-
----
-
-> Generate jump table at compile-time
-> Travers it at run-time
-
-----
-
-##Front-end
-
-----
-
-###Responsible for providing an unified list of transitions
-
-----
-
-###DSL
-
-> Domain Specific language
-
-----
-
-
-----
-
-##Back-end
-
-----
-
-###Responsible for operating on transitions
-
-==============================================================================
-
 ##Implementation
 
 ----
@@ -944,26 +875,33 @@ using get_state_mapping_t =
 ----
 
 ```cpp
-template <class TDstState
-        , class TSrcState
-        , class TEvent
-        , class TGuard
-        , class TAction>
+template <class TSrcState
+        , class TDstState
+        , class TEvent = anonymous
+        , class TGuard = always
+        , class TAction = none>
 struct transition {
-  transition(TGuard&&, TAction&&);
-
   template <class TDeps>
-  auto execute(TDeps &, TEvent &);
+  constexpr auto execute(TDeps &, TEvent &);
+
+  TGuard guard;
+  TAction action;
 };
 ```
 
 ----
 
-###Front-end
+##Front-end
 
----
+----
 
-> DSL
+###DSL (Domain Specific language)
+
+> `src_state + event [ guard ] / action -> dst_state`
+
+----
+
+###State
 
 ----
 
@@ -980,12 +918,16 @@ struct state {
   auto operator+(const T &t) const { return transition<TState, T>{}; }
 
   template <class T> requires callable<bool, T>()
-  auto operator[](const T &t) const { return transition_sg<TState, T>{}; }
+  auto operator[](const T &t) const { return transition<TState, T>{}; }
 
   template <class T> requires callable<void, T>()
-  auto operator/(const T &t) const { return transition_sa<TState, T>{}; }
+  auto operator/(const T &t) const { return transition<TState, T>{}; }
 };
 ```
+
+----
+
+###Event
 
 ----
 
@@ -993,7 +935,7 @@ struct state {
 template <class>
 struct event {
   template <class T> requires callable<bool, T>()
-  auto operator[](const T &t) const BOOST_MSM_LITE_NOEXCEPT { return transition<event, T>{}; }
+  auto operator[](const T &t) const { return transition<event, T>{}; }
 
   template <class T> requires callable<void, T>()
   auto operator/(const T &t) const { return transition<event, T>{}; }
@@ -1006,38 +948,27 @@ struct event {
 
 ----
 
-###Operators on types
+###Operators
 
 > `and_, or_, not_`
-
----
-
-> `seq_`
 
 ----
 
 ```cpp
 template <class... Ts>
-class and_ {
- public:
-  explicit and_(Ts... ts) noexcept : g(ts...) {}
-
-  template <class TEvent, class TDeps, class SM>
-  auto operator()(const TEvent &event, TDeps &deps, SM &sm) noexcept {
-    return for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps, sm);
+struct and_ {
+  template <class TEvent, class TDeps>
+  auto operator()(const TEvent &event, TDeps &deps) {
+    return invoke(std::get<Ns-1>(args), event, deps) && ...;
   }
 
- private:
-  template <int... Ns, class TEvent, class TDeps, class SM>
-  auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
-    auto result = true;
-    int _[]{0, (call(aux::get_by_id<Ns - 1>(g), event, deps, sm) ? result : result = false)...};
-    return result;
-  }
-
-  std::tuple<Ts...> g;
+  std::tuple<Ts...> args;
 };
 ```
+
+----
+
+... for `or_` and `not_`
 
 ----
 
@@ -1049,27 +980,43 @@ class and_ {
 
 ```cpp
 template <class T> requires callable<bool, T>()
-auto operator!(T&& t) noexcept {
+auto operator!(T&& t) {
   return not_<T>(std::forward<T>(t));
 }
+```
 
-template <class T1, class T2> requires callable<bool, T1>() && callable<bool, T2>()
-auto operator&&(T1&& t1, T2&& t2) noexcept {
+----
+
+```cpp
+template <class T1, class T2> 
+  requires callable<bool, T1>() && callable<bool, T2>()
+auto operator&&(T1&& t1, T2&& t2)  {
   return and_<T1, T2>(std::forward<T1>(t1), std::forward<T2>(t2));
 }
+```
 
-template <class T1, class T2> requires callable<bool, T1>() && callable<bool, T2>()
-auto operator||(T1&& t1, T2&& t2) noexcept {
+----
+
+```cpp
+template <class T1, class T2> 
+  requires callable<bool, T1>() && callable<bool, T2>()
+auto operator||(T1&& t1, T2&& t2) {
   return or_<T1, T2>(std::forward<T1>(t1), std::forward<T2>(t2));
 }
 ```
 
----
+----
+
+###Example
+
+----
 
 ```cpp
 auto true_ = [] { return true; };
 auto false_ = [] { return false_; };
-auto guards = (!true_ || (true_ && false_ || ![]{ return false; })); // not_<or_<and_<false_, not_<[]{return false;}>>>>
+
+auto guards = (!true_ || (true_ && false_ || ![]{ return false; }));
+              // not_<or_<and_<false_, not_<[]{return false;}>>>>
 ```
 
 ----
@@ -1078,18 +1025,31 @@ auto guards = (!true_ || (true_ && false_ || ![]{ return false; })); // not_<or_
 
 ----
 
+###User-defined operators
+
+> `namespace msm`
+
+----
+
 ```cpp
-template <class T1, class T2> requires callable<void, T1>() && callable<void, T2>()
-auto operator,(T1&& t1, T2&& t2) noexcept {
+template <class T1, class T2> 
+  requires callable<void, T1>() && callable<void, T2>()
+auto operator,(T1&& t1, T2&& t2) {
   return seq_<T1, T2>(std::forward<T1>(t1), std::forward<T2>(t2));
 }
 ```
 
----
+----
+
+###Example
+
+----
 
 ```cpp
 auto action = [] { };
-auto actions = (action, action, []{}, action); // seq_<action, action, []{}, action>
+
+auto actions = (action, action, []{}, action); 
+               // seq_<action, action, []{}, action>
 ```
 
 ----
@@ -1100,8 +1060,8 @@ auto actions = (action, action, []{}, action); // seq_<action, action, []{}, act
 
 ```cpp
 template <class... Ts> requires transitional<Ts>()...
-auto make_transition_table(Ts... ts) noexcept {
-  return tuple<Ts...>{ts...};
+auto make_transition_table(Ts&&... ts) {
+  return std::tuple<Ts...>{std::forward<Ts>(ts)...};
 }
 ```
 
@@ -1113,18 +1073,21 @@ auto make_transition_table(Ts... ts) noexcept {
 
 ```cpp
 make_transition_table(
-  state<class S1> + event<class Event1> [ !guard ] / action = state<class S2>
-, state<class S2> + event<class Event2> / (action1, action2) = state<class S3>
+  state<class Idle> + play [ is_playing ] = state<class Wait>
+  state<class Idle> + play [ !is_playing ] / play_song = state<class Play>
+  state<class Play> + stop / (stop_song, reset_song) = state<class Idle>
 );
 ```
 
----
+----
 
 ```cpp
-  tuple<
-      transition<S2, S1, Event1, not_<guard>, action>
-    , transition<S3, S2, Event2, always, seq_<action1, action2>>
-  >
+std::tuple<
+  transition<Idle, Wait, Play, is_playing>
+, transition<Idle, Wait, Play, not_<is_playing>, play_song>
+, transition<Play, Idle, Stop, always, seq_<stop_song
+                                          , reset_song>, play_song>
+>
 ```
 
 ----
@@ -1133,11 +1096,11 @@ make_transition_table(
 
 ----
 
-###Operates on list of transitions
+###Operates on transitions
 
 ----
 
-###On a mission to get max run-time performance
+###How to get maximum run-time performance?
 
 ----
 
@@ -1146,19 +1109,28 @@ make_transition_table(
 ----
 
 ```cpp
-void (*dispatch_table[])(TEvent&&) = { HandleTEventInState1, HandleTEventInState2, ..., HandleTEventInStateN};
+void (*dispatch_table[])(TEvent&&) = {
+  HandleTEventInState1
+, HandleTEventInState2
+, ...
+, HandleTEventInStateN
+};
 ```
 
 ```cpp
 template<class TEvent>
 void process_event(TEvent&& event) {
-    dispatch_table[current_state](std::forward<TEvent>(event));
+  dispatch_table[current_state](std::forward<TEvent>(event));
 }
 ```
 
 ----
 
-###On a mission to get quick compilation times
+TODO assembler
+
+----
+
+###How to get quick compilation times?
 
 ----
 
@@ -1166,37 +1138,165 @@ void process_event(TEvent&& event) {
 
 ----
 
-###Avoid doing stuff per event
-
-> In `process_event` we just want to jump
+##Approach
 
 ----
 
-###Pre-process transitions for state per event
+###Pre-process transitions
+
+  * ####Avoid doing to much per event
 
 ----
 
-###Idea
-
-----
-
-###Generate list per event/state and transitions
-and jump to the right one in process_event
-
-----
-
-###Example
+###Meta-programing utilities
 
 ----
 
 ```cpp
-  tuple<
-      transition<S2, S1, Event1, not_<guard>, action>
-    , transition<S3, S2, Event2, always, seq_<action1, action2>>
-  >
+template <class...> struct type {};
+template <class, class> struct pair {};
+template <class...> struct type_list { using type = type_list; };
+template <class... Ts> struct inherit : Ts... { using type = inherit; };
+struct none_type {};
+
+template <template <class...> class, class>
+struct apply;
+template <template <class...> class T
+        , template <class...> class U, class... Ts>
+struct apply<T, U<Ts...>> {
+  using type = T<Ts...>;
+};
+template <template <class...> class T, class D>
+using apply_t = typename apply<T, D>::type;
+
 ```
 
----
+----
+
+###Map / at
+
+----
+
+```cpp
+template <class... Ts> struct map : Ts... {};
+
+template <class T> struct no_decay { using type = T; };
+template <class TDefault, class> static no_decay<TDefault> lookup(...);
+
+template <class, class TKey, class TValue>
+static no_decay<TValue> lookup(pair<TKey, TValue> *);
+
+template <class TDefault, class TKey, class T>
+using at_key = decltype(lookup<TDefault, TKey>((T *)0));
+
+template <class T, class TKey, class TDefault = void>
+using at_key_t = typename at_key<TDefault, TKey, T>::type;
+```
+
+----
+
+###Boost.Hana vs Boost.MPL vs ...
+
+----
+
+```cpp
+constexpr auto m = 
+  hana::make_map(hana::make_pair(event, transitions), ...);
+static_assert(m[event] == transitions);
+```
+
+```cpp
+using m = 
+  mpl::map<mpl::pair<event, transitions>...>;
+static_assert(boost::is_same<mpl::at<m, event>::type, transitions>{});
+```
+
+```cpp
+using m = 
+  map<pair<event, transitions...>>;
+static_assert(boost::is_same<at_key_t<m, event>, transitions>{});
+```
+
+----
+
+| Number of elements | Map     | Boost.Hana | Boost.MPL |
+| ------------------ | ------- | ---------- | --------- |
+| 128                | 0.076s  | 1.186s   | 1.453s  |
+
+----
+
+###Unique
+
+----
+
+```cpp
+template <class...> struct unique;
+
+template <class... Rs, class T, class... Ts>
+struct unique<type<Rs...>, T, Ts...> : std::conditional_t<
+  std::is_base_of<type<T>, inherit<type<Rs>...>>{},
+  unique<type<Rs...>, Ts...>,
+  unique<type<Rs..., T>, Ts...>
+> {};
+
+template <class... Rs> struct unique<type<Rs...>>
+  : type_list<Rs...>
+{};
+
+template <class... Ts> using unique_t =
+  typename unique<type<>, Ts...>::type;
+```
+
+----
+
+###Boost.Hana vs Boost.MPL vs ...
+
+----
+
+```cpp
+using u = decltype(
+  hana::unique(hana::sort(hana::make_tuple(event1, event2, event1)))
+);
+static_assert(make_tuple(event1, event2) == u);
+```
+
+```cpp
+using u = typename mpl::unique<
+  typename mpl::sort<
+    mpl::vector<event1, event2, event1>
+  , boost::is_same<mpl::_1, mpl::_2>
+  >::type;
+>;
+static_assert(std::is_same<u, mpl::vector<event1, event2>>{});
+```
+
+```cpp
+using u = unique_t<event1, event2, event1>;
+static_assert(std::is_same<u, type_list<event1, event2>>{});
+```
+
+----
+
+| Number of elements | unique    | Boost.Hana | Boost.MPL |
+| ------------------ | --------- | ---------- | --------- |
+| 128                | 0.085s  | 7.821s   | 10.409s |
+
+----
+
+###From front-end
+
+----
+
+```cpp
+std::tuple<
+  transition<Idle, Wait, Play, is_playing>
+, transition<Idle, Wait, Play, not_<is_playing>, play_song>
+, transition<Play, Idle, Stop, always, seq_<stop_song
+                                          , reset_song>, play_song>
+>
+```
+
+----
 
 ```cpp
 mappings_t = {
@@ -1216,79 +1316,33 @@ mappings_t = {
 
 ----
 
-###How?
+using states_ids_t = aux::apply_t<aux::type_id, states_t>;
+
+template <int, class T>
+struct type_id_type {};
+template <class, class...>
+struct type_id_impl;
+template <int... Ns, class... Ts>
+struct type_id_impl<index_sequence<Ns...>, Ts...> : type_id_type<Ns, Ts>... {};
+template <class... Ts>
+struct type_id : type_id_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {};
+
+template <class T, int, int N>
+constexpr auto get_id_impl(type_id_type<N, T> *) {
+  return N;
+}
+template <class T, int D>
+constexpr auto get_id_impl(...)  {
+  return D;
+}
+template <class TIds, int D, class T>
+constexpr auto get_id()  {
+  return get_id_impl<T, D>((TIds *)0);
+}
+
 
 ----
 
-###Meta-programing utilities
-
-----
-
-###`<type_traits>`, `<utility>`
-
----
-
-```cpp
-template <class...> struct type {};
-template <class, class> struct pair {};
-template <class...> struct type_list { using type = type_list; };
-template <class... Ts> struct inherit : Ts... { using type = inherit; };
-struct none_type {};
-```
-
-----
-
-###Map / at
-
-----
-
-```cpp
-  constexpr auto m = hana::make_map(hana::make_pair(event, transitions), ...);
-  static_assert(m[event] == transitions);
-```
-
-```cpp
-  using m = mpl::map<mpl::pair<event, transitions>...>;
-  static_assert(boost::is_same<typename mpl::at<m, event>::type, transitions>{});
-```
-
-```cpp
-  using m = map<pair<event, transitions...>>;
-  static_assert(boost::is_same<at_key_t<m, event>, transitions>{});
-```
-
-----
-
-| Number of elements | Map       | Boost.Hana | Boost.MPL |
-| ------------------ | --------- | ---------- | --------- |
-| 128                | 0m0.076s  | 0m1.186s   | 0m1.453s  |
-
-----
-
-###Map implementation
-
-> Well known C++ trick
-
-----
-
-```cpp
-template <class... Ts> struct map : Ts... {};
-
-template <class T> struct no_decay { using type = T; };
-
-template <class TDefault, class> static no_decay<TDefault> lookup(...);
-
-template <class, class TKey, class TValue>
-static no_decay<TValue> lookup(pair<TKey, TValue> *);
-
-template <class TDefault, class TKey, class T>
-using at_key = decltype(lookup<TDefault, TKey>((T *)0));
-
-template <class T, class TKey, class TDefault = void>
-using at_key_t = typename at_key<TDefault, TKey, T>::type;
-```
-
-----
 
 ###Combine in with our case
 
@@ -1322,59 +1376,33 @@ static_assert(at_key_t<event_transitions, event1> ==
 );
 ```
 
-----
+==============================================================================
 
-###Unique
-
-----
-
-```cpp
-template <class...> struct unique;
-
-template <class... Rs, class T, class... Ts>
-struct unique<type<Rs...>, T, Ts...> : std::conditional_t<
-  std::is_base_of<type<T>, inherit<type<Rs>...>>{},
-  unique<type<Rs...>, Ts...>,
-  unique<type<Rs..., T>, Ts...>
-> {};
-
-template <class... Rs> struct unique<type<Rs...>>
-  : type_list<Rs...>
-{};
-
-template <class... Ts> using unique_t =
-  typename unique<type<>, Ts...>::type;
-```
+##Examples
 
 ----
 
-###Benchmark
+[Hello World](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#hello-world)
 
-----
+[Events](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#events) |
+[States](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#states) |
+[Actions Guards](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#actions-guards) |
+[Transitions](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#transitions)
 
-```cpp
-  using u = decltype(hana::unique(hana::sort(hana::make_tuple(event1, event2, event1))));
-  static_assert(make_tuple(event1, event2) == u);
-```
+[Orthogonal Regions](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#orthogonal-regions) |
+[Composite](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#composite) |
+[History](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#history)
 
-```cpp
-  using u = typename mpl::unique<typename mpl::sort<mpl::vector<event1, event2, event1>>::type,
-                                 boost::is_same<mpl::_1, mpl::_2>>::type;
-  static_assert(std::is_same<u, mpl::vector<event1, event2>>{});
-```
+[Error handling](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#error-handling) |
+[Logging](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#logging) |
+[Testing](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#testing)
 
-```cpp
-  using u = unique_t<event1, event2, event1>;
-  static_assert(std::is_same<u, type_list<event1, event2>>{});
-```
+[Runtime Dispatcher](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#runtime-dispatcher) |
+[eUML Emulation](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#euml-emulation) |
+[Dependency Injection](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#dependency-injection)
 
-----
-
-| Number of elements | unique    | Boost.Hana | Boost.MPL |
-| ------------------ | --------- | ---------- | --------- |
-| 128                | 0m0.085s  | 0m7.821s   | 0m10.409s |
-
-----
+[SDL2 Integration](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#sdl2-integration) |
+[Plant UML Integration](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#plant-uml-integration)
 
 ==============================================================================
 
@@ -1389,8 +1417,6 @@ template <class... Ts> using unique_t =
 * Try it online
     * http://boost-experimental.github.io/msm-lite/examples
 					</script>
-
-		  <section data-background-size="100%" data-background="images/king_logo.png">Thank you</section>
 
 				</section>
 

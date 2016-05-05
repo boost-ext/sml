@@ -8,7 +8,7 @@
   
   <meta name="author" content="Krzysztof Jusiak">
   
-  <title>Overview - Boost.MSM-lite</title>
+  <title>Benchmarks - Boost.MSM-lite</title>
   
 
   <link rel="shortcut icon" href="../img/favicon.ico">
@@ -25,9 +25,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Overview";
-    var mkdocs_page_input_path = "overview.md";
-    var mkdocs_page_url = "/overview/index.html";
+    var mkdocs_page_name = "Benchmarks";
+    var mkdocs_page_input_path = "benchmarks.md";
+    var mkdocs_page_url = "/benchmarks/index.html";
   </script>
   
   <script src="../js/jquery-2.1.1.min.js"></script>
@@ -86,40 +86,19 @@
 <li>
           
             <li>
-    <li class="toctree-l1 current">
-        <a class="current" href="index.html">Overview</a>
-        
-            <ul>
-            
-                <li class="toctree-l3"><a href="#quick-start">Quick Start</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#dependencies">Dependencies</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#supportedtested-compilers">Supported/Tested compilers</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#configuration">Configuration</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#exception-safety">Exception Safety</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#thread-safety">Thread Safety</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#error-messages">Error messages</a></li>
-                
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../overview/index.html">Overview</a>
         
     </li>
 <li>
           
             <li>
-    <li class="toctree-l1 ">
-        <a class="" href="../benchmarks/index.html">Benchmarks</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="index.html">Benchmarks</a>
+        
+            <ul>
+            
+            </ul>
         
     </li>
 <li>
@@ -181,7 +160,7 @@
     
       
     
-    <li>Overview</li>
+    <li>Benchmarks</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -193,80 +172,378 @@
           <div role="main">
             <div class="section">
               
-                <h3 id="quick-start">Quick Start</h3>
-<ul>
-<li>Get <a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp">boost/msm-lite.hpp</a> header</li>
-</ul>
-<pre><code class="sh">wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp
-</code></pre>
-
-<ul>
-<li>Include the header and define <code>msm</code> namespace alias</li>
-</ul>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
-namespace msm = boost::msm::lite;
-</code></pre>
-
-<ul>
-<li>Compile with C++14 support</li>
-</ul>
-<pre><code class="sh">$CXX -std=c++14 ...
-</code></pre>
-
-<ul>
-<li>To run tests</li>
-</ul>
-<pre><code class="sh">git clone https://github.com/boost-experimental/msm-lite &amp;&amp; cd msm-lite &amp;&amp; make test
-</code></pre>
-
-<h3 id="dependencies">Dependencies</h3>
-<ul>
-<li>No external dependencies are required (neither STL nor Boost)</li>
-</ul>
-<h3 id="supportedtested-compilers">Supported/Tested compilers</h3>
-<ul>
-<li><a href="https://travis-ci.org/boost-experimental/msm-lite">Clang-3.4+</a></li>
-<li><a href="https://travis-ci.org/boost-experimental/msm-lite">GCC-5.2+</a></li>
-</ul>
-<h3 id="configuration">Configuration</h3>
-<table>
+                <table>
 <thead>
 <tr>
-<th>Macro</th>
-<th>Description</th>
+<th>Test</th>
+<th>CXXFLAGS</th>
+<th>Events</th>
+<th>States</th>
+<th>Transitions</th>
+<th>Process Events</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>BOOST_MSM_LITE_VERSION</code></td>
-<td>Current version of Boost.MSM-lite (ex. 1'0'0)</td>
-</tr>
-<tr>
-<td><a href="../user_guide/index.html#boost_msm_log-debugging"><code>BOOST_MSM_LITE_LOG</code></a></td>
-<td>Enables logging system  (see <a href="../examples/index.html#logging">Logging</a>)</td>
+<td><a href="https://github.com/boost-experimental/msm-lite/tree/master/test/pt/simple">Simple Test</a></td>
+<td>-O2 -s</td>
+<td>6</td>
+<td>5</td>
+<td>12</td>
+<td>1'000'000</td>
 </tr>
 </tbody>
 </table>
-<h3 id="exception-safety">Exception Safety</h3>
+<table>
+<thead>
+<tr>
+<th>Clang-3.7</th>
+<th>Boost.MSM-lite</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.144s</td>
+<td>3.855s</td>
+<td>8.699s</td>
+<td>1.028s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>15ms</td>
+<td>17ms</td>
+<td>17ms</td>
+<td>1232ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>14b</td>
+<td>32b</td>
+<td>28b</td>
+<td>200b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>11K</td>
+<td>91K</td>
+<td>15K + boost_system</td>
+<td>59K</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>GCC-5.2</th>
+<th>Boost.MSM-lite</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.175s</td>
+<td>7.879s</td>
+<td>17.101s</td>
+<td>1.790s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>15ms</td>
+<td>19ms</td>
+<td>21ms</td>
+<td>929ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>14b</td>
+<td>32b</td>
+<td>28b</td>
+<td>224b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>11K</td>
+<td>67K</td>
+<td>15K + boost_system</td>
+<td>63K</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>CXXFLAGS</th>
+<th>Events</th>
+<th>States</th>
+<th>Transitions</th>
+<th>Process Events</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/boost-experimental/msm-lite/tree/master/test/pt/composite">Composite Test</a></td>
+<td>-O2 -s</td>
+<td>8</td>
+<td>5 + 3</td>
+<td>12 + 4</td>
+<td>1'000 * 1'000</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Clang-3.7</th>
+<th>Boost.MSM-lite</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.184s</td>
+<td>4.526s</td>
+<td>10.599s</td>
+<td>1.293s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>10ms</td>
+<td>14ms</td>
+<td>10ms</td>
+<td>491ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>20b</td>
+<td>60b</td>
+<td>52b</td>
+<td>200b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>15K</td>
+<td>111K</td>
+<td>15K + boost_system</td>
+<td>83K</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>GCC-5.2</th>
+<th>Boost.MSM-lite</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.248s</td>
+<td>9.363s</td>
+<td>23.404s</td>
+<td>2.037s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>9ms</td>
+<td>13ms</td>
+<td>12ms</td>
+<td>404ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>20b</td>
+<td>60b</td>
+<td>52b</td>
+<td>224b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>12K</td>
+<td>91K</td>
+<td>15K + boost_system</td>
+<td>83K</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>CXXFLAGS</th>
+<th>Events</th>
+<th>States</th>
+<th>Transitions</th>
+<th>Process Events</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/boost-experimental/msm-lite/tree/master/test/pt/complex">Complex Test</a></td>
+<td>-O2 -s</td>
+<td>50</td>
+<td>50</td>
+<td>50</td>
+<td>1'000'000</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Clang-3.7</th>
+<th>Boost.MSM-lite</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.582s</td>
+<td>1m15.935s</td>
+<td>43.341s</td>
+<td>3.661s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>69ms</td>
+<td>81ms</td>
+<td>78ms</td>
+<td>6221ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>102b</td>
+<td>120b</td>
+<td>72b</td>
+<td>200b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>35K</td>
+<td>611K</td>
+<td>31K + boost_system</td>
+<td>343K</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>GCC-5.2</th>
+<th>Boost.MSM-lite</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.816s</td>
+<td>52.238s</td>
+<td>1m41.045s</td>
+<td>4.997s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>72ms</td>
+<td>77ms</td>
+<td>91ms</td>
+<td>5520ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>102b</td>
+<td>120b</td>
+<td>72b</td>
+<td>224b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>35K</td>
+<td>271K</td>
+<td>47K + boost_system</td>
+<td>215K</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<table>
+<thead>
+<tr>
+<th>Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/boost-experimental/msm-lite/tree/master/test/pt/header">Header Test</a></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Clang-3.7</th>
+<th>Boost.MSM-lite</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.060s</td>
+<td>2.072s</td>
+<td>2.504s</td>
+<td>0.552s</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>GCC-5.2</th>
+<th>Boost.MSM-lite</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.073s</td>
+<td>3.197s</td>
+<td>3.986s</td>
+<td>0.704s</td>
+</tr>
+</tbody>
+</table>
 <ul>
-<li>Boost.MSM-lite doesn't use exceptions internally and therefore might be compiled with <code>-fno-exceptions</code>.</li>
-<li>Check <a href="../user_guide/index.html">User Guide</a> to verify which API's are marked <code>noexcept</code>.</li>
-<li>If guard/action throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will stay in a current state.</li>
-<li>Exceptions might be caught using transition table via <code>exception</code> event. See <a href="../tutorial/index.html#8-error-handling">Error handling</a>.</li>
+<li>To run benchmarks</li>
 </ul>
-<h3 id="thread-safety">Thread Safety</h3>
-<ul>
-<li>Boost.MSM-lite is thread safe.</li>
-</ul>
-<h3 id="error-messages">Error messages</h3>
-<p><strong><em>Not configurable</em></strong>
-<img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_configurable.cpp" /></p>
-<p><strong><em>Not callable</em></strong>
-<img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_callable.cpp" /></p>
-<p><strong><em>Not transitional</em></strong>
-<img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_transitional.cpp" /></p>
-<p><strong><em>Not dispatchable</em></strong>
-<img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_dispatchable.cpp" /></p>
+<pre><code class="sh">make pt # make pt_simple pt_composite pt_complex
+</code></pre>
               
             </div>
           </div>
@@ -280,10 +557,10 @@ namespace msm = boost::msm::lite;
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../benchmarks/index.html" class="btn btn-neutral float-right" title="Benchmarks">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../tutorial/index.html" class="btn btn-neutral float-right" title="Tutorial">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../index.html" class="btn btn-neutral" title="Introduction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../overview/index.html" class="btn btn-neutral" title="Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -325,10 +602,10 @@ namespace msm = boost::msm::lite;
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../overview/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../benchmarks/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../tutorial/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
