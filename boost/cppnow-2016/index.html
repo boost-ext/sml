@@ -894,6 +894,488 @@ using get_state_mapping_t =
   typename get_state_mapping<T, U>::type;
 ```
 
+
+##Design
+
+----
+
+###Compile-time + run-time
+
+---
+
+> Generate jump table at compile-time
+> Travers it at run-time
+
+----
+
+##Front-end
+
+----
+
+###Responsible for providing an unified list of transitions
+
+----
+
+###DSL
+
+> Domain Specific language
+
+----
+
+
+----
+
+##Back-end
+
+----
+
+###Responsible for operating on transitions
+
+==============================================================================
+
+##Implementation
+
+----
+
+###Transition
+
+> Glue between Front-end and Back-end
+
+----
+
+```cpp
+template <class TDstState
+        , class TSrcState
+        , class TEvent
+        , class TGuard
+        , class TAction>
+struct transition {
+  transition(TGuard&&, TAction&&);
+
+  template <class TDeps>
+  auto execute(TDeps &, TEvent &);
+};
+```
+
+----
+
+###Front-end
+
+---
+
+> DSL
+
+----
+
+```
+template <class TState>
+struct state {
+  template <class T>
+  auto operator=(const T &t) const { return transition<T, state>{}; }
+
+  template <class T>
+  auto operator<=(const T &t) const { return transition<TState, T>{}; }
+
+  template <class T>
+  auto operator+(const T &t) const { return transition<TState, T>{}; }
+
+  template <class T> requires callable<bool, T>()
+  auto operator[](const T &t) const { return transition_sg<TState, T>{}; }
+
+  template <class T> requires callable<void, T>()
+  auto operator/(const T &t) const { return transition_sa<TState, T>{}; }
+};
+```
+
+----
+
+```cpp
+template <class>
+struct event {
+  template <class T> requires callable<bool, T>()
+  auto operator[](const T &t) const BOOST_MSM_LITE_NOEXCEPT { return transition<event, T>{}; }
+
+  template <class T> requires callable<void, T>()
+  auto operator/(const T &t) const { return transition<event, T>{}; }
+};
+```
+
+----
+
+###Guards
+
+----
+
+###Operators on types
+
+> `and_, or_, not_`
+
+---
+
+> `seq_`
+
+----
+
+```cpp
+template <class... Ts>
+class and_ {
+ public:
+  explicit and_(Ts... ts) noexcept : g(ts...) {}
+
+  template <class TEvent, class TDeps, class SM>
+  auto operator()(const TEvent &event, TDeps &deps, SM &sm) noexcept {
+    return for_all(aux::make_index_sequence<sizeof...(Ts)>{}, event, deps, sm);
+  }
+
+ private:
+  template <int... Ns, class TEvent, class TDeps, class SM>
+  auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TDeps &deps, SM &sm) noexcept {
+    auto result = true;
+    int _[]{0, (call(aux::get_by_id<Ns - 1>(g), event, deps, sm) ? result : result = false)...};
+    return result;
+  }
+
+  std::tuple<Ts...> g;
+};
+```
+
+----
+
+###User-defined operators
+
+> `namespace msm`
+
+----
+
+```cpp
+template <class T> requires callable<bool, T>()
+auto operator!(T&& t) noexcept {
+  return not_<T>(std::forward<T>(t));
+}
+
+template <class T1, class T2> requires callable<bool, T1>() && callable<bool, T2>()
+auto operator&&(T1&& t1, T2&& t2) noexcept {
+  return and_<T1, T2>(std::forward<T1>(t1), std::forward<T2>(t2));
+}
+
+template <class T1, class T2> requires callable<bool, T1>() && callable<bool, T2>()
+auto operator||(T1&& t1, T2&& t2) noexcept {
+  return or_<T1, T2>(std::forward<T1>(t1), std::forward<T2>(t2));
+}
+```
+
+---
+
+```cpp
+auto true_ = [] { return true; };
+auto false_ = [] { return false_; };
+auto guards = (!true_ || (true_ && false_ || ![]{ return false; })); // not_<or_<and_<false_, not_<[]{return false;}>>>>
+```
+
+----
+
+###Actions
+
+----
+
+```cpp
+template <class T1, class T2> requires callable<void, T1>() && callable<void, T2>()
+auto operator,(T1&& t1, T2&& t2) noexcept {
+  return seq_<T1, T2>(std::forward<T1>(t1), std::forward<T2>(t2));
+}
+```
+
+---
+
+```cpp
+auto action = [] { };
+auto actions = (action, action, []{}, action); // seq_<action, action, []{}, action>
+```
+
+----
+
+###Brining it all together
+
+----
+
+```cpp
+template <class... Ts> requires transitional<Ts>()...
+auto make_transition_table(Ts... ts) noexcept {
+  return tuple<Ts...>{ts...};
+}
+```
+
+----
+
+###Example
+
+----
+
+```cpp
+make_transition_table(
+  state<class S1> + event<class Event1> [ !guard ] / action = state<class S2>
+, state<class S2> + event<class Event2> / (action1, action2) = state<class S3>
+);
+```
+
+---
+
+```cpp
+  tuple<
+      transition<S2, S1, Event1, not_<guard>, action>
+    , transition<S3, S2, Event2, always, seq_<action1, action2>>
+  >
+```
+
+----
+
+###Back-end
+
+----
+
+###Operates on list of transitions
+
+----
+
+###On a mission to get max run-time performance
+
+----
+
+###Generated dispatch (jump) table
+
+----
+
+```cpp
+void (*dispatch_table[])(TEvent&&) = { HandleTEventInState1, HandleTEventInState2, ..., HandleTEventInStateN};
+```
+
+```cpp
+template<class TEvent>
+void process_event(TEvent&& event) {
+    dispatch_table[current_state](std::forward<TEvent>(event));
+}
+```
+
+----
+
+###On a mission to get quick compilation times
+
+----
+
+##Always measure!
+
+----
+
+###Avoid doing stuff per event
+
+> In `process_event` we just want to jump
+
+----
+
+###Pre-process transitions for state per event
+
+----
+
+###Idea
+
+----
+
+###Generate list per event/state and transitions
+and jump to the right one in process_event
+
+----
+
+###Example
+
+----
+
+```cpp
+  tuple<
+      transition<S2, S1, Event1, not_<guard>, action>
+    , transition<S3, S2, Event2, always, seq_<action1, action2>>
+  >
+```
+
+---
+
+```cpp
+mappings_t = {
+  e2 {
+    string<'i', 'd', 'l', 'e'> {
+      transition<state<string<'s', '2'> >, state<string<'i', 'd', 'l', 'e'> >, event<e2>, always, none>
+    }
+  },
+
+  e1 {
+    string<'i', 'd', 'l', 'e'> {
+      transition<state<string<'s', '1'> >, state<string<'i', 'd', 'l', 'e'> (initial_state)>, event<e1>, always, none> >
+    }
+  }
+}
+```
+
+----
+
+###How?
+
+----
+
+###Meta-programing utilities
+
+----
+
+###`<type_traits>`, `<utility>`
+
+---
+
+```cpp
+template <class...> struct type {};
+template <class, class> struct pair {};
+template <class...> struct type_list { using type = type_list; };
+template <class... Ts> struct inherit : Ts... { using type = inherit; };
+struct none_type {};
+```
+
+----
+
+###Map / at
+
+----
+
+```cpp
+  constexpr auto m = hana::make_map(hana::make_pair(event, transitions), ...);
+  static_assert(m[event] == transitions);
+```
+
+```cpp
+  using m = mpl::map<mpl::pair<event, transitions>...>;
+  static_assert(boost::is_same<typename mpl::at<m, event>::type, transitions>{});
+```
+
+```cpp
+  using m = map<pair<event, transitions...>>;
+  static_assert(boost::is_same<at_key_t<m, event>, transitions>{});
+```
+
+----
+
+| Number of elements | Map       | Boost.Hana | Boost.MPL |
+| ------------------ | --------- | ---------- | --------- |
+| 128                | 0m0.076s  | 0m1.186s   | 0m1.453s  |
+
+----
+
+###Map implementation
+
+> Well known C++ trick
+
+----
+
+```cpp
+template <class... Ts> struct map : Ts... {};
+
+template <class T> struct no_decay { using type = T; };
+
+template <class TDefault, class> static no_decay<TDefault> lookup(...);
+
+template <class, class TKey, class TValue>
+static no_decay<TValue> lookup(pair<TKey, TValue> *);
+
+template <class TDefault, class TKey, class T>
+using at_key = decltype(lookup<TDefault, TKey>((T *)0));
+
+template <class T, class TKey, class TDefault = void>
+using at_key_t = typename at_key<TDefault, TKey, T>::type;
+```
+
+----
+
+###Combine in with our case
+
+----
+
+```cpp
+using event_transitions = map<
+    pair<
+      event1,
+    , type_list<
+        map<pair<state1, type_list<transition1...>>>
+       , map<pair<state2, type_list<transition2...>>>
+      >
+    >
+  , pair<
+      event2,
+    , type_list<
+        map<pair<state2, type_list<transition2...>>>
+       , map<pair<state3, type_list<transition3...>>>
+      >
+    >
+>;
+```
+
+```cpp
+static_assert(at_key_t<event_transitions, event1> ==
+    , type_list<
+        map<pair<state1, type_list<transition1...>>>
+       , map<pair<state2, type_list<transition2...>>>
+      >
+);
+```
+
+----
+
+###Unique
+
+----
+
+```cpp
+template <class...> struct unique;
+
+template <class... Rs, class T, class... Ts>
+struct unique<type<Rs...>, T, Ts...> : std::conditional_t<
+  std::is_base_of<type<T>, inherit<type<Rs>...>>{},
+  unique<type<Rs...>, Ts...>,
+  unique<type<Rs..., T>, Ts...>
+> {};
+
+template <class... Rs> struct unique<type<Rs...>>
+  : type_list<Rs...>
+{};
+
+template <class... Ts> using unique_t =
+  typename unique<type<>, Ts...>::type;
+```
+
+----
+
+###Benchmark
+
+----
+
+```cpp
+  using u = decltype(hana::unique(hana::sort(hana::make_tuple(event1, event2, event1))));
+  static_assert(make_tuple(event1, event2) == u);
+```
+
+```cpp
+  using u = typename mpl::unique<typename mpl::sort<mpl::vector<event1, event2, event1>>::type,
+                                 boost::is_same<mpl::_1, mpl::_2>>::type;
+  static_assert(std::is_same<u, mpl::vector<event1, event2>>{});
+```
+
+```cpp
+  using u = unique_t<event1, event2, event1>;
+  static_assert(std::is_same<u, type_list<event1, event2>>{});
+```
+
+----
+
+| Number of elements | unique    | Boost.Hana | Boost.MPL |
+| ------------------ | --------- | ---------- | --------- |
+| 128                | 0m0.085s  | 0m7.821s   | 0m10.409s |
+
+----
+
 ==============================================================================
 
 ##Questions?
