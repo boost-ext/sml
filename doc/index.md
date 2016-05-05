@@ -60,10 +60,10 @@ to avoid it `Boost.MSM-lite` may suit you!
 
 ###Problems with Boost.MSM - eUML
 
-* Horrible compilation times (see [Performance](overview.md#performance))
+* Long compilation times (see [Performance](overview.md#performance))
 * Huge resulting binaries (see [Performance](overview.md#performance))
 * Based on too many macros
-* Horrible and long error messages (see [Error Messages](overview.md#error-messages))
+* Long error messages (see [Error Messages](overview.md#error-messages))
 * Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, state entry/exit actions)
 * A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)
 * Data in states makes it harder to share/encapsulate (UML compliant though)
