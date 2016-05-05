@@ -1092,6 +1092,30 @@ std::tuple<
 
 ----
 
+###Limitations
+
+----
+
+```cpp
+"idle"_s + play [ [] { return true; } ] / action
+```
+
+---
+
+> Compilation error `C++11 generalized attributes syntax: [[`
+
+----
+
+###Solution
+
+----
+
+```cpp
+"idle"_s + play [ ! [] { return false; } ] / action
+```
+
+----
+
 ###Back-end
 
 ----
