@@ -13,7 +13,7 @@ CLANG_FORMAT?=clang-format
 CLANG_TIDY?=clang-tidy
 PYTHON?=python
 MKDOCS?=mkdocs
-MKDOCS_THEME?=themes/boost-experimental
+MKDOCS_THEME?=boost-experimental
 MKDOCS_SITE?=site
 
 all: test example pt
