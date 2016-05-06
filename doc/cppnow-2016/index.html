@@ -1268,6 +1268,8 @@ template <class... Ts> using unique_t =
 
 ###Boost.Hana vs Boost.MPL vs ...
 
+> Boost-1.61
+
 ----
 
 ```cpp
@@ -1296,7 +1298,9 @@ static_assert(std::is_same<u, type_list<event1, event2>>{});
 
 | Number of elements | unique    | Boost.Hana | Boost.MPL |
 | ------------------ | --------- | ---------- | --------- |
-| 128                | 0.085s  | 7.821s   | 10.409s |
+| 16                 | 0.067s    | 0.620s     | 1.194s    |
+| 64                 | 0.078s    | 1.781s     | 2.482s    |
+| 128                | 0.085s    | 7.821s     | 10.409s   |
 
 ----
 
@@ -1387,6 +1391,8 @@ using at_key_t = typename at_key<TDefault, TKey, T>::type;
 
 ###Boost.Hana vs Boost.MPL vs ...
 
+> Boost-1.61
+
 ----
 
 ```cpp
@@ -1411,7 +1417,9 @@ static_assert(boost::is_same<at_key_t<m, event>, transitions>{});
 
 | Number of elements | Map     | Boost.Hana | Boost.MPL |
 | ------------------ | ------- | ---------- | --------- |
-| 128                | 0.076s  | 1.186s   | 1.453s  |
+| 16                 | 0.050s  | 0.435s     | 1.110s    |
+| 64                 | 0.069s  | 0.923s     | 1.121s    |
+| 128                | 0.076s  | 1.186s     | 1.453s    |
 
 ----
 
