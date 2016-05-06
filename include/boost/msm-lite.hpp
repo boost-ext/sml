@@ -254,7 +254,7 @@ auto &try_get_impl(pool_type<T &> *object) BOOST_MSM_LITE_NOEXCEPT {
   return static_cast<pool_type<T &> &>(*object).value;
 }
 template <class T, class TPool>
-decltype(auto) try_get(TPool &p) BOOST_MSM_LITE_NOEXCEPT {
+auto try_get(TPool &p) BOOST_MSM_LITE_NOEXCEPT -> decltype(try_get_impl<T>(&p)) {
   return try_get_impl<T>(&p);
 }
 template <class T, class TPool>
