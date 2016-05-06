@@ -73,8 +73,8 @@ int main() {
     * [Configuration](http://boost-experimental.github.io/msm-lite/overview/index.html#configuration)
     * [Exception Safety](http://boost-experimental.github.io/msm-lite/overview/index.html#exception-safety)
     * [Thread Safety](http://boost-experimental.github.io/msm-lite/overview/index.html#thread-safety)
-    * [Performance](http://boost-experimental.github.io/msm-lite/overview/index.html#performance)
     * [Error messages](http://boost-experimental.github.io/msm-lite/overview/index.html#error-messages)
+* [Benchmarks](http://boost-experimental.github.io/msm-lite/benchmarks/index.html)
 * [Tutorial](http://boost-experimental.github.io/msm-lite/tutorial/index.html)
     * [0. Read Boost.MSM - eUML documentation](http://boost-experimental.github.io/msm-lite/tutorial/index.html#0-read-boostmsm-euml-documentation)
     * [1. Create events and states](http://boost-experimental.github.io/msm-lite/tutorial/index.html#1-create-events-and-states)
@@ -116,6 +116,7 @@ int main() {
     * [SDL2 Integration](http://boost-experimental.github.io/msm-lite/examples/index.html#sdl2-integration)
     * [Plant UML Integration](http://boost-experimental.github.io/msm-lite/examples/index.html#plant-uml-integration)
 * [CHANGELOG](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html)
+    * [ [1.0.1] - 2016-05-06](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#-101-2016-05-06)
     * [[1.0.0] - 28/01/2016](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#100-28012016)
 * [TODO](http://boost-experimental.github.io/msm-lite/TODO/index.html)
 
