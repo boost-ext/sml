@@ -116,7 +116,7 @@ int main() {
     * [SDL2 Integration](http://boost-experimental.github.io/msm-lite/examples/index.html#sdl2-integration)
     * [Plant UML Integration](http://boost-experimental.github.io/msm-lite/examples/index.html#plant-uml-integration)
 * [CHANGELOG](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html)
-    * [ [1.0.1] - 2016-05-06](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#-101-2016-05-06)
+    * [ [1.0.1] - 06/05/2016](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#-101-06052016)
     * [[1.0.0] - 28/01/2016](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#100-28012016)
 * [TODO](http://boost-experimental.github.io/msm-lite/TODO/index.html)
 
