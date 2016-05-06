@@ -4,7 +4,7 @@
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
-.PHONY: all doc clean test example pt
+.PHONY: all doc clean test example
 CXX?=clang++
 CXXFLAGS:=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
@@ -16,19 +16,7 @@ MKDOCS?=mkdocs
 MKDOCS_THEME?=boost-experimental
 MKDOCS_SITE?=site
 
-all: test example pt
-
-pt: pt_header pt_simple pt_composite pt_complex
-
-pt_%:
-	time $(CXX) test/pt/$*/msm-lite.cpp -DCHECK_COMPILE_TIME -fno-exceptions -O2 -s -I include -I test/pt -std=c++1y;
-	@$(CXX) test/pt/$*/msm-lite.cpp -O2 -s -I include -I test/pt -std=c++1y && ./a.out && ls -lh a.out
-	time $(CXX) test/pt/$*/sc.cpp -DCHECK_COMPILE_TIME -fno-exceptions -ftemplate-depth=1024 -O2 -s -I include -I test/pt -std=c++1y;
-	@$(CXX) test/pt/$*/sc.cpp -ftemplate-depth=1024 -O2 -s -I include -I test/pt -std=c++1y && ./a.out && ls -lh a.out
-	time $(CXX) test/pt/$*/euml.cpp -DCHECK_COMPILE_TIME -fno-exceptions -ftemplate-depth=1024 -O2 -s -I include -lboost_system -I test/pt -std=c++1y;
-	@$(CXX) test/pt/$*/euml.cpp -ftemplate-depth=1024 -O2 -s -I include -lboost_system -I test/pt -std=c++1y && ./a.out && ls -lh a.out
-	time $(CXX) test/pt/$*/euml2.cpp -DCHECK_COMPILE_TIME -fno-exceptions -O2 -s -I include -I test/pt -std=c++1y -lboost_system;
-	@$(CXX) test/pt/$*/euml2.cpp -O2 -s -I include -I test/pt -std=c++1y -lboost_system && ./a.out && ls -lh a.out
+all: test example
 
 test: $(patsubst %.cpp, %.out, $(shell find test -maxdepth 1 -iname "*.cpp"))
 
@@ -54,7 +42,7 @@ style_check:
 static_check:
 	$(CLANG_TIDY) test/ut.cpp test/ft.cpp -- -std=c++1y -I include -I test -include test.hpp
 
-doc: doc_$(MKDOCS_THEME)
+doc: readme doc_$(MKDOCS_THEME)
 
 doc_%:
 	cd doc && $(MKDOCS) build --clean --theme-dir themes/$* --site-dir $(MKDOCS_SITE)

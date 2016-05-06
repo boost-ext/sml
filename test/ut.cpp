@@ -10,7 +10,7 @@
 namespace boost {
 namespace msm {
 namespace lite {
-inline namespace v_1_0_0 {
+inline namespace v_1_0_1 {
 namespace aux {
 test is_constructible_types = [] {
   struct c {
@@ -297,7 +297,7 @@ test dispatchable_concept = [] {
   static_expect(dispatchable<runtime_event, aux::type_list<event2, event1>>::value);
 };
 }  // concepts
-}  // v_1_0_0
+}  // v_1_0_1
 }  // lite
 }  // msm
 }  // boost

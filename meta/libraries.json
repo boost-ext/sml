@@ -3,7 +3,7 @@
     "name": "Boost.MSM-lite",
     "authors": [ "Krzysztof Jusiak" ],
     "maintainers": [ "krzysztof at jusiak dot net" ],
-    "description": "Your scalable C++14 header only eUML-like Meta State Machine library with no dependencies",
+    "description": "C++14 Meta State Machine library",
     "std": [ "14" ],
     "category": [ "Design Patterns" ]
 }

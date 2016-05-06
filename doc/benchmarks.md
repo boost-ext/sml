@@ -74,7 +74,7 @@
 * To run benchmarks
 
 ```sh
-make pt # make pt_simple pt_composite pt_complex
+cd benchmark && make # make benchmark_simple benchmark_composite benchmark_complex
 ```
 
 

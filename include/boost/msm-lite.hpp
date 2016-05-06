@@ -8,7 +8,7 @@
 #if (__cplusplus < 201305L && _MSC_VER < 1900)
 #error "Boost.MSM-lite requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
-#define BOOST_MSM_LITE_VERSION 1'0'0
+#define BOOST_MSM_LITE_VERSION 1'0'1
 #if !defined(BOOST_MSM_LITE_LOG)
 #define BOOST_MSM_LITE_LOG(...)
 #else
@@ -30,7 +30,7 @@
 namespace boost {
 namespace msm {
 namespace lite {
-inline namespace v_1_0_0 {
+inline namespace v_1_0_1 {
 namespace aux {
 using byte = unsigned char;
 struct none_type {};
@@ -1478,7 +1478,7 @@ auto make_dispatch_table(sm<SM> &fsm) BOOST_MSM_LITE_NOEXCEPT {
   return detail::make_dispatch_table<TEvent, EventRangeBegin>(fsm,
                                                               aux::make_index_sequence<EventRangeEnd - EventRangeBegin + 1>{});
 }
-}  // v_1_0_0
+}  // v_1_0_1
 }  // lite
 }  // msm
 }  // boost
