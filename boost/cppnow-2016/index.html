@@ -136,6 +136,8 @@ TODO example
 
 ##Experimental Boost.MSM-lite vs Boost.MSM-eUML vs Boost.Statechart
 
+> Boost-1.59
+
 ----
 
 ##Features
@@ -146,23 +148,72 @@ TODO example
 
 ----
 
-* Transitions / Internal transitions / Anonymous transitions / No transition
-* Actions / Guards
-* State entry / exit actions
-* Orthogonal regions
-* Sub / Composite state machines
-* History
+Base on UML
+1.5 2.0
+
+| Feature        | Boost.MSM-lite | Boost.MSM-eUML | Boost.Statechart |
+| -------------- | -------------- | -------------- | ---------------- |
+| Transition     | | | |
+| Confilcting transition     | | | |
+| Internal transition     | | | |
+| Anonymous transition     | | | |
+Local transitions
+| No transition     | | | |
+| Guards     | | | |
+| Actions     | | | |
+initial state
+| State entry/exit     | | | |
+| Pseudo states     | | | |
+| Explicit entry     | | | |
+| Explicit exit     | | | |
+| Fork     | | | |
+| Event defering      | | | |
+| Orthogonal regions     | | | |
+| Sub / Composite     | | | |
+| Shallow History     | | | |
+| Deep History     | | | |
+| Visitor     | | | |
+| Serialization     | | | |
 
 ----
 
-##Other features
+##Non-UML features
 
 ----
 
-* Logging
-* Testing
-* Runtime Dispatcher
-* Dependency Injection integration
+| Feature        | Boost.MSM-lite | Boost.MSM-eUML | Boost.Statechart |
+| -------------- | -------------- | -------------- | ---------------- |
+| Logging     | | | |
+| Testing     | | | |
+| Testing     | | | |
+| Dispatcher     | | | |
+| Any event     | | | |
+| Flags     | | | |
+| Interrupt state     | | | |
+| Interrupt state     | | | |
+asynchronous state machines and multi-threading
+
+----
+
+<!--state chart-->
+<!--Comprehensive UML semantics support:-->
+<!--Hierarchical (composite, nested) states-->
+<!--Orthogonal (concurrent) states-->
+<!--Entry-, exit- and transition-actions-->
+<!--Guards-->
+<!--Shallow/deep history-->
+<!--Event deferral-->
+<!--Error handling support-->
+<!--Maximum type-safety-->
+
+
+RTTI
+exceptions
+Memory allocations
+
+----
+
+Example code comparison
 
 ----
 
@@ -1665,7 +1716,6 @@ auto action = [](int i){}  |
                    |   |
 msm::sm<exmple> s{42, 87.0};
 ```
-
 
 ----
 
