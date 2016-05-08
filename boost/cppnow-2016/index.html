@@ -97,7 +97,7 @@ A composite state is a state containing a region or decomposed in two or more re
 
 ----
 
-A submachine is a state machine inserted as a state in another state machine. 
+A submachine is a state machine inserted as a state in another state machine.
 
 ----
 
@@ -111,34 +111,62 @@ Orthogonal regions have its own set of mutually exclusive set of states and tran
 
 ----
 
-###State Machine design pattern allows you to AVOID maintaining following spaghetti code
+###State Machine helps to AVOID writing a spaghetti code
+
+----
+
+###Example
 
 ----
 
 ```cpp
-void some_function() {
-  ...
-  if ((is_running && !is_jumping) || just_started) {
-      ...
-  } else if (is_boss_level && extra_feature_enabled && !ab_test) {
-      ...
-  } else {
-      ...
+void handle(message msg) {
+  if
+  if (key == Right) {
+      if (is_boss_level && (!is_running || !is_jumping)) {
+          ();
+      } else if (!is_jumping) {
+          run();
+      }
   }
 }
 ```
 
 ----
 
-TODO example
+```cpp
+transition_table{
+  * -> idle    + key(Right) -> running,
+       running + key(Space) / fire,
+       running + key(Space) / fire,
+};
+
+```
 
 ==============================================================================
 
 ##Experimental Boost.MSM-lite vs Boost.MSM-eUML vs Boost.Statechart
 
-> Boost-1.59
+----
+
+| Library     | MSM-lite    | Boost.MSM-eUML  | Boost.Statechart |
+| --------    | ----------- | --------------- | ---------------- |
+| Standard    | C++14       | C++98/03        | C++98/03         |
+| Version     | 1.0.1       | 1.61            | 1.61             |
+| License     | Boost 1.0   | Boost 1.0       | Boost 1.0        |
+| Linkage     | header only | header only     | library          |
 
 ----
+
+| Library            | MSM-lite    | Boost.MSM-eUML  | Boost.Statechart |
+| ------------------ | ----------- | --------------- | ---------------- |
+| UML                | 2.0         | 2.0             | 1.5              |
+| RTTI               | No          | No              | Yes              |
+| Exceptions         | No          | No              | Yes              |
+| Memory Allocations | No          | No              | Yes              |
+
+----
+
 
 ##Features
 
@@ -148,32 +176,42 @@ TODO example
 
 ----
 
-Base on UML
-1.5 2.0
+| Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
+| -------------------- | -------- | -------------- | ---------------- |
+| Transition           | Yes      | Yes            | Yes              |
+| Anonymous transition | Yes      | Yes            | Yes              |
+| Internal transition  | Yes      | Yes            | Yes              |
+| Local transitions    | No       | No             | No               |
 
-| Feature        | Boost.MSM-lite | Boost.MSM-eUML | Boost.Statechart |
-| -------------- | -------------- | -------------- | ---------------- |
-| Transition     | | | |
-| Confilcting transition     | | | |
-| Internal transition     | | | |
-| Anonymous transition     | | | |
-Local transitions
-| No transition     | | | |
-| Guards     | | | |
-| Actions     | | | |
-initial state
-| State entry/exit     | | | |
-| Pseudo states     | | | |
-| Explicit entry     | | | |
-| Explicit exit     | | | |
-| Fork     | | | |
-| Event defering      | | | |
-| Orthogonal regions     | | | |
-| Sub / Composite     | | | |
-| Shallow History     | | | |
-| Deep History     | | | |
-| Visitor     | | | |
-| Serialization     | | | |
+----
+
+| Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
+| -------------------- | -------- | -------------- | ---------------- |
+| State entry/exit     | Yes      | Yes            | Yes              |
+| Guard                | Yes      | Yes            | Yes              |
+| Action               | Yes      | Yes            | Yes              |
+| Event defering       | No*      | Yes            | Yes              |
+| Error handling       | Yes      | Yes            | Yes              |
+
+----
+
+| Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
+| -------------------- | -------- | -------------- | ---------------- |
+| Initial state        | Yes      | Yes            | Yes              |
+| Terminate State      | Yes      | Yes            | Yes              |
+| Explicit entry       | Yes      | Yes            | Yes              |
+| Explicit exit        | No       | Yes            | Yes              |
+| Fork                 | No       | Yes            | No               |
+
+----
+
+| Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
+| -------------------- | -------- | -------------- | ---------------- |
+| Orthogonal regions   | Yes      | Yes            | Yes              |
+| Sub / Composite      | Yes      | Yes            | Yes              |
+| Shallow History      | Yes      | Yes            | Yes              |
+| Deep History         | No*      | No*            | Yes              |
+
 
 ----
 
@@ -181,41 +219,185 @@ initial state
 
 ----
 
-| Feature        | Boost.MSM-lite | Boost.MSM-eUML | Boost.Statechart |
-| -------------- | -------------- | -------------- | ---------------- |
-| Logging     | | | |
-| Testing     | | | |
-| Testing     | | | |
-| Dispatcher     | | | |
-| Any event     | | | |
-| Flags     | | | |
-| Interrupt state     | | | |
-| Interrupt state     | | | |
-asynchronous state machines and multi-threading
+| Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
+| -------------------- | -------- | -------------- | ---------------- |
+| Any event            | No       | Yes            | No               |
+| Flags                | No       | Yes            | No               |
+| Interrupt state      | No       | Yes            | No               |
+| State Visitor        | Yes      | Yes            | Yes              |
+| Serialization        | No       | Yes            | No               |
+| Dispatcher           | Yes      | No             | No               |
+| Asynchronous SM      | No       | No             | Yes              |
 
 ----
 
-<!--state chart-->
-<!--Comprehensive UML semantics support:-->
-<!--Hierarchical (composite, nested) states-->
-<!--Orthogonal (concurrent) states-->
-<!--Entry-, exit- and transition-actions-->
-<!--Guards-->
-<!--Shallow/deep history-->
-<!--Event deferral-->
-<!--Error handling support-->
-<!--Maximum type-safety-->
-
-
-RTTI
-exceptions
-Memory allocations
+##Example
 
 ----
 
-Example code comparison
+diagram
 
 ----
+
+##Boost.MSM-eUML
+
+----
+
+###Events
+
+```cpp
+BOOST_MSM_EUML_EVENT(play)
+```
+-----
+
+###States
+
+```cpp
+BOOST_MSM_EUML_STATE((), Idle)
+BOOST_MSM_EUML_STATE((), Open)
+```
+
+----
+
+###Actions
+
+```cpp
+BOOST_MSM_EUML_ACTION(start) {
+template <class FSM, class EVT, class SourceState, class TargetState>
+  void operator()(EVT const &, FSM &, SourceState &, TargetState &) {
+    // ...
+  }
+};
+```
+
+----
+
+###Transition table
+
+```cpp
+BOOST_MSM_EUML_TRANSITION_TABLE((
+  Playing == Idle + play / start,
+), transition_table)
+```
+
+----
+
+###State Machine
+
+```cpp
+BOOST_MSM_EUML_ACTION(Log_No_Transition){
+  template <class FSM, class Event>
+  void operator()(Event const &, FSM &, int state) {
+      // ...
+  }
+};
+```
+
+```cpp
+BOOST_MSM_EUML_DECLARE_STATE_MACHINE((
+  transition_table,
+  init_ << Idle,
+  no_action, // entry
+  no_action, // exit
+  attributes_ << no_attributes_,
+  configure_ << no_exception << no_msg_queue,
+  Log_No_Transition
+), player_);
+
+using player = msm::back::state_machine<player_>;
+```
+
+----
+
+###Process event
+
+```cpp
+player sm;
+sm.process_event(play);
+```
+
+----
+
+###Boost.Statechart
+
+----
+
+###Events
+
+```cpp
+struct play : sc::event<play> {};
+```
+
+----
+
+###Actions
+
+```cpp
+struct player : sc::state_machine<player, Idle> {
+  void start(play const &) {
+    // ...
+  }
+}
+```
+
+----
+
+###States
+
+```cpp
+struct Idle : sc::simple_state<Idle, player> {
+  using reactions = mpl::list<
+    sc::transition<play, Open, player, &player::start>
+  >;
+};
+
+```
+
+----
+
+###Process event
+
+```cpp
+player sm;
+sm.process_event(play());
+```
+
+----
+
+###Experimental Boost.MSM-lite
+
+----
+
+###Events
+
+```cpp
+struct play {};
+```
+
+----
+
+###State Machine
+
+```cpp
+struct player {
+  auto configure() {
+    return make_transition_table(
+      "idle"_s + event<play> / []{ ... } = "play"_s
+    )
+  )
+);
+```
+----
+
+###Process event
+
+```cpp
+msm::lite::sm<player> sm;
+sm.process_event(play{});
+```
+
+----
+
 
 ##Benchmarks
 
@@ -235,21 +417,21 @@ Example code comparison
 
 ----
 
-| Clang-3.7        | Boost.MSM-lite | Boost.MSM-eUML | Boost.MSM3-eUML2 |Boost.Statechart |
-|------------------|----------------|------------------|--------------------|-------------------|
-| Compilation time | 0.144s         | 3.855s           | 8.699s             | 1.028s            |
-| Execution time   | 15ms           | 17ms             | 17ms               | 1232ms            |
-| Memory usage     | 14b            | 32b              | 28b                | 200b              |
-| Executable size  | 11K            | 91K              | 15K + boost_system | 59K               |
+| Clang-3.7        |       MSM-lite | Boost.MSM-eUML   | Boost.Statechart  |
+|------------------|----------------|------------------|-------------------|
+| Compilation time | 0.144s         | 3.855s           | 1.028s            |
+| Execution time   | 15ms           | 17ms             | 1232ms            |
+| Memory usage     | 14b            | 32b              | 200b              |
+| Executable size  | 11K            | 91K              | 59K               |
 
 ----
 
-| GCC-5.2          | Boost.MSM-lite | Boost.MSM-eUML | Boost.MSM3-eUML2 | Boost.Statechart |
-|------------------|----------------|------------------|--------------------|-------------------|
-| Compilation time | 0.175s         | 7.879s           | 17.101s            | 1.790s            |
-| Execution time   | 15ms           | 19ms             | 21ms               | 929ms             |
-| Memory usage     | 14b            | 32b              | 28b                | 224b              |
-| Executable size  | 11K            | 67K              | 15K + boost_system | 63K               |
+| GCC-5.2          |       MSM-lite | Boost.MSM-eUML   | Boost.Statechart  |
+|------------------|----------------|------------------|-------------------|
+| Compilation time | 0.175s         | 7.879s           | 1.790s            |
+| Execution time   | 15ms           | 19ms             | 929ms             |
+| Memory usage     | 14b            | 32b              | 224b              |
+| Executable size  | 11K            | 67K              | 63K               |
 
 ----
 
@@ -259,21 +441,21 @@ Example code comparison
 
 ----
 
-| Clang-3.7        | Boost.MSM-lite | Boost.MSM-eUML | Boost.MSM3-eUML2 | Boost.Statechart |
-|------------------|----------------|------------------|--------------------|--------------------|
-| Compilation time | 0.184s         | 4.526s           | 10.599s            | 1.293s             |
-| Execution time   | 10ms           | 14ms             | 10ms               | 491ms              |
-| Memory usage     | 20b            | 60b              | 52b                | 200b               |
-| Executable size  | 15K            | 111K             | 15K + boost_system | 83K                |
+| Clang-3.7        |       MSM-lite | Boost.MSM-eUML   | Boost.Statechart   |
+|------------------|----------------|------------------|--------------------|
+| Compilation time | 0.184s         | 4.526s           | 1.293s             |
+| Execution time   | 10ms           | 14ms             | 491ms              |
+| Memory usage     | 20b            | 60b              | 200b               |
+| Executable size  | 15K            | 111K             | 83K                |
 
 ----
 
-| GCC-5.2          | Boost.MSM-lite | Boost.MSM-eUML | Boost.MSM3-eUML2 | Boost.Statechart |
-|------------------|----------------|------------------|--------------------|--------------------|
-| Compilation time | 0.248s         | 9.363s           | 23.404s            | 2.037s             |
-| Execution time   | 9ms            | 13ms             | 12ms               | 404ms              |
-| Memory usage     | 20b            | 60b              | 52b                | 224b               |
-| Executable size  | 12K            | 91K              | 15K + boost_system | 83K                |
+| GCC-5.2          |       MSM-lite | Boost.MSM-eUML   | Boost.Statechart   |
+|------------------|----------------|------------------|--------------------|
+| Compilation time | 0.248s         | 9.363s           | 2.037s             |
+| Execution time   | 9ms            | 13ms             | 404ms              |
+| Memory usage     | 20b            | 60b              | 224b               |
+| Executable size  | 12K            | 91K              | 83K                |
 
 ----
 
@@ -283,22 +465,29 @@ Example code comparison
 
 ----
 
-| Clang-3.7        | Boost.MSM-lite | Boost.MSM-eUML | Boost.MSM3-eUML2 | Boost.Statechart |
-|------------------|----------------|------------------|--------------------|--------------------|
-| Compilation time | 0.582s         | 1m15.935s        | 43.341s            | 3.661s             |
-| Execution time   | 69ms           | 81ms             | 78ms               | 6221ms             |
-| Memory usage     | 102b           | 120b             | 72b                | 200b               |
-| Executable size  | 35K            | 611K             | 31K + boost_system | 343K               |
+| Clang-3.7        |       MSM-lite | Boost.MSM-eUML   | Boost.Statechart   |
+|------------------|----------------|------------------|--------------------|
+| Compilation time | 0.582s         | 1m15.935s        | 3.661s             |
+| Execution time   | 69ms           | 81ms             | 6221ms             |
+| Memory usage     | 102b           | 120b             | 200b               |
+| Executable size  | 35K            | 611K             | 343K               |
 
 ----
 
-| GCC-5.2          | Boost.MSM-lite | Boost.MSM-eUML | Boost.MSM3-eUML2 | Boost.Statechart |
-|------------------|----------------|------------------|--------------------|--------------------|
-| Compilation time | 0.816s         | 52.238s          | 1m41.045s          | 4.997s             |
-| Execution time   | 72ms           | 77ms             | 91ms               | 5520ms             |
-| Memory usage     | 102b           | 120b             | 72b                | 224b               |
-| Executable size  | 35K            | 271K             | 47K + boost_system | 215K               |
+| GCC-5.2          |       MSM-lite | Boost.MSM-eUML   | Boost.Statechart   |
+|------------------|----------------|------------------|--------------------|
+| Compilation time | 0.816s         | 52.238s          | 4.997s             |
+| Execution time   | 72ms           | 77ms             | 5520ms             |
+| Memory usage     | 102b           | 120b             | 224b               |
+| Executable size  | 35K            | 271K             | 215K               |
 
+----
+
+##More benchmarks
+
+---
+
+https://github.com/boost-experimental/msm-lite/benchmarks
 
 ==============================================================================
 
@@ -310,11 +499,11 @@ Example code comparison
 
 ----
 
-##[Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) is awesome, but...
+##[Boost.MSM-eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) is awesome, but...
 
 ----
 
-##Problems with Boost.MSM - eUML
+##Problems with Boost.MSM-eUML
 
 ----
 
@@ -346,7 +535,7 @@ Example code comparison
 
 ---
 
-Version C++14 - v1.0.0
+Version C++14 - v1.0.1
 
 ---
 
@@ -398,7 +587,9 @@ https://github.com/boost-experimental/msm-lite
 
 ###eUML DSL
 
-> `src_state + event [ guard ] / action -> dst_state`
+```cpp
+src_state + event [ guard ] / action -> dst_state
+```
 
 ----
 
@@ -406,7 +597,7 @@ https://github.com/boost-experimental/msm-lite
 
 ----
 
-##Eliminate Boost.MSM - eUML problems
+##Eliminate Boost.MSM-eUML problems
 
 ----
 
@@ -440,7 +631,7 @@ https://github.com/boost-experimental/msm-lite
 
 ----
 
-###Architecture
+##Architecture
 
 ----
 
@@ -919,12 +1110,6 @@ void log_state_change(const TSrcState& src, const TDstState& dst) {
 
 ----
 
-##Warning
-
-> `std::tuple` is used in examples, however, standard implementation comiles really slow!
-
-----
-
 ###Transition
 
 > Glue between Front-end and Back-end
@@ -954,7 +1139,9 @@ struct transition {
 
 ###DSL (Domain Specific language)
 
-> `src_state + event [ guard ] / action -> dst_state`
+```cpp
+src_state + event [ guard ] / action -> dst_state
+```
 
 ----
 
@@ -1001,7 +1188,7 @@ struct event {
 
 ----
 
-###Guards
+###Guard
 
 ----
 
@@ -1021,7 +1208,7 @@ struct and_ : operator_base {
     return call(std::get<Ns-1>(args), event, deps) && ...;
   }
 
-  std::tuple<Ts...> args;
+  tuple<Ts...> args;
 };
 ```
 
@@ -1058,14 +1245,14 @@ template <class R, class... TArgs>
 struct call_impl<R(TArgs...)> {
   template<class T, class TEvent, class TDeps>
   static auto execute(T op, const TEvent& event, TDeps& deps) {
-    return op(std::get<TArgs>(std::tuple_cat(event, deps))...);
+    return op(std::get<TArgs>(tuple_cat(event, deps))...);
   }
 };
 ```
 
 ----
 
-... for `or_` and `not_`
+###Similar for `or_` and `not_`
 
 ----
 
@@ -1085,7 +1272,7 @@ auto operator!(T&& t) {
 ----
 
 ```cpp
-template <class T1, class T2> 
+template <class T1, class T2>
   requires callable<bool, T1>() && callable<bool, T2>()
 auto operator&&(T1&& t1, T2&& t2)  {
   return and_<T1, T2>(std::forward<T1>(t1), std::forward<T2>(t2));
@@ -1095,7 +1282,7 @@ auto operator&&(T1&& t1, T2&& t2)  {
 ----
 
 ```cpp
-template <class T1, class T2> 
+template <class T1, class T2>
   requires callable<bool, T1>() && callable<bool, T2>()
 auto operator||(T1&& t1, T2&& t2) {
   return or_<T1, T2>(std::forward<T1>(t1), std::forward<T2>(t2));
@@ -1118,7 +1305,7 @@ auto guards = (!true_ || (true_ && false_ || ![]{ return false; }));
 
 ----
 
-###Actions
+###Action
 
 ----
 
@@ -1129,7 +1316,7 @@ auto guards = (!true_ || (true_ && false_ || ![]{ return false; }));
 ----
 
 ```cpp
-template <class T1, class T2> 
+template <class T1, class T2>
   requires callable<void, T1>() && callable<void, T2>()
 auto operator,(T1&& t1, T2&& t2) {
   return seq_<T1, T2>(std::forward<T1>(t1), std::forward<T2>(t2));
@@ -1145,7 +1332,7 @@ auto operator,(T1&& t1, T2&& t2) {
 ```cpp
 auto action = [] { };
 
-auto actions = (action, action, []{}, action); 
+auto actions = (action, action, []{}, action);
                // seq_<action, action, []{}, action>
 ```
 
@@ -1158,97 +1345,8 @@ auto actions = (action, action, []{}, action);
 ```cpp
 template <class... Ts> requires transitional<Ts>()...
 auto make_transition_table(Ts&&... ts) {
-  return std::tuple<Ts...>{std::forward<Ts>(ts)...};
+  return tuple<Ts...>{std::forward<Ts>(ts)...};
 }
-```
-
-----
-
-###Example
-
-----
-
-```cpp
-make_transition_table(
-  state<class Idle> + play [ is_playing ] = state<class Wait>
-  state<class Idle> + play [ !is_playing ] / play_song = state<class Play>
-  state<class Play> + stop / (stop_song, reset_song) = state<class Idle>
-);
-```
-
-----
-
-```cpp
-std::tuple<
-  transition<Idle, Wait, Play, is_playing>
-, transition<Idle, Wait, Play, not_<is_playing>, play_song>
-, transition<Play, Idle, Stop, always, seq_<stop_song
-                                          , reset_song>, play_song>
->
-```
-
-----
-
-###Limitations
-
-----
-
-```cpp
-"idle"_s + play [ [] { return true; } ] / action
-```
-
----
-
-> Compilation error `C++11 generalized attributes syntax: [[`
-
-----
-
-###Solution
-
-----
-
-```cpp
-"idle"_s + play [ ! [] { return false; } ] / action
-```
-
-----
-
-###Back-end
-
-----
-
-###Operates on transitions
-
-----
-
-###State Machine
-
-> Core
-
-----
-
-```cpp
-template <class... Ts> requires transitional<Ts>()...
-class sm {
-  using states = unique_t<get_state<Ts...>>;
-  using events = unique_t<get_event<Ts...>>;
-  using deps = unique_t<get_deps<Ts...>>;
-  using mappings = mappings_t<Ts...>;
-
-public:
-  sm(sm &&) = default;
-  sm &operator=(sm &&) = default;
-
-  template <class... TDeps> requires std::is_base_of_v<TDeps, deps>...
-  explicit sm(TDeps &&... deps); // init deps
-
-  template <class TEvent>
-  void process_event(TEvent&&);
-
-private:
-  int current_state_ = 0;
-  std::tuple<deps> deps_;
-};
 ```
 
 ----
@@ -1274,18 +1372,146 @@ concept bool transitional() {
 
 ----
 
+###Example
+
+----
+
 ```cpp
-states = { Idle, Wait, Stop };
-events = { Play, Stop };
+auto play_song = [] { ... };
+auto is_playing =  [] { return ...; }
+
+make_transition_table(
+  state<class Idle> + play [is_playing] = state<class Wait>
+, state<class Idle> + play [!is_playing] / play_song = state<class Play>
+, state<class Play> + stop / (stop_song, reset_song) = state<class Idle>
+);
 ```
 
 ----
 
-How?
+###Produced type
 
 ----
 
-###Unique
+```cpp
+tuple<
+  transition<Idle, Wait, Play, is_playing>
+, transition<Idle, Wait, Play, not_<is_playing>, play_song>
+, transition<Play, Idle, Stop, always, seq_<stop_song
+                                          , reset_song>, play_song>
+>
+```
+
+----
+
+###Front-end limitations
+
+----
+
+```cpp
+"idle"_s + play [ [] { return true; } ] / action
+```
+
+####Gives
+
+
+```cpp
+Compilation error: `C++11 generalized attributes syntax: [[`
+```
+
+----
+
+###Solution
+
+----
+
+###Negate the predicate
+
+```cpp
+"idle"_s + play [ ! [] { return false; } ] / action
+```
+
+----
+
+###Back-end
+
+----
+
+###Operates on transitions
+
+----
+
+###Goals
+
+----
+
+###Maximal run-time performance
+
+###Quick compilation times
+
+----
+
+###How?
+
+----
+
+###State Machine
+
+----
+
+####Front-End
+```cpp
+tuple<
+  transition<Idle, Wait, Play, is_playing>
+, transition<Idle, Wait, Play, not_<is_playing>, play_song>
+, transition<Play, Idle, Stop, always, seq_<stop_song
+                                          , reset_song>, play_song>
+>
+```
+
+####Conversion to Back-End (State Machine)
+```cpp
+template<class>
+struct sm;
+
+template<class... Transitions>
+struct sm<tuple<Transitions...>> : core::sm<Transitions...>
+{ };
+```
+
+----
+
+###Where
+
+----
+
+```cpp
+template <class... Ts> requires transitional<Ts>()...
+class sm { // namespace core
+  using states = unique_t<get_state<Ts...>>; // unique list of states
+  using events = unique_t<get_event<Ts...>>; // unique list of events
+  using deps = unique_t<get_deps<Ts...>>; // unique list of dependencies
+  using mappings = mappings_t<Ts...>; // preprocessed event mapping
+
+public:
+  template <class... TDeps> requires std::is_base_of_v<TDeps, deps>...
+  explicit sm(TDeps &&... deps); // init deps
+
+  template <class TEvent> void process_event(TEvent&&);
+
+private:
+  int current_state_ = 0;
+  tuple<deps> deps_;
+};
+```
+
+----
+
+###Details
+
+----
+
+###Unique_t
 
 ----
 
@@ -1347,7 +1573,7 @@ static_assert(std::is_same<u, type_list<event1, event2>>{});
 
 ----
 
-| Number of elements | unique    | Boost.Hana | Boost.MPL |
+| Number of elements | unique_t  | Boost.Hana | Boost.MPL |
 | ------------------ | --------- | ---------- | --------- |
 | 16                 | 0.067s    | 0.620s     | 1.194s    |
 | 64                 | 0.078s    | 1.781s     | 2.482s    |
@@ -1355,7 +1581,35 @@ static_assert(std::is_same<u, type_list<event1, event2>>{});
 
 ----
 
-###Mappings
+###Example
+
+----
+
+####State Machine
+```cpp
+auto is_playing = [](const player& p, auto event) {
+  return p.is_playing(event.song);
+};
+auto play_song = [](recorder& r) { r.play(); };
+
+sm<
+  transition<Idle, Wait, Play, is_playing>
+, transition<Idle, Wait, Play, not_<is_playing>, play_song>
+, transition<Play, Idle, Stop, always, seq_<stop_song
+                                          , reset_song>, play_song>
+>
+```
+
+####Internal types
+```cpp
+states = type_list<Idle, Wait, Play>;
+events = type_list<Play, Stop>;
+deps = tupe_list<const player&, recorder&>;
+```
+
+----
+
+###Mappings_t
 
 ----
 
@@ -1365,11 +1619,11 @@ static_assert(std::is_same<u, type_list<event1, event2>>{});
 
 ###Pre-processed transitions
 
-> ####Avoid doing to much per event!
+> ####Avoid template 'magic' per event!
 
 ----
 
-###Example
+###Goal
 
 ----
 
@@ -1414,9 +1668,7 @@ mappings = {
 
 ----
 
-###Map / at
-
-> ###A common C++ trick used by library writers
+###Map
 
 ----
 
@@ -1438,28 +1690,30 @@ template <class T, class TKey, class TDefault = void>
 using at_key_t = typename at_key<TDefault, TKey, T>::type;
 ```
 
+> Used in some modern C++ meta-programming libraries
+
 ----
 
-###Boost.Hana vs Boost.MPL vs ...
+###Boost.Hana vs Boost.MPL vs map
 
 > Boost-1.61
 
 ----
 
 ```cpp
-constexpr auto m = 
+constexpr auto m =
   hana::make_map(hana::make_pair(event, transitions), ...);
 static_assert(m[event] == transitions);
 ```
 
 ```cpp
-using m = 
+using m =
   mpl::map<mpl::pair<event, transitions>...>;
 static_assert(boost::is_same<mpl::at<m, event>::type, transitions>{});
 ```
 
 ```cpp
-using m = 
+using m =
   map<pair<event, transitions...>>;
 static_assert(boost::is_same<at_key_t<m, event>, transitions>{});
 ```
@@ -1478,43 +1732,36 @@ static_assert(boost::is_same<at_key_t<m, event>, transitions>{});
 
 ----
 
+####State Machine
 ```cpp
-mappings_t = map<
-  pair<
-    Play, 
-    map<
-      pair<
-        Idle, 
-        type_list<
-          transition<Idle, Wait, Play, is_playing>,
-          transition<Idle, Wait, Play, not_<is_playing>, play_song>
-        >
-      >
-    >
-  >,
-  pair<
-    Stop,
-    map<
-      pair<
-        Play,
-        type_list<
-          transition<Play, Idle, Stop, always, seq_<stop_song, 
-                     reset_song>, play_song>
-        >
-      >
-    >
-  >
->;
+sm<
+  transition<Idle, Wait, Play, is_playing>
+, transition<Idle, Wait, Play, not_<is_playing>, play_song>
+, transition<Play, Idle, Stop, always, seq_<stop_song
+                                          , reset_song>, play_song>
+>
+```
+
+####Mappings
+```cpp
+mappings = map<
+  pair<Play, map<pair<Idle, type_list<
+    transition<Idle, Wait, Play, is_playing>,
+    transition<Idle, Wait, Play, not_<is_playing>, play_song>
+  >>>>,
+  pair<Stop, map<pair<Play, type_list<
+    transition<Play, Idle, Stop, always,
+               seq_<stop_song, reset_song>, play_song>
+>>>>>;
 ```
 
 ----
 
-###Get transitions for given state/event
-
-> 0.001s!
+###Usage
 
 ----
 
+####Transitions for event 'Play' and state 'Idle'
 ```cpp
 struct empty {};
 
@@ -1524,10 +1771,22 @@ static_assert(
       transition<Idle, Wait, Play, is_playing>,
       transition<Idle, Wait, Play, not_<is_playing>, play_song>
     >,
-    at_key_t<at_key_t<mappings_t, Play, empty>, Idle, empty>
+    at_key_t<at_key_t<mappings, Play, empty>, Idle, empty>
   >{}
 );
 ```
+
+----
+
+###Benchmark
+
+----
+
+| Map size  | Find transitions for event/state |
+| --------- | -------------------------------- |
+| 16        | 0.002s                           |
+| 64        | 0.004s                           |
+| 128       | 0.005s                           |
 
 ----
 
@@ -1547,6 +1806,7 @@ TODO Explain jump table with asm
 
 ----
 
+####Generate table for each state
 ```cpp
 void (*dispatch_table[])(TEvent&&) = {
   HandleTEventInState1
@@ -1554,6 +1814,11 @@ void (*dispatch_table[])(TEvent&&) = {
 , ...
 , HandleTEventInStateN
 };
+```
+
+####Jump using current state
+```cpp
+dispatch_table[current_state_](event);
 ```
 
 ----
@@ -1566,15 +1831,17 @@ void (*dispatch_table[])(TEvent&&) = {
 template<class TEvent>
 void process_event(TEvent&& event) {
   process_event_impl<at_key_t<mappings, TEvent, do_transition<>>>(
-    std::forward<TEvent>(event), TStates{}
+    std::forward<TEvent>(event), states{}
   );
 }
 ```
 
+```cpp
 template<class TStateMappings, class TEvent, class... TStates>
 void process_event_impl(type_list<TStates...>) {
   void (*dispatch_table[])(TEvent&&) = {
-    &at_key_t<TStateMappings, TStates, do_transition<>>::template execute<TEvent>...
+    &at_key_t<TStateMappings, TStates, do_transition<>>::template
+      execute<TEvent>...
   };
   dispatch_table[current_state_](std::forward<TEvent>(event));
 }
@@ -1590,7 +1857,7 @@ void process_event_impl(type_list<TStates...>) {
 template<class... Ts>
 struct do_transition {
   template<class TEvent>
-  static void execute(TEvent&& event) {
+  static auto execute(TEvent&& event) {
     return Ts{}.execute(std::forward<TEvent>(event)) && ...;
   }
 };
@@ -1598,8 +1865,9 @@ struct do_transition {
 template<>
 struct do_transition<> {
   template<class TEvent>
-  static void execute(TEvent&&) {
+  static auto execute(TEvent&&) {
     assert(false && "no transition!");
+    return {};
   }
 };
 ```
@@ -1610,11 +1878,7 @@ struct do_transition<> {
 
 ----
 
-###State type <-> ID (int)
-
-----
-
-###The same trick as in map
+###State type to ID (int)
 
 ----
 
@@ -1626,10 +1890,14 @@ template <class, class...>
 struct type_id_impl;
 
 template <std::size_t... Ns, class... Ts>
-struct type_id_impl<std::index_sequence<Ns...>, Ts...> : type_id_type<Ns, Ts>... {};
+struct type_id_impl<std::index_sequence<Ns...>, Ts...>
+  : type_id_type<Ns, Ts>...
+{};
 
 template <class... Ts>
-struct type_id : type_id_impl<std::make_index_sequence<sizeof...(Ts)>, Ts...> {};
+struct type_id
+  : type_id_impl<std::make_index_sequence<sizeof...(Ts)>, Ts...>
+{};
 ```
 
 ----
@@ -1664,7 +1932,11 @@ static_assert(1 == get_id<type_ids, -1, double>());
 
 ----
 
-###Transition::execute implementation
+###Where/When to update?
+
+----
+
+###Transition::execute
 
 ----
 
@@ -1675,7 +1947,7 @@ constexpr auto Transition::execute(SM & self, const TEvent & event) {
     call(action, event, self.deps_); // actions
 
     // set dst state id as the current one
-    self.current_state = 
+    self.current_state_ =
       get_id<type_id<typename SM::states...>, -1, TDstState>();
 
     return true;
@@ -1684,46 +1956,11 @@ constexpr auto Transition::execute(SM & self, const TEvent & event) {
 }
 ```
 
-----
-
-###Dependencies
-
-----
-
-###Passed by the constructor
-
-----
-
-```cpp
-template <class... TDeps> requires std::is_base_of_v<TDeps, deps>...
-explicit sm(TDeps &&... deps) : deps_(std::forward<TDeps>(deps)...)
-{ }
-```
-
-----
-
-```cpp
-                            /-- event (injected from process_event)
-                            |
-auto guard = [](double d, auto event) { return true; }
-                   |
-                   \-------\
-                           |
-auto action = [](int i){}  |
-                 |         |
-                 |         |
-                 \-\   /---/
-                   |   |
-msm::sm<exmple> s{42, 87.0};
-```
-
-----
-
 ==============================================================================
 
 ##Examples
 
-----
+---
 
 [Hello World](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example#hello-world)
 
