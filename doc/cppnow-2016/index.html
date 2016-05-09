@@ -691,108 +691,114 @@ src_state + event [ guard ] / action -> dst_state
 
 ----
 
-##Create events and states
+##Events
 
 ----
 
-An Event is just a unique type, which will be processed by the state machine.
+###Event declaration
 
 ```cpp
-struct my_event { ... };
+class my_event { ... };
 ```
 
-If you happen to have a Clang/GCC compiler, you can create an Event on the fly.
+----
+
+###Event declaration on the fly
 
 ```cpp
 using namespace msm;
 auto event  = "event"_t;
 ```
 
+> It's not standard!
+
 -----
 
-A State can have entry/exit behaviour executed whenever machine enters/leaves State and
-represents current location of the state machine flow.
+##States
 
-To create a state below snippet might be used.
+-----
+
+###State declaration
 
 ```cpp
-msm::state<class idle> idle;
-// or
 auto idle = msm::state<class idle>{};
 ```
 
-If you happen to have a Clang/GCC compiler, you can create a State on the fly.
+-----
+
+###State declaration on the fly
 
 ```cpp
 using namespace msm;
 auto state  = "idle"_s;
 ```
 
-----
-
-##Create guards and actions
+> It's not standard!
 
 ----
 
-Guards and actions are callable objects which will be executed by the state machine in order to verify whether a transition, followed by an action should take place.
+###State types
+
+| State | Description | Notation | 
+| ----- | ----------- | -------- |
+| Initial state | Tells SM where to start | `*"state"_s` |
+| Sub-SM | State which is a SM itself | `sm<...>` |
+| History state | Remember Sub-SM state when reentered | `"state"_s(H)` |
+| Terminate state | Indicates SM termination | `X` |
 
 ----
 
-Guard MUST return boolean value.
+##Guards
 
 ----
+
+###Guard is functor and MUST return boolean value
 
 ```cpp
-auto guard1 = [] {
+auto guard_always_success = [] {
+  return true;
+};
+```
+
+```cpp
+auto guard_with_dependencies = [](int, double) {
+  return true;
+};
+```
+
+```cpp
+auto guard_with_dependencies_and_event = [](int, auto event, double) {
   return true;
 };
 ```
 
 ----
 
+##Actions
+
+----
+
+###Action is a functor and MUST not return
+
 ```cpp
-auto guard2 = [](int, double) {
-  return true;
-};
+auto action_empty = [] { };
+```
+
+```cpp
+auto action_with_dependencies = [](int, double) { };
+```
+
+```cpp
+auto action_with_dependencies_and_events = [](int, auto event, double) { };
 ```
 
 ----
 
-```cpp
-auto guard3 = [](int, auto event, double) {
-  return true;
-};
-```
+##Transition table
 
 ----
 
-Action MUST not return.
-
-----
-
-```cpp
-auto action1 = [] { };
-```
-
-----
-
-```cpp
-auto action2 = [](int, double) { };
-```
-
-----
-
-```cpp
-auto action3 = [](int, auto event, double) { };
-```
-
-----
-
-##Create a transition table
-
-----
-
-`msm-lite` is using eUML-like DSL in order to be as close as possible to UML design.
+###Transition Table DSL (Domain Specific language)
 
 ----
 
@@ -811,78 +817,31 @@ auto action3 = [](int, auto event, double) { };
 
 ----
 
-Transition flow
-
-----
-
-```
-src_state + event [ guard ] / action = dst_state
-                                     ^
-                                     |
-                                     |
-                                    1. src_state + on_exit
-                                    2. dst_state + on_entry
-```
-
-----
-
-```cpp
-using namespace msm;
-
-make_transition_table(...);
-```
-
-----
-
-##Set initial states
-
-----
-
-Initial state tells the state machine where to start.
-
-----
+###Make transition table
 
 ```cpp
 using namespace msm;
 
 make_transition_table(
- *"src_state"_s + event<my_event> [guard] / action = "dst_state"_s
-, "dst_state"_s + event<game_over> = X
+  "src_state"_s + event<my_event> [guard] / action = "dst_state"_s
+, "dst_state"_s + event<game_over> = X // 'X' - terminate state
 );
 ```
 
 ----
 
-##Set initial states
+###Orthogonal Regions
 
 ----
 
-Initial/Current state might be remembered by the State Machine so that whenever it will reentered
-the last active state will reactivated.
-
-----
-
+####Define Orthogonal regions by marking multiple states as initial
 ```cpp
 using namespace msm;
-make_transition_table(
- "src_state"_s(H) + event<my_event> [guard]/ action = "dst_state"_s
-,"dst_state"_s    + event<game_over>                 = X
-);
-```
 
-----
-
-You can have more than one initial state. All initial states will be executed in pseudo-parallel way
-and are called orthogonal regions.
-
-----
-
-```cpp
-using namespace msm;
 make_transition_table(
  *"region_1"_s   + event<my_event1> [guard]/action = "dst_state1"_s
 , "dst_state1"_s + event<game_over> = X,
-
+//---------------------------------------------------------------//
  *"region_2"_s   + event<my_event2> [guard]/action = "dst_state2"_s
 , "dst_state2"_s + event<game_over> = X
 );
@@ -890,15 +849,18 @@ make_transition_table(
 
 ----
 
-To create a state machine, we have to configure our transition table.
+###State Machine
 
 ----
+
+####Define State Machine
 
 ```cpp
 class example {
 public:
   auto configure() noexcept {
     using namespace msm;
+
     return make_transition_table(
      *"src"_s + event<my_event> [ guard ] / action = "dst"_s,
       "dst"_s + event<game_over> = X
@@ -907,7 +869,7 @@ public:
 };
 ```
 
-----
+####Declare State Machine
 
 ```cpp
 msm::sm<example> sm;
@@ -915,9 +877,13 @@ msm::sm<example> sm;
 
 ----
 
-State machine constructor provides required dependencies for actions and guards.
+##State Machine dependencies
+
+> Required for guards and actions
 
 ----
+
+####SM dependencies
 
 ```cpp
                             /-- event (injected from process_event)
@@ -939,38 +905,41 @@ msm::sm<exmple> s{87.0, 42};
 
 ----
 
-Or use experimental Boost.DI!
+###Alternatively you can use Experimental Boost.DI
 
+---
+
+https://raw.githubusercontent.com/boost-experimental/di
+
+----
+
+
+####Create SM using DI framework
 ```cpp
 auto injector = di::make_injector<example>();
 ```
 
 ----
 
-State machine is a simple creature. Its main purpose is to process events.
-In order to do it, `process_event` method might be used.
+###Process Events
 
 -----
 
+####Process event by State Machine
+
 ```cpp
-msm::sm<example> sm;
-
-// returns true when handled
-assert(sm.process_event(my_event{}));
-
-// not handled by the state machine
-assert(!sm.process_event(int{}));
+sm.process_event(my_event{});
 ```
 
 ----
 
 ##Dispatch events
 
-----
-
-`msm-lite` also provides a way to dispatch dynamically created events into the state machine.
+> Useful for run-time events
 
 ----
+
+####Dispatch SDL2 events
 
 ```cpp
 struct game_over {
@@ -986,20 +955,20 @@ auto dispatch_event =
 SDL_Event event{SDL_QUIT};
 
 // will call sm.process(game_over{});
-assert(dispatch_event(event, event.type));
+dispatch_event(event, event.type);
 ```
 
 ----
 
-##Handle errors - Unexpected Events
+##Handle errors
 
 ----
 
-Different errors may occur when processing events. Firstly, event might not be handled (transition has not happened).
-In such scenario `process_event` returns false and `unexpected_event` is fired.
+###Unexpected Event
 
 ----
 
+####Handle unexpected event
 ```cpp
 make_transition_table(
  *"src"_s + event<my_event> [ guard ] / action = "dst"_s
@@ -1007,116 +976,63 @@ make_transition_table(
 );
 ```
 
+```cpp
+sm.process_event(some_event{}); // SM will enter terminate (X) state
+```
+
 ----
 
 ##Exceptions
 
+> Only if NOT compiled with `-fno-exceptions`
+
 ----
 
+####Exception handling
 ```cpp
 make_transition_table(
- *"idle"_s + event<event> / []{throw std::runtime_error{"error"};}
- //--------------------------------------------------------------//
-,*"error_handler"_s + exception<std::runtime_error> = X
-, "error_handler"_s + exception<std::logic_error> = X
-, "error_handler"_s + exception<> / [] { cleanup...; } = X
+ *"state"_s + event<event> / []{throw std::runtime_error{"error"};}
+,*"state"_s + exception<std::runtime_error> = X
+, "state"_s + exception<std::logic_error> = X
+, "state"_s + exception<> / [] { cleanup...; } = X // catch(...)
 );
 ```
 
 -----
 
-##Test it
+##Testing utilities
 
 -----
 
-Verify current state?
-
-----
+####Show current states
 
 ```cpp
-msm::sm<example> sm;
-assert(sm.process_event(my_event{}));
-
-// is(X, s1, ...) when you have orthogonal regions
-assert(sm.is(X));
-
-//or
-
 sm.visit_current_states([](auto state) {
   std::cout << state.c_str() << std::endl;
 });
 ```
 
-----
-
-Verify transitions?
-
-----
+####Verify current state
 
 ```cpp
-testing::sm<example> sm{fake_data...};
-// set_current_states("s3"_s, "s1"_s, ...) for orthogonal regions
-sm.set_current_states("s3"_s);
-assert(sm.process_event(event{}));
-assert(sm.is(X));
+assert(sm.is("idle"_s));
+```
+
+####Verify current states (Orthogonal Regions)
+
+```cpp
+assert(sm.is("region1"_s, "region2"_s, ...));
 ```
 
 ----
 
-##Debug it
+##Additional readings
 
-----
+---
 
-`msm-lite` provides logging capabilities in order to inspect state machine flow.
-To enable logging you have to define `BOOST_MSM_LITE_LOG`.
+http://boost-experimental.github.io/msm-lite/user_guide
 
-----
-
-```cpp
-template <class SM, class TEvent>
-void log_process_event(const TEvent&) {
-  printf("[%s][process_event] %s\n", typeid(SM).name()
-                                   , typeid(TEvent).name());
-}
-```
-
-----
-
-```cpp
-template <class SM, class TAction, class TEvent>
-void log_guard(const TAction&, const TEvent&, bool result) {
-  printf("[%s][guard] %s %s %s\n", typeid(SM).name()
-                                 , typeid(TAction).name()
-                                 , typeid(TEvent).name()
-                                 , (result ? "[OK]" : "[Reject]"));
-}
-```
-
-----
-
-##Debug it
-
-----
-
-```cpp
-template <class SM, class TAction, class TEvent>
-void log_action(const TAction&, const TEvent&) {
-  printf("[%s][action] %s %s\n", typeid(SM).name()
-                               , typeid(TAction).name()
-                               , typeid(TEvent).name());
-}
-```
-
-----
-
-```cpp
-template <class SM, class TSrcState, class TDstState>
-void log_state_change(const TSrcState& src, const TDstState& dst) {
-  printf("[%s][transition] %s -> %s\n", typeid(SM).name()
-                                      , src.c_str()
-                                      , dst.c_str());
-}
-```
+http://boost-experimental.github.io/msm-lite/tutorial
 
 ==============================================================================
 
@@ -1668,13 +1584,16 @@ mappings = {
 
 ----
 
+[Mappings]
 * For each unique event
   * Find transitions with that event
   * For each found transition create a pair of an event and [StateTransitions]
 
+---
+
 [StateTransitions]
-  * For each unique state
-    * Create a pair of a state and transitions from that state and given event
+* For each unique state
+  * Create a pair of a state and transitions from that state and given event
 
 ----
 
@@ -1808,11 +1727,48 @@ static_assert(
 
 ----
 
-###Generated dispatch (jump) table
+###Generated dispatch/jump table
 
 ----
 
-TODO Explain jump table with asm
+####Jump table
+
+```cpp
+template<int N> int f() { return N; }
+
+int main(int argc, char**) {
+  int (*jump_table[])() = { f<0>, f<1> }; // f<2>, ... f<N>
+  return jump_table[argc - 1]();
+}
+```
+
+| Command | Exit code |
+| ------- | --------- |
+| `./jump_table` | 0 |
+| `./jump_table 1` | 1 |
+| `./jump_table 1 2` | Segmentation fault |
+
+----
+
+####Jump Table - ASM x86-64
+
+```cpp
+main:
+  movslq  %edi, %rax
+  jmpq    *.L_ZZ4mainE10jump_table-8(,%rax,8)
+
+int f<0>():
+  xorl    %eax, %eax
+  retq
+
+int f<1>():
+  movl    $1, %eax
+  retq
+
+.L_ZZ4mainE10jump_table:
+  .quad   int f<0>()
+  .quad   int f<1>()
+```
 
 ----
 
