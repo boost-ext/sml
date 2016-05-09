@@ -51,67 +51,44 @@ Kris Jusiak
 
 ----
 
-UML state machine, also known as UML statechart, is a significantly enhanced realization of the mathematical concept of a finite automaton in computer science applications as expressed in the Unified Modeling Language (UML) notation
+**UML State Machine** (SM) depict the dynamic behavior of an entity based on its response to events, 
+showing how the entity reacts to various events depending on the current state that it is in
+
+> Formerly called **UML state chart** in UML 1
 
 ----
 
-![State Machine](images/state_machine.png)
+####State Machine Concepts
+
+![State Machine](images/sm.png)
 
 ----
 
-##State Machine Concepts
+| UML Concept         | Description |
+| ------------------- | ----------- |
+| Event               | Trigger which affects the system, ex. `button click`           |
+| State               | Captures aspect of relavant system history, ex. `Playing`            |
+| Transition          | Conditionally update current state, ex. `src_state + event [ guard ] / action -> dst_state`           |
+| Orthogonal Region   | Sudo parallel state machines, ex. `Play and Quit` |
 
 ----
-
-A state machine is a concrete model describing the behavior of a system. It is composed of a finite number of states and transitions.
-
-![State Machine](images/sm.gif)
-
-----
-
-A state has no sub states, can have data, entry and exit behaviors and deferred eve
-
-![State](images/state.gif)
-
-----
-
-A transition is the switching between active states, triggered by an event. Actions and guard conditions can be attached to the transition.
-
-![Transition](images/transition.jpg)
-
-----
-
-An initial state marks the first active state of a state machine. It has no real existence and neither has the transition originating from it.
-
-![Initial State](images/init_state.gif)
-
-----
-
-The terminate pseudo state terminates the execution of a state machine.
-
-![Teriminate State](images/terminate.gif)
-
-----
-
-A composite state is a state containing a region or decomposed in two or more regions.
-
-----
-
-A submachine is a state machine inserted as a state in another state machine.
-
-----
-
-Orthogonal regions have its own set of mutually exclusive set of states and transitions.
-
-![Composite](images/regions.gif)
-
-==============================================================================
 
 ##Do I need a State Machine?
 
 ----
 
-###State Machine helps to AVOID writing a spaghetti code
+###No, But...
+
+----
+
+* SM promotes better design
+  * Compliant with UML documentation
+
+* SM creates easier to maintain code
+  * Declarative approach / Expresses `WHAT`, not `HOW`!
+
+* SM creates easy to test code
+  * Can be tested in isolation without trying to reach all conditional branches
 
 ----
 
@@ -119,33 +96,51 @@ Orthogonal regions have its own set of mutually exclusive set of states and tran
 
 ----
 
+####Swap Items
+![Swap Items](images/sm_swap_items.png)
+
+----
+
+###No State Machine
+
 ```cpp
-void handle(message msg) {
-  if
-  if (key == Right) {
-      if (is_boss_level && (!is_running || !is_jumping)) {
-          ();
-      } else if (!is_jumping) {
-          run();
-      }
+void handle(auto event) {
+  if (event == click && !isAnimating) {
+    select_item();
+    ++itemsSelected;
+
+    if (itemsSelected == 2) {
+      swap_items();
+      animate();
+      isAnimating = true;
+    }
+  } else if(event == done) {
+    isAnimating = false;
+    itemsSelected = 0;
   }
 }
 ```
 
 ----
 
-```cpp
-transition_table{
-  * -> idle    + key(Right) -> running,
-       running + key(Space) / fire,
-       running + key(Space) / fire,
-};
+###State Machine (Pseudo-code)
 
+```cpp
+transition_table {
+  *Wait_For_First_Item + click / select_item -> Wait_For_Second_Item,
+   Wait_For_Second_Item + click / select_item, swap_items -> Animate,
+   Animate + on_entry / play_animation(),
+   Animate + done -> Wait_For_First_Item
+};
 ```
 
 ==============================================================================
 
-##Experimental Boost.MSM-lite vs Boost.MSM-eUML vs Boost.Statechart
+##MSM-lite vs Boost.MSM-eUML vs Boost.Statechart
+
+----
+
+##Overview
 
 ----
 
@@ -158,12 +153,16 @@ transition_table{
 
 ----
 
+##Implementation details
+
+----
+
 | Library            | MSM-lite    | Boost.MSM-eUML  | Boost.Statechart |
 | ------------------ | ----------- | --------------- | ---------------- |
 | UML                | 2.0         | 2.0             | 1.5              |
-| RTTI               | No          | No              | Yes              |
-| Exceptions         | No          | No              | Yes              |
-| Memory Allocations | No          | No              | Yes              |
+| RTTI               | -           | -               | ✓                |
+| Exceptions         | -           | -               | ✓                |
+| Memory Allocations | -           | -               | ✓                |
 
 ----
 
@@ -178,39 +177,39 @@ transition_table{
 
 | Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
 | -------------------- | -------- | -------------- | ---------------- |
-| Transition           | Yes      | Yes            | Yes              |
-| Anonymous transition | Yes      | Yes            | Yes              |
-| Internal transition  | Yes      | Yes            | Yes              |
-| Local transitions    | No       | No             | No               |
+| Transition           | ✓        | ✓              | ✓                |
+| Anonymous transition | ✓        | ✓              | ✓                |
+| Internal transition  | ✓        | ✓              | ✓                |
+| Local transitions    | -        | -              | -                |
 
 ----
 
 | Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
 | -------------------- | -------- | -------------- | ---------------- |
-| State entry/exit     | Yes      | Yes            | Yes              |
-| Guard                | Yes      | Yes            | Yes              |
-| Action               | Yes      | Yes            | Yes              |
-| Event defering       | No*      | Yes            | Yes              |
-| Error handling       | Yes      | Yes            | Yes              |
+| State entry/exit     | ✓        | ✓              | ✓                |
+| Guard                | ✓        | ✓              | ✓                |
+| Action               | ✓        | ✓              | ✓                |
+| Event defering       | ~        | ✓              | ✓                |
+| Error handling       | ✓        | ✓              | ✓                |
 
 ----
 
 | Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
 | -------------------- | -------- | -------------- | ---------------- |
-| Initial state        | Yes      | Yes            | Yes              |
-| Terminate State      | Yes      | Yes            | Yes              |
-| Explicit entry       | Yes      | Yes            | Yes              |
-| Explicit exit        | No       | Yes            | Yes              |
-| Fork                 | No       | Yes            | No               |
+| Initial state        | ✓        | ✓              | ✓                |
+| Terminate State      | ✓        | ✓              | ✓                |
+| Explicit entry       | ✓        | ✓              | ✓                |
+| Explicit exit        | -        | ✓              | ✓                |
+| Fork                 | -        | ✓              | -                |
 
 ----
 
 | Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
 | -------------------- | -------- | -------------- | ---------------- |
-| Orthogonal regions   | Yes      | Yes            | Yes              |
-| Sub / Composite      | Yes      | Yes            | Yes              |
-| Shallow History      | Yes      | Yes            | Yes              |
-| Deep History         | No*      | No*            | Yes              |
+| Orthogonal regions   | ✓        | ✓              | ✓                |
+| Sub / Composite      | ✓        | ✓              | ✓                |
+| Shallow History      | ✓        | ✓              | ✓                |
+| Deep History         | ~        | ~              | ✓                |
 
 
 ----
@@ -221,13 +220,13 @@ transition_table{
 
 | Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
 | -------------------- | -------- | -------------- | ---------------- |
-| Any event            | No       | Yes            | No               |
-| Flags                | No       | Yes            | No               |
-| Interrupt state      | No       | Yes            | No               |
-| State Visitor        | Yes      | Yes            | Yes              |
-| Serialization        | No       | Yes            | No               |
-| Dispatcher           | Yes      | No             | No               |
-| Asynchronous SM      | No       | No             | Yes              |
+| Any event            | -        | ✓              | -                |
+| Flags                | -        | ✓              | -                |
+| Interrupt state      | -        | ✓              | -                |
+| State Visitor        | ✓        | ✓              | ✓                |
+| Serialization        | -        | ✓              | -                |
+| Dispatcher           | ✓        | -              | -                |
+| Asynchronous SM      | -        | -              | ✓                |
 
 ----
 
@@ -235,7 +234,9 @@ transition_table{
 
 ----
 
-diagram
+####Simple State Machine
+
+<img width="40%" src="images/sm_example.png" />
 
 ----
 
@@ -254,7 +255,7 @@ BOOST_MSM_EUML_EVENT(play)
 
 ```cpp
 BOOST_MSM_EUML_STATE((), Idle)
-BOOST_MSM_EUML_STATE((), Open)
+BOOST_MSM_EUML_STATE((), Playing)
 ```
 
 ----
@@ -276,7 +277,7 @@ template <class FSM, class EVT, class SourceState, class TargetState>
 
 ```cpp
 BOOST_MSM_EUML_TRANSITION_TABLE((
-  Playing == Idle + play / start,
+  Playing == Idle + play / start
 ), transition_table)
 ```
 
@@ -347,10 +348,13 @@ struct player : sc::state_machine<player, Idle> {
 ```cpp
 struct Idle : sc::simple_state<Idle, player> {
   using reactions = mpl::list<
-    sc::transition<play, Open, player, &player::start>
+    sc::transition<play, Playing, player, &player::start>
   >;
 };
 
+struct Playing : sc::simple_state<Playing, player> {
+  using reactions = mpl::list<>;
+};
 ```
 
 ----
@@ -382,7 +386,7 @@ struct play {};
 struct player {
   auto configure() {
     return make_transition_table(
-      "idle"_s + event<play> / []{ ... } = "play"_s
+      "Idle"_s + event<play> / []{ ... } = "Playing"_s
     )
   )
 );
@@ -409,11 +413,17 @@ sm.process_event(play{});
 
 ###2.3 GHz Intel Core i7 / 16 GB 1600 Mhz DDR3
 
+---
+
+`CXXFLAGS: -O2 -s`
+
 ----
 
-| Test | CXXFLAGS | Events | States | Transitions | Process Events |
-| ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Simple Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/simple) | -O2 -s | 6 | 5 | 12 | 1'000'000 |
+###[Simple Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/simple)
+
+| Events | States | Transitions | Process Events |
+| ------ | ------ | ----------- | -------------- |
+| 6 | 5 | 12 | 1'000'000 |
 
 ----
 
@@ -435,9 +445,11 @@ sm.process_event(play{});
 
 ----
 
-| Test | CXXFLAGS | Events | States | Transitions | Process Events |
-| ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Composite Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/composite) | -O2 -s | 8 | 5 + 3 | 12 + 4 | 1'000 * 1'000 |
+###[Composite Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/composite)
+
+| Events | States | Transitions | Process Events |
+| ------ | ------ | ----------- | -------------- |
+| 8 | 5 + 3 | 12 + 4 | 1'000 * 1'000 |
 
 ----
 
@@ -459,9 +471,11 @@ sm.process_event(play{});
 
 ----
 
-| Test | CXXFLAGS | Events | States | Transitions | Process Events |
-| ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Complex Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/complex) | -O2 -s | 50 | 50 | 50 | 1'000'000 |
+##[Complex Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/complex)
+
+| Events | States | Transitions | Process Events |
+| ------ | ------ | ----------- | -------------- |
+| 50 | 50 | 50 | 1'000'000 |
 
 ----
 

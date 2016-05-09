@@ -1,0 +1,4 @@
+@startuml
+[*] --> idle
+idle -> play : play / action
+@enduml
