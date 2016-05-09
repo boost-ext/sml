@@ -116,6 +116,10 @@ to avoid it `Boost.MSM-lite` may suit you!
 * Runtime Dispatcher (see [Runtime Dispatcher](examples.md#runtime-dispatcher))
 * Dependency Injection integration (see [Dependency Injection](examples.md#dependency-injection))
 
+###Related materials
+
+* [CppNow-2016:](http://cppnow2016.sched.org/event/6Sg0/c14-version-of-boostmsm-euml-which-compiles-up-to-60x-faster-whilst-being-slightly-faster-too) [C++14 version of Boost.MSM-eUML which compiles up to 60x faster whilst being slightly faster too!](http://boost-experimental.github.io/msm-lite/cppnow-2016)
+
 ###Acknowledgements
 * Thanks to Christophe Henry for a great [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) library
-* Thanks to Vicente J. Botet Escriba for useful suggestions how to improve Boost.MSM-lite 
+* Thanks to Vicente J. Botet Escriba for useful suggestions how to improve Boost.MSM-lite
