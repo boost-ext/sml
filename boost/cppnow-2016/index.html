@@ -1204,7 +1204,7 @@ struct call_impl<R(TArgs...)> {
 
 ----
 
-###Similar for `or_` and `not_`
+###Similary for `or_` and `not_`
 
 ----
 
@@ -1214,6 +1214,7 @@ struct call_impl<R(TArgs...)> {
 
 ----
 
+####Not
 ```cpp
 template <class T> requires callable<bool, T>()
 auto operator!(T&& t) {
@@ -1223,6 +1224,7 @@ auto operator!(T&& t) {
 
 ----
 
+####And
 ```cpp
 template <class T1, class T2>
   requires callable<bool, T1>() && callable<bool, T2>()
@@ -1233,6 +1235,7 @@ auto operator&&(T1&& t1, T2&& t2)  {
 
 ----
 
+####Or
 ```cpp
 template <class T1, class T2>
   requires callable<bool, T1>() && callable<bool, T2>()
@@ -1247,6 +1250,7 @@ auto operator||(T1&& t1, T2&& t2) {
 
 ----
 
+####Guards
 ```cpp
 auto true_ = [] { return true; };
 auto false_ = [] { return false_; };
@@ -1267,6 +1271,8 @@ auto guards = (!true_ || (true_ && false_ || ![]{ return false; }));
 
 ----
 
+####Sequence
+
 ```cpp
 template <class T1, class T2>
   requires callable<void, T1>() && callable<void, T2>()
@@ -1281,6 +1287,7 @@ auto operator,(T1&& t1, T2&& t2) {
 
 ----
 
+####Actions
 ```cpp
 auto action = [] { };
 
@@ -1294,6 +1301,7 @@ auto actions = (action, action, []{}, action);
 
 ----
 
+####Make transition table
 ```cpp
 template <class... Ts> requires transitional<Ts>()...
 auto make_transition_table(Ts&&... ts) {
@@ -1328,6 +1336,7 @@ concept bool transitional() {
 
 ----
 
+####Front-end
 ```cpp
 auto play_song = [] { ... };
 auto is_playing =  [] { return ...; }
@@ -1397,7 +1406,7 @@ Compilation error: `C++11 generalized attributes syntax: [[`
 
 ----
 
-###Maximal run-time performance
+###Max run-time performance
 
 ###Quick compilation times
 
