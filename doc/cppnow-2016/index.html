@@ -1325,7 +1325,7 @@ concept bool transitional() {
     typename T::deps;
     T::initial;
     T::history;
-    { transition.execute() } -> bool;
+    { transition.execute(...) } -> bool;
   }
 }
 ```
@@ -1565,7 +1565,7 @@ sm<
 ```cpp
 states = type_list<Idle, Wait, Play>;
 events = type_list<Play, Stop>;
-deps = tupe_list<const player&, recorder&>;
+deps = tuple_list<const player&, recorder&>;
 ```
 
 ----
@@ -1942,19 +1942,23 @@ static_assert(1 == get_id<type_ids, -1, double>());
 ----
 
 ```cpp
-template <class TDeps>
-constexpr auto Transition::execute(SM & self, const TEvent & event) {
-  if (call(guard, event, self.deps_)) { // guards
-    call(action, event, self.deps_); // actions
+template <class TSrcState, class TDstState
+        , class TEvent, class TGuard, class TAction>
+struct transition {
+  template <class TDeps>
+  constexpr auto execute(SM & self, const TEvent & event) {
+    if (call(guard, event, self.deps_)) { // guards
+      self.current_state_ = // set dst state id as the current one
+        get_id<type_id<typename SM::states...>, -1, TDstState>();
 
-    // set dst state id as the current one
-    self.current_state_ =
-      get_id<type_id<typename SM::states...>, -1, TDstState>();
-
-    return true;
+      call(action, event, self.deps_); // actions
+      return true;
+    }
+    return false;
   }
-  return false;
-}
+
+  TGuard guard; TAction action;
+};
 ```
 
 ==============================================================================
