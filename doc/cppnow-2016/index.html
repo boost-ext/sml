@@ -1172,7 +1172,7 @@ struct and_ : operator_base {
 
 ```cpp
 template<class T, class TEvent, class TDeps>
-  requires std::is_base_of_v<T>
+  requires std::is_base_of_v<operator_base, T>
 auto call(T op, const TEvent&, TDeps& deps) {
   return op(event, deps);
 }
@@ -1186,7 +1186,7 @@ auto call(T op, const TEvent&, TDeps& deps) {
 
 ```cpp
 template<class T, class TEvent, class TDeps>
-  requires !std::is_base_of_v<Ts>
+  requires !std::is_base_of_v<operator_base, T>
 auto call(T op, const TEvent& event, TDeps& deps) {
   return call_impl<decltype(&T::operator())>::execute(op, event, deps);
 }
