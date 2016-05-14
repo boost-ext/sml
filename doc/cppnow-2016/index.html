@@ -1998,10 +1998,14 @@ struct transition {
 
 ----
 
+####Process event (Pseudo-code)
 ```cpp
-
+process_event(e)
+  process_event_impl<mappings<event>>(event)
+    dispatch_table = { mappings<event, states>::transition.execute(event)... }
+      dispatch_table[current_state](event);
+        transition.execute(event)
 ```
-
 
 ==============================================================================
 
