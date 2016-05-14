@@ -326,7 +326,7 @@ sm.process_event(play);
 ###Events
 
 ```cpp
-struct play : sc::event<play> {};
+struct play : sc::event<play> { };
 ```
 
 ----
@@ -375,7 +375,7 @@ sm.process_event(play());
 ###Events
 
 ```cpp
-struct play {};
+struct play { };
 ```
 
 ----
@@ -743,7 +743,7 @@ auto event  = "event"_t;
 ###State declaration
 
 ```cpp
-auto idle = msm::state<class idle>{};
+auto idle = msm::state<class idle>{ };
 ```
 
 -----
@@ -1068,6 +1068,7 @@ http://boost-experimental.github.io/msm-lite/tutorial
 
 ----
 
+####Transition
 ```cpp
 template <class TSrcState
         , class TDstState
@@ -1101,23 +1102,24 @@ src_state + event [ guard ] / action -> dst_state
 
 ----
 
+####State
 ```
 template <class TState>
 struct state {
   template <class T>
-  auto operator=(const T &t) const { return transition<T, state>{}; }
+  auto operator=(const T &t) const { return transition<T, state>{ }; }
 
   template <class T>
-  auto operator<=(const T &t) const { return transition<TState, T>{}; }
+  auto operator<=(const T &t) const { return transition<TState, T>{ }; }
 
   template <class T>
-  auto operator+(const T &t) const { return transition<TState, T>{}; }
+  auto operator+(const T &t) const { return transition<TState, T>{ }; }
 
   template <class T> requires callable<bool, T>()
-  auto operator[](const T &t) const { return transition<TState, T>{}; }
+  auto operator[](const T &t) const { return transition<TState, T>{ }; }
 
   template <class T> requires callable<void, T>()
-  auto operator/(const T &t) const { return transition<TState, T>{}; }
+  auto operator/(const T &t) const { return transition<TState, T>{ }; }
 };
 ```
 
@@ -1127,14 +1129,15 @@ struct state {
 
 ----
 
+####Event
 ```cpp
 template <class>
 struct event {
   template <class T> requires callable<bool, T>()
-  auto operator[](const T &t) const { return transition<event, T>{}; }
+  auto operator[](const T &t) const { return transition<event, T>{ }; }
 
   template <class T> requires callable<void, T>()
-  auto operator/(const T &t) const { return transition<event, T>{}; }
+  auto operator/(const T &t) const { return transition<event, T>{ }; }
 };
 ```
 
@@ -1150,14 +1153,18 @@ struct event {
 
 ----
 
+####Base
 ```cpp
-struct operator_base {};
+struct operator_base { };
+```
 
+####and
+```cpp
 template <class... Ts>
 struct and_ : operator_base {
   template <class TEvent, class TDeps>
   auto operator()(const TEvent &event, TDeps &deps) {
-    return call(std::get<Ns-1>(args), event, deps) && ...;
+    return (... && call(std::get<Ns-1>(args), event, deps));
   }
 
   tuple<Ts...> args;
@@ -1170,6 +1177,7 @@ struct and_ : operator_base {
 
 ----
 
+####Call / is operator base
 ```cpp
 template<class T, class TEvent, class TDeps>
   requires std::is_base_of_v<operator_base, T>
@@ -1184,6 +1192,7 @@ auto call(T op, const TEvent&, TDeps& deps) {
 
 ----
 
+####Call / is not operator base
 ```cpp
 template<class T, class TEvent, class TDeps>
   requires !std::is_base_of_v<operator_base, T>
@@ -1256,7 +1265,12 @@ auto true_ = [] { return true; };
 auto false_ = [] { return false_; };
 
 auto guards = (!true_ || (true_ && false_ || ![]{ return false; }));
-              // not_<or_<and_<false_, not_<[]{return false;}>>>>
+```
+
+####Type
+```cpp
+static_assert(std::is_same<decltype(guards)
+            , not_<or_<and_<false_, not_<[]{return false;}>>>>>{});
 ```
 
 ----
@@ -1292,7 +1306,12 @@ auto operator,(T1&& t1, T2&& t2) {
 auto action = [] { };
 
 auto actions = (action, action, []{}, action);
-               // seq_<action, action, []{}, action>
+```
+
+####Type
+```cpp
+static_assert(std::is_same<decltype(actions), 
+              seq_<action, action, []{}, action>>{});
 ```
 
 ----
@@ -1315,6 +1334,7 @@ auto make_transition_table(Ts&&... ts) {
 
 ----
 
+####Transitional concept
 ```cpp
 template <class T>
 concept bool transitional() {
@@ -1348,12 +1368,7 @@ make_transition_table(
 );
 ```
 
-----
-
-###Produced type
-
-----
-
+####Type
 ```cpp
 tuple<
   transition<Idle, Wait, Play, is_playing>
@@ -1365,10 +1380,11 @@ tuple<
 
 ----
 
-###Front-end limitations
+###DSL limitations
 
 ----
 
+####DSL
 ```cpp
 "idle"_s + play [ [] { return true; } ] / action
 ```
@@ -1386,10 +1402,10 @@ Compilation error: `C++11 generalized attributes syntax: [[`
 
 ----
 
-###Negate the predicate
+###Parens
 
 ```cpp
-"idle"_s + play [ ! [] { return false; } ] / action
+"idle"_s + play [ ([] { return true; }) ] / action
 ```
 
 ----
@@ -1446,6 +1462,7 @@ struct sm<tuple<Transitions...>> : core::sm<Transitions...>
 
 ----
 
+####State machine
 ```cpp
 template <class... Ts> requires transitional<Ts>()...
 class sm { // namespace core
@@ -1476,14 +1493,16 @@ private:
 
 ----
 
+####Utilities
 ```cpp
-template <class...> struct type {};
+template <class...> struct type { };
 template <class...> struct type_list { using type = type_list; };
 template <class... Ts> struct inherit : Ts... { using type = inherit; };
 ```
 
 ----
 
+####Unique_t
 ```cpp
 template <class...> struct unique;
 
@@ -1492,11 +1511,11 @@ struct unique<type<Rs...>, T, Ts...> : std::conditional_t<
   std::is_base_of<type<T>, inherit<type<Rs>...>>{},
   unique<type<Rs...>, Ts...>,
   unique<type<Rs..., T>, Ts...>
-> {};
+> { };
 
 template <class... Rs> struct unique<type<Rs...>>
   : type_list<Rs...>
-{};
+{ };
 
 template <class... Ts> using unique_t =
   typename unique<type<>, Ts...>::type;
@@ -1504,12 +1523,13 @@ template <class... Ts> using unique_t =
 
 ----
 
-###Boost.Hana vs Boost.MPL vs ...
+###Boost.Hana vs Boost.MPL vs unique_t
 
 > Boost-1.61
 
 ----
 
+####Benchmark
 ```cpp
 using u = decltype(
   hana::unique(hana::sort(hana::make_tuple(event1, event2, event1)))
@@ -1588,6 +1608,7 @@ deps = tuple_list<const player&, recorder&>;
 
 ----
 
+####Mappings
 ```cpp
 mappings = {
   Play = {
@@ -1636,10 +1657,11 @@ mappings = {
 
 ----
 
+####Map
 ```cpp
-template <class, class> struct pair {};
+template <class, class> struct pair { };
 
-template <class... Ts> struct map : Ts... {};
+template <class... Ts> struct map : Ts... { };
 
 template <class T> struct no_decay { using type = T; };
 template <class TDefault, class> static no_decay<TDefault> lookup(...);
@@ -1664,6 +1686,7 @@ using at_key_t = typename at_key<TDefault, TKey, T>::type;
 
 ----
 
+####Benchmark
 ```cpp
 constexpr auto m =
   hana::make_map(hana::make_pair(event, transitions), ...);
@@ -1684,7 +1707,7 @@ static_assert(boost::is_same<at_key_t<m, event>, transitions>{});
 
 ----
 
-| Number of elements | Map     | Boost.Hana | Boost.MPL |
+| Number of elements | map     | Boost.Hana | Boost.MPL |
 | ------------------ | ------- | ---------- | --------- |
 | 16                 | 0.050s  | 0.435s     | 1.110s    |
 | 64                 | 0.069s  | 0.923s     | 1.121s    |
@@ -1727,7 +1750,7 @@ mappings = map<
 
 ####Transitions for event 'Play' and state 'Idle'
 ```cpp
-struct empty {};
+struct empty { };
 
 static_assert(
   std::is_same<
@@ -1828,6 +1851,7 @@ dispatch_table[current_state_](event);
 
 ----
 
+####Process event
 ```cpp
 template<class TEvent>
 void process_event(TEvent&& event) {
@@ -1854,21 +1878,24 @@ void process_event_impl(type_list<TStates...>) {
 
 ----
 
+####Do transition
 ```cpp
 template<class... Ts>
 struct do_transition {
   template<class TEvent>
   static auto execute(TEvent&& event) {
-    return Ts{}.execute(std::forward<TEvent>(event)) && ...;
+    return (... && Ts{}.execute(std::forward<TEvent>(event)));
   }
 };
+```
 
+```cpp
 template<>
 struct do_transition<> {
   template<class TEvent>
   static auto execute(TEvent&&) {
     assert(false && "no transition!");
-    return {};
+    return { };
   }
 };
 ```
@@ -1883,9 +1910,10 @@ struct do_transition<> {
 
 ----
 
+####Type to ID
 ```cpp
 template <std::size_t, class>
-struct type_id_type {};
+struct type_id_type { };
 
 template <class, class...>
 struct type_id_impl;
@@ -1893,16 +1921,17 @@ struct type_id_impl;
 template <std::size_t... Ns, class... Ts>
 struct type_id_impl<std::index_sequence<Ns...>, Ts...>
   : type_id_type<Ns, Ts>...
-{};
+{ };
 
 template <class... Ts>
 struct type_id
   : type_id_impl<std::make_index_sequence<sizeof...(Ts)>, Ts...>
-{};
+{ };
 ```
 
 ----
 
+####Get ID
 ```cpp
 template <class T, int, int N>
 constexpr auto get_id_impl(type_id_type<N, T> *) {
@@ -1924,6 +1953,7 @@ constexpr auto get_id()  {
 
 ----
 
+####Test
 ```cpp
 using type_ids = type_id<int, double>;
 static_assert(-1 == get_id<type_ids, -1, float>());
@@ -1941,6 +1971,7 @@ static_assert(1 == get_id<type_ids, -1, double>());
 
 ----
 
+####Transitions.Execute
 ```cpp
 template <class TSrcState, class TDstState
         , class TEvent, class TGuard, class TAction>
@@ -1961,9 +1992,28 @@ struct transition {
 };
 ```
 
+----
+
+###All in all
+
+----
+
+
+
 ==============================================================================
 
 ##Examples
+
+----
+
+##Generate UML state machine diagram
+
+----
+
+
+----
+
+##More Examples
 
 ---
 
@@ -2079,7 +2129,7 @@ struct transition {
         previewLinks: false,
 
         // Transition style
-        transition: 'slide', // none/fade/slide/convex/concave/zoom
+        transition: 'convex', // none/fade/slide/convex/concave/zoom
 
         // Transition speed
         transitionSpeed: 'default', // default/fast/slow
