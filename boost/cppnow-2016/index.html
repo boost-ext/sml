@@ -1998,6 +1998,9 @@ struct transition {
 
 ----
 
+```cpp
+
+```
 
 
 ==============================================================================
@@ -2010,6 +2013,76 @@ struct transition {
 
 ----
 
+####Dump
+```cpp
+template <class SM>
+void dump(const SM&) noexcept {
+  std::cout << "@startuml" << std::endl << std::endl;
+  dump_transitions(typename SM::transitions{});
+  std::cout << std::endl << "@enduml" << std::endl;
+}
+
+template <template <class...> class T, class... Ts>
+void dump_transitions(const T<Ts...>&) noexcept {
+  (..., dump_transition<Ts>()...);
+}
+
+----
+
+####Dump transition
+```cpp
+template <class T>
+void dump_transition() noexcept {
+  auto src_state = std::string{msm::state<typename T::src_state>::c_str()};
+  auto dst_state = std::string{msm::state<typename T::dst_state>::c_str()};
+
+  if (T::initial) {
+    std::cout << "[*] --> " << src_state << std::endl;
+  }
+
+  std::cout << src_state << " --> " << dst_state << " : "
+            << typeid(typename T::event) << "["
+            << typeid(typename T::guard) << "] / "
+            << typeid(typename T::action);
+}
+```
+----
+
+####Example - transition table
+```cpp
+struct plant_uml {
+  auto configure() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+       *"idle"_s + event<e1> = "s1"_s
+      , "s1"_s + event<e2> [ guard ] / action = "s2"_s
+      , "s2"_s + event<e3> [ guard ] = "s1"_s
+      , "s2"_s + event<e4> / action = X
+    );
+  }
+};
+```
+-----
+
+###Output
+
+-----
+
+```cpp
+@startuml
+
+  [*] --> idle
+  idle --> s1 : e1
+  s1 --> s2 : e2 [guard] / action
+  s2 --> s1 : e3 [guard]
+  s2 --> terminate : e4 / action
+
+@enduml
+```
+
+---
+
+![UML](images/uml.png)
 
 ----
 
