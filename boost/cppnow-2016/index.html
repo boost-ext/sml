@@ -1164,7 +1164,7 @@ template <class... Ts>
 struct and_ : operator_base {
   template <class TEvent, class TDeps>
   auto operator()(const TEvent &event, TDeps &deps) {
-    return (... && call(std::get<Ns-1>(args), event, deps));
+    return (call(std::get<Ns-1>(args), event, deps) && ...);
   }
 
   tuple<Ts...> args;
@@ -1876,7 +1876,7 @@ template<class... Ts>
 struct do_transition {
   template<class TEvent>
   static auto execute(TEvent&& event) {
-    return (... && Ts{}.execute(std::forward<TEvent>(event)));
+    return (Ts{}.execute(std::forward<TEvent>(event)) && ...);
   }
 };
 ```
@@ -2019,7 +2019,7 @@ void dump(const SM&) noexcept {
 
 template <template <class...> class T, class... Ts>
 void dump_transitions(const T<Ts...>&) noexcept {
-  (..., dump_transition<Ts>()...);
+  (dump_transition<Ts>(), ...);
 }
 ```
 
