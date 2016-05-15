@@ -1188,11 +1188,7 @@ auto call(T op, const TEvent&, TDeps& deps) {
 
 ----
 
-###Call a functor type
-
-----
-
-####Call / is not operator base
+####Call / Functor type
 ```cpp
 template<class T, class TEvent, class TDeps>
   requires !std::is_base_of_v<operator_base, T>
@@ -1359,7 +1355,7 @@ concept bool transitional() {
 ####Front-end
 ```cpp
 auto play_song = [] { ... };
-auto is_playing =  [] { return ...; }
+auto is_playing =  [] { return true; }
 
 make_transition_table(
   state<class Idle> + play [is_playing] = state<class Wait>
@@ -1387,25 +1383,21 @@ tuple<
 ####DSL
 ```cpp
 "idle"_s + play [ [] { return true; } ] / action
+                ^ ^
+                \ /
+                 |
+/----------------/
+\
+ Compilation error: `C++11 generalized attributes syntax: [[`
 ```
 
-####Gives
-
-
-```cpp
-Compilation error: `C++11 generalized attributes syntax: [[`
-```
-
-----
-
-###Solution
-
-----
-
-###Parens
+####Solution - Parens
 
 ```cpp
 "idle"_s + play [ ([] { return true; }) ] / action
+                  ^                   ^
+                  \                   /
+                   -------------------
 ```
 
 ----
@@ -1422,9 +1414,9 @@ Compilation error: `C++11 generalized attributes syntax: [[`
 
 ----
 
-###Max run-time performance
+* ###Max run-time performance
 
-###Quick compilation times
+* ###Quick compilation times
 
 ----
 
@@ -1947,12 +1939,6 @@ constexpr auto get_id()  {
 }
 ```
 
-----
-
-###Example
-
-----
-
 ####Test
 ```cpp
 using type_ids = type_id<int, double>;
@@ -2000,11 +1986,16 @@ struct transition {
 
 ####Process event (Pseudo-code)
 ```cpp
-process_event(e)
-  process_event_impl<mappings<event>>(event)
-    dispatch_table = { mappings<event, states>::transition.execute(event)... }
-      dispatch_table[current_state](event);
-        transition.execute(event)
++ process_event(e)
+|
+\->  process_event_impl<mappings<event>>(event)
+  |
+  \-> dispatch_table = {
+    |   mappings<event, states>::transition.execute(event)... }
+    |
+    \-> dispatch_table[current_state](event);
+      |
+      \-> transition.execute(event)
 ```
 
 ==============================================================================
@@ -2030,6 +2021,7 @@ template <template <class...> class T, class... Ts>
 void dump_transitions(const T<Ts...>&) noexcept {
   (..., dump_transition<Ts>()...);
 }
+```
 
 ----
 
@@ -2037,8 +2029,8 @@ void dump_transitions(const T<Ts...>&) noexcept {
 ```cpp
 template <class T>
 void dump_transition() noexcept {
-  auto src_state = std::string{msm::state<typename T::src_state>::c_str()};
-  auto dst_state = std::string{msm::state<typename T::dst_state>::c_str()};
+  const auto src_state = msm::state<typename T::src_state>::c_str();
+  const auto dst_state = msm::state<typename T::dst_state>::c_str();
 
   if (T::initial) {
     std::cout << "[*] --> " << src_state << std::endl;
@@ -2070,8 +2062,6 @@ struct plant_uml {
 
 ###Output
 
------
-
 ```cpp
 @startuml
 
@@ -2083,8 +2073,6 @@ struct plant_uml {
 
 @enduml
 ```
-
----
 
 ![UML](images/uml.png)
 
@@ -2128,6 +2116,11 @@ struct plant_uml {
 
 * Try it online
     * http://boost-experimental.github.io/msm-lite/examples
+
+==============================================================================
+
+##Thank you
+
 					</script>
 
 				</section>
