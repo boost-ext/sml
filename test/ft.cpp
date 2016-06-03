@@ -881,6 +881,7 @@ test composite = [] {
       return make_transition_table(
          *idle + event<e1> [guard2{}] / [this] { a_initial = true; } = s1
         , s1 + event<e2> [guard]  / [this]{ a_enter_sub_sm = true; } = sub_state
+        , sub_state + on_entry / [this] { a_entry_sub_sm = true; }
         , sub_state + event<e5> [guard2{}] / [this] { a_exit_sub_sm = true; } = s2
       );
       // clang-format on
@@ -889,6 +890,7 @@ test composite = [] {
     bool a_initial = false;
     bool a_enter_sub_sm = false;
     bool a_exit_sub_sm = false;
+    bool a_entry_sub_sm = false;
   };
 
   c c_;
@@ -902,6 +904,7 @@ test composite = [] {
 
   expect(sm.process_event(e2()));
   expect(c_.a_enter_sub_sm);
+  expect(c_.a_entry_sub_sm);
   expect(0 == sub_.a_in_sub);
 
   expect(sm.process_event(e3()));

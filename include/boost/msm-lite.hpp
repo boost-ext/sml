@@ -1288,9 +1288,15 @@ class sm {
   void update_current_state(aux::byte &, const aux::byte &, const TState &, const TState &)
       BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {}
 
-  template <class, class TSrcState, class TDstState>
+  template <class TExplicit, class TSrcState, class TDstState>
   void update_current_state(aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
                             const TDstState &dst_state) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
+    update_current_state_impl<TExplicit>(current_state, new_state, src_state, dst_state);
+  }
+
+  template <class, class TSrcState, class TDstState>
+  void update_current_state_impl(aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
+                                 const TDstState &dst_state) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
     process_internal_event(on_exit{});
     BOOST_MSM_LITE_LOG(state_change, SM, src_state, dst_state);
     (void)src_state;
@@ -1300,8 +1306,8 @@ class sm {
   }
 
   template <class TExplicit, class TSrcState, class T>
-  void update_current_state(aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
-                            const state<sm<T>> &dst_state) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
+  void update_current_state_impl(aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
+                                 const state<sm<T>> &dst_state) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
     process_internal_event(on_exit{});
     BOOST_MSM_LITE_LOG(state_change, SM, src_state, dst_state);
     (void)src_state;
