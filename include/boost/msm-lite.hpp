@@ -950,6 +950,18 @@ struct transition_impl<T> {
   static bool execute(SM &self, const TEvent &event, aux::byte &current_state) BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
     return aux::get<T>(self.transitions_).execute(self, event, current_state);
   }
+
+  template <class SM, class>
+  static bool execute(SM &self, const on_entry &event, aux::byte &current_state) BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
+    aux::get<T>(self.transitions_).execute(self, event, current_state);
+    return false; // let the top sm process on_entry event
+  }
+
+  template <class SM, class>
+  static bool execute(SM &self, const on_exit &event, aux::byte &current_state) BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
+    aux::get<T>(self.transitions_).execute(self, event, current_state);
+    return false; // let the top sm process on_exit event
+  }
 };
 template <>
 struct transition_impl<> {

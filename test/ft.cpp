@@ -577,6 +577,103 @@ test transition_entry_exit_actions = [] {
   expect(sm.is(s2));
 };
 
+test transition_entry_exit_sub_sm = [] {
+  struct sub_1 {
+    sub_1() = default;
+    auto configure() noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+        *"ls1_1"_s + event<e1> = "ls1_2"_s
+       , "ls1_2"_s + event<e2> = "ls1_1"_s
+       , "ls1_1"_s + msm::on_entry / [this] { ls1_1_entry = true; }
+       , "ls1_1"_s + msm::on_exit  / [this] { ls1_1_exit = true; }
+       , "ls1_2"_s + msm::on_entry / [this] { ls1_2_entry = true; }
+       , "ls1_2"_s + msm::on_exit  / [this] { ls1_2_exit = true; }
+      );
+      // clang-format on
+    }
+
+    bool ls1_1_entry = false;
+    bool ls1_1_exit = false;
+    bool ls1_2_entry = false;
+    bool ls1_2_exit = false;
+  };
+
+  struct sub_2 {
+    sub_2() = default;
+    auto configure() noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+        *"ls2_1"_s + event<e1> = "ls2_2"_s
+       , "ls2_2"_s + event<e2> = "ls2_1"_s
+       , "ls2_1"_s + msm::on_entry / [this] { ls2_1_entry = true; }
+       , "ls2_1"_s + msm::on_exit  / [this] { ls2_1_exit = true; }
+       , "ls2_2"_s + msm::on_entry / [this] { ls2_2_entry = true; }
+       , "ls2_2"_s + msm::on_exit  / [this] { ls2_2_exit = true; }
+      );
+      // clang-format on
+    }
+
+    bool ls2_1_entry = false;
+    bool ls2_1_exit = false;
+    bool ls2_2_entry = false;
+    bool ls2_2_exit = false;
+  };
+
+  struct c {
+    auto configure() noexcept {
+      using namespace msm;
+      state<sm<sub_1>> ss1;
+      state<sm<sub_2>> ss2;
+
+      // clang-format off
+      return make_transition_table(
+        *ss1 + event<e3> = ss2
+       , ss2 + event<e4> = ss1
+       , ss1 + msm::on_entry / [this] { sub1_entry = true; }
+       , ss1 + msm::on_exit  / [this] { sub1_exit = true; }
+       , ss2 + msm::on_entry / [this] { sub2_entry = true; }
+       , ss2 + msm::on_exit  / [this] { sub2_exit = true; }
+      );
+    // clang-format on
+    }
+
+    bool sub1_entry = false;
+    bool sub1_exit = false;
+    bool sub2_entry = false;
+    bool sub2_exit = false;
+  };
+
+  sub_1 s1;
+  msm::sm<sub_1> sub1{s1};
+  sub_2 s2;
+  msm::sm<sub_2> sub2{s2};
+  c c_;
+  msm::sm<c> sm{c_, sub1, sub2};
+
+  expect(sm.process_event(e1{}));
+  expect(s1.ls1_1_exit);
+  expect(s1.ls1_2_entry);
+
+  expect(sm.process_event(e2{}));
+  expect(s1.ls1_2_exit);
+  expect(s1.ls1_1_entry);
+
+  expect(sm.process_event(e3{}));
+  expect(s1.ls1_1_exit);
+  expect(c_.sub1_exit);
+  expect(s2.ls2_1_entry);
+  expect(c_.sub2_entry);
+
+  expect(sm.process_event(e4{}));
+  expect(s2.ls2_1_exit);
+  expect(c_.sub2_exit);
+  expect(s1.ls1_1_entry);
+  expect(c_.sub1_entry);
+};
+
 struct c_guard {
   template <class T>
   bool operator()(const T &) const noexcept {
@@ -881,7 +978,8 @@ test composite = [] {
       return make_transition_table(
          *idle + event<e1> [guard2{}] / [this] { a_initial = true; } = s1
         , s1 + event<e2> [guard]  / [this]{ a_enter_sub_sm = true; } = sub_state
-        , sub_state + on_entry / [this] { a_entry_sub_sm = true; }
+        , sub_state + msm::on_entry / [this] { a_on_entry_sub_sm = true; }
+        , sub_state + msm::on_exit / [this] { a_on_exit_sub_sm = true; }
         , sub_state + event<e5> [guard2{}] / [this] { a_exit_sub_sm = true; } = s2
       );
       // clang-format on
@@ -890,7 +988,8 @@ test composite = [] {
     bool a_initial = false;
     bool a_enter_sub_sm = false;
     bool a_exit_sub_sm = false;
-    bool a_entry_sub_sm = false;
+    bool a_on_exit_sub_sm = false;
+    bool a_on_entry_sub_sm = false;
   };
 
   c c_;
@@ -904,7 +1003,7 @@ test composite = [] {
 
   expect(sm.process_event(e2()));
   expect(c_.a_enter_sub_sm);
-  expect(c_.a_entry_sub_sm);
+  expect(c_.a_on_entry_sub_sm);
   expect(0 == sub_.a_in_sub);
 
   expect(sm.process_event(e3()));
@@ -914,6 +1013,7 @@ test composite = [] {
   expect(2 == sub_.a_in_sub);
   expect(sm.process_event(e5()));
   expect(2 == sub_.a_in_sub);
+  expect(c_.a_on_entry_sub_sm);
   expect(c_.a_exit_sub_sm);
   expect(sm.is(s2));
 };
