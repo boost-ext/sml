@@ -34,6 +34,7 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 | Macro                                                         | Description                                                  |
 | --------------------------------------------------------------|--------------------------------------------------------------|
 | `BOOST_MSM_LITE_VERSION`                                      | Current version of Boost.MSM-lite (ex. 1'0'0)                |
+| `BOOST_MSM_LITE_THREAD_SAFE`                                  | Enables thread safe version (requies STL 'mutex' header)     |
 | [`BOOST_MSM_LITE_LOG`](user_guide.md#boost_msm_log-debugging) | Enables logging system  (see [Logging](examples.md#logging)) |
 
 ###Exception Safety
@@ -45,7 +46,8 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 
 ###Thread Safety
 
-* Boost.MSM-lite is thread safe.
+* Boost.MSM-lite is not thread safe by default.
+  Thread safety might be turned on by `BOOST_MSM_LITE_THREAD_SAFE`.
 
 ###Error messages
 

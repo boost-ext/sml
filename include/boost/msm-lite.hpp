@@ -9,6 +9,12 @@
 #error "Boost.MSM-lite requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
 #define BOOST_MSM_LITE_VERSION 1'0'1
+#if defined(BOOST_MSM_LITE_THREAD_SAFE)
+#include <mutex>
+#define BOOST_MSM_LITE_THREAD_SAFE__(...) __VA_ARGS__
+#else
+#define BOOST_MSM_LITE_THREAD_SAFE__(...)
+#endif
 #if !defined(BOOST_MSM_LITE_LOG)
 #define BOOST_MSM_LITE_LOG(...)
 #else
@@ -1155,9 +1161,9 @@ class sm {
   static constexpr auto is_noexcept = BOOST_MSM_LITE_NOEXCEPT_IF(aux::declval<SM>().configure());
 #endif
 
-  sm(sm &&) BOOST_MSM_LITE_NOEXCEPT = default;
-  sm(const sm &) BOOST_MSM_LITE_NOEXCEPT = delete;
-  sm &operator=(const sm &) BOOST_MSM_LITE_NOEXCEPT = delete;
+  sm(sm &&) = default;
+  sm(const sm &) = delete;
+  sm &operator=(const sm &) = delete;
 
   template <class... TDeps, BOOST_MSM_LITE_REQUIRES(dependable<TDeps...>::value)>
   explicit sm(TDeps &&... deps) BOOST_MSM_LITE_NOEXCEPT : deps_{aux::init{}, aux::pool<TDeps...>{deps...}},
@@ -1230,6 +1236,7 @@ class sm {
       BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
     static bool (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(
         sm &, const TEvent &, aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
+    BOOST_MSM_LITE_THREAD_SAFE__(std::lock_guard<std::mutex> guard{mutex_});
     return dispatch_table[current_state_[0]](*this, event, current_state_[0]);
   }
 
@@ -1239,6 +1246,7 @@ class sm {
     static bool (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(
         sm &, const TEvent &, aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     auto handled = false;
+    BOOST_MSM_LITE_THREAD_SAFE__(std::lock_guard<std::mutex> guard{mutex_});
     int _[]{0, (handled |= dispatch_table[current_state_[Ns]](*this, event, current_state_[Ns]), 0)...};
     (void)_;
     return handled;
@@ -1374,6 +1382,9 @@ class sm {
 
  protected:
   aux::byte current_state_[regions];
+
+ private:
+  BOOST_MSM_LITE_THREAD_SAFE__(std::mutex mutex_;)
 };
 template <class TEvent = void>
 struct dispatch_event_impl {
