@@ -281,9 +281,11 @@ struct actions_guards {
       , &quot;s1&quot;_s + event&lt;e2&gt; [ guard1 ] / action1 = &quot;s2&quot;_s
       , &quot;s2&quot;_s + event&lt;e3&gt; [ guard1 &amp;&amp; ![] { return false;} ] / (action1, action2{}) = &quot;s3&quot;_s
       , &quot;s3&quot;_s + event&lt;e4&gt; [ !guard1 || guard2 ] / (action1, [] { std::cout &lt;&lt; &quot;action3&quot; &lt;&lt; std::endl; }) = &quot;s4&quot;_s
-      , &quot;s3&quot;_s + event&lt;e4&gt; [ guard1 ] / ([] { std::cout &lt;&lt; &quot;action4&quot; &lt;&lt; std::endl; }) = X
+      , &quot;s3&quot;_s + event&lt;e4&gt; [ guard1 ] / ([] { std::cout &lt;&lt; &quot;action4&quot; &lt;&lt; std::endl; }, [this] { action4(); }) = X
     );
   }
+
+  void action4() const { std::cout &lt;&lt; &quot;action4&quot; &lt;&lt; std::endl; }
 };
 
 int main() {

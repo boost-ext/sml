@@ -67,7 +67,7 @@
         }, 
         {
             "location": "/overview/index.html", 
-            "text": "Quick Start\n\n\n\n\nGet \nboost/msm-lite.hpp\n header\n\n\n\n\nwget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp\n\n\n\n\n\n\nInclude the header and define \nmsm\n namespace alias\n\n\n\n\n#include \nboost/msm-lite.hpp\n\nnamespace msm = boost::msm::lite;\n\n\n\n\n\n\nCompile with C++14 support\n\n\n\n\n$CXX -std=c++14 ...\n\n\n\n\n\n\nTo run tests\n\n\n\n\ngit clone https://github.com/boost-experimental/msm-lite \n cd msm-lite \n make test\n\n\n\n\nDependencies\n\n\n\n\nNo external dependencies are required (neither STL nor Boost)\n\n\n\n\nSupported/Tested compilers\n\n\n\n\nClang-3.4+\n\n\nGCC-5.2+\n\n\n\n\nConfiguration\n\n\n\n\n\n\n\n\nMacro\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\nBOOST_MSM_LITE_VERSION\n\n\nCurrent version of Boost.MSM-lite (ex. 1'0'0)\n\n\n\n\n\n\nBOOST_MSM_LITE_LOG\n\n\nEnables logging system  (see \nLogging\n)\n\n\n\n\n\n\n\n\nException Safety\n\n\n\n\nBoost.MSM-lite doesn't use exceptions internally and therefore might be compiled with \n-fno-exceptions\n.\n\n\nCheck \nUser Guide\n to verify which API's are marked \nnoexcept\n.\n\n\nIf guard/action throws an exception \nState Machine\n will stay in a current state.\n\n\nExceptions might be caught using transition table via \nexception\n event. See \nError handling\n.\n\n\n\n\nThread Safety\n\n\n\n\nBoost.MSM-lite is thread safe.\n\n\n\n\nError messages\n\n\nNot configurable\n\n\n\n\nNot callable\n\n\n\n\nNot transitional\n\n\n\n\nNot dispatchable", 
+            "text": "Quick Start\n\n\n\n\nGet \nboost/msm-lite.hpp\n header\n\n\n\n\nwget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp\n\n\n\n\n\n\nInclude the header and define \nmsm\n namespace alias\n\n\n\n\n#include \nboost/msm-lite.hpp\n\nnamespace msm = boost::msm::lite;\n\n\n\n\n\n\nCompile with C++14 support\n\n\n\n\n$CXX -std=c++14 ...\n\n\n\n\n\n\nTo run tests\n\n\n\n\ngit clone https://github.com/boost-experimental/msm-lite \n cd msm-lite \n make test\n\n\n\n\nDependencies\n\n\n\n\nNo external dependencies are required (neither STL nor Boost)\n\n\n\n\nSupported/Tested compilers\n\n\n\n\nClang-3.4+\n\n\nGCC-5.2+\n\n\n\n\nConfiguration\n\n\n\n\n\n\n\n\nMacro\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\nBOOST_MSM_LITE_VERSION\n\n\nCurrent version of Boost.MSM-lite (ex. 1'0'0)\n\n\n\n\n\n\nBOOST_MSM_LITE_THREAD_SAFE\n\n\nEnables thread safe version (requies STL 'mutex' header)\n\n\n\n\n\n\nBOOST_MSM_LITE_LOG\n\n\nEnables logging system  (see \nLogging\n)\n\n\n\n\n\n\n\n\nException Safety\n\n\n\n\nBoost.MSM-lite doesn't use exceptions internally and therefore might be compiled with \n-fno-exceptions\n.\n\n\nCheck \nUser Guide\n to verify which API's are marked \nnoexcept\n.\n\n\nIf guard/action throws an exception \nState Machine\n will stay in a current state.\n\n\nExceptions might be caught using transition table via \nexception\n event. See \nError handling\n.\n\n\n\n\nThread Safety\n\n\n\n\nBoost.MSM-lite is not thread safe by default.\n  Thread safety might be turned on by \nBOOST_MSM_LITE_THREAD_SAFE\n.\n\n\n\n\nError messages\n\n\nNot configurable\n\n\n\n\nNot callable\n\n\n\n\nNot transitional\n\n\n\n\nNot dispatchable", 
             "title": "Overview"
         }, 
         {
@@ -87,7 +87,7 @@
         }, 
         {
             "location": "/overview/index.html#configuration", 
-            "text": "Macro  Description      BOOST_MSM_LITE_VERSION  Current version of Boost.MSM-lite (ex. 1'0'0)    BOOST_MSM_LITE_LOG  Enables logging system  (see  Logging )", 
+            "text": "Macro  Description      BOOST_MSM_LITE_VERSION  Current version of Boost.MSM-lite (ex. 1'0'0)    BOOST_MSM_LITE_THREAD_SAFE  Enables thread safe version (requies STL 'mutex' header)    BOOST_MSM_LITE_LOG  Enables logging system  (see  Logging )", 
             "title": "Configuration"
         }, 
         {
@@ -97,7 +97,7 @@
         }, 
         {
             "location": "/overview/index.html#thread-safety", 
-            "text": "Boost.MSM-lite is thread safe.", 
+            "text": "Boost.MSM-lite is not thread safe by default.\n  Thread safety might be turned on by  BOOST_MSM_LITE_THREAD_SAFE .", 
             "title": "Thread Safety"
         }, 
         {

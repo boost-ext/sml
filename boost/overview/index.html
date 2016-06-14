@@ -110,6 +110,10 @@ namespace msm = boost::msm::lite;
 <td>Current version of Boost.MSM-lite (ex. 1'0'0)</td>
 </tr>
 <tr>
+<td><code>BOOST_MSM_LITE_THREAD_SAFE</code></td>
+<td>Enables thread safe version (requies STL 'mutex' header)</td>
+</tr>
+<tr>
 <td><a href="../user_guide/index.html#boost_msm_log-debugging"><code>BOOST_MSM_LITE_LOG</code></a></td>
 <td>Enables logging system  (see <a href="../examples/index.html#logging">Logging</a>)</td>
 </tr>
@@ -124,7 +128,8 @@ namespace msm = boost::msm::lite;
 </ul>
 <h3 id="thread-safety">Thread Safety</h3>
 <ul>
-<li>Boost.MSM-lite is thread safe.</li>
+<li>Boost.MSM-lite is not thread safe by default.
+  Thread safety might be turned on by <code>BOOST_MSM_LITE_THREAD_SAFE</code>.</li>
 </ul>
 <h3 id="error-messages">Error messages</h3>
 <p><strong><em>Not configurable</em></strong></p>
