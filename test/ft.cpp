@@ -637,7 +637,7 @@ test transition_entry_exit_sub_sm = [] {
        , ss2 + msm::on_entry / [this] { sub2_entry = true; }
        , ss2 + msm::on_exit  / [this] { sub2_exit = true; }
       );
-    // clang-format on
+      // clang-format on
     }
 
     bool sub1_entry = false;

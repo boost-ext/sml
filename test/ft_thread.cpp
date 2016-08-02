@@ -5,8 +5,8 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "boost/msm-lite.hpp"
 #include <thread>
+#include "boost/msm-lite.hpp"
 
 namespace msm = boost::msm::lite;
 
@@ -33,8 +33,8 @@ struct actions_guards {
 test process_the_same_event = [] {
   actions_guards ag;
   msm::sm<actions_guards> sm{ag};
-  std::thread t1{[&]{sm.process_event(e1{});}};
-  std::thread t2{[&]{sm.process_event(e2{});}};
+  std::thread t1{[&] { sm.process_event(e1{}); }};
+  std::thread t2{[&] { sm.process_event(e2{}); }};
   t1.join();
   t2.join();
   using namespace msm;

@@ -7,4 +7,4 @@
 //
 #include "boost/msm-lite.hpp"
 
-test compile_clean = [] { };
+test compile_clean = [] {};

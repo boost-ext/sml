@@ -179,24 +179,25 @@ struct make_index_sequence_impl<1> : index_sequence<0> {};
 #endif
 template <int N>
 using make_index_sequence = typename make_index_sequence_impl<N>::type;
-template <class...>
-struct join;
-template <>
-struct join<> {
+template <class... Ts>
+struct join {
   using type = type_list<>;
 };
-template <class... TArgs>
-struct join<type_list<TArgs...>> {
-  using type = type_list<TArgs...>;
+template <class T>
+struct join<T> {
+  using type = T;
 };
-template <class... TArgs1, class... TArgs2>
-struct join<type_list<TArgs1...>, type_list<TArgs2...>> {
-  using type = type_list<TArgs1..., TArgs2...>;
-};
-template <class... TArgs1, class... TArgs2, class... Ts>
-struct join<type_list<TArgs1...>, type_list<TArgs2...>, Ts...> {
-  using type = typename join<type_list<TArgs1..., TArgs2...>, Ts...>::type;
-};
+template <class... T1s, class... T2s, class... Ts>
+struct join<type_list<T1s...>, type_list<T2s...>, Ts...> : join<type_list<T1s..., T2s...>, Ts...> {};
+template <class... Ts, class... T1s, class... T2s, class... T3s, class... T4s, class... T5s, class... T6s, class... T7s,
+          class... T8s, class... T9s, class... T10s, class... T11s, class... T12s, class... T13s, class... T14s, class... T15s,
+          class... T16s, class... Us>
+struct join<type_list<Ts...>, type_list<T1s...>, type_list<T2s...>, type_list<T3s...>, type_list<T4s...>, type_list<T5s...>,
+            type_list<T6s...>, type_list<T7s...>, type_list<T8s...>, type_list<T9s...>, type_list<T10s...>, type_list<T11s...>,
+            type_list<T12s...>, type_list<T13s...>, type_list<T14s...>, type_list<T15s...>, type_list<T16s...>, Us...>
+    : join<type_list<Ts..., T1s..., T2s..., T3s..., T4s..., T5s..., T6s..., T7s..., T8s..., T9s..., T10s..., T11s..., T12s...,
+                     T13s..., T14s..., T15s..., T16s...>,
+           Us...> {};
 template <class... TArgs>
 using join_t = typename join<TArgs...>::type;
 template <class, class...>
@@ -369,9 +370,9 @@ aux::false_type dispatchable_impl(...);
 template <class...>
 struct is_valid_event : aux::true_type {};
 template <class, class TEvent>
-auto dispatchable_impl(TEvent && ) -> is_valid_event<decltype(TEvent::id), decltype(TEvent())>;
+auto dispatchable_impl(TEvent &&) -> is_valid_event<decltype(TEvent::id), decltype(TEvent())>;
 template <class T, class TEvent>
-auto dispatchable_impl(TEvent && ) -> is_valid_event<decltype(TEvent::id), decltype(TEvent(aux::declval<T>()))>;
+auto dispatchable_impl(TEvent &&) -> is_valid_event<decltype(TEvent::id), decltype(TEvent(aux::declval<T>()))>;
 template <class, class>
 struct dispatchable;
 template <class T, class... TEvents>
@@ -541,13 +542,13 @@ aux::type_list<> args_impl__(...);
 template <class T, class>
 auto args_impl__(int) -> aux::function_traits_t<T>;
 template <class T, class E>
-auto args_impl__(int) -> aux::function_traits_t<decltype(&T::template operator() < E > )>;
+auto args_impl__(int) -> aux::function_traits_t<decltype(&T::template operator() < E >)>;
 template <class T, class>
 auto args_impl__(int) -> aux::function_traits_t<decltype(&T::operator())>;
 template <class T, class E>
 auto args__(...) -> decltype(args_impl__<T, E>(0));
 template <class T, class E>
-auto args__(int) -> aux::function_traits_t<decltype(&T::template operator() < fsm, E > )>;
+auto args__(int) -> aux::function_traits_t<decltype(&T::template operator() < fsm, E >)>;
 template <class T, class E>
 using args_t = decltype(args__<T, E>(0));
 template <class, class>
@@ -960,13 +961,13 @@ struct transition_impl<T> {
   template <class SM, class>
   static bool execute(SM &self, const on_entry &event, aux::byte &current_state) BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
     aux::get<T>(self.transitions_).execute(self, event, current_state);
-    return false; // let the top sm process on_entry event
+    return false;  // let the top sm process on_entry event
   }
 
   template <class SM, class>
   static bool execute(SM &self, const on_exit &event, aux::byte &current_state) BOOST_MSM_LITE_NOEXCEPT_IF(SM::is_noexcept) {
     aux::get<T>(self.transitions_).execute(self, event, current_state);
-    return false; // let the top sm process on_exit event
+    return false;  // let the top sm process on_exit event
   }
 };
 template <>
@@ -1466,7 +1467,7 @@ auto operator||(const T1 &t1, const T2 &t2) BOOST_MSM_LITE_NOEXCEPT {
 }
 template <class T1, class T2,
           BOOST_MSM_LITE_REQUIRES(concepts::callable<void, T1>::value &&concepts::callable<void, T2>::value)>
-auto operator, (const T1 &t1, const T2 &t2)BOOST_MSM_LITE_NOEXCEPT {
+auto operator,(const T1 &t1, const T2 &t2) BOOST_MSM_LITE_NOEXCEPT {
   return detail::seq_<T1, T2>(t1, t2);
 }
 template <class TEvent>

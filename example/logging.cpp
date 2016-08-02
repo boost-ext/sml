@@ -30,9 +30,9 @@ void log_state_change(const TSrcState& src, const TDstState& dst) {
 }
 
 #define BOOST_MSM_LITE_LOG(T, SM, ...) log_##T<SM>(__VA_ARGS__)
-#include "boost/msm-lite.hpp"
 #include <cassert>
 #include <iostream>
+#include "boost/msm-lite.hpp"
 
 namespace msm = boost::msm::lite;
 

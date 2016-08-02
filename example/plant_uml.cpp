@@ -5,11 +5,11 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "boost/msm-lite.hpp"
 #include <cassert>
 #include <iostream>
-#include <typeinfo>
 #include <string>
+#include <typeinfo>
+#include "boost/msm-lite.hpp"
 
 namespace msm = boost::msm::lite;
 
