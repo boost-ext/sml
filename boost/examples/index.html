@@ -117,9 +117,9 @@
 </ul>
 <hr />
 <h3 id="hello-world">Hello World</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
-#include &lt;cassert&gt;
+<pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -162,8 +162,8 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp</a></li>
 </ul>
 <h3 id="events">Events</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
-#include &lt;cassert&gt;
+<pre><code class="cpp">#include &lt;cassert&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -202,9 +202,9 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/events.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/events.cpp</a></li>
 </ul>
 <h3 id="states">States</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+<pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
-#include &lt;cassert&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -242,10 +242,10 @@ int main() {
 </ul>
 <h3 id="actions-guards">Actions Guards</h3>
 <pre><code class="cpp">
-#include &quot;boost/msm-lite.hpp&quot;
 #include &lt;cassert&gt;
-#include &lt;typeinfo&gt;
 #include &lt;iostream&gt;
+#include &lt;typeinfo&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -302,9 +302,9 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/actions_guards.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/actions_guards.cpp</a></li>
 </ul>
 <h3 id="transitions">Transitions</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
-#include &lt;cassert&gt;
+<pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -336,8 +336,8 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp</a></li>
 </ul>
 <h3 id="orthogonal-regions">Orthogonal Regions</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
-#include &lt;cassert&gt;
+<pre><code class="cpp">#include &lt;cassert&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -375,9 +375,9 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp</a></li>
 </ul>
 <h3 id="composite">Composite</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+<pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
-#include &lt;cassert&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -448,9 +448,9 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp</a></li>
 </ul>
 <h3 id="history">History</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+<pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
-#include &lt;cassert&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -492,10 +492,10 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/history.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/history.cpp</a></li>
 </ul>
 <h3 id="error-handling">Error handling</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
-#include &lt;cassert&gt;
+<pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
 #include &lt;stdexcept&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -552,9 +552,9 @@ void log_state_change(const TSrcState&amp; src, const TDstState&amp; dst) {
 }
 
 #define BOOST_MSM_LITE_LOG(T, SM, ...) log_##T&lt;SM&gt;(__VA_ARGS__)
-#include &quot;boost/msm-lite.hpp&quot;
 #include &lt;cassert&gt;
 #include &lt;iostream&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -589,8 +589,8 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp</a></li>
 </ul>
 <h3 id="testing">Testing</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
-#include &lt;cassert&gt;
+<pre><code class="cpp">#include &lt;cassert&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -632,8 +632,8 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp</a></li>
 </ul>
 <h3 id="runtime-dispatcher">Runtime Dispatcher</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
-#include &lt;cassert&gt;
+<pre><code class="cpp">#include &lt;cassert&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -681,8 +681,8 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp</a></li>
 </ul>
 <h3 id="euml-emulation">eUML Emulation</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
-#include &lt;cassert&gt;
+<pre><code class="cpp">#include &lt;cassert&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -814,9 +814,9 @@ int main() {}
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp</a></li>
 </ul>
 <h3 id="sdl2-integration">SDL2 Integration</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
-#include &lt;cassert&gt;
+<pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
@@ -920,11 +920,11 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp</a></li>
 </ul>
 <h3 id="plant-uml-integration">Plant UML Integration</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
-#include &lt;cassert&gt;
+<pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
-#include &lt;typeinfo&gt;
 #include &lt;string&gt;
+#include &lt;typeinfo&gt;
+#include &quot;boost/msm-lite.hpp&quot;
 
 namespace msm = boost::msm::lite;
 
