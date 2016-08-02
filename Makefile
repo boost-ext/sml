@@ -30,6 +30,12 @@ test/ft_thread.out:
 	$(CXX) test/ft_thread.cpp $(CXXFLAGS) -DBOOST_MSM_LITE_THREAD_SAFE -lpthread -fsanitize=thread $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/ft_thread.out && $($(MEMCHECK)) test/ft_thread.out
 	$(CXX) test/ft_thread.cpp $(CXXFLAGS) -fno-exceptions -DBOOST_MSM_LITE_THREAD_SAFE -lpthread -fsanitize=thread $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/ft_thread.out && $($(MEMCHECK)) test/ft_thread.out
 
+test/ft_unit%.out:
+	$(CXX) test/ft_unit$*.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -c -o test/ft_unit$*.out
+
+test/ft_units.out: test/ft_unit1.out test/ft_unit2.out
+	$(CXX) test/ft_units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp test/ft_unit1.out test/ft_unit2.out -o test/ft_units.out
+
 example: $(patsubst %.cpp, %.out, $(shell find example -iname "*.cpp"))
 
 example/errors/%.out:

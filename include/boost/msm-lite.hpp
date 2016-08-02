@@ -1471,8 +1471,8 @@ auto operator, (const T1 &t1, const T2 &t2)BOOST_MSM_LITE_NOEXCEPT {
 }
 template <class TEvent>
 detail::event<TEvent> event{};
-auto on_entry = event<detail::on_entry>;
-auto on_exit = event<detail::on_exit>;
+__attribute__((unused)) static auto on_entry = event<detail::on_entry>;
+__attribute__((unused)) static auto on_exit = event<detail::on_exit>;
 template <class T = detail::_>
 detail::event<detail::exception<T>> exception{};
 template <class T>
@@ -1490,9 +1490,9 @@ auto operator""_t() BOOST_MSM_LITE_NOEXCEPT {
   return event<aux::string<Chrs...>>;
 }
 #endif
-detail::state<detail::terminate_state> X;
-detail::history_state H;
-detail::process_event process_event;
+__attribute__((unused)) static detail::state<detail::terminate_state> X;
+__attribute__((unused)) static detail::history_state H;
+__attribute__((unused)) static detail::process_event process_event;
 template <class... Ts, BOOST_MSM_LITE_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
                                                             aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 auto make_transition_table(Ts... ts) BOOST_MSM_LITE_NOEXCEPT {
