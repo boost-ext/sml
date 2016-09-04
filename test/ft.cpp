@@ -883,6 +883,43 @@ test orthogonal_regions_event_consumed_by_all_regions = [] {
   expect(sm.is(s2, s4));
 };
 
+test orthogonal_regions_entry_exit = [] {
+  struct c {
+	auto configure() noexcept {
+	  using namespace msm;
+	  auto entry_action = [this] { a_entry_action++; };
+	  auto exit_action = [this] { a_exit_action++; };
+
+	  // clang-format off
+	  return make_transition_table(
+		 *idle + event<e1> = s1
+		, s1 + msm::on_entry / entry_action
+		, s1 + msm::on_exit / exit_action
+		, s1 + event<e2> = s2
+
+        ,*idle2 + event<e3> = s3
+        , s3 + event<e2> = s4
+	  );
+	  // clang-format on
+	}
+
+	int a_entry_action = 0;
+	int a_exit_action = 0;
+  };
+
+  c c_;
+  msm::sm<c> sm{c_};
+  expect(sm.process_event(e1{}));
+  expect(c_.a_entry_action == 1);
+  expect(c_.a_exit_action == 0);
+  expect(sm.process_event(e3{}));
+  expect(c_.a_entry_action == 1);
+  expect(c_.a_exit_action == 0);
+  expect(sm.process_event(e2{}));
+  expect(c_.a_entry_action == 1);
+  expect(c_.a_exit_action == 1);
+};
+
 test state_names = [] {
   struct c {
     auto configure() noexcept {
