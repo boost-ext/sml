@@ -1353,7 +1353,7 @@ class sm {
   template <class TExplicit, class TSrcState, class T>
   void update_current_state_impl(aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
                                  const state<sm<T>> &dst_state) BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
-	process_internal_event(on_exit{}, current_state);
+    process_internal_event(on_exit{}, current_state);
     BOOST_MSM_LITE_LOG(state_change, SM, src_state, dst_state);
     (void)src_state;
     (void)dst_state;
