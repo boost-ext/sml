@@ -1247,7 +1247,7 @@ class sm {
       BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
     static bool (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(
         sm &, const TEvent &, aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
-    BOOST_MSM_LITE_THREAD_SAFE__(std::lock_guard<std::mutex> guard{mutex_});
+    BOOST_MSM_LITE_THREAD_SAFE__(std::lock_guard<std::recursive_mutex> guard{mutex_});
     return dispatch_table[current_state_[0]](*this, event, current_state_[0]);
   }
 
@@ -1256,7 +1256,7 @@ class sm {
       BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
     static bool (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(
         sm &, const TEvent &, aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
-    BOOST_MSM_LITE_THREAD_SAFE__(std::lock_guard<std::mutex> guard{mutex_});
+    BOOST_MSM_LITE_THREAD_SAFE__(std::lock_guard<std::recursive_mutex> guard{mutex_});
     return dispatch_table[current_state](*this, event, current_state);
   }
 
@@ -1266,7 +1266,7 @@ class sm {
     static bool (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(
         sm &, const TEvent &, aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     auto handled = false;
-    BOOST_MSM_LITE_THREAD_SAFE__(std::lock_guard<std::mutex> guard{mutex_});
+    BOOST_MSM_LITE_THREAD_SAFE__(std::lock_guard<std::recursive_mutex> guard{mutex_});
     int _[]{0, (handled |= dispatch_table[current_state_[Ns]](*this, event, current_state_[Ns]), 0)...};
     (void)_;
     return handled;
@@ -1409,7 +1409,7 @@ class sm {
   aux::byte current_state_[regions];
 
  private:
-  BOOST_MSM_LITE_THREAD_SAFE__(std::mutex mutex_;)
+  BOOST_MSM_LITE_THREAD_SAFE__(std::recursive_mutex mutex_;)
 };
 template <class TEvent = void>
 struct dispatch_event_impl {
