@@ -13,8 +13,9 @@ namespace msm = boost::msm::lite;
 struct e1 {};
 struct e2 {};
 
-struct actions_guards {
-  auto configure() {
+test process_the_same_event = [] {
+  struct actions_guards {
+    auto configure() {
     using namespace msm;
     // clang-format off
     return make_transition_table(
@@ -22,15 +23,14 @@ struct actions_guards {
       , "idle"_s + event<e2> [([this]{ guard2_calls++; return true; })] / [this] { action2_calls++; } = "s2"_s
     );
     // clang-format on
-  }
+    }
 
-  int guard1_calls = 0;
-  int guard2_calls = 0;
-  int action1_calls = 0;
-  int action2_calls = 0;
-};
+    int guard1_calls = 0;
+    int guard2_calls = 0;
+    int action1_calls = 0;
+    int action2_calls = 0;
+  };
 
-test process_the_same_event = [] {
   actions_guards ag;
   msm::sm<actions_guards> sm{ag};
   std::thread t1{[&] { sm.process_event(e1{}); }};
@@ -42,3 +42,22 @@ test process_the_same_event = [] {
   expect(1 == ag.action1_calls + ag.action2_calls);
   expect(sm.is("s1"_s) || sm.is("s2"_s));
 };
+
+test process_event_reentrant = [] {
+  struct c {
+    auto configure() {
+    using namespace msm;
+    // clang-format off
+    return make_transition_table(
+       *"idle"_s + event<e1> / process_event(e2{})
+      , "idle"_s + event<e2> = "s2"_s
+    );
+    // clang-format on
+    }
+  };
+
+  msm::sm<c> sm{c()};
+  // Hangs forever awaiting lock if mutex is not reentrant.
+  expect(sm.process_event(e1{}));
+};
+
