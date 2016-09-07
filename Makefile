@@ -36,6 +36,9 @@ test/ft_unit%.out:
 test/ft_units.out: test/ft_unit1.out test/ft_unit2.out
 	$(CXX) test/ft_units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp test/ft_unit1.out test/ft_unit2.out -o test/ft_units.out
 
+test/ft_logging.out:
+	$(CXX) test/ft_logging.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/ft_logging.out && $($(MEMCHECK)) test/ft_logging.out
+
 example: $(patsubst %.cpp, %.out, $(shell find example -iname "*.cpp"))
 
 example/errors/%.out:
