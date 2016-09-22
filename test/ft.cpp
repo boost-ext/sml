@@ -943,19 +943,19 @@ test dependencies = [] {
   static constexpr auto i_ = 42;
   static constexpr auto d_ = 87.0;
 
+  static auto guard = [](int i) {
+    expect(i == i_);
+    return true;
+  };
+
+  static auto action = [](double d, auto event) {
+    expect(d == d_);
+    expect(msm::aux::is_same<e1, decltype(event)>::value);
+  };
+
   struct c {
     auto configure() noexcept {
       using namespace msm;
-      auto guard = [](int i) {
-        expect(i == i_);
-        return true;
-      };
-
-      auto action = [](double d, auto event) {
-        expect(d == d_);
-        expect(aux::is_same<e1, decltype(event)>::value);
-        return true;
-      };
 
       // clang-format off
       return make_transition_table(
