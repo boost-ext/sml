@@ -335,24 +335,24 @@ struct variant {
     new (&data) T(static_cast<T &&>(object));
   }
 };
-template <class T, class = void>
-struct zero_wrapper : T {
-  explicit zero_wrapper(const T &t) : T{t} {}
+template <class TExpr, class = void>
+struct zero_wrapper : TExpr {
+  explicit zero_wrapper(const TExpr &expr) : TExpr(expr) {}
 };
 
 template <class, class>
 struct zero_wrapper_impl;
 
-template <class T, class... TArgs>
-struct zero_wrapper_impl<T, aux::type_list<TArgs...>> {
-  auto operator()(TArgs... args) const { return reinterpret_cast<const T &>(*this)(args...); }
+template <class TExpr, class... TArgs>
+struct zero_wrapper_impl<TExpr, aux::type_list<TArgs...>> {
+  auto operator()(TArgs... args) const { return reinterpret_cast<const TExpr &>(*this)(args...); }
   aux::byte _[0];
 };
 
-template <class T>
-struct zero_wrapper<T, void_t<decltype(+declval<T>())>>
-    : zero_wrapper_impl<T, aux::function_traits_t<decltype(&T::operator())>> {
-  explicit zero_wrapper(const T &) {}
+template <class TExpr>
+struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
+    : zero_wrapper_impl<TExpr, aux::function_traits_t<decltype(&TExpr::operator())>> {
+  explicit zero_wrapper(const TExpr &) {}
 };
 
 }  // aux
