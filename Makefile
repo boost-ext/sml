@@ -29,8 +29,11 @@ test/ft_except.out:
 test/ft_thread.out: #-fsanitize=thread
 	$(CXX) test/ft_thread.cpp $(CXXFLAGS) -fno-exceptions -DBOOST_MSM_LITE_THREAD_SAFE -lpthread $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/ft_thread.out && $($(MEMCHECK)) test/ft_thread.out
 
-test/ft_unit%.out:
-	$(CXX) test/ft_unit$*.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -c -o test/ft_unit$*.out
+test/ft_unit1.out:
+	$(CXX) test/ft_unit1.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -c -o test/ft_unit1.out
+
+test/ft_unit2.out:
+	$(CXX) test/ft_unit2.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -c -o test/ft_unit2.out
 
 test/ft_units.out: test/ft_unit1.out test/ft_unit2.out
 	$(CXX) test/ft_units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp test/ft_unit1.out test/ft_unit2.out -o test/ft_units.out
