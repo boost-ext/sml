@@ -1,6 +1,6 @@
 
-#include <vector>
 #include <sstream>
+#include <vector>
 
 std::vector<std::string> messages_out;
 
@@ -11,16 +11,11 @@ void log_process_event(const TEvent& evt) {
   messages_out.push_back(sstr.str());
 }
 
-
 template <class SM, class TGuard, class TEvent>
-void log_guard(const TGuard&, const TEvent&, bool) {
-}
-
+void log_guard(const TGuard&, const TEvent&, bool) {}
 
 template <class SM, class TAction, class TEvent>
-void log_action(const TAction&, const TEvent&) {
-}
-
+void log_action(const TAction&, const TEvent&) {}
 
 template <class SM, class TSrcState, class TDstState>
 void log_state_change(const TSrcState& src, const TDstState& dst) {
@@ -28,7 +23,6 @@ void log_state_change(const TSrcState& src, const TDstState& dst) {
   sstr << src.c_str() << " -> " << dst.c_str();
   messages_out.push_back(sstr.str());
 }
-
 
 #define BOOST_MSM_LITE_LOG(T, SM, ...) log_##T<SM>(__VA_ARGS__)
 
@@ -46,12 +40,7 @@ auto s1 = msm::state<s1_label>{};
 
 test logging = [] {
   messages_out.clear();
-  std::vector<std::string> messages_expected = {
-    "e1",
-    "idle -> A State",
-    "An Event",
-    "A State -> terminate"
-  };
+  std::vector<std::string> messages_expected = {"e1", "idle -> A State", "An Event", "A State -> terminate"};
   struct c {
     auto configure() noexcept {
       using namespace msm;
@@ -64,7 +53,6 @@ test logging = [] {
     }
   };
 
-
   msm::sm<c> sm;
   using namespace msm;
   expect(sm.process_event("e1"_t));
@@ -75,16 +63,8 @@ test logging = [] {
 
 test logging_entry_exit = [] {
   messages_out.clear();
-  std::vector<std::string> messages_expected = {
-    "e1",
-    "on_exit",
-    "idle -> A State",
-    "on_entry",
-    "An Event",
-    "on_exit",
-    "A State -> terminate",
-    "on_entry"
-  };
+  std::vector<std::string> messages_expected = {"e1",       "on_exit", "idle -> A State",      "on_entry",
+                                                "An Event", "on_exit", "A State -> terminate", "on_entry"};
 
   struct c {
     auto configure() noexcept {
@@ -107,4 +87,3 @@ test logging_entry_exit = [] {
   expect(messages_out.size() == messages_expected.size());
   expect(std::equal(messages_out.begin(), messages_out.end(), messages_expected.begin()));
 };
-

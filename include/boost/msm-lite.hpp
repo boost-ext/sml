@@ -81,7 +81,8 @@ struct integral_constant {
 };
 using true_type = integral_constant<bool, true>;
 using false_type = integral_constant<bool, false>;
-template<class...> using void_t = void;
+template <class...>
+using void_t = void;
 template <class>
 struct always : aux::true_type {};
 template <bool B, class T, class F>
@@ -334,25 +335,24 @@ struct variant {
     new (&data) T(static_cast<T &&>(object));
   }
 };
-template<class T, class = void>
-struct zero_wrapper : T  {
-    explicit zero_wrapper(const T& t) : T{t} {}
+template <class T, class = void>
+struct zero_wrapper : T {
+  explicit zero_wrapper(const T &t) : T{t} {}
 };
 
-template<class, class>
+template <class, class>
 struct zero_wrapper_impl;
 
-template<class T, class... TArgs>
+template <class T, class... TArgs>
 struct zero_wrapper_impl<T, aux::type_list<TArgs...>> {
-  auto operator()(TArgs... args) const  {
-    return reinterpret_cast<const T&>(*this)(args...);
-  }
+  auto operator()(TArgs... args) const { return reinterpret_cast<const T &>(*this)(args...); }
   aux::byte _[0];
 };
 
-template<class T>
-struct zero_wrapper<T, void_t<decltype(+declval<T>())>> : zero_wrapper_impl<T, aux::function_traits_t<decltype(&T::operator())>> {
-  explicit zero_wrapper(const T&) {}
+template <class T>
+struct zero_wrapper<T, void_t<decltype(+declval<T>())>>
+    : zero_wrapper_impl<T, aux::function_traits_t<decltype(&T::operator())>> {
+  explicit zero_wrapper(const T &) {}
 };
 
 }  // aux
@@ -411,15 +411,13 @@ struct dispatchable<T, aux::type_list<TEvents...>>
     : aux::is_same<aux::bool_list<aux::always<TEvents>::value...>,
                    aux::bool_list<decltype(dispatchable_impl<T>(aux::declval<TEvents>()))::value...>> {};
 
-template<class T, class = decltype(T::c_str())>
-aux::true_type  test_stringable(const T&);
+template <class T, class = decltype(T::c_str())>
+aux::true_type test_stringable(const T &);
 aux::false_type test_stringable(...);
 template <class T, class = void>
-struct stringable : aux::false_type
-{};
+struct stringable : aux::false_type {};
 template <class T>
-struct stringable< T, decltype(void(sizeof(T))) > : decltype(test_stringable(aux::declval<T>()))
-{};
+struct stringable<T, decltype(void(sizeof(T)))> : decltype(test_stringable(aux::declval<T>())) {};
 
 }  // concepts
 namespace detail {
@@ -444,26 +442,17 @@ struct fsm {
 };
 struct _ {};
 struct operator_base {};
-struct internal_event
-{
-  static auto c_str() BOOST_MSM_LITE_NOEXCEPT {
-    return "internal_event";
-  }
+struct internal_event {
+  static auto c_str() BOOST_MSM_LITE_NOEXCEPT { return "internal_event"; }
 };
 struct anonymous : internal_event {
-  static auto c_str() BOOST_MSM_LITE_NOEXCEPT {
-    return "anonymous";
-  }
+  static auto c_str() BOOST_MSM_LITE_NOEXCEPT { return "anonymous"; }
 };
 struct on_entry : internal_event {
-  static auto c_str() BOOST_MSM_LITE_NOEXCEPT {
-    return "on_entry";
-  }
+  static auto c_str() BOOST_MSM_LITE_NOEXCEPT { return "on_entry"; }
 };
 struct on_exit : internal_event {
-  static auto c_str() BOOST_MSM_LITE_NOEXCEPT {
-    return "on_exit";
-  }
+  static auto c_str() BOOST_MSM_LITE_NOEXCEPT { return "on_exit"; }
 };
 struct always {
   auto operator()() const BOOST_MSM_LITE_NOEXCEPT { return true; }
@@ -526,7 +515,7 @@ template <class TState>
 struct stringable<state<TState>> {
   static constexpr bool value = concepts::stringable<TState>::value;
 };
-template <class S, bool is_stringable=stringable<S>::value>
+template <class S, bool is_stringable = stringable<S>::value>
 struct state_str {
   static auto c_str() BOOST_MSM_LITE_NOEXCEPT { return S::type::c_str(); }
 };
@@ -1379,16 +1368,14 @@ class sm {
   template <class TVisitor, class... TStates>
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<0> &) const BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
-    static void (*dispatch_table[])(const TVisitor &) = {
-        &sm::visit_state<TVisitor, TStates>...};
+    static void (*dispatch_table[])(const TVisitor &) = {&sm::visit_state<TVisitor, TStates>...};
     dispatch_table[current_state_[0]](visitor);
   }
 
   template <class TVisitor, class... TStates, int... Ns>
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<Ns...> &) const BOOST_MSM_LITE_NOEXCEPT {
-    static void (*dispatch_table[])(const TVisitor &) = {
-        &sm::visit_state<TVisitor, TStates>...};
+    static void (*dispatch_table[])(const TVisitor &) = {&sm::visit_state<TVisitor, TStates>...};
     int _[]{0, (dispatch_table[current_state_[Ns]](visitor), 0)...};
     (void)_;
   }

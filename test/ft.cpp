@@ -885,12 +885,12 @@ test orthogonal_regions_event_consumed_by_all_regions = [] {
 
 test orthogonal_regions_entry_exit = [] {
   struct c {
-	auto configure() noexcept {
-	  using namespace msm;
-	  auto entry_action = [this] { a_entry_action++; };
-	  auto exit_action = [this] { a_exit_action++; };
+    auto configure() noexcept {
+      using namespace msm;
+      auto entry_action = [this] { a_entry_action++; };
+      auto exit_action = [this] { a_exit_action++; };
 
-	  // clang-format off
+      // clang-format off
 	  return make_transition_table(
 		 *idle + event<e1> = s1
 		, s1 + msm::on_entry / entry_action
@@ -900,11 +900,11 @@ test orthogonal_regions_entry_exit = [] {
         ,*idle2 + event<e3> = s3
         , s3 + event<e2> = s4
 	  );
-	  // clang-format on
-	}
+      // clang-format on
+    }
 
-	int a_entry_action = 0;
-	int a_exit_action = 0;
+    int a_entry_action = 0;
+    int a_exit_action = 0;
   };
 
   c c_;

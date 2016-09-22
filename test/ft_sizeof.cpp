@@ -14,58 +14,58 @@ test transition_sizeof = [] {
   constexpr auto i = 0;
 
   {
-  auto t = "state"_s + "event"_t [([]{})];
-  static_expect(0 == sizeof(t));
+    auto t = "state"_s + "event"_t[([] {})];
+    static_expect(0 == sizeof(t));
   }
 
   {
-  auto t = "state"_s + "event"_t / []{};
-  static_expect(0 == sizeof(t));
+    auto t = "state"_s + "event"_t / [] {};
+    static_expect(0 == sizeof(t));
   }
 
   {
-  auto t = "state"_s + "event"_t [([]{})] / []{};
-  static_expect(0 == sizeof(t));
+    auto t = "state"_s + "event"_t[([] {})] / [] {};
+    static_expect(0 == sizeof(t));
   }
 
   {
-  auto t = "state"_s + "event"_t [([](int){})] / []{};
-  static_expect(0 == sizeof(t));
+    auto t = "state"_s + "event"_t[([](int) {})] / [] {};
+    static_expect(0 == sizeof(t));
   }
 
   {
-  auto t = "state"_s + "event"_t [([]{})] / [](int){};
-  static_expect(0 == sizeof(t));
+    auto t = "state"_s + "event"_t[([] {})] / [](int) {};
+    static_expect(0 == sizeof(t));
   }
 
   {
-  auto t = "state"_s + "event"_t [([](int){})] / [](int){};
-  static_expect(0 == sizeof(t));
+    auto t = "state"_s + "event"_t[([](int) {})] / [](int) {};
+    static_expect(0 == sizeof(t));
   }
 
   {
-  auto t = "state"_s + "event"_t [([](int, float){})] / [](double, const int&){};
-  static_expect(0 == sizeof(t));
+    auto t = "state"_s + "event"_t[([](int, float) {})] / [](double, const int&) {};
+    static_expect(0 == sizeof(t));
   }
 
   {
-  auto t = "state"_s + "event"_t [([i]{})] / []{};
-  static_expect(sizeof(i) == sizeof(t));
+    auto t = "state"_s + "event"_t[([i] {})] / [] {};
+    static_expect(sizeof(i) == sizeof(t));
   }
 
   {
-  auto t = "state"_s + "event"_t [([]{})] / [i]{};
-  static_expect(sizeof(i) == sizeof(t));
+    auto t = "state"_s + "event"_t[([] {})] / [i] {};
+    static_expect(sizeof(i) == sizeof(t));
   }
 
   {
-  auto t = "state"_s + "event"_t [([]{})] / [&i]{};
-  static_expect(sizeof(&i) == sizeof(t));
+    auto t = "state"_s + "event"_t[([] {})] / [&i] {};
+    static_expect(sizeof(&i) == sizeof(t));
   }
 };
 
 test sm_sizeof = [] {
-  constexpr auto sm_size = 3; // deps=1 + transitions=1 + current_state=1
+  constexpr auto sm_size = 3;  // deps=1 + transitions=1 + current_state=1
 
   struct empty {
     auto configure() noexcept {
@@ -79,6 +79,7 @@ test sm_sizeof = [] {
   struct no_capture_transition {
     auto configure() noexcept {
       using namespace msm;
+      // clang-format off
       return make_transition_table(
         *"idle"_s + "event"_t [([]{})] / []{},
          "idle"_s + "event"_t [([]{})] / []{},
@@ -181,6 +182,7 @@ test sm_sizeof = [] {
          "idle"_s + "event"_t [([]{})] / []{},
          "idle"_s + "event"_t [([]{})] / []{}
       );
+      // clang-format on
     }
   };
   static_expect(sm_size - 1 /*transitions=0*/ == sizeof(msm::sm<no_capture_transition>));

@@ -16,13 +16,13 @@ struct e2 {};
 test process_the_same_event = [] {
   struct actions_guards {
     auto configure() {
-    using namespace msm;
-    // clang-format off
+      using namespace msm;
+      // clang-format off
     return make_transition_table(
        *"idle"_s + event<e1> [([this]{ guard1_calls++; return true; })] / [this] { action1_calls++; } = "s1"_s
       , "idle"_s + event<e2> [([this]{ guard2_calls++; return true; })] / [this] { action2_calls++; } = "s2"_s
     );
-    // clang-format on
+      // clang-format on
     }
 
     int guard1_calls = 0;
@@ -46,13 +46,13 @@ test process_the_same_event = [] {
 test process_event_reentrant = [] {
   struct c {
     auto configure() {
-    using namespace msm;
-    // clang-format off
+      using namespace msm;
+      // clang-format off
     return make_transition_table(
        *"idle"_s + event<e1> / process_event(e2{})
       , "idle"_s + event<e2> = "s2"_s
     );
-    // clang-format on
+      // clang-format on
     }
   };
 
@@ -60,4 +60,3 @@ test process_event_reentrant = [] {
   // Hangs forever awaiting lock if mutex is not reentrant.
   expect(sm.process_event(e1{}));
 };
-
