@@ -33,6 +33,15 @@
 #if !defined(__has_extension)
 #define __has_extension(...) 0
 #endif
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
+#pragma clang diagnostic ignored "-Wzero-length-array"
+#endif
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
 namespace boost {
 namespace msm {
 namespace lite {
@@ -72,6 +81,7 @@ struct integral_constant {
 };
 using true_type = integral_constant<bool, true>;
 using false_type = integral_constant<bool, false>;
+template<class...> using void_t = void;
 template <class>
 struct always : aux::true_type {};
 template <bool B, class T, class F>
@@ -324,6 +334,27 @@ struct variant {
     new (&data) T(static_cast<T &&>(object));
   }
 };
+template<class T, class = void>
+struct zero_wrapper : T  {
+    explicit zero_wrapper(const T& t) : T{t} {}
+};
+
+template<class, class>
+struct zero_wrapper_impl;
+
+template<class T, class... TArgs>
+struct zero_wrapper_impl<T, aux::type_list<TArgs...>> {
+  auto operator()(TArgs... args) const  {
+    return reinterpret_cast<const T&>(*this)(args...);
+  }
+  aux::byte _[0];
+};
+
+template<class T>
+struct zero_wrapper<T, void_t<decltype(+declval<T>())>> : zero_wrapper_impl<T, aux::function_traits_t<decltype(&T::operator())>> {
+  explicit zero_wrapper(const T&) {}
+};
+
 }  // aux
 namespace detail {
 struct on_entry;
@@ -387,7 +418,6 @@ template <class T, class = void>
 struct stringable : aux::false_type
 {};
 template <class T>
-// stringable if T is a complete type and T has c_str member:
 struct stringable< T, decltype(void(sizeof(T))) > : decltype(test_stringable(aux::declval<T>()))
 {};
 
@@ -467,12 +497,12 @@ template <class>
 struct event {
   template <class T, BOOST_MSM_LITE_REQUIRES(concepts::callable<bool, T>::value)>
   auto operator[](const T &t) const BOOST_MSM_LITE_NOEXCEPT {
-    return transition_eg<event, T>{*this, t};
+    return transition_eg<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
   }
 
   template <class T, BOOST_MSM_LITE_REQUIRES(concepts::callable<void, T>::value)>
   auto operator/(const T &t) const BOOST_MSM_LITE_NOEXCEPT {
-    return transition_ea<event, T>{*this, t};
+    return transition_ea<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
   }
 };
 template <class T>
@@ -525,11 +555,11 @@ struct state_impl : state_str<TState> {
   }
   template <class T, BOOST_MSM_LITE_REQUIRES(concepts::callable<bool, T>::value)>
   auto operator[](const T &t) const BOOST_MSM_LITE_NOEXCEPT {
-    return transition_sg<TState, T>{static_cast<const TState &>(*this), t};
+    return transition_sg<TState, aux::zero_wrapper<T>>{static_cast<const TState &>(*this), aux::zero_wrapper<T>{t}};
   }
   template <class T, BOOST_MSM_LITE_REQUIRES(concepts::callable<void, T>::value)>
   auto operator/(const T &t) const BOOST_MSM_LITE_NOEXCEPT {
-    return transition_sa<TState, T>{static_cast<const TState &>(*this), t};
+    return transition_sa<TState, aux::zero_wrapper<T>>{static_cast<const TState &>(*this), aux::zero_wrapper<T>{t}};
   }
 };
 template <class TState>
@@ -743,7 +773,7 @@ template <class E, class G>
 struct transition<event<E>, G> {
   template <class T>
   auto operator/(const T &t) const BOOST_MSM_LITE_NOEXCEPT {
-    return transition<event<E>, G, T>{e, g, t};
+    return transition<event<E>, G, aux::zero_wrapper<T>>{e, g, aux::zero_wrapper<T>{t}};
   }
   event<E> e;
   G g;
@@ -775,7 +805,7 @@ struct transition_sg<state<S2>, G> : transition<state<S2>, state<S2>, event<anon
   transition_sg(const state<S2> &, const G &g) : transition<state<S2>, state<S2>, event<anonymous>, G, none>{g, none{}} {}
   template <class T>
   auto operator/(const T &t) const BOOST_MSM_LITE_NOEXCEPT {
-    return transition<state<S2>, G, T>{g, t};
+    return transition<state<S2>, G, aux::zero_wrapper<T>>{g, aux::zero_wrapper<T>{t}};
   }
   template <class T>
   auto operator=(const T &) const BOOST_MSM_LITE_NOEXCEPT {
@@ -804,7 +834,7 @@ template <class E, class G>
 struct transition_eg<event<E>, G> {
   template <class T>
   auto operator/(const T &t) const BOOST_MSM_LITE_NOEXCEPT {
-    return transition<event<E>, G, T>{e, g, t};
+    return transition<event<E>, G, aux::zero_wrapper<T>>{e, g, aux::zero_wrapper<T>{t}};
   }
   event<E> e;
   G g;
@@ -1284,7 +1314,7 @@ class sm {
   template <class TMappings, class TEvent, class... TStates>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &, const aux::index_sequence<0> &)
       BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
-    static bool (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(
+    static bool (*dispatch_table[sizeof...(TStates)])(
         sm &, const TEvent &, aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     BOOST_MSM_LITE_THREAD_SAFE__(std::lock_guard<std::recursive_mutex> guard{mutex_});
     return dispatch_table[current_state_[0]](*this, event, current_state_[0]);
@@ -1293,7 +1323,7 @@ class sm {
   template <class TMappings, class TEvent, class... TStates>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &, aux::byte &current_state)
       BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
-    static bool (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(
+    static bool (*dispatch_table[sizeof...(TStates)])(
         sm &, const TEvent &, aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     BOOST_MSM_LITE_THREAD_SAFE__(std::lock_guard<std::recursive_mutex> guard{mutex_});
     return dispatch_table[current_state](*this, event, current_state);
@@ -1302,7 +1332,7 @@ class sm {
   template <class TMappings, class TEvent, class... TStates, int... Ns>
   auto process_event_impl(const TEvent &event, const aux::type_list<TStates...> &, const aux::index_sequence<Ns...> &)
       BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
-    static bool (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(
+    static bool (*dispatch_table[sizeof...(TStates)])(
         sm &, const TEvent &, aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<sm, TEvent>...};
     auto handled = false;
     BOOST_MSM_LITE_THREAD_SAFE__(std::lock_guard<std::recursive_mutex> guard{mutex_});
@@ -1349,7 +1379,7 @@ class sm {
   template <class TVisitor, class... TStates>
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<0> &) const BOOST_MSM_LITE_NOEXCEPT_IF(is_noexcept) {
-    static void (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(const TVisitor &) = {
+    static void (*dispatch_table[])(const TVisitor &) = {
         &sm::visit_state<TVisitor, TStates>...};
     dispatch_table[current_state_[0]](visitor);
   }
@@ -1357,7 +1387,7 @@ class sm {
   template <class TVisitor, class... TStates, int... Ns>
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<Ns...> &) const BOOST_MSM_LITE_NOEXCEPT {
-    static void (*dispatch_table[!sizeof...(TStates) ? 1 : sizeof...(TStates)])(const TVisitor &) = {
+    static void (*dispatch_table[])(const TVisitor &) = {
         &sm::visit_state<TVisitor, TStates>...};
     int _[]{0, (dispatch_table[current_state_[Ns]](visitor), 0)...};
     (void)_;
@@ -1516,22 +1546,22 @@ class sm : public detail::sm<T> {
 }  // testing
 template <class T, BOOST_MSM_LITE_REQUIRES(concepts::callable<bool, T>::value)>
 auto operator!(const T &t)BOOST_MSM_LITE_NOEXCEPT {
-  return detail::not_<T>(t);
+  return detail::not_<aux::zero_wrapper<T>>(aux::zero_wrapper<T>{t});
 }
 template <class T1, class T2,
           BOOST_MSM_LITE_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
 auto operator&&(const T1 &t1, const T2 &t2) BOOST_MSM_LITE_NOEXCEPT {
-  return detail::and_<T1, T2>(t1, t2);
+  return detail::and_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
 template <class T1, class T2,
           BOOST_MSM_LITE_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
 auto operator||(const T1 &t1, const T2 &t2) BOOST_MSM_LITE_NOEXCEPT {
-  return detail::or_<T1, T2>(t1, t2);
+  return detail::or_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
 template <class T1, class T2,
           BOOST_MSM_LITE_REQUIRES(concepts::callable<void, T1>::value &&concepts::callable<void, T2>::value)>
 auto operator,(const T1 &t1, const T2 &t2) BOOST_MSM_LITE_NOEXCEPT {
-  return detail::seq_<T1, T2>(t1, t2);
+  return detail::seq_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
 template <class TEvent>
 detail::event<TEvent> event{};
@@ -1541,9 +1571,6 @@ template <class T = detail::_>
 detail::event<detail::exception<T>> exception{};
 template <class T>
 using state = detail::state<T>;
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
-#endif
 #if !defined(_MSC_VER)
 template <class T, T... Chrs>
 auto operator""_s() BOOST_MSM_LITE_NOEXCEPT {
@@ -1575,4 +1602,9 @@ auto make_dispatch_table(sm<SM> &fsm) BOOST_MSM_LITE_NOEXCEPT {
 }  // lite
 }  // msm
 }  // boost
+#endif
+#if defined(__CLANG__)
+#pragma clang diagnostic pop
+#elif defined(__GCC__)
+#pragma GCC diagnostic pop
 #endif
