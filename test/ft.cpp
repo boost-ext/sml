@@ -940,22 +940,19 @@ test state_names = [] {
 };
 
 test dependencies = [] {
-  static constexpr auto i_ = 42;
-  static constexpr auto d_ = 87.0;
-
-  static auto guard = [](int i) {
-    expect(i == i_);
-    return true;
-  };
-
-  static auto action = [](double d, auto event) {
-    expect(d == d_);
-    expect(msm::aux::is_same<e1, decltype(event)>::value);
-  };
-
   struct c {
     auto configure() noexcept {
       using namespace msm;
+
+      auto guard = [](int i) {
+        expect(i == 42);
+        return true;
+      };
+
+      auto action = [](double d, auto event) {
+        expect(d == 87.0);
+        expect(msm::aux::is_same<e1, decltype(event)>::value);
+      };
 
       // clang-format off
       return make_transition_table(
@@ -966,13 +963,13 @@ test dependencies = [] {
   };
 
   {
-    msm::sm<c> sm{(int)i_, (double)d_};
+    msm::sm<c> sm{42, 87.0};
     expect(sm.process_event(e1{}));
     expect(sm.is(msm::X));
   }
 
   {
-    msm::sm<c> sm{(double)d_, (int)i_};
+    msm::sm<c> sm{87.0, 42};
     expect(sm.process_event(e1{}));
     expect(sm.is(msm::X));
   }
