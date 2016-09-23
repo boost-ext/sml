@@ -23,7 +23,7 @@ test: $(patsubst %.cpp, %.out, $(wildcard test/*.cpp))
 
 test/%.out:
 	$(CXX) test/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.out 
-	link.exe /OUT: test/$*.exe /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
+	link.exe /OUT:test/$*.exe /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
 	$($(MEMCHECK)) test/$*.exe
 #	&& $($(MEMCHECK)) test/$*.out
 
