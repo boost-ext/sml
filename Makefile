@@ -18,7 +18,7 @@ MKDOCS_SITE?=site
 
 all: test example
 
-test: $(patsubst %.cpp, %.out, $(shell find test -maxdepth 1 -iname "*.cpp"))
+test: $(patsubst %.cpp, %.out, $(wildcard test/*.cpp))
 
 test/%.out:
 	$(CXX) test/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.out && $($(MEMCHECK)) test/$*.out
@@ -38,7 +38,7 @@ test/ft_unit2.out:
 test/ft_units.out: test/ft_unit1.out test/ft_unit2.out
 	$(CXX) test/ft_units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp test/ft_unit1.out test/ft_unit2.out -o test/ft_units.out
 
-example: $(patsubst %.cpp, %.out, $(shell find example -iname "*.cpp"))
+example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp))
 
 example/errors/%.out:
 	$(CXX) example/errors/$*.cpp $(CXXFLAGS) -I include || [ $$? -ne 0 ]
