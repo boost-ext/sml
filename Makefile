@@ -6,7 +6,8 @@
 #
 .PHONY: all doc clean test example
 CXX?=clang++
-CXXFLAGS:=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors
+#CXXFLAGS:=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors
+CXXFLAGS:=-Wall -O3 -fno-strict-aliasing -fomit-frame-pointer -ffunction-sections -fdata-sections -fstack-protector -fpic -fno-short-enums -fno-rtti -std=c++1y -D WIN32 -D _WINDOWS -D _DEBUG -D "CMAKE_INTDIR=\"Debug\"" -D NDEBUG -D _MBCS -x c++ -fms-extensions -fno-ms-compatibility  -fms-extensions -fms-compatibility -frtti -fexceptions -fno-exceptions -pedantic -pedantic-errors -Wextra -Werror -gline-tables-only -fno-inline -O0 -fno-delayed-template-parsing  -D_DEBUG -D_MT -D_DLL -Xclang --dependent-lib=msvcrtd -Xclang --dependent-lib=oldnames
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
 GCOV:=-fprofile-arcs -ftest-coverage
 CLANG_FORMAT?=clang-format
