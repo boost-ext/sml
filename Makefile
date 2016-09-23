@@ -22,8 +22,8 @@ all: test example
 test: $(patsubst %.cpp, %.out, $(wildcard test/*.cpp))
 
 test/%.out:
-	$(CXX) test/$*.cpp -c $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.out 
-	link.exe /OUT:test/$*.exe kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib test/$*.out && $($(MEMCHECK)) test/$*.exe
+	$(CXX) test/$*.cpp -c $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.obj
+	lld-link test/$*.obj && $($(MEMCHECK)) test/$*.exe
 #	&& $($(MEMCHECK)) test/$*.out
 
 test/ft_except.out:
