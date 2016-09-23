@@ -23,7 +23,7 @@ test: $(patsubst %.cpp, %.out, $(wildcard test/*.cpp))
 
 test/%.out:
 	$(CXX) test/$*.cpp -c $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.out 
-	link.exe /OUT:test/$*.exe /NOLOGO	test/$*.out && $($(MEMCHECK)) test/$*.exe
+	link.exe /OUT:test/$*.exe test/$*.out && $($(MEMCHECK)) test/$*.exe
 #	&& $($(MEMCHECK)) test/$*.out
 
 test/ft_except.out:
