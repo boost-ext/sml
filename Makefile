@@ -22,7 +22,7 @@ all: test example
 test: $(patsubst %.cpp, %.out, $(wildcard test/*.cpp))
 
 test/%.out:
-	$(CXX) test/$*.cpp -c $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.obj
+	$(CXX) test/$*.cpp -c $(CXXFLAGS) -fdiagnostics-format=msvc -target "i686-pc-windows-msvc" -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.obj
 	link /MACHINE:X86 test/$*.obj && $($(MEMCHECK)) test/$*.exe
 #	&& $($(MEMCHECK)) test/$*.out
 
