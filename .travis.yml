@@ -18,6 +18,9 @@ branches:
 matrix:
   fast_finish: true
 
+  allow_failures:
+    - env: CXX=clang++-3.9 MEMCHECK=VALGRIND
+
   include:
   - os: linux
     env: CHECK=ON CLANG_FORMAT=clang-format-3.8 CLANG_TIDY=clang-tidy-3.8
