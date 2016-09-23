@@ -22,7 +22,7 @@ install:
   - appveyor DownloadFile http://downloads.sourceforge.net/mingw-w64/x86_64-5.2.0-release-posix-seh-rt_v4-rev1.7z
   - 7z x x86_64-5.2.0-release-posix-seh-rt_v4-rev1.7z > nul
   - C:\"Program Files (x86)"\"Microsoft Visual Studio 14.0"\VC\vcvarsall.bat
-  - set PATH=%PATH%;mingw64\bin
+  - set PATH=mingw64\bin;%PATH%
 
 build_script:
   - mingw32-make test example
