@@ -7,7 +7,7 @@
 .PHONY: all doc clean test example
 CXX?=clang++
 #CXXFLAGS:=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors
-CXXFLAGS:=-I "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\ClangC2\include" -I "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include" -I "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\atlmfc\include" -I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt" -I "C:\Program Files (x86)\Windows Kits\8.1\Include\um" -I "C:\Program Files (x86)\Windows Kits\8.1\Include\shared" -I "C:\Program Files (x86)\Windows Kits\8.1\Include\winrt" -fdiagnostics-format=msvc -target "i686-pc-windows-msvc" -Wall -O3 -fno-strict-aliasing -fomit-frame-pointer -ffunction-sections -fdata-sections -fstack-protector -fpic -fno-short-enums -fno-rtti -std=c++1y -D WIN32 -D _WINDOWS -D _DEBUG -D "CMAKE_INTDIR=\"Debug\"" -D NDEBUG -D _MBCS -x c++ -fms-extensions -fno-ms-compatibility  -fms-extensions -fms-compatibility -frtti -fno-exceptions -pedantic -pedantic-errors -Wextra -Werror -gline-tables-only -fno-inline -O0 -fno-delayed-template-parsing  -D_DEBUG -D_MT -D_DLL -Xclang --dependent-lib=msvcrtd -Xclang --dependent-lib=oldnames
+CXXFLAGS:=-c -I "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\ClangC2\include" -I "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include" -I "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\atlmfc\include" -I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt" -I "C:\Program Files (x86)\Windows Kits\8.1\Include\um" -I "C:\Program Files (x86)\Windows Kits\8.1\Include\shared" -I "C:\Program Files (x86)\Windows Kits\8.1\Include\winrt" -fdiagnostics-format=msvc -target "i686-pc-windows-msvc" -Wall -O3 -fno-strict-aliasing -fomit-frame-pointer -ffunction-sections -fdata-sections -fstack-protector -fpic -fno-short-enums -fno-rtti -std=c++1y -D WIN32 -D _WINDOWS -D _DEBUG -D "CMAKE_INTDIR=\"Debug\"" -D NDEBUG -D _MBCS -x c++ -fms-extensions -fno-ms-compatibility  -fms-extensions -fms-compatibility -frtti -fno-exceptions -pedantic -pedantic-errors -Wextra -Werror -gline-tables-only -fno-inline -O0 -fno-delayed-template-parsing  -D_DEBUG -D_MT -D_DLL -Xclang --dependent-lib=msvcrtd -Xclang --dependent-lib=oldnames
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
 GCOV:=-fprofile-arcs -ftest-coverage
 CLANG_FORMAT?=clang-format
@@ -22,7 +22,10 @@ all: test example
 test: $(patsubst %.cpp, %.out, $(wildcard test/*.cpp))
 
 test/%.out:
-	$(CXX) test/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.out && $($(MEMCHECK)) test/$*.out
+	$(CXX) test/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.out 
+	link.exe /OUT: test/$*.exe /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
+	$($(MEMCHECK)) test/$*.exe
+#	&& $($(MEMCHECK)) test/$*.out
 
 test/ft_except.out:
 	$(CXX) test/ft_except.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/ft_except.out && $($(MEMCHECK)) test/ft_except.out
