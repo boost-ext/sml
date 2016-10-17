@@ -6,7 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "benchmark.hpp"
-#include "boost/msm-lite.hpp"
+#include <boost/msm-lite.hpp>
 
 namespace msm = boost::msm::lite;
 
@@ -28,13 +28,13 @@ auto pause_playback = [] {};
 auto stop_playback = [] {};
 
 struct player {
-  auto configure() const noexcept {
+  auto operator()() const noexcept {
     using namespace msm;
-    state<class Empty> Empty;
-    state<class Open> Open;
-    state<class Stopped> Stopped;
-    state<class Playing> Playing;
-    state<class Pause> Pause;
+    auto Empty = state<class Empty>;
+    auto Open = state<class Open>;
+    auto Stopped = state<class Stopped>;
+    auto Playing = state<class Playing>;
+    auto Pause = state<class Pause>;
 
     // clang-format off
     return make_transition_table(

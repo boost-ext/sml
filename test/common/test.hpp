@@ -6,6 +6,22 @@
 //
 #pragma once
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
+#pragma clang diagnostic ignored "-Wzero-length-array"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+
+#if !defined(__has_builtin)
+#define __has_builtin(...) 0
+#endif
+#if !defined(__has_extension)
+#define __has_extension(...) 0
+#endif
+
 #include <cstdio>
 #include <cstdlib>
 

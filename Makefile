@@ -18,30 +18,39 @@ MKDOCS_SITE?=site
 
 all: test example
 
-test: $(patsubst %.cpp, %.out, $(wildcard test/*.cpp))
+pph:
+	@tools/pph.sh
 
-test/%.out:
-	$(CXX) test/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/$*.out	&& $($(MEMCHECK)) test/$*.out
+test: $(patsubst %.cpp, %.out, $(wildcard test/ft/*.cpp test/ut/*.cpp))
 
-test/ft_except.out:
-	$(CXX) test/ft_except.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/ft_except.out && $($(MEMCHECK)) test/ft_except.out
+test/ft/%.out:
+	$(CXX) test/ft/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ft/$*.out	&& $($(MEMCHECK)) test/ft/$*.out
 
-test/ft_thread.out: #-fsanitize=thread
-	$(CXX) test/ft_thread.cpp $(CXXFLAGS) -fno-exceptions -DBOOST_MSM_LITE_THREAD_SAFE -lpthread $($(COVERAGE)) -I include -I. -include test/test.hpp -o test/ft_thread.out && $($(MEMCHECK)) test/ft_thread.out
+test/ut/%.out:
+	$(CXX) test/ut/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ut/$*.out	&& $($(MEMCHECK)) test/ut/$*.out
 
-test/ft_unit1.out:
-	$(CXX) test/ft_unit1.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -c -o test/ft_unit1.out
+test/ft/ft_sizeof.out:
+	$(CXX) test/ft/ft_sizeof.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ft/ft_sizeof.out && $($(MEMCHECK)) test/ft/ft_sizeof.out
 
-test/ft_unit2.out:
-	$(CXX) test/ft_unit2.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -c -o test/ft_unit2.out
+test/ft/ft_exceptions.out:
+	$(CXX) test/ft/ft_exceptions.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ft/ft_exceptions.out && $($(MEMCHECK)) test/ft/ft_exceptions.out
 
-test/ft_units.out: test/ft_unit1.out test/ft_unit2.out
-	$(CXX) test/ft_units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/test.hpp test/ft_unit1.out test/ft_unit2.out -o test/ft_units.out
+test/ft/ft_policies_thread_safe.out: #-fsanitize=thread
+	$(CXX) test/ft/ft_policies_thread_safe.cpp $(CXXFLAGS) -fno-exceptions -lpthread $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ft/ft_policies_thread_safe.out && $($(MEMCHECK)) test/ft/ft_policies_thread_safe.out
 
-example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp))
+test/ft/ft_unit1.out:
+	$(CXX) test/ft/ft_unit1.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -c -o test/ft/ft_unit1.out
+
+test/ft/ft_unit2.out:
+	$(CXX) test/ft/ft_unit2.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -c -o test/ft/ft_unit2.out
+
+test/ft/ft_units.out: test/ft/ft_unit1.out test/ft/ft_unit2.out
+	$(CXX) test/ft/ft_units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/common/test.hpp test/ft/ft_unit1.out test/ft/ft_unit2.out -o test/ft/ft_units.out
+
+example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp example/errors/*.cpp))
 
 example/errors/%.out:
-	$(CXX) example/errors/$*.cpp $(CXXFLAGS) -I include || [ $$? -ne 0 ]
+	$(CXX) example/errors/$*.cpp $(CXXFLAGS) -I include 2> /dev/null || [ $$? -ne 0 ]
 
 example/%.out:
 	$(CXX) example/$*.cpp $(CXXFLAGS) -I include -o example/$*.out && $($(MEMCHECK)) example/$*.out
@@ -52,7 +61,7 @@ style_check:
 	@exit `git ls-files -m include example test | wc -l`
 
 static_check:
-	$(CLANG_TIDY) test/ut.cpp test/ft.cpp -- -std=c++1y -I include -I test -include test.hpp
+	$(CLANG_TIDY) $(wildcard test/ft/*.cpp test/ut/*.cpp) -- -std=c++1y -I include -I test -include common/test.hpp
 
 doc: readme doc_$(MKDOCS_THEME)
 

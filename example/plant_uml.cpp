@@ -27,7 +27,7 @@ struct action {
 } action;
 
 struct plant_uml {
-  auto configure() const noexcept {
+  auto operator()() const noexcept {
     using namespace msm;
     // clang-format off
     return make_transition_table(
@@ -42,8 +42,8 @@ struct plant_uml {
 
 template <class T>
 void dump_transition() noexcept {
-  auto src_state = std::string{msm::state<typename T::src_state>::c_str()};
-  auto dst_state = std::string{msm::state<typename T::dst_state>::c_str()};
+  auto src_state = std::string{msm::state<typename T::src_state>.c_str()};
+  auto dst_state = std::string{msm::state<typename T::dst_state>.c_str()};
   if (dst_state == "X") {
     dst_state = "[*]";
   }

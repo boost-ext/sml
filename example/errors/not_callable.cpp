@@ -14,7 +14,7 @@ struct e1 {};
 struct im_not_callable {};
 
 struct not_callable {
-  auto configure() const noexcept {
+  auto operator()() const noexcept {
     using namespace msm;
     // clang-format off
     return make_transition_table(

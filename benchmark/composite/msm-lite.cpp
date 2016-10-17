@@ -6,7 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "benchmark.hpp"
-#include "boost/msm-lite.hpp"
+#include <boost/msm-lite.hpp>
 
 namespace msm = boost::msm::lite;
 
@@ -32,11 +32,11 @@ auto start_next_song = [] {};
 auto start_prev_song = [] {};
 
 struct playing {
-  auto configure() const noexcept {
+  auto operator()() const noexcept {
     using namespace msm;
-    state<class Song1> Song1;
-    state<class Song2> Song2;
-    state<class Song3> Song3;
+    auto Song1 = state<class Song1>;
+    auto Song2 = state<class Song2>;
+    auto Song3 = state<class Song3>;
 
     // clang-format off
     return make_transition_table(
@@ -50,13 +50,13 @@ struct playing {
 };
 
 struct player {
-  auto configure() const noexcept {
+  auto operator()() const noexcept {
     using namespace msm;
-    state<class Empty> Empty;
-    state<class Open> Open;
-    state<class Stopped> Stopped;
-    state<class Paused> Paused;
-    state<sm<playing>> Playing;
+    auto Empty = state<class Empty>;
+    auto Open = state<class Open>;
+    auto Stopped = state<class Stopped>;
+    auto Paused = state<class Paused>;
+    auto Playing = state<sm<playing>>;
 
     // clang-format off
     return make_transition_table(

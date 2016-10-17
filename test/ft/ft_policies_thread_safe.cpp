@@ -5,8 +5,9 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <boost/msm-lite.hpp>
+#include <mutex>
 #include <thread>
-#include "boost/msm-lite.hpp"
 
 namespace msm = boost::msm::lite;
 
@@ -15,13 +16,13 @@ struct e2 {};
 
 test process_the_same_event = [] {
   struct actions_guards {
-    auto configure() {
+    auto operator()() {
       using namespace msm;
       // clang-format off
-    return make_transition_table(
-       *"idle"_s + event<e1> [([this]{ guard1_calls++; return true; })] / [this] { action1_calls++; } = "s1"_s
-      , "idle"_s + event<e2> [([this]{ guard2_calls++; return true; })] / [this] { action2_calls++; } = "s2"_s
-    );
+      return make_transition_table(
+         *"idle"_s + event<e1> [([this]{ guard1_calls++; return true; })] / [this] { action1_calls++; } = "s1"_s
+        , "idle"_s + event<e2> [([this]{ guard2_calls++; return true; })] / [this] { action2_calls++; } = "s2"_s
+      );
       // clang-format on
     }
 
@@ -32,7 +33,7 @@ test process_the_same_event = [] {
   };
 
   actions_guards ag;
-  msm::sm<actions_guards> sm{ag};
+  msm::sm<actions_guards, msm::thread_safe<std::mutex>> sm{ag};
   std::thread t1{[&] { sm.process_event(e1{}); }};
   std::thread t2{[&] { sm.process_event(e2{}); }};
   t1.join();
@@ -45,18 +46,18 @@ test process_the_same_event = [] {
 
 test process_event_reentrant = [] {
   struct c {
-    auto configure() {
+    auto operator()() const {
       using namespace msm;
       // clang-format off
-    return make_transition_table(
-       *"idle"_s + event<e1> / process_event(e2{})
-      , "idle"_s + event<e2> = "s2"_s
-    );
+      return make_transition_table(
+         *"idle"_s + event<e1> / queue(e2{})
+        , "idle"_s + event<e2> = "s2"_s
+      );
       // clang-format on
     }
   };
 
-  msm::sm<c> sm{c()};
+  msm::sm<c, msm::thread_safe<std::recursive_mutex>> sm;
   // Hangs forever awaiting lock if mutex is not reentrant.
-  expect(sm.process_event(e1{}));
+  sm.process_event(e1{});
 };

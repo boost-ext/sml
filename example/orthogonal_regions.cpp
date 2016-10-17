@@ -15,7 +15,7 @@ struct e2 {};
 struct e3 {};
 
 struct orthogonal_regions {
-  auto configure() const noexcept {
+  auto operator()() const noexcept {
     using namespace msm;
     // clang-format off
     return make_transition_table(
@@ -33,10 +33,10 @@ int main() {
   msm::sm<orthogonal_regions> sm;
   using namespace msm;
   assert(sm.is("idle"_s, "idle2"_s));
-  assert(sm.process_event(e1{}));
+  sm.process_event(e1{});
   assert(sm.is("s1"_s, "idle2"_s));
-  assert(sm.process_event(e2{}));
+  sm.process_event(e2{});
   assert(sm.is(X, "s2"_s));
-  assert(sm.process_event(e3{}));
+  sm.process_event(e3{});
   assert(sm.is(X, X));
 }

@@ -8,6 +8,7 @@
 #include <cassert>
 #include <iostream>
 #include "boost/msm-lite.hpp"
+#include "boost/msm-lite/utility/dispatch_table.hpp"
 
 namespace msm = boost::msm::lite;
 
@@ -52,7 +53,7 @@ decltype(msm::event<sdl_event_impl<Id>>) sdl_event{};
 auto is_key = [](auto key) { return [=](auto event) { return event.data.key.keysym.sym == key; }; };
 
 struct sdl2 {
-  auto configure() const noexcept {
+  auto operator()() const noexcept {
     using namespace msm;
     // clang-format off
     return make_transition_table(
@@ -89,7 +90,7 @@ int main() {
     keyboard_event.type = SDL_KEYUP;
     keyboard_event.keysym.sym = SDLK_SPACE;
     event.key = keyboard_event;
-    assert(dispatch_event(event, event.type));
+    dispatch_event(event, event.type);
   }
 
   {
@@ -97,14 +98,14 @@ int main() {
     mousebutton_event.type = SDL_MOUSEBUTTONUP;
     mousebutton_event.button = 1;
     event.button = mousebutton_event;
-    assert(dispatch_event(event, event.type));
+    dispatch_event(event, event.type);
   }
 
   {
     SDL_QuitEvent quit_event;
     quit_event.type = SDL_QUIT;
     event.quit = quit_event;
-    assert(dispatch_event(event, event.type));
+    dispatch_event(event, event.type);
   }
 
   assert(sm.is(msm::X, msm::X));

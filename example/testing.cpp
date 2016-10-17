@@ -7,6 +7,7 @@
 //
 #include <cassert>
 #include "boost/msm-lite.hpp"
+#include "boost/msm-lite/testing/state_machine.hpp"
 
 namespace msm = boost::msm::lite;
 
@@ -19,7 +20,7 @@ struct data {
 };
 
 struct fsm {
-  auto configure() const noexcept {
+  auto operator()() const noexcept {
     using namespace msm;
 
     auto guard = [](data& d) { return !d.value; };
@@ -40,7 +41,7 @@ int main() {
   data fake_data{0};
   testing::sm<fsm> sm{fake_data};
   sm.set_current_states("s2"_s);
-  assert(sm.process_event(e3{}));
+  sm.process_event(e3{});
   assert(sm.is(X));
   assert(fake_data.value = 42);
 }

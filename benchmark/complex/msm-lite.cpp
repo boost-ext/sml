@@ -6,7 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "benchmark.hpp"
-#include "boost/msm-lite.hpp"
+#include <boost/msm-lite.hpp>
 
 namespace msm = boost::msm::lite;
 
@@ -66,58 +66,58 @@ auto action = [] {};
 
 int main() {
   struct c {
-    auto configure() const noexcept {
+    auto operator()() const noexcept {
       using namespace msm;
-      state<class idle> idle;
-      state<class s1> s1;
-      state<class s2> s2;
-      state<class s3> s3;
-      state<class s4> s4;
-      state<class s5> s5;
-      state<class s6> s6;
-      state<class s7> s7;
-      state<class s8> s8;
-      state<class s9> s9;
-      state<class s10> s10;
-      state<class s11> s11;
-      state<class s12> s12;
-      state<class s13> s13;
-      state<class s14> s14;
-      state<class s15> s15;
-      state<class s16> s16;
-      state<class s17> s17;
-      state<class s18> s18;
-      state<class s19> s19;
-      state<class s20> s20;
-      state<class s21> s21;
-      state<class s22> s22;
-      state<class s23> s23;
-      state<class s24> s24;
-      state<class s25> s25;
-      state<class s26> s26;
-      state<class s27> s27;
-      state<class s28> s28;
-      state<class s29> s29;
-      state<class s30> s30;
-      state<class s31> s31;
-      state<class s32> s32;
-      state<class s33> s33;
-      state<class s34> s34;
-      state<class s35> s35;
-      state<class s36> s36;
-      state<class s37> s37;
-      state<class s38> s38;
-      state<class s39> s39;
-      state<class s40> s40;
-      state<class s41> s41;
-      state<class s42> s42;
-      state<class s43> s43;
-      state<class s44> s44;
-      state<class s45> s45;
-      state<class s46> s46;
-      state<class s47> s47;
-      state<class s48> s48;
-      state<class s49> s49;
+      auto idle = state<class idle>;
+      auto s1 = state<class s1>;
+      auto s2 = state<class s2>;
+      auto s3 = state<class s3>;
+      auto s4 = state<class s4>;
+      auto s5 = state<class s5>;
+      auto s6 = state<class s6>;
+      auto s7 = state<class s7>;
+      auto s8 = state<class s8>;
+      auto s9 = state<class s9>;
+      auto s10 = state<class s10>;
+      auto s11 = state<class s11>;
+      auto s12 = state<class s12>;
+      auto s13 = state<class s13>;
+      auto s14 = state<class s14>;
+      auto s15 = state<class s15>;
+      auto s16 = state<class s16>;
+      auto s17 = state<class s17>;
+      auto s18 = state<class s18>;
+      auto s19 = state<class s19>;
+      auto s20 = state<class s20>;
+      auto s21 = state<class s21>;
+      auto s22 = state<class s22>;
+      auto s23 = state<class s23>;
+      auto s24 = state<class s24>;
+      auto s25 = state<class s25>;
+      auto s26 = state<class s26>;
+      auto s27 = state<class s27>;
+      auto s28 = state<class s28>;
+      auto s29 = state<class s29>;
+      auto s30 = state<class s30>;
+      auto s31 = state<class s31>;
+      auto s32 = state<class s32>;
+      auto s33 = state<class s33>;
+      auto s34 = state<class s34>;
+      auto s35 = state<class s35>;
+      auto s36 = state<class s36>;
+      auto s37 = state<class s37>;
+      auto s38 = state<class s38>;
+      auto s39 = state<class s39>;
+      auto s40 = state<class s40>;
+      auto s41 = state<class s41>;
+      auto s42 = state<class s42>;
+      auto s43 = state<class s43>;
+      auto s44 = state<class s44>;
+      auto s45 = state<class s45>;
+      auto s46 = state<class s46>;
+      auto s47 = state<class s47>;
+      auto s48 = state<class s48>;
+      auto s49 = state<class s49>;
 
       // clang-format off
       return make_transition_table(

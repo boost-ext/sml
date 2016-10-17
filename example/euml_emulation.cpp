@@ -18,9 +18,9 @@ auto event1 = msm::event<e1>;
 auto event2 = msm::event<e2>;
 auto event3 = msm::event<e3>;
 
-auto idle = msm::state<class idle>{};
-auto s1 = msm::state<class s1>{};
-auto s2 = msm::state<class s2>{};
+auto idle = msm::state<class idle>;
+auto s1 = msm::state<class s1>;
+auto s2 = msm::state<class s2>;
 
 struct data {
   void set(int value) noexcept { i = value; }
@@ -29,22 +29,22 @@ struct data {
 };
 
 struct {
-  template <class FSM, class TEvent>
-  bool operator()(msm::sm<FSM>&, const TEvent&, data& d) const noexcept {
+  template <class TEvent>
+  bool operator()(const TEvent&, data& d) const noexcept {
     return d.get() == 42;
   }
 } guard;
 
 struct {
-  template <class FSM, class TEvent>
-  void operator()(msm::sm<FSM>&, const TEvent&, data& d) noexcept {
+  template <class TEvent>
+  void operator()(const TEvent&, data& d) noexcept {
     d.set(123);
   }
 } action;
 
 class euml_emulation {
  public:
-  auto configure() const noexcept {
+  auto operator()() const noexcept {
     using namespace msm;
     // clang-format off
     return make_transition_table(
@@ -60,11 +60,11 @@ int main() {
   data d{42};
   msm::sm<euml_emulation> sm{d};
   assert(sm.is(idle));
-  assert(sm.process_event(e1{}));
+  sm.process_event(e1{});
   assert(sm.is(s1));
-  assert(sm.process_event(e2{}));
+  sm.process_event(e2{});
   assert(sm.is(s2));
-  assert(sm.process_event(e3{}));
+  sm.process_event(e3{});
   assert(sm.is(msm::X));
   assert(123 == d.get());
 }

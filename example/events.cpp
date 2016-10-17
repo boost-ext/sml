@@ -17,7 +17,7 @@ struct e2 {
 auto event2 = msm::event<e2>;
 
 struct events {
-  auto configure() const noexcept {
+  auto operator()() const noexcept {
     using namespace msm;
     auto guard = [](const e2& e) { return e.value; };
 
@@ -25,7 +25,7 @@ struct events {
     return make_transition_table(
        *"idle"_s + event<e1> = "s1"_s
       , "s1"_s + event2 [guard] = "s2"_s
-      , "s2"_s + "e3"_t = "s3"_s
+      , "s2"_s + "e3"_e = "s3"_s
       , "s3"_s + event<int> / [] (int i) { assert(42 == i); } = X
     );
     // clang-format on
@@ -35,9 +35,9 @@ struct events {
 int main() {
   msm::sm<events> sm;
   using namespace msm;
-  assert(sm.process_event(e1{}));
-  assert(sm.process_event(e2{}));
-  assert(sm.process_event("e3"_t));
-  assert(sm.process_event(42));
+  sm.process_event(e1{});
+  sm.process_event(e2{});
+  sm.process_event("e3"_e);
+  sm.process_event(42);
   assert(sm.is(X));
 }

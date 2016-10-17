@@ -12,43 +12,49 @@
 > Your scalable C++14 header only eUML-like Meta State Machine library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world))
 
 ```cpp
+#include <cassert>
+#include <iostream>
 #include <boost/msm-lite.hpp>
+
 namespace msm = boost::msm::lite;
 
-auto guard = [] { return true; };
-auto action = [] { std::cout << "action" << std::endl; };
+struct e1 {};
+struct e2 {};
+struct e3 {};
 
 struct hello_world {
-  auto configure() const noexcept {
+  auto operator()() const {
+    const auto guard = [] { std::cout << "guard" << '\n'; return true; };
+    const auto action = [] { std::cout << "action" << '\n'; };
+
     using namespace msm;
-
-    // Postfix Notation
     return make_transition_table(
-       *"idle"_s + "e1"_t = "s1"_s
-      , "s1"_s   + "e2"_t [ guard ] / action = "s2"_s
-      , "s2"_s   + "e3"_t / [] { std::cout << "action" << std::endl; } = X
-    );
-
-    // Prefix Notation
-    return make_transition_table(
-       "s1"_s <= *"idle"_s + "e1"_t
-     , "s2"_s <=  "s1"_s   + "e2"_t [ guard ] / action
-     , X      <=  "s2"_s   + "e3"_t / [] { std::cout << "action" << std::endl; }
+       *"idle"_s + event<e1> = "s1"_s
+      , "s1"_s   + event<e2> [ guard ] / action = "s2"_s
+      , "s2"_s   + event<e3> / [] { std::cout << "in place action" << '\n'; } = X
     );
   }
 };
 
 int main() {
   msm::sm<hello_world> sm;
+  std::cout << "sizeof(sm): " << sizeof(sm) << "b" << '\n';
   using namespace msm;
   assert(sm.is("idle"_s));
-  assert(sm.process_event("e1"_t));
+  sm.process_event(e1{});
   assert(sm.is("s1"_s));
-  assert(sm.process_event("e2"_t));
+  sm.process_event(e2{});
   assert(sm.is("s2"_s));
-  assert(sm.process_event("e3"_t));
+  sm.process_event(e3{});
   assert(sm.is(X));
 }
+```
+
+```sh
+sizeof(sm): 1b
+guard
+action
+in place action
 ```
 
 ---------------------------------------
@@ -65,6 +71,7 @@ int main() {
     * [What 'lite' implies?](http://boost-experimental.github.io/msm-lite/index.html#what-lite-implies)
     * [*Supported* UML features](http://boost-experimental.github.io/msm-lite/index.html#supported-uml-features)
     * [*Additional* features](http://boost-experimental.github.io/msm-lite/index.html#additional-features)
+    * [Related materials](http://boost-experimental.github.io/msm-lite/index.html#related-materials)
     * [Acknowledgements](http://boost-experimental.github.io/msm-lite/index.html#acknowledgements)
 * [Overview](http://boost-experimental.github.io/msm-lite/overview/index.html)
     * [Quick Start](http://boost-experimental.github.io/msm-lite/overview/index.html#quick-start)
@@ -95,9 +102,9 @@ int main() {
     * [event [core]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#event-core)
     * [make_transition_table [state machine]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#make_transition_table-state-machine)
     * [sm [state machine]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#sm-state-machine)
+    * [policies [state machine]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#policies-state-machine)
     * [testing::sm [testing]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#testingsm-testing)
     * [make_dispatch_table [utility]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#make_dispatch_table-utility)
-    * [BOOST_MSM_LITE_LOG [debugging]](http://boost-experimental.github.io/msm-lite/user_guide/index.html#boost_msm_lite_log-debugging)
 * [Examples](http://boost-experimental.github.io/msm-lite/examples/index.html)
     * [Hello World](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world)
     * [Events](http://boost-experimental.github.io/msm-lite/examples/index.html#events)
@@ -116,6 +123,7 @@ int main() {
     * [SDL2 Integration](http://boost-experimental.github.io/msm-lite/examples/index.html#sdl2-integration)
     * [Plant UML Integration](http://boost-experimental.github.io/msm-lite/examples/index.html#plant-uml-integration)
 * [CHANGELOG](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html)
+    * [ [1.1.0] - 2016-XX-XX](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#-110-2016-xx-xx)
     * [ [1.0.1] - 2016-05-06](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#-101-2016-05-06)
     * [[1.0.0] - 2016-01-28](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#100-2016-01-28)
 * [TODO](http://boost-experimental.github.io/msm-lite/TODO/index.html)

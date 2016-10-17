@@ -16,13 +16,13 @@ struct e2 {};
 struct e3 {};
 
 struct transitions {
-  auto configure() const noexcept {
+  auto operator()() const noexcept {
     using namespace msm;
     // clang-format off
     return make_transition_table(
        *"idle"_s  / [] { std::cout << "anonymous transition" << std::endl; } = "s1"_s
       , "s1"_s + event<e1> / [] { std::cout << "internal transition" << std::endl; }
-      , "s1"_s + event<e2> / ([] { std::cout << "process internal event" << std::endl; }, process_event(e3{})) = X
+      , "s1"_s + event<e2> / ([] { std::cout << "process internal event" << std::endl; }, queue(e3{})) = X
       , "s1"_s + event<e3> / [] { std::cout << "process event: e3"; }
     );
     // clang-format on
@@ -31,7 +31,7 @@ struct transitions {
 
 int main() {
   msm::sm<transitions> sm;
-  assert(sm.process_event(e1{}));
-  assert(sm.process_event(e2{}));
+  sm.process_event(e1{});
+  sm.process_event(e2{});
   assert(sm.is(msm::X));
 }

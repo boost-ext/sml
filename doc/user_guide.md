@@ -21,7 +21,7 @@ Requirements for transition.
         T::history;
         { transition.execute() } -> bool;
       }
-    }
+    };
 
 ***Semantics***
 
@@ -62,9 +62,9 @@ Requirements for the state machine.
     template <class SM>
     concept bool configurable() {
       return requires(SM sm) {
-        { sm.configure() };
+        { sm.operator()() };
       }
-    }
+    };
 
 ***Semantics***
 
@@ -73,7 +73,7 @@ Requirements for the state machine.
 ***Example***
 
     class example {
-      auto configure() const noexcept {
+      auto operator()() const noexcept {
         return make_transition_table();
       }
     };
@@ -141,7 +141,7 @@ Requirements for the dispatch table.
         typename TEvent::id;
         { TEvent(declval<TDynamicEvent>()) };
       }
-    }
+    };
 
 ***Semantics***
 
@@ -221,8 +221,7 @@ Represents a state machine state.
 
 ***Example***
 
-    state<class idle> idle;
-    auto idle = state<class idle>{};
+    auto idle = state<class idle>;
     auto idle = "idle"_s;
 
     auto initial_state = *idle;
@@ -323,7 +322,7 @@ Creates a transition table.
 
     class example {
     public:
-      auto configure() const noexcept {
+      auto operator()() const noexcept {
         return make_transition_table();
       }
     };
@@ -361,7 +360,7 @@ Creates a State Machine.
       sm(TDeps&&...) noexcept;
 
       template<class TEvent> // no requirements
-      bool process_event(const TEvent&) noexcept(noexcept(T.configure()))
+      bool process_event(const TEvent&)
 
       template <class TVisitor> requires callable<void, TVisitor>
       void visit_current_states(const TVisitor &) const noexcept(noexcept(visitor(state{})));
@@ -395,8 +394,8 @@ Creates a State Machine.
 
     class example {
     public:
-      auto configure() const noexcept {
-      using namespace msm;
+      auto operator()() const noexcept {
+        using namespace msm;
         return make_transition_table(
           *"idle"_s + event<my_event> / [](int i) { std::cout << i << std::endl; } = X
         );
@@ -419,11 +418,44 @@ Creates a State Machine.
 
 ---
 
-###testing::sm [testing]
+###policies [state machine]
 
 ***Header***
 
     #include <boost/msm-lite.hpp>
+
+***Description***
+
+Additional State Machine configurations.
+
+***Synopsis***
+
+    thread_safe<Lockable>
+    logger<Loggable>
+
+| Expression | Requirement | Description | Example |
+| ---------- | ----------- | ----------- | ------- |
+| `Lockable` | `lock/unlock` | Lockable type | `std::mutex`, `std::recursive_mutex` |
+| `Loggable` | `log_process_event/log_state_change/log_action/log_guard` | Loggable type | - |
+
+***Example***
+
+    msm::sm<example, msm::thread_safe<std::recursive_mutex>> sm; // thread safe policy
+    msm::sm<example, msm::logger<my_logger>> sm; // logger policy
+    msm::sm<example, msm::thread_safe<std::recursive_mutex>, msm::logger<my_logger>> sm; // thread safe and logger policy
+    msm::sm<example, msm::logger<my_logger>, msm::thread_safe<std::recursive_mutex>> sm; // thread safe and logger policy
+
+![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)
+
+&nbsp;
+
+---
+
+###testing::sm [testing]
+
+***Header***
+
+    #include <boost/testing/state_machine.hpp>
 
 ***Description***
 
@@ -468,7 +500,7 @@ Creates a state machine with testing capabilities.
 
 ***Header***
 
-    #include <boost/msm-lite.hpp>
+    #include <boost/utility/dispatch_table.hpp>
 
 ***Description***
 
@@ -502,51 +534,6 @@ Creates a dispatch table to handle runtime events.
 
 ![CPP(BTN)](Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp)
 ![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp)
-
-&nbsp;
-
----
-
-###BOOST_MSM_LITE_LOG [debugging]
-
-***Header***
-
-    #include <boost/msm-lite.hpp>
-
-***Description***
-
-Add logging support for the state machine.
-
-***Synopsis***
-
-    #define BOOST_MSM_LITE_LOG(T, SM, ...)
-
-| Expression | Requirement | Description | Returns |
-| ---------- | ----------- | ----------- | ------- |
-| `T`   | - | process_event/guard/action/state_change | Operation type |
-| `SM`  | - | - | [state machine](#sm-state-machine) type |
-| `...` | - | process_event -> (event) | log process event |
-| `...` | - | guard -> (guard, event, result) | log guard call |
-| `...` | - | action -> (action, event) | log action call |
-| `...` | - | state_change -> (src_state, dst_state) | log state change |
-
-***Semantics***
-
-    BOOST_MSM_LITE_LOG(state_change, sm<example>, current_state, new_state)
-
-***Example***
-
-    void log(const char* operation, ...) noexcept {
-        printf("[%s]\n", operation);
-    }
-    #define BOOST_MSM_LITE_LOG(T, ...) log(#T)
-    #include "boost/msm-lite.hpp"
-
-    msm::sm<example> sm;
-    sm.process_event(event{}); // [process_event]
-
-![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)
-![CPP(BTN)](Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/plant_uml.cpp)
 
 &nbsp;
 

@@ -5,6 +5,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#include "boost/msm-lite/utility/dispatch_table.hpp"
 #include <cassert>
 #include "boost/msm-lite.hpp"
 
@@ -22,7 +23,7 @@ struct event2 {
 };
 
 struct dispatch_table {
-  auto configure() noexcept {
+  auto operator()() noexcept {
     using namespace msm;
     // clang-format off
     return make_transition_table(
@@ -40,12 +41,12 @@ int main() {
 
   {
     runtime_event event{1};
-    assert(dispatch_event(event, event.id));
+    dispatch_event(event, event.id);
   }
 
   {
     runtime_event event{2};
-    assert(dispatch_event(event, event.id));
+    dispatch_event(event, event.id);
   }
 
   assert(sm.is(msm::X));

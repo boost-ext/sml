@@ -13,7 +13,7 @@ struct runtime_event {};
 struct e1 {};  // missing id
 
 struct not_dispatchable {
-  auto configure() const noexcept {
+  auto operator()() const noexcept {
     using namespace msm;
     // clang-format off
     return make_transition_table(

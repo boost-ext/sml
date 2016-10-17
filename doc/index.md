@@ -91,7 +91,7 @@ to avoid it `Boost.MSM-lite` may suit you!
     * Improve visibility by having all actions on transition table (see [States](examples.md#states))
 	* Allows loosely coupled design (see [Dependency Injection](examples.md#dependency-injection))
     * Functional programming support using lamda expressions (see [Action/Guards](examples.md#action-guards))
-    * No dependencies / one header (1k lines)
+    * No dependencies / one header (2k LOC)
 
 ###What 'lite' implies?
 
@@ -123,3 +123,5 @@ to avoid it `Boost.MSM-lite` may suit you!
 ###Acknowledgements
 * Thanks to Christophe Henry for a great [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) library
 * Thanks to Vicente J. Botet Escriba for useful suggestions how to improve Boost.MSM-lite
+* Thanks to [Ulenspiegel](https://github.com/Ulenspiegel) for insuring the quality of the library!
+* Thanks to [feltech](https://github.com/feltech) for improvements and bug fixes
