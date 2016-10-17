@@ -627,14 +627,6 @@ template <class>
 no_policy get_policy(...);
 template <class T, class TPolicy>
 TPolicy get_policy(aux::pair<T, TPolicy> *);
-template <template <class> class, class T>
-struct sm_inject {
-  using sm = T;
-};
-template <template <class> class TRebind, class T, class... Ts>
-struct sm_inject<TRebind, T(Ts...)> {
-  using sm = T;
-};
 template <class SM, class... TPolicies>
 struct sm_policy {
   using sm = SM;
@@ -666,13 +658,11 @@ class sm_impl {
   friend struct transitions;
   template <class...>
   friend struct transitions_sub;
-  template <template <class> class, class>
-  friend struct sm_inject;
 
  public:
   template <class T>
   using rebind = sm<sm_policy<T>>;
-  using sm_t = typename sm_inject<rebind, typename TSM::sm>::sm;
+  using sm_t = typename TSM::sm;
   using sm_raw_t = aux::remove_reference_t<sm_t>;
   using thread_safety_t = typename TSM::thread_safety_policy::type;
   template <class T>
@@ -960,11 +950,9 @@ template <class TSM>
 class sm {
  public:
   using type = TSM;
-  template <template <class> class, class>
-  friend struct sm_inject;
   template <class T>
   using rebind = sm<sm_policy<T>>;
-  using sm_t = typename sm_inject<rebind, typename TSM::sm>::sm;
+  using sm_t = typename TSM::sm;
   using sm_raw_t = aux::remove_reference_t<sm_t>;
   template <class T>
   using defer_queue_t = typename TSM::defer_queue_policy::template rebind<T>;
