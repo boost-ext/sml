@@ -193,10 +193,10 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> {
   template <class SM>
   bool execute(SM &self, const E &event, aux::byte &current_state) {
     if (call(g, event, self)) {
-      call(a, event, self);
       self.me_.template update_current_state<typename state<S1>::explicit_states>(
           self, current_state, aux::get_id<typename SM::type::states_ids_t, -1, dst_state>(), state<src_state>{},
           state<dst_state>{});
+      call(a, event, self);
       return true;
     }
     return false;
@@ -220,10 +220,10 @@ struct transition<state<S1>, state<S2>, event<E>, always, A> {
 
   template <class SM>
   bool execute(SM &self, const E &event, aux::byte &current_state) {
-    call(a, event, self);
     self.me_.template update_current_state<typename state<S1>::explicit_states>(
         self, current_state, aux::get_id<typename SM::type::states_ids_t, -1, dst_state>(), state<src_state>{},
         state<dst_state>{});
+    call(a, event, self);
     return true;
   }
 

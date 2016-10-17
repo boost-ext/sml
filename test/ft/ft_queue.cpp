@@ -25,8 +25,8 @@ test queue_event = [] {
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
-        , s1 + event<e2> / queue(e3{}) = X
-        , s1 + event<e3> / [this] { a_called++; }
+        , s1 + event<e2> / queue(e3{})
+        , s1 + event<e3> / [this] { a_called++; } = X
       );
       // clang-format on
     }

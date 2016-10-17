@@ -31,6 +31,24 @@ test exception_minimal = [] {
       // clang-format off
       return make_transition_table(
        *idle + event<e1> / [] { throw exception1{}; } = s1
+      , s1 + exception<exception1> = X
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  sm.process_event(e1{});  // throws exception1
+  expect(sm.is(msm::X));
+};
+
+test exception_no_transition = [] {
+  struct c {
+    auto operator()() const {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+       *idle + event<e1> / [] { throw exception1{}; }
       , idle + exception<exception1> = X
       );
       // clang-format on
@@ -51,7 +69,7 @@ test exception_data_minimal = [] {
       // clang-format off
       return make_transition_table(
        *idle + event<e1> / [] { throw exception_data{42}; } = s1
-      , idle + exception<exception_data> [ guard ] = X
+      , s1 + exception<exception_data> [ guard ] = X
       );
       // clang-format on
     }
@@ -69,8 +87,8 @@ test exception_many = [] {
       // clang-format off
       return make_transition_table(
        *idle + event<e1> / [] { throw exception2{}; } = s1
-      , idle + exception<exception1> = s2
-      , idle + exception<exception2> = X
+      , s1 + exception<exception1> = s2
+      , s1 + exception<exception2> = X
       );
       // clang-format on
     }
@@ -88,8 +106,8 @@ test generic_exception_handler = [] {
       // clang-format off
       return make_transition_table(
        *idle + event<e1> / [] { throw int{}; } = s1
-      , idle + exception<exception1> = s2
-      , idle + exception<> = X // generic handler
+      , s1 + exception<exception1> = s2
+      , s1 + exception<> = X // generic handler
       );
       // clang-format on
     }
@@ -107,8 +125,8 @@ test generic_exception_handler_priority = [] {
       // clang-format off
       return make_transition_table(
        *idle + event<e1> / [] { throw exception1{}; } = s1
-      , idle + exception<exception1> = s2
-      , idle + exception<> = X // generic handler
+      , s1 + exception<exception1> = s2
+      , s1 + exception<> = X // generic handler
       );
       // clang-format on
     }
@@ -134,7 +152,7 @@ test exception_not_handled = [] {
 
   msm::sm<c> sm;
   sm.process_event(e1{});
-  expect(sm.is(idle));
+  expect(sm.is(s1));
 };
 
 test exception_orthogonal_handler = [] {
@@ -153,7 +171,7 @@ test exception_orthogonal_handler = [] {
 
   msm::sm<c> sm;
   sm.process_event(e1{});  // throws exception1
-  expect(sm.is(idle, msm::X));
+  expect(sm.is(s1, msm::X));
 };
 
 test exception_orthogonal_handler_generic_handler = [] {
@@ -171,7 +189,7 @@ test exception_orthogonal_handler_generic_handler = [] {
 
   msm::sm<c> sm;
   sm.process_event(e1{});  // throws exception1
-  expect(sm.is(idle, msm::X));
+  expect(sm.is(s1, msm::X));
 };
 
 test exception_orthogonal_handler_generic_handler_with_exception = [] {
@@ -190,5 +208,5 @@ test exception_orthogonal_handler_generic_handler_with_exception = [] {
 
   msm::sm<c> sm;
   sm.process_event(e1{});  // throws exception1
-  expect(sm.is(idle, msm::X));
+  expect(sm.is(s1, msm::X));
 };
