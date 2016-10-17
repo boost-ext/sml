@@ -231,9 +231,7 @@ auto event  = &quot;event&quot;_t;
 <p>A State can have entry/exit behaviour executed whenever machine enters/leaves State and
 represents current location of the state machine flow.</p>
 <p>To create a state below snippet might be used.</p>
-<pre><code class="cpp">msm::state&lt;class idle&gt; idle;
-// or
-auto idle = msm::state&lt;class idle&gt;{};
+<pre><code class="cpp">auto idle = msm::state&lt;class idle&gt;;
 </code></pre>
 
 <p>If you happen to have a Clang/GCC compiler, you can create a State on the fly.</p>
@@ -244,11 +242,11 @@ auto state  = &quot;idle&quot;_s;
 <p>However, please notice that above solution is a non-standard extension for Clang/GCC.</p>
 <p><code>msm-lite</code> states cannot have data as data is injected directly into guards/actions instead.</p>
 <p>A state machine might be a State itself.</p>
-<pre><code class="cpp">msm::state&lt;msm::sm&lt;state_machine&gt;&gt; composite;
+<pre><code class="cpp">msm::state&lt;state_machine&gt; composite;
 </code></pre>
 
 <p><code>msm-lite</code> supports <code>terminate</code> state, which stops events to be processed. It defined by <code>X</code>.</p>
-<pre><code class="cpp">  &quot;state&quot;_s = X;
+<pre><code class="cpp">&quot;state&quot;_s = X;
 </code></pre>
 
 <p>States are printable too.</p>
@@ -439,10 +437,10 @@ make_transition_table(
 <hr />
 <h3 id="5-create-a-state-machine">5. Create a state machine</h3>
 <p>State machine is an abstraction for transition table holding current states and processing events.
-To create a state machine, we have to configure our transition table.</p>
+To create a state machine, we have to add a transition table.</p>
 <pre><code class="cpp">class example {
 public:
-  auto configure() noexcept {
+  auto opeartor()() {
     using namespace msm;
     return make_transition_table(
      *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s,
@@ -524,7 +522,7 @@ assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
 <p>&nbsp;</p>
 <hr />
 <h3 id="8-handle-errors">8. Handle errors</h3>
-<p>Unhandled events / transition failed. 
+<p>Unhandled events / transition failed.
 In such scenario <code>process_event</code> returns false and <code>unexpected_event</code> is fired.</p>
 <pre><code class="cpp">make_transition_table(
  *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s
@@ -547,24 +545,12 @@ This way State causing unexpected event does not matter.</p>
 <pre><code class="cpp">assert(sm.is(msm::X)); // doesn't matter how many regions there are
 </code></pre>
 
-<p>When exceptions are enabled Boost.MSM-lite handles them the same way as unexpected events - via `exception<code>event.
-Please notice that for performance reasons when exceptions are enabled (__cpp_exceptions defined)</code>noexcept<code>should be added
-onto</code>configure` in order to disable handling exceptions when they can not be thrown.</p>
-<pre><code class="cpp">class example {
-public:
-  auto configure() noexcept; // no exceptions handling, terminate will be called on exception
-}
-</code></pre>
-
-<pre><code class="cpp">class example {
-public:
-  auto configure(); // okay, guards/actions may throw now
-}
-</code></pre>
-
+<p>When exceptions are enabled (project is NOT compiled with <code>-fno-exceptions</code>) they
+can be caught using <code>exception&lt;name&gt;</code> syntax. Exception handlers will be processed
+in the order they were defined, and <code>exception&lt;&gt;</code> might be used to catch anything (equivalent to <code>catch (...)</code>).
+Please, notice that when there is no exception handler defined in the Transition Table, exception will not be handled by the State Machine.</p>
 <pre><code class="cpp">make_transition_table(
  *&quot;idle&quot;_s + event&lt;event&gt; / [] { throw std::runtime_error{&quot;error&quot;}; }
-
 ,*&quot;error_handler&quot;_s + exception&lt;std::runtime_error&gt; = X
 , &quot;error_handler&quot;_s + exception&lt;std::logic_error&gt; = X
 , &quot;error_handler&quot;_s + exception&lt;&gt; / [] { cleanup...; } = X // any exception
@@ -601,30 +587,32 @@ assert(sm.is(X));
 <hr />
 <h3 id="10-debug-it">10. Debug it</h3>
 <p><code>msm-lite</code> provides logging capabilities in order to inspect state machine flow.
-To enable logging you have to define <code>BOOST_MSM_LITE_LOG</code>.</p>
-<pre><code class="cpp">template &lt;class SM, class TEvent&gt;
-void log_process_event(const TEvent&amp;) {
-  printf(&quot;[%s][process_event] %s\n&quot;, typeid(SM).name(), typeid(TEvent).name());
-}
+To enable logging you can use (Logger Policy)(user_guide.md#policies)</p>
+<pre><code class="cpp">struct my_logger {
+  template &lt;class SM, class TEvent&gt;
+  void log_process_event(const TEvent&amp;) {
+    printf(&quot;[%s][process_event] %s\n&quot;, typeid(SM).name(), typeid(TEvent).name());
+  }
 
-template &lt;class SM, class TAction, class TEvent&gt;
-void log_guard(const TAction&amp;, const TEvent&amp;, bool result) {
-  printf(&quot;[%s][guard] %s %s %s\n&quot;, typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name(),
-         (result ? &quot;[OK]&quot; : &quot;[Reject]&quot;));
-}
+  template &lt;class SM, class TGuard, class TEvent&gt;
+  void log_guard(const TGuard&amp;, const TEvent&amp;, bool result) {
+    printf(&quot;[%s][guard] %s %s %s\n&quot;, typeid(SM).name(), typeid(TGuard).name(), typeid(TEvent).name(),
+           (result ? &quot;[OK]&quot; : &quot;[Reject]&quot;));
+  }
 
-template &lt;class SM, class TAction, class TEvent&gt;
-void log_action(const TAction&amp;, const TEvent&amp;) {
-  printf(&quot;[%s][action] %s %s\n&quot;, typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name());
-}
+  template &lt;class SM, class TAction, class TEvent&gt;
+  void log_action(const TAction&amp;, const TEvent&amp;) {
+    printf(&quot;[%s][action] %s %s\n&quot;, typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name());
+  }
 
-template &lt;class SM, class TSrcState, class TDstState&gt;
-void log_state_change(const TSrcState&amp; src, const TDstState&amp; dst) {
-  printf(&quot;[%s][transition] %s -&gt; %s\n&quot;, typeid(SM).name(), src.c_str(), dst.c_str());
-}
+  template &lt;class SM, class TSrcState, class TDstState&gt;
+  void log_state_change(const TSrcState&amp; src, const TDstState&amp; dst) {
+    printf(&quot;[%s][transition] %s -&gt; %s\n&quot;, typeid(SM).name(), src.c_str(), dst.c_str());
+  }
+};
 
-#define BOOST_MSM_LITE_LOG(T, SM, ...) log_##T&lt;SM&gt;(__VA_ARGS__)
-#include &lt;boost/msm-lite.hpp&gt;
+msm::sm&lt;logging, msm::logger&lt;my_logger&gt;&gt; sm;
+sm.process_event(my_event{}); // will call my_logger appropriately
 </code></pre>
 
 <p><img alt="CPP(BTN)" src="../Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp" />
