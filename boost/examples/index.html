@@ -885,7 +885,7 @@ struct sdl2 {
 
 int main() {
   msm::sm&lt;sdl2&gt; sm;
-  auto dispatch_event = msm::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
+  auto dispatch_event = msm::utility::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
 
   SDL_Event event;
 
