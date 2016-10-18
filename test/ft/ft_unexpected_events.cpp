@@ -7,7 +7,7 @@
 //
 #include <boost/msm-lite.hpp>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 namespace msm = boost::msm::lite;
 
@@ -99,20 +99,21 @@ test unexpected_specific_event_with_data = [] {
 };
 
 test unexpected_any_event = [] {
+  enum class calls { unexpected_event_e1, unexpected_event_e2, unexpected_event_any };
   struct c {
     auto operator()() {
       using namespace msm;
       // clang-format off
       return make_transition_table(
          *("idle"_s)   + event<e1> = "handled"_s,
-           "handled"_s + unexpected_event<e1> / [this] { ++calls["e1"]; },
-           "handled"_s + unexpected_event<e2> / [this] { ++calls["e2"]; },
-           "handled"_s + unexpected_event<> / [this] { ++calls["any"]; } = X
+           "handled"_s + unexpected_event<e1> / [this] { ++calls[calls::unexpected_event_e1]; },
+           "handled"_s + unexpected_event<e2> / [this] { ++calls[calls::unexpected_event_e2]; },
+           "handled"_s + unexpected_event<> / [this] { ++calls[calls::unexpected_event_any]; } = X
       );
       // clang-format on
     }
 
-    std::unordered_map<std::string, int> calls;
+    std::map<calls, int> calls;
   };
 
   c c_;
@@ -122,33 +123,33 @@ test unexpected_any_event = [] {
   expect(sm.is("handled"_s));
 
   sm.process_event(e1{});
-  expect(1 == c_.calls["e1"]);
-  expect(0 == c_.calls["e2"]);
-  expect(0 == c_.calls["any"]);
+  expect(1 == c_.calls[calls::unexpected_event_e1]);
+  expect(0 == c_.calls[calls::unexpected_event_e2]);
+  expect(0 == c_.calls[calls::unexpected_event_any]);
   expect(sm.is("handled"_s));
 
   sm.process_event(e1{});
-  expect(2 == c_.calls["e1"]);
-  expect(0 == c_.calls["e2"]);
-  expect(0 == c_.calls["any"]);
+  expect(2 == c_.calls[calls::unexpected_event_e1]);
+  expect(0 == c_.calls[calls::unexpected_event_e2]);
+  expect(0 == c_.calls[calls::unexpected_event_any]);
   expect(sm.is("handled"_s));
 
   sm.process_event(e2{});
-  expect(2 == c_.calls["e1"]);
-  expect(1 == c_.calls["e2"]);
-  expect(0 == c_.calls["any"]);
+  expect(2 == c_.calls[calls::unexpected_event_e1]);
+  expect(1 == c_.calls[calls::unexpected_event_e2]);
+  expect(0 == c_.calls[calls::unexpected_event_any]);
   expect(sm.is("handled"_s));
 
   sm.process_event(e1{});
-  expect(3 == c_.calls["e1"]);
-  expect(1 == c_.calls["e2"]);
-  expect(0 == c_.calls["any"]);
+  expect(3 == c_.calls[calls::unexpected_event_e1]);
+  expect(1 == c_.calls[calls::unexpected_event_e2]);
+  expect(0 == c_.calls[calls::unexpected_event_any]);
   expect(sm.is("handled"_s));
 
   sm.process_event(int{});
-  expect(3 == c_.calls["e1"]);
-  expect(1 == c_.calls["e2"]);
-  expect(1 == c_.calls["any"]);
+  expect(3 == c_.calls[calls::unexpected_event_e1]);
+  expect(1 == c_.calls[calls::unexpected_event_e2]);
+  expect(1 == c_.calls[calls::unexpected_event_any]);
   expect(sm.is(X));
 };
 
