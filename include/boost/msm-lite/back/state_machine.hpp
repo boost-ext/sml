@@ -14,17 +14,13 @@
 
 namespace detail {
 
-template <class T>
-struct exception {
-  using type = T;
-  T exception;
-};
-
-struct _ {};
-
 template <class, class TEvent>
 struct get_all_events_impl {
   using type = aux::conditional_t<aux::is_base_of<internal_event, TEvent>::value, aux::type_list<>, aux::type_list<TEvent>>;
+};
+template <class T, class TEvent>
+struct get_all_events_impl<T, unexpected_event<TEvent>> {
+  using type = aux::type_list<TEvent>;
 };
 template <class T, class TEvent>
 struct get_all_events_impl<sm<T>, TEvent> {
@@ -179,7 +175,8 @@ class sm_impl {
     (void)_;
   }
 
-  bool process_internal_event(...) { return false; }
+  template <class TSelf, class TEvent, BOOST_MSM_LITE_REQUIRES(!aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
+  bool process_internal_event(TSelf&, const TEvent&, ...) { return false; }
 
   template <class TSelf, class TEvent, BOOST_MSM_LITE_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
   bool process_internal_event(TSelf &self, const TEvent &event) {
@@ -247,6 +244,15 @@ class sm_impl {
   }
 
   template <class TEvent, class TSelf>
+  bool process_event_noexcept(const TEvent &event, TSelf &self, aux::byte &current_state, const aux::true_type &) noexcept {
+    try {
+      return process_event_impl<get_event_mapping_t<TEvent, mappings_t>>(event, self, states_t{}, current_state);
+    } catch (...) {
+      return process_exception(self, exceptions{});
+    }
+  }
+
+  template <class TEvent, class TSelf>
   bool process_event_noexcept(const TEvent &event, TSelf &self, const aux::true_type &) {
     try {
       return process_event_impl<get_event_mapping_t<TEvent, mappings_t>>(event, self, states_t{},
@@ -258,7 +264,7 @@ class sm_impl {
 
   template <class TSelf>
   bool process_exception(TSelf &self, const aux::type_list<> &) {
-    return process_event(exception<_>{}, self.deps_, self.sub_sms_);
+    return process_internal_event(self, exception<_>{});
   }
 
   template <class TSelf, class E, class... Es>
@@ -266,7 +272,7 @@ class sm_impl {
     try {
       throw;
     } catch (const typename E::type &e) {
-      return process_event(E{e}, self.deps_, self.sub_sms_);
+      return process_internal_event(self, E{e});
     } catch (...) {
       return process_exception(self, aux::type_list<Es...>{});
     }
@@ -454,6 +460,10 @@ class sm {
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_all_events, transitions_t>>;
   using transitions = aux::apply_t<aux::type_list, transitions_t>;
 
+ private:
+  using events_ids_t = aux::apply_t<aux::pool, events>;
+
+ public:
   sm(sm &&) = default;
   sm(const sm &) = delete;
   sm &operator=(const sm &) = delete;
@@ -465,9 +475,14 @@ class sm {
 
   explicit sm(deps_t &deps) : deps_(deps), sub_sms_{deps} { start(aux::type<sub_sms_t>{}); }
 
-  template <class TEvent>
+  template <class TEvent, BOOST_MSM_LITE_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
   void process_event(const TEvent &event) {
     static_cast<aux::pool_type<sm_impl<TSM>> &>(sub_sms_).value.process_event(event, deps_, sub_sms_);
+  }
+
+  template <class TEvent, BOOST_MSM_LITE_REQUIRES(!aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
+  void process_event(const TEvent &) {
+    static_cast<aux::pool_type<sm_impl<TSM>> &>(sub_sms_).value.process_event(unexpected_event<>{}, deps_, sub_sms_);
   }
 
   template <class TEvent>

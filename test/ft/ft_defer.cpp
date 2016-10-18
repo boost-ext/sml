@@ -14,6 +14,62 @@ namespace msm = boost::msm::lite;
 struct event1 {};
 struct event2 {};
 
+test defer_minimal = [] {
+  const auto c = [] {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+       *"state1"_s + event<event1> / defer,
+        "state1"_s + event<event2> = "state2"_s,
+        "state2"_s + event<event1> = X
+      );
+      // clang-format off
+  };
+
+  msm::sm<decltype(c), msm::defer_queue<std::queue>> sm{c};
+  sm.process_event(event1());
+  sm.process_event(event2());
+  expect(sm.is(msm::X));
+};
+
+test defer_queue_check = [] {
+  class A;
+  class B;
+
+  const auto c = [] {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+       *"state1"_s + event<event1> / defer,
+        "state1"_s + event<event2> = "state2"_s,
+        "state2"_s + event<event1> = state<A>,
+        state<A>   + event<event1> = state<B>
+      );
+      // clang-format off
+  };
+
+  msm::sm<decltype(c), msm::defer_queue<std::queue>> sm{c};
+  sm.process_event(event1());
+  sm.process_event(event2());
+  expect(sm.is(msm::state<A>));
+};
+
+test defer_transition = [] {
+  const auto c = [] {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+       *"state1"_s + event<event1> / defer = "state2"_s,
+        "state2"_s + event<event1> = X
+      );
+      // clang-format off
+  };
+
+  msm::sm<decltype(c), msm::defer_queue<std::queue>> sm{c};
+  sm.process_event(event1());
+  expect(sm.is(msm::X));
+};
+
 test defer_and_transitions = [] {
   struct c {
     auto operator()() {

@@ -210,3 +210,21 @@ test exception_orthogonal_handler_generic_handler_with_exception = [] {
   sm.process_event(e1{});  // throws exception1
   expect(sm.is(s1, msm::X));
 };
+
+test exception_and_unexpected_event = [] {
+  struct c {
+    auto operator()() const {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+        *idle + unexpected_event<e1> / [] { throw exception1{}; } = s1
+      , *error + exception<> / [] {}
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<c> sm;
+  sm.process_event(e1{});
+  expect(sm.is(s1));
+};

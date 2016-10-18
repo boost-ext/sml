@@ -12,15 +12,21 @@
 
 namespace msm = boost::msm::lite;
 
+struct some_event {};
+
 struct error_handling {
   auto operator()() const {
     using namespace msm;
     // clang-format off
     return make_transition_table(
-       *"idle"_s + "event1"_e / [] { throw std::runtime_error{"error"}; }
-      , "idle"_s + "event2"_e / [] { throw 0; }
-      , *"error_handling"_s + exception<std::runtime_error> / [] { std::cout << "exception caught" << std::endl; }
-      ,  "error_handling"_s + exception<> / [] { std::cout << "generic exception caught, terminate..." << std::endl; } = X
+        *("idle"_s) + "event1"_e / [] { throw std::runtime_error{"error"}; }
+      ,   "idle"_s  + "event2"_e / [] { throw 0; }
+
+      , *("exceptions handling"_s) + exception<std::runtime_error> / [] { std::cout << "exception caught" << std::endl; }
+      ,   "exceptions handling"_s  + exception<> / [] { std::cout << "generic exception caught" << std::endl; } = X
+
+      , *("unexpected events handling"_s) + unexpected_event<some_event> / [] { std::cout << "unexpected event 'some_event'" << std::endl; }
+      ,   "unexpected events handling"_s  + unexpected_event<> / [] { std::cout << "generic unexpected event" << std::endl; } = X
     );
     // clang-format on
   }
@@ -29,9 +35,16 @@ struct error_handling {
 int main() {
   using namespace msm;
   sm<error_handling> sm;
-  sm.process_event("event1"_e);
-  assert(sm.is("idle"_s, "error_handling"_s));
-  sm.process_event("event2"_e);
-  assert(sm.is("idle"_s, X));
-  assert(sm.is(X));  // any region is terminated
+
+  sm.process_event("event1"_e);// throws runtime_error
+  assert(sm.is("idle"_s, "exceptions handling"_s, "unexpected events handling"_s));
+
+  sm.process_event("event2"_e); // throws 0
+  assert(sm.is("idle"_s, X, "unexpected events handling"_s));
+
+  sm.process_event(some_event{}); // unexpected event
+  assert(sm.is("idle"_s, X, "unexpected events handling"_s));
+
+  sm.process_event(int{}); // unexpected any event
+  assert(sm.is("idle"_s, X, X));
 }

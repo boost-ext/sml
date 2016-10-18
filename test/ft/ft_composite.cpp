@@ -298,7 +298,6 @@ test composite_history_region = [] {
 
   using namespace msm;
 
-  // msm::sm<sub> subsm;
   msm::sm<c> sm;
 
   expect(sm.is(idle));

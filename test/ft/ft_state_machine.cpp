@@ -46,3 +46,15 @@ test minimal = [] {
   sm.process_event(e1{});
   expect(sm.is(idle));
 };
+
+test lambda_expr = [] {
+  const auto lsm = [] {
+    using namespace msm;
+    return make_transition_table(*idle + event<e1> / [] {});
+  };
+
+  msm::sm<decltype(lsm)> sm{lsm};
+  expect(sm.is(idle));
+  sm.process_event(e1{});
+  expect(sm.is(idle));
+};

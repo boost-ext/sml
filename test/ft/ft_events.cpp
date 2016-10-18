@@ -11,13 +11,6 @@
 
 namespace msm = boost::msm::lite;
 
-struct e1 {};
-struct e2 {};
-struct e3 {};
-struct e4 {};
-struct e5 {};
-struct e6 {};
-
 test events = [] {
   struct c {
     auto operator()() noexcept {
@@ -41,3 +34,4 @@ test events = [] {
   sm.process_event("e3"_e);
   expect(sm.is(X));
 };
+

@@ -13,8 +13,13 @@ template <class TEvent>
 detail::event<TEvent> event{};
 __attribute__((unused)) static const auto on_entry = event<detail::on_entry>;
 __attribute__((unused)) static const auto on_exit = event<detail::on_exit>;
+
 template <class T = detail::_>
 detail::event<detail::exception<T>> exception{};
+
+template <class T = detail::_>
+detail::event<detail::unexpected_event<T>> unexpected_event{};
+
 template <class T, class = void>
 struct state2 {
   using type = detail::state<T>;

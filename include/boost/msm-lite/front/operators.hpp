@@ -16,6 +16,11 @@ struct event_type<exception<TEvent>> {
 };
 
 template <class TEvent>
+struct event_type<unexpected_event<TEvent>> {
+  using type = TEvent;
+};
+
+template <class TEvent>
 using event_type_t = typename event_type<TEvent>::type;
 
 template <class, class>
@@ -36,7 +41,11 @@ decltype(auto) get_arg(const TEvent &, TSelf &self) {
 }
 template <class, class TEvent, class TSelf>
 decltype(auto) get_arg(const exception<TEvent> &event, TSelf &) {
-  return event.exception;
+  return event.exception_;
+}
+template <class, class TEvent, class TSelf>
+decltype(auto) get_arg(const unexpected_event<TEvent> &event, TSelf &) {
+  return event.event_;
 }
 template <class T, class TEvent, class TSelf,
           aux::enable_if_t<aux::is_same<TEvent, aux::remove_reference_t<T>>::value, int> = 0>
