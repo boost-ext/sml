@@ -37,7 +37,7 @@ struct get_sub_internal_events_impl<sm<T>, TEvent> {
 template <class... Ts>
 using get_all_events = aux::join_t<typename get_all_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
 template <class... Ts>
-using get_sub_interal_events =
+using get_sub_internal_events =
     aux::join_t<typename get_sub_internal_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
 template <class... Ts>
 using get_events = aux::type_list<typename Ts::event...>;
@@ -112,7 +112,7 @@ class sm_impl {
   using has_history_states =
       aux::integral_constant<bool, aux::size<initial_states_t>::value != aux::size<initial_but_not_history_states_t>::value>;
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
-  using sub_internal_events = aux::apply_t<get_sub_interal_events, transitions_t>;
+  using sub_internal_events = aux::apply_t<get_sub_internal_events, transitions_t>;
   using events_ids_t = aux::apply_t<aux::pool, aux::apply_t<aux::unique_t, aux::join_t<sub_internal_events, events_t>>>;
   using defer = aux::apply_t<aux::variant, events_t>;
   using defer_t = defer_queue_t<defer>;
@@ -345,12 +345,13 @@ class sm_impl {
     visitor(state<TState>{});
   }
 
-  template <class, class TSelf, class TState>
-  void update_current_state(TSelf &, aux::byte &, const aux::byte &, const TState &, const TState &) {}
+  template <class, class TSelf, class TSrcState, class TDstState>
+  void update_current_state(TSelf &, aux::byte &, const aux::byte &, const TSrcState &, const TDstState &,
+                            const aux::true_type &) {}
 
   template <class TExplicit, class TSelf, class TSrcState, class TDstState>
   void update_current_state(TSelf &self, aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
-                            const TDstState &dst_state) {
+                            const TDstState &dst_state, const aux::false_type &) {
     update_current_state_impl<TExplicit>(self, current_state, new_state, src_state, dst_state);
   }
 

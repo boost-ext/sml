@@ -7,16 +7,19 @@ namespace detail {
 struct on_entry;
 struct on_exit;
 struct terminate_state;
-}
+struct internal;
+}  // detail
 
 namespace concepts {
 
 template <class...>
 struct is_valid_transition : aux::true_type {};
 template <class S1, class S2, class... Ts>
-struct is_valid_transition<S1, S2, detail::on_entry, Ts...> : aux::is_same<S1, S2> {};
+struct is_valid_transition<S1, S2, detail::on_entry, Ts...>
+    : aux::integral_constant<bool, aux::is_same<S1, detail::internal>::value || aux::is_same<S1, S2>::value> {};
 template <class S1, class S2, class... Ts>
-struct is_valid_transition<S1, S2, detail::on_exit, Ts...> : aux::is_same<S1, S2> {};
+struct is_valid_transition<S1, S2, detail::on_exit, Ts...>
+    : aux::integral_constant<bool, aux::is_same<S1, detail::internal>::value || aux::is_same<S1, S2>::value> {};
 template <class... Ts>
 struct is_valid_transition<detail::terminate_state, Ts...> {};
 aux::false_type transitional_impl(...);

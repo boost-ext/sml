@@ -8,6 +8,7 @@
 #include <boost/msm-lite.hpp>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace msm = boost::msm::lite;
 
@@ -76,6 +77,33 @@ test anonymous_transition = [] {
   expect(c_.a_called);
 };
 
+test self_transition = [] {
+  enum class calls { s1_entry, s1_exit, s1_action };
+
+  struct c {
+    auto operator()() noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+        *idle = s1 // anonymous-transition
+       , s1 + event<e1> / [] (std::vector<calls>& c) { c.push_back(calls::s1_action); } = s1 // self-transition
+       , s1 + msm::on_entry / [] (std::vector<calls>& c) { c.push_back(calls::s1_entry); } // internal-transition
+       , s1 + msm::on_exit  / [] (std::vector<calls>& c) { c.push_back(calls::s1_exit); } // internal-transition
+      );
+      // clang-format on
+    }
+  };
+
+  std::vector<calls> c_;
+  ;
+  msm::sm<c> sm{c_};
+  expect(std::vector<calls>{calls::s1_entry} == c_);
+
+  c_.clear();
+  sm.process_event(e1{});
+  expect(std::vector<calls>{calls::s1_exit, calls::s1_entry, calls::s1_action} == c_);
+};
+
 test no_transition = [] {
   struct c {
     auto operator()() noexcept {
@@ -96,7 +124,7 @@ test transition_with_action_with_event = [] {
   struct c {
     auto operator()() noexcept {
       using namespace msm;
-      auto action = [this](const e1 &) { called = true; };
+      auto action = [this](const e1&) { called = true; };
       return make_transition_table(*idle + event<e1> / action = s1);
     }
 
@@ -176,7 +204,7 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
         return true;
       };
 
-      auto action = [this](int i, float &f) {
+      auto action = [this](int i, float& f) {
         a_called = true;
         expect(i == 42);
         expect(f == 12.f);

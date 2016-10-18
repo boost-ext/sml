@@ -102,7 +102,7 @@ to avoid it `Boost.MSM-lite` may suit you!
 
 ###*Supported* UML features
 
-* Transitions / Internal transitions / Anonymous transitions / No transition (see [Transitions](examples.md#transitions), [Events](examples.md#events))
+* Transitions / Anonymous transitions / Internal transitions / Self transitions / No transition (see [Transitions](examples.md#transitions), [Events](examples.md#events))
 * Actions / Guards (see [Action/Guards](examples.md#action-guards))
 * State entry / exit actions (see [States](examples.md#states))
 * Orthogonal regions (see [Orthogonal Regions](examples.md#orthogonal-regions))

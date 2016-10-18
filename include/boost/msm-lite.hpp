@@ -367,14 +367,17 @@ namespace detail {
 struct on_entry;
 struct on_exit;
 struct terminate_state;
+struct internal;
 }
 namespace concepts {
 template <class...>
 struct is_valid_transition : aux::true_type {};
 template <class S1, class S2, class... Ts>
-struct is_valid_transition<S1, S2, detail::on_entry, Ts...> : aux::is_same<S1, S2> {};
+struct is_valid_transition<S1, S2, detail::on_entry, Ts...>
+    : aux::integral_constant<bool, aux::is_same<S1, detail::internal>::value || aux::is_same<S1, S2>::value> {};
 template <class S1, class S2, class... Ts>
-struct is_valid_transition<S1, S2, detail::on_exit, Ts...> : aux::is_same<S1, S2> {};
+struct is_valid_transition<S1, S2, detail::on_exit, Ts...>
+    : aux::integral_constant<bool, aux::is_same<S1, detail::internal>::value || aux::is_same<S1, S2>::value> {};
 template <class... Ts>
 struct is_valid_transition<detail::terminate_state, Ts...> {};
 aux::false_type transitional_impl(...);
@@ -628,7 +631,7 @@ struct get_sub_internal_events_impl<sm<T>, TEvent> {
 template <class... Ts>
 using get_all_events = aux::join_t<typename get_all_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
 template <class... Ts>
-using get_sub_interal_events =
+using get_sub_internal_events =
     aux::join_t<typename get_sub_internal_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
 template <class... Ts>
 using get_events = aux::type_list<typename Ts::event...>;
@@ -702,7 +705,7 @@ class sm_impl {
   using has_history_states =
       aux::integral_constant<bool, aux::size<initial_states_t>::value != aux::size<initial_but_not_history_states_t>::value>;
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
-  using sub_internal_events = aux::apply_t<get_sub_interal_events, transitions_t>;
+  using sub_internal_events = aux::apply_t<get_sub_internal_events, transitions_t>;
   using events_ids_t = aux::apply_t<aux::pool, aux::apply_t<aux::unique_t, aux::join_t<sub_internal_events, events_t>>>;
   using defer = aux::apply_t<aux::variant, events_t>;
   using defer_t = defer_queue_t<defer>;
@@ -905,11 +908,12 @@ class sm_impl {
   static void visit_state(const TVisitor &visitor) {
     visitor(state<TState>{});
   }
-  template <class, class TSelf, class TState>
-  void update_current_state(TSelf &, aux::byte &, const aux::byte &, const TState &, const TState &) {}
+  template <class, class TSelf, class TSrcState, class TDstState>
+  void update_current_state(TSelf &, aux::byte &, const aux::byte &, const TSrcState &, const TDstState &,
+                            const aux::true_type &) {}
   template <class TExplicit, class TSelf, class TSrcState, class TDstState>
   void update_current_state(TSelf &self, aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
-                            const TDstState &dst_state) {
+                            const TDstState &dst_state, const aux::false_type &) {
     update_current_state_impl<TExplicit>(self, current_state, new_state, src_state, dst_state);
   }
   template <class, class TSelf, class TSrcState, class TDstState>
@@ -1291,6 +1295,7 @@ auto operator,(const T1 &t1, const T2 &t2) {
   return detail::seq_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
 namespace detail {
+struct internal {};
 struct initial_state {};
 struct terminate_state {};
 struct history_state {};
@@ -1429,10 +1434,10 @@ struct transition<event<E>, G, A> {
   A a;
 };
 template <class S2, class G, class A>
-struct transition<state<S2>, G, A> : transition<state<S2>, state<S2>, event<anonymous>, G, A> {
-  using transition<state<S2>, state<S2>, event<anonymous>, G, A>::g;
-  using transition<state<S2>, state<S2>, event<anonymous>, G, A>::a;
-  transition(const G &g, const A &a) : transition<state<S2>, state<S2>, event<anonymous>, G, A>{g, a} {}
+struct transition<state<S2>, G, A> : transition<state<internal>, state<S2>, event<anonymous>, G, A> {
+  using transition<state<internal>, state<S2>, event<anonymous>, G, A>::g;
+  using transition<state<internal>, state<S2>, event<anonymous>, G, A>::a;
+  transition(const G &g, const A &a) : transition<state<internal>, state<S2>, event<anonymous>, G, A>{g, a} {}
   template <class T>
   auto operator=(const T &) const {
     return transition<T, state<S2>, event<anonymous>, G, A>{g, a};
@@ -1444,9 +1449,9 @@ struct transition<state<S1>, state<S2>> : transition<state<S1>, state<S2>, event
       : transition<state<S1>, state<S2>, event<anonymous>, always, none>{always{}, none{}} {}
 };
 template <class S2, class G>
-struct transition_sg<state<S2>, G> : transition<state<S2>, state<S2>, event<anonymous>, G, none> {
-  using transition<state<S2>, state<S2>, event<anonymous>, G, none>::g;
-  transition_sg(const state<S2> &, const G &g) : transition<state<S2>, state<S2>, event<anonymous>, G, none>{g, none{}} {}
+struct transition_sg<state<S2>, G> : transition<state<internal>, state<S2>, event<anonymous>, G, none> {
+  using transition<state<internal>, state<S2>, event<anonymous>, G, none>::g;
+  transition_sg(const state<S2> &, const G &g) : transition<state<internal>, state<S2>, event<anonymous>, G, none>{g, none{}} {}
   template <class T>
   auto operator/(const T &t) const {
     return transition<state<S2>, G, aux::zero_wrapper<T>>{g, aux::zero_wrapper<T>{t}};
@@ -1457,9 +1462,10 @@ struct transition_sg<state<S2>, G> : transition<state<S2>, state<S2>, event<anon
   }
 };
 template <class S2, class A>
-struct transition_sa<state<S2>, A> : transition<state<S2>, state<S2>, event<anonymous>, always, A> {
-  using transition<state<S2>, state<S2>, event<anonymous>, always, A>::a;
-  transition_sa(const state<S2> &, const A &a) : transition<state<S2>, state<S2>, event<anonymous>, always, A>{always{}, a} {}
+struct transition_sa<state<S2>, A> : transition<state<internal>, state<S2>, event<anonymous>, always, A> {
+  using transition<state<internal>, state<S2>, event<anonymous>, always, A>::a;
+  transition_sa(const state<S2> &, const A &a)
+      : transition<state<internal>, state<S2>, event<anonymous>, always, A>{always{}, a} {}
   template <class T>
   auto operator=(const T &) const {
     return transition<T, state<S2>, event<anonymous>, always, A>{always{}, a};
@@ -1494,11 +1500,11 @@ struct transition<state<S1>, transition<state<S2>, G, A>> : transition<state<S1>
       : transition<state<S1>, state<S2>, event<anonymous>, G, A>{t.g, t.a} {}
 };
 template <class S1, class E, class G, class A>
-struct transition<state<S1>, transition<event<E>, G, A>> : transition<state<S1>, state<S1>, event<E>, G, A> {
-  using transition<state<S1>, state<S1>, event<E>, G, A>::g;
-  using transition<state<S1>, state<S1>, event<E>, G, A>::a;
+struct transition<state<S1>, transition<event<E>, G, A>> : transition<state<internal>, state<S1>, event<E>, G, A> {
+  using transition<state<internal>, state<S1>, event<E>, G, A>::g;
+  using transition<state<internal>, state<S1>, event<E>, G, A>::a;
   transition(const state<S1> &, const transition<event<E>, G, A> &t)
-      : transition<state<S1>, state<S1>, event<E>, G, A>{t.g, t.a} {}
+      : transition<state<internal>, state<S1>, event<E>, G, A>{t.g, t.a} {}
   template <class T>
   auto operator=(const T &) const {
     return transition<T, state<S1>, event<E>, G, A>{g, a};
@@ -1520,10 +1526,10 @@ struct transition<state<S1>, transition_sa<state<S2>, A>> : transition<state<S1>
       : transition<state<S1>, state<S2>, event<anonymous>, always, A>{always{}, t.a} {}
 };
 template <class S2, class E, class G>
-struct transition<state<S2>, transition_eg<event<E>, G>> : transition<state<S2>, state<S2>, event<E>, G, none> {
-  using transition<state<S2>, state<S2>, event<E>, G, none>::g;
+struct transition<state<S2>, transition_eg<event<E>, G>> : transition<state<internal>, state<S2>, event<E>, G, none> {
+  using transition<state<internal>, state<S2>, event<E>, G, none>::g;
   transition(const state<S2> &, const transition_eg<event<E>, G> &t)
-      : transition<state<S2>, state<S2>, event<E>, G, none>{t.g, none{}} {}
+      : transition<state<internal>, state<S2>, event<E>, G, none>{t.g, none{}} {}
   template <class T>
   auto operator=(const T &) const {
     return transition<T, state<S2>, event<E>, G, none>{g, none{}};
@@ -1536,10 +1542,10 @@ struct transition<state<S1>, transition<state<S2>, transition_eg<event<E>, G>>>
       : transition<state<S1>, state<S2>, event<E>, G, none>{t.g, none{}} {}
 };
 template <class S2, class E, class A>
-struct transition<state<S2>, transition_ea<event<E>, A>> : transition<state<S2>, state<S2>, event<E>, always, A> {
-  using transition<state<S2>, state<S2>, event<E>, always, A>::a;
+struct transition<state<S2>, transition_ea<event<E>, A>> : transition<state<internal>, state<S2>, event<E>, always, A> {
+  using transition<state<internal>, state<S2>, event<E>, always, A>::a;
   transition(const state<S2> &, const transition_ea<event<E>, A> &t)
-      : transition<state<S2>, state<S2>, event<E>, always, A>{always{}, t.a} {}
+      : transition<state<internal>, state<S2>, event<E>, always, A>{always{}, t.a} {}
   template <class T>
   auto operator=(const T &) const {
     return transition<T, state<S2>, event<E>, always, A>{always{}, a};
@@ -1561,8 +1567,10 @@ template <class S1, class S2, class E, class G, class A>
 struct transition<state<S1>, state<S2>, event<E>, G, A> {
   static constexpr auto initial = state<S2>::initial;
   static constexpr auto history = state<S2>::history;
+  using is_internal = aux::is_same<S1, internal>;
+  using dst = aux::conditional_t<is_internal::value, S2, S1>;
   using src_state = typename state<S2>::type;
-  using dst_state = typename state<S1>::type;
+  using dst_state = typename state<dst>::type;
   using event = E;
   using guard = G;
   using action = A;
@@ -1573,7 +1581,7 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> {
     if (call(g, event, self)) {
       self.me_.template update_current_state<typename state<S1>::explicit_states>(
           self, current_state, aux::get_id<typename SM::type::states_ids_t, -1, dst_state>(), state<src_state>{},
-          state<dst_state>{});
+          state<dst_state>{}, is_internal{});
       call(a, event, self);
       return true;
     }
@@ -1586,8 +1594,10 @@ template <class S1, class S2, class E, class A>
 struct transition<state<S1>, state<S2>, event<E>, always, A> {
   static constexpr auto initial = state<S2>::initial;
   static constexpr auto history = state<S2>::history;
+  using is_internal = aux::is_same<S1, internal>;
+  using dst = aux::conditional_t<is_internal::value, S2, S1>;
   using src_state = typename state<S2>::type;
-  using dst_state = typename state<S1>::type;
+  using dst_state = typename state<dst>::type;
   using event = E;
   using guard = always;
   using action = A;
@@ -1597,7 +1607,7 @@ struct transition<state<S1>, state<S2>, event<E>, always, A> {
   bool execute(SM &self, const E &event, aux::byte &current_state) {
     self.me_.template update_current_state<typename state<S1>::explicit_states>(
         self, current_state, aux::get_id<typename SM::type::states_ids_t, -1, dst_state>(), state<src_state>{},
-        state<dst_state>{});
+        state<dst_state>{}, is_internal{});
     call(a, event, self);
     return true;
   }
@@ -1607,8 +1617,10 @@ template <class S1, class S2, class E, class G>
 struct transition<state<S1>, state<S2>, event<E>, G, none> {
   static constexpr auto initial = state<S2>::initial;
   static constexpr auto history = state<S2>::history;
+  using is_internal = aux::is_same<S1, internal>;
+  using dst = aux::conditional_t<is_internal::value, S2, S1>;
   using src_state = typename state<S2>::type;
-  using dst_state = typename state<S1>::type;
+  using dst_state = typename state<dst>::type;
   using event = E;
   using guard = G;
   using action = none;
@@ -1619,7 +1631,7 @@ struct transition<state<S1>, state<S2>, event<E>, G, none> {
     if (call(g, event, self)) {
       self.me_.template update_current_state<typename state<S1>::explicit_states>(
           self, current_state, aux::get_id<typename SM::type::states_ids_t, -1, dst_state>(), state<src_state>{},
-          state<dst_state>{});
+          state<dst_state>{}, is_internal{});
       return true;
     }
     return false;
@@ -1630,8 +1642,10 @@ template <class S1, class S2, class E>
 struct transition<state<S1>, state<S2>, event<E>, always, none> {
   static constexpr auto initial = state<S2>::initial;
   static constexpr auto history = state<S2>::history;
+  using is_internal = aux::is_same<S1, internal>;
+  using dst = aux::conditional_t<is_internal::value, S2, S1>;
   using src_state = typename state<S2>::type;
-  using dst_state = typename state<S1>::type;
+  using dst_state = typename state<dst>::type;
   using event = E;
   using guard = always;
   using action = none;
@@ -1641,7 +1655,7 @@ struct transition<state<S1>, state<S2>, event<E>, always, none> {
   bool execute(SM &self, const E &, aux::byte &current_state) {
     self.me_.template update_current_state<typename state<S1>::explicit_states>(
         self, current_state, aux::get_id<typename SM::type::states_ids_t, -1, dst_state>(), state<src_state>{},
-        state<dst_state>{});
+        state<dst_state>{}, is_internal{});
     return true;
   }
   aux::byte _[0];
