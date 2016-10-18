@@ -77,7 +77,7 @@ struct sdl2 {
 
 int main() {
   msm::sm<sdl2> sm;
-  auto dispatch_event = msm::make_dispatch_table<SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT>(sm);
+  auto dispatch_event = msm::utility::make_dispatch_table<SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT>(sm);
 
   SDL_Event event;
 
