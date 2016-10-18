@@ -488,14 +488,20 @@ int main() {
 
 namespace msm = boost::msm::lite;
 
+struct some_event {};
+
 struct error_handling {
   auto operator()() const {
     using namespace msm;
     return make_transition_table(
-       *&quot;idle&quot;_s + &quot;event1&quot;_e / [] { throw std::runtime_error{&quot;error&quot;}; }
-      , &quot;idle&quot;_s + &quot;event2&quot;_e / [] { throw 0; }
-      , *&quot;error_handling&quot;_s + exception&lt;std::runtime_error&gt; / [] { std::cout &lt;&lt; &quot;exception caught&quot; &lt;&lt; std::endl; }
-      ,  &quot;error_handling&quot;_s + exception&lt;&gt; / [] { std::cout &lt;&lt; &quot;generic exception caught, terminate...&quot; &lt;&lt; std::endl; } = X
+        *(&quot;idle&quot;_s) + &quot;event1&quot;_e / [] { throw std::runtime_error{&quot;error&quot;}; }
+      ,   &quot;idle&quot;_s  + &quot;event2&quot;_e / [] { throw 0; }
+
+      , *(&quot;exceptions handling&quot;_s) + exception&lt;std::runtime_error&gt; / [] { std::cout &lt;&lt; &quot;exception caught&quot; &lt;&lt; std::endl; }
+      ,   &quot;exceptions handling&quot;_s  + exception&lt;&gt; / [] { std::cout &lt;&lt; &quot;generic exception caught&quot; &lt;&lt; std::endl; } = X
+
+      , *(&quot;unexpected events handling&quot;_s) + unexpected_event&lt;some_event&gt; / [] { std::cout &lt;&lt; &quot;unexpected event 'some_event'&quot; &lt;&lt; std::endl; }
+      ,   &quot;unexpected events handling&quot;_s  + unexpected_event&lt;&gt; / [] { std::cout &lt;&lt; &quot;generic unexpected event&quot; &lt;&lt; std::endl; } = X
     );
   }
 };
@@ -503,11 +509,18 @@ struct error_handling {
 int main() {
   using namespace msm;
   sm&lt;error_handling&gt; sm;
-  sm.process_event(&quot;event1&quot;_e);
-  assert(sm.is(&quot;idle&quot;_s, &quot;error_handling&quot;_s));
-  sm.process_event(&quot;event2&quot;_e);
-  assert(sm.is(&quot;idle&quot;_s, X));
-  assert(sm.is(X));  // any region is terminated
+
+  sm.process_event(&quot;event1&quot;_e);// throws runtime_error
+  assert(sm.is(&quot;idle&quot;_s, &quot;exceptions handling&quot;_s, &quot;unexpected events handling&quot;_s));
+
+  sm.process_event(&quot;event2&quot;_e); // throws 0
+  assert(sm.is(&quot;idle&quot;_s, X, &quot;unexpected events handling&quot;_s));
+
+  sm.process_event(some_event{}); // unexpected event
+  assert(sm.is(&quot;idle&quot;_s, X, &quot;unexpected events handling&quot;_s));
+
+  sm.process_event(int{}); // unexpected any event
+  assert(sm.is(&quot;idle&quot;_s, X, X));
 }
 </code></pre>
 
@@ -871,39 +884,39 @@ struct sdl2 {
 };
 
 int main() {
-  msm::sm&lt;sdl2&gt; sm;
-  auto dispatch_event = msm::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
+/*  msm::sm&lt;sdl2&gt; sm;*/
+  //auto dispatch_event = msm::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
 
-  SDL_Event event;
+  //SDL_Event event;
 
-  // while (SDL_PollEvent(&amp;event)) {
-  //   dispatch_event(event, event.type)
-  // };
+  //// while (SDL_PollEvent(&amp;event)) {
+  ////   dispatch_event(event, event.type)
+  //// };
 
-  {
-    SDL_KeyboardEvent keyboard_event;
-    keyboard_event.type = SDL_KEYUP;
-    keyboard_event.keysym.sym = SDLK_SPACE;
-    event.key = keyboard_event;
-    dispatch_event(event, event.type);
-  }
+  //{
+    //SDL_KeyboardEvent keyboard_event;
+    //keyboard_event.type = SDL_KEYUP;
+    //keyboard_event.keysym.sym = SDLK_SPACE;
+    //event.key = keyboard_event;
+    //dispatch_event(event, event.type);
+  //}
 
-  {
-    SDL_MouseButtonEvent mousebutton_event;
-    mousebutton_event.type = SDL_MOUSEBUTTONUP;
-    mousebutton_event.button = 1;
-    event.button = mousebutton_event;
-    dispatch_event(event, event.type);
-  }
+  //{
+    //SDL_MouseButtonEvent mousebutton_event;
+    //mousebutton_event.type = SDL_MOUSEBUTTONUP;
+    //mousebutton_event.button = 1;
+    //event.button = mousebutton_event;
+    //dispatch_event(event, event.type);
+  //}
 
-  {
-    SDL_QuitEvent quit_event;
-    quit_event.type = SDL_QUIT;
-    event.quit = quit_event;
-    dispatch_event(event, event.type);
-  }
+  //{
+    //SDL_QuitEvent quit_event;
+    //quit_event.type = SDL_QUIT;
+    //event.quit = quit_event;
+    //dispatch_event(event, event.type);
+  //}
 
-  assert(sm.is(msm::X, msm::X));
+  /*assert(sm.is(msm::X, msm::X));*/
 }
 </code></pre>
 
