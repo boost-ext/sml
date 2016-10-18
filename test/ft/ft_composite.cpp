@@ -698,14 +698,13 @@ test composite_sub_entry_exit = [] {
   struct A {
     auto operator()() const noexcept {
       using namespace msm;
-      using msm::on_exit;
       const auto a1 = state<class A1>;
       const auto a2 = state<class A2>;
       // clang-format off
       return make_transition_table(
         *a1 + event<e2> = a2,
-         a1 + on_entry / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
-         a1 + on_exit / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); }
+         a1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
+         a1 + msm::on_exit / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); }
       );
       // clang-format on
     }
@@ -714,14 +713,13 @@ test composite_sub_entry_exit = [] {
   struct B {
     auto operator()() const noexcept {
       using namespace msm;
-      using msm::on_exit;
       const auto b1 = state<class B1>;
       const auto b2 = state<class B2>;
       // clang-format off
       return make_transition_table(
         *b1 + event<e2> = b2,
-         b1 + on_entry / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
-         b1 + on_exit / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); }
+         b1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
+         b1 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); }
       );
       // clang-format on
     }
@@ -730,11 +728,10 @@ test composite_sub_entry_exit = [] {
   struct SM {
     auto operator()() const noexcept {
       using namespace msm;
-      using msm::on_exit;
       // clang-format off
       return make_transition_table(
         *state<class init> = state<A>,
-         state<A> + event<e1> = state<B>,
+         state<A>  + event<e1> = state<B>,
          state<B>  + event<e3> = "state"_s
       );
       // clang-format on
@@ -746,4 +743,63 @@ test composite_sub_entry_exit = [] {
   expect(std::vector<calls>{calls::a1_entry} == c_);
   sm.process_event(e1{});
   expect(std::vector<calls>{calls::a1_entry, calls::a1_exit, calls::b1_entry} == c_);
+};
+
+test composite_anonymous_entry_transitions = [] {
+  enum class calls { a1_entry, a1_exit, b1_entry, b1_exit, x_entry, x_exit, a_entry, a_exit, b_entry, b_exit };
+
+  struct A {
+    auto operator()() const noexcept {
+      using namespace msm;
+      const auto a1 = state<class A1>;
+
+      // clang-format off
+      return make_transition_table(
+        *"init"_s = a1,
+          a1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
+          a1 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); }
+      );
+      // clang-format on
+    }
+  };
+
+  struct B {
+    auto operator()() const noexcept {
+      using namespace msm;
+      const auto b1 = state<class A1>;
+
+      // clang-format off
+      return make_transition_table(
+        *"init"_s = b1,
+          b1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
+          b1 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); }
+      );
+      // clang-format on
+    }
+  };
+
+  static const auto x = msm::state<class X>;
+  static const auto a = msm::state<A>;
+  static const auto b = msm::state<B>;
+
+  struct Top {
+    auto operator()() const noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+        *x + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
+         x + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); },
+         a + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
+         a + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
+         b + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
+         b + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b_exit); }
+      );
+      // clang-format on
+    }
+  };
+
+  std::vector<calls> c_;
+  msm::sm<Top> sm{c_};
+  expect(std::vector<calls>{calls::x_entry} == c_);
+  expect(sm.is(x));
 };
