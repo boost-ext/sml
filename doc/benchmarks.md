@@ -1,3 +1,70 @@
+##MSM-lite vs Boost.MSM-eUML vs Boost.Statechart
+
+----
+
+###Overview
+
+| Library     | MSM-lite    | Boost.MSM-eUML  | Boost.Statechart |
+| --------    | ----------- | --------------- | ---------------- |
+| Standard    | C++14       | C++98/03        | C++98/03         |
+| Version     | 1.0.1       | 1.61            | 1.61             |
+| License     | Boost 1.0   | Boost 1.0       | Boost 1.0        |
+| Linkage     | header only | header only     | header only      |
+
+----
+
+###Details
+
+| Library            | MSM-lite    | Boost.MSM-eUML  | Boost.Statechart |
+| ------------------ | ----------- | --------------- | ---------------- |
+| UML                | 2.0         | 2.0             | 1.5              |
+| RTTI               | -           | -               | ✓                |
+| Exceptions         | -           | -               | ✓                |
+| Memory Allocations | -           | -               | ✓                |
+
+----
+
+###UML features
+
+| Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
+| -------------------- | -------- | -------------- | ---------------- |
+| Transition           | ✓        | ✓              | ✓                |
+| Anonymous transition | ✓        | ✓              | ✓                |
+| Internal transition  | ✓        | ✓              | ✓                |
+| Local transitions    | -        | -              | -                |
+| State entry/exit     | ✓        | ✓              | ✓                |
+| Guard                | ✓        | ✓              | ✓                |
+| Action               | ✓        | ✓              | ✓                |
+| Event defering       | ~        | ✓              | ✓                |
+| Error handling       | ✓        | ✓              | ✓                |
+| Initial state        | ✓        | ✓              | ✓                |
+| Terminate State      | ✓        | ✓              | ✓                |
+| Explicit entry       | ✓        | ✓              | ✓                |
+| Explicit exit        | -        | ✓              | ✓                |
+| Fork                 | -        | ✓              | -                |
+| Orthogonal regions   | ✓        | ✓              | ✓                |
+| Sub / Composite      | ✓        | ✓              | ✓                |
+| Shallow History      | ✓        | ✓              | ✓                |
+| Deep History         | ~        | ~              | ✓                |
+
+----
+
+###Non-UML features
+
+| Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
+| -------------------- | -------- | -------------- | ---------------- |
+| Any event            | -        | ✓              | -                |
+| Flags                | -        | ✓              | -                |
+| Interrupt state      | -        | ✓              | -                |
+| State Visitor        | ✓        | ✓              | ✓                |
+| Serialization        | -        | ✓              | -                |
+| Dispatcher           | ✓        | -              | -                |
+| Asynchronous SM      | -        | -              | ✓                |
+
+----
+
+###Benchmarks
+
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |
 | ---- | -------- | ------ | ------ | ----------- | -------------- |
 |[Simple Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/simple) | -O2 -s | 6 | 5 | 12 | 1'000'000 |
