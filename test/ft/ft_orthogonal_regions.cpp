@@ -114,7 +114,7 @@ test orthogonal_regions_entry_exit_multiple = [] {
       const auto b = state<class B>;
       const auto c = state<class C>;
 
-      //clang format off
+      // clang-format off
       return make_transition_table(
         *"init1"_s = a,
         *"init2"_s = b,
