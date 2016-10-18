@@ -510,16 +510,16 @@ int main() {
   using namespace msm;
   sm&lt;error_handling&gt; sm;
 
-  sm.process_event(&quot;event1&quot;_e);// throws runtime_error
+  sm.process_event(&quot;event1&quot;_e);  // throws runtime_error
   assert(sm.is(&quot;idle&quot;_s, &quot;exceptions handling&quot;_s, &quot;unexpected events handling&quot;_s));
 
-  sm.process_event(&quot;event2&quot;_e); // throws 0
+  sm.process_event(&quot;event2&quot;_e);  // throws 0
   assert(sm.is(&quot;idle&quot;_s, X, &quot;unexpected events handling&quot;_s));
 
-  sm.process_event(some_event{}); // unexpected event
+  sm.process_event(some_event{});  // unexpected event
   assert(sm.is(&quot;idle&quot;_s, X, &quot;unexpected events handling&quot;_s));
 
-  sm.process_event(int{}); // unexpected any event
+  sm.process_event(int{});  // unexpected any event
   assert(sm.is(&quot;idle&quot;_s, X, X));
 }
 </code></pre>
@@ -664,7 +664,7 @@ struct dispatch_table {
 int main() {
   msm::sm&lt;dispatch_table&gt; sm;
 
-  auto dispatch_event = msm::make_dispatch_table&lt;runtime_event, 1 /*min*/, 5 /*max*/&gt;(sm);
+  auto dispatch_event = msm::utility::make_dispatch_table&lt;runtime_event, 1 /*min*/, 5 /*max*/&gt;(sm);
 
   {
     runtime_event event{1};
@@ -884,39 +884,39 @@ struct sdl2 {
 };
 
 int main() {
-/*  msm::sm&lt;sdl2&gt; sm;*/
-  //auto dispatch_event = msm::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
+  msm::sm&lt;sdl2&gt; sm;
+  auto dispatch_event = msm::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
 
-  //SDL_Event event;
+  SDL_Event event;
 
-  //// while (SDL_PollEvent(&amp;event)) {
-  ////   dispatch_event(event, event.type)
-  //// };
+  // while (SDL_PollEvent(&amp;event)) {
+  //   dispatch_event(event, event.type)
+  // };
 
-  //{
-    //SDL_KeyboardEvent keyboard_event;
-    //keyboard_event.type = SDL_KEYUP;
-    //keyboard_event.keysym.sym = SDLK_SPACE;
-    //event.key = keyboard_event;
-    //dispatch_event(event, event.type);
-  //}
+  {
+    SDL_KeyboardEvent keyboard_event;
+    keyboard_event.type = SDL_KEYUP;
+    keyboard_event.keysym.sym = SDLK_SPACE;
+    event.key = keyboard_event;
+    dispatch_event(event, event.type);
+  }
 
-  //{
-    //SDL_MouseButtonEvent mousebutton_event;
-    //mousebutton_event.type = SDL_MOUSEBUTTONUP;
-    //mousebutton_event.button = 1;
-    //event.button = mousebutton_event;
-    //dispatch_event(event, event.type);
-  //}
+  {
+    SDL_MouseButtonEvent mousebutton_event;
+    mousebutton_event.type = SDL_MOUSEBUTTONUP;
+    mousebutton_event.button = 1;
+    event.button = mousebutton_event;
+    dispatch_event(event, event.type);
+  }
 
-  //{
-    //SDL_QuitEvent quit_event;
-    //quit_event.type = SDL_QUIT;
-    //event.quit = quit_event;
-    //dispatch_event(event, event.type);
-  //}
+  {
+    SDL_QuitEvent quit_event;
+    quit_event.type = SDL_QUIT;
+    event.quit = quit_event;
+    dispatch_event(event, event.type);
+  }
 
-  /*assert(sm.is(msm::X, msm::X));*/
+  assert(sm.is(msm::X, msm::X));
 }
 </code></pre>
 
