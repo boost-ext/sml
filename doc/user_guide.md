@@ -404,8 +404,8 @@ Creates a State Machine.
 
     msm::sm<example> sm{42};
     assert(sm.is("idle"_s));
-    assert(!sm.process_event(int{})); // no handled
-    assert(sm.process_event(my_event{})); // handled
+    sm.process_event(int{}); // no handled, will call unexpected_event<int>
+    sm.process_event(my_event{}); // handled
     assert(sm.is(X));
 
     sm.visit_current_states([](auto state) { std::cout << state.c_str() << std::endl; });
@@ -455,7 +455,7 @@ Additional State Machine configurations.
 
 ***Header***
 
-    #include <boost/testing/state_machine.hpp>
+    #include <boost/msm-lite/testing/state_machine.hpp>
 
 ***Description***
 
@@ -500,7 +500,7 @@ Creates a state machine with testing capabilities.
 
 ***Header***
 
-    #include <boost/utility/dispatch_table.hpp>
+    #include <boost/msm-lite/utility/dispatch_table.hpp>
 
 ***Description***
 
@@ -508,8 +508,10 @@ Creates a dispatch table to handle runtime events.
 
 ***Synopsis***
 
-    template<class TEvent, int EventRangeBegin, int EventRangeBegin, class SM> requires dispatchable<TEvent, typename SM::events>
-    callable<bool, (TEvent, int)> make_dispatch_table(sm<SM>&) noexcept;
+    namespace utility {
+      template<class TEvent, int EventRangeBegin, int EventRangeBegin, class SM> requires dispatchable<TEvent, typename SM::events>
+      callable<bool, (TEvent, int)> make_dispatch_table(sm<SM>&) noexcept;
+    }
 
 ***Requirements***
 
@@ -517,7 +519,7 @@ Creates a dispatch table to handle runtime events.
 
 ***Semantics***
 
-    make_dispatch_table<T, 0, 10>(sm);
+    msm::utility::make_dispatch_table<T, 0, 10>(sm);
 
 ***Example***
 
@@ -529,8 +531,8 @@ Creates a dispatch table to handle runtime events.
       event1(const runtime_event &) {}
     };
 
-    auto dispatch_event = msm::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max*/>(sm);
-    assert(dispatch_event(event, event.id));
+    auto dispatch_event = msm::utility::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max*/>(sm);
+    dispatch_event(event, event.id);
 
 ![CPP(BTN)](Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp)
 ![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp)

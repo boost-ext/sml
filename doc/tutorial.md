@@ -289,7 +289,7 @@ auto injector = di::make_injector(
 );
 
 auto sm = injector.create<sm<example>>();
-assert(sm.process_event(e1{}));
+sm.process_event(e1{});
 ```
 
 ![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
@@ -307,8 +307,8 @@ In order to do it, `process_event` method might be used.
 ```cpp
 msm::sm<example> sm;
 
-assert(sm.process_event(my_event{})); // returns true when handled
-assert(!sm.process_event(int{})); // not handled by the state machine
+sm.process_event(my_event{}); // handled
+sm.process_event(int{}); // not handled -> unexpected_event<int>
 ```
 
 Process event might be also triggered on transition table.
@@ -330,9 +330,9 @@ struct game_over {
 };
 enum SDL_EventType { SDL_FIRSTEVENT = 0, SDL_QUIT, SDL_KEYUP, SDL_MOUSEBUTTONUP, SDL_LASTEVENT };
 //create dispatcher from state machine and range of events
-auto dispatch_event = msm::make_dispatch_table<SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT>(sm);
+auto dispatch_event = msm::utility::make_dispatch_table<SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT>(sm);
 SDL_Event event{SDL_QUIT};
-assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
+dispatch_event(event, event.type); // will call sm.process(game_over{});
 ```
 
 ![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
@@ -345,14 +345,30 @@ assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
 
 ###8. Handle errors
 
-Unhandled events / transition failed.
-In such scenario `process_event` returns false and `unexpected_event` is fired.
+In case when a State Machine can't handle given event an `unexpected_event` is fired.
 
 ```cpp
 make_transition_table(
  *"src_state"_s + event<my_event> [ guard ] / action = "dst_state"_s
 , "src_state"_s + unexpected_event<some_event> = X
 );
+```
+
+Any unexpected event might be handled too by using `unexpected_event<>`.
+
+```cpp
+make_transition_table(
+ *"src_state"_s + event<my_event> [ guard ] / action = "dst_state"_s
+, "src_state"_s + unexpected_event<some_event> / [] { std::cout << "unexpected 'some_event' << '\n'; "}
+, "src_state"_s + unexpected_event<> = X // any event
+);
+```
+
+In such case...
+
+sm.process_event(some_event{}); // "unexpected 'some_event'
+sm.process_event(int{}); // terminate
+assert(sm.is(X));
 ```
 
 Usually, it's handy to create additional `Orthogonal region` to cover this scenario,
@@ -401,7 +417,7 @@ functionality.
 
 ```cpp
 msm::sm<example> sm;
-assert(sm.process_event(my_event{}));
+sm.process_event(my_event{});
 assert(sm.is(X)); // is(X, s1, ...) when you have orthogonal regions
 
 //or
@@ -416,7 +432,7 @@ in a requested state.
 ```cpp
 testing::sm<example> sm{fake_data...};
 sm.set_current_states("s3"_s); // set_current_states("s3"_s, "s1"_s, ...) for orthogonal regions
-assert(sm.process_event(event{}));
+sm.process_event(event{});
 assert(sm.is(X));
 ```
 
