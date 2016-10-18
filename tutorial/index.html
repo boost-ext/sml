@@ -480,7 +480,7 @@ For example, we can use <a href="https://github.com/boost-experimental/di">Exper
 );
 
 auto sm = injector.create&lt;sm&lt;example&gt;&gt;();
-assert(sm.process_event(e1{}));
+sm.process_event(e1{});
 </code></pre>
 
 <p><img alt="CPP(BTN)" src="../Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" />
@@ -492,8 +492,8 @@ assert(sm.process_event(e1{}));
 In order to do it, <code>process_event</code> method might be used.</p>
 <pre><code class="cpp">msm::sm&lt;example&gt; sm;
 
-assert(sm.process_event(my_event{})); // returns true when handled
-assert(!sm.process_event(int{})); // not handled by the state machine
+sm.process_event(my_event{}); // handled
+sm.process_event(int{}); // not handled -&gt; unexpected_event&lt;int&gt;
 </code></pre>
 
 <p>Process event might be also triggered on transition table.</p>
@@ -511,9 +511,9 @@ return make_transition_table(
 };
 enum SDL_EventType { SDL_FIRSTEVENT = 0, SDL_QUIT, SDL_KEYUP, SDL_MOUSEBUTTONUP, SDL_LASTEVENT };
 //create dispatcher from state machine and range of events
-auto dispatch_event = msm::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
+auto dispatch_event = msm::utility::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
 SDL_Event event{SDL_QUIT};
-assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
+dispatch_event(event, event.type); // will call sm.process(game_over{});
 </code></pre>
 
 <p><img alt="CPP(BTN)" src="../Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" />
@@ -522,17 +522,31 @@ assert(dispatch_event(event, event.type)); // will call sm.process(game_over{});
 <p>&nbsp;</p>
 <hr />
 <h3 id="8-handle-errors">8. Handle errors</h3>
-<p>Unhandled events / transition failed.
-In such scenario <code>process_event</code> returns false and <code>unexpected_event</code> is fired.</p>
+<p>In case when a State Machine can't handle given event an <code>unexpected_event</code> is fired.</p>
 <pre><code class="cpp">make_transition_table(
  *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s
 , &quot;src_state&quot;_s + unexpected_event&lt;some_event&gt; = X
 );
 </code></pre>
 
-<p>Usually, it's handy to create additional <code>Orthogonal region</code> to cover this scenario,
-This way State causing unexpected event does not matter.</p>
+<p>Any unexpected event might be handled too by using <code>unexpected_event&lt;&gt;</code>.</p>
 <pre><code class="cpp">make_transition_table(
+ *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s
+, &quot;src_state&quot;_s + unexpected_event&lt;some_event&gt; / [] { std::cout &lt;&lt; &quot;unexpected 'some_event' &lt;&lt; '\n'; &quot;}
+, &quot;src_state&quot;_s + unexpected_event&lt;&gt; = X // any event
+);
+</code></pre>
+
+<p>In such case...</p>
+<p>sm.process_event(some_event{}); // "unexpected 'some_event'
+sm.process_event(int{}); // terminate
+assert(sm.is(X));</p>
+<pre><code>
+Usually, it's handy to create additional `Orthogonal region` to cover this scenario,
+This way State causing unexpected event does not matter.
+
+```cpp
+make_transition_table(
  *&quot;idle&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;s1&quot;_s
 , &quot;s1&quot;_s + event&lt;other_event&gt; [ guard ] / action = &quot;s2&quot;_s
 , &quot;s2&quot;_s + event&lt;yet_another_event&gt; [ guard ] / action = X
@@ -565,7 +579,7 @@ Please, notice that when there is no exception handler defined in the Transition
 we are in a terminate state or not. We can do it with <code>msm-lite</code> using <code>is</code> or <code>visit_current_states</code>
 functionality.</p>
 <pre><code class="cpp">msm::sm&lt;example&gt; sm;
-assert(sm.process_event(my_event{}));
+sm.process_event(my_event{});
 assert(sm.is(X)); // is(X, s1, ...) when you have orthogonal regions
 
 //or
@@ -578,7 +592,7 @@ sm.visit_current_states([](auto state) { std::cout &lt;&lt; state.c_str() &lt;&l
 in a requested state.</p>
 <pre><code class="cpp">testing::sm&lt;example&gt; sm{fake_data...};
 sm.set_current_states(&quot;s3&quot;_s); // set_current_states(&quot;s3&quot;_s, &quot;s1&quot;_s, ...) for orthogonal regions
-assert(sm.process_event(event{}));
+sm.process_event(event{});
 assert(sm.is(X));
 </code></pre>
 

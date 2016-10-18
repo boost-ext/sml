@@ -568,8 +568,8 @@ public:
 
 msm::sm&lt;example&gt; sm{42};
 assert(sm.is("idle"_s));
-assert(!sm.process_event(int{})); // no handled
-assert(sm.process_event(my_event{})); // handled
+sm.process_event(int{}); // no handled, will call unexpected_event&lt;int&gt;
+sm.process_event(my_event{}); // handled
 assert(sm.is(X));
 
 sm.visit_current_states([](auto state) { std::cout &lt;&lt; state.c_str() &lt;&lt; std::endl; });
@@ -624,7 +624,7 @@ msm::sm&lt;example, msm::logger&lt;my_logger&gt;, msm::thread_safe&lt;std::recur
 <hr />
 <h3 id="testingsm-testing">testing::sm [testing]</h3>
 <p><strong><em>Header</em></strong></p>
-<pre><code>#include &lt;boost/testing/state_machine.hpp&gt;
+<pre><code>#include &lt;boost/msm-lite/testing/state_machine.hpp&gt;
 </code></pre>
 <p><strong><em>Description</em></strong></p>
 <p>Creates a state machine with testing capabilities.</p>
@@ -673,20 +673,22 @@ sm.is(X);
 <hr />
 <h3 id="make_dispatch_table-utility">make_dispatch_table [utility]</h3>
 <p><strong><em>Header</em></strong></p>
-<pre><code>#include &lt;boost/utility/dispatch_table.hpp&gt;
+<pre><code>#include &lt;boost/msm-lite/utility/dispatch_table.hpp&gt;
 </code></pre>
 <p><strong><em>Description</em></strong></p>
 <p>Creates a dispatch table to handle runtime events.</p>
 <p><strong><em>Synopsis</em></strong></p>
-<pre><code>template&lt;class TEvent, int EventRangeBegin, int EventRangeBegin, class SM&gt; requires dispatchable&lt;TEvent, typename SM::events&gt;
-callable&lt;bool, (TEvent, int)&gt; make_dispatch_table(sm&lt;SM&gt;&amp;) noexcept;
+<pre><code>namespace utility {
+  template&lt;class TEvent, int EventRangeBegin, int EventRangeBegin, class SM&gt; requires dispatchable&lt;TEvent, typename SM::events&gt;
+  callable&lt;bool, (TEvent, int)&gt; make_dispatch_table(sm&lt;SM&gt;&amp;) noexcept;
+}
 </code></pre>
 <p><strong><em>Requirements</em></strong></p>
 <ul>
 <li><a href="#dispatchable-concept">dispatchable</a></li>
 </ul>
 <p><strong><em>Semantics</em></strong></p>
-<pre><code>make_dispatch_table&lt;T, 0, 10&gt;(sm);
+<pre><code>msm::utility::make_dispatch_table&lt;T, 0, 10&gt;(sm);
 </code></pre>
 <p><strong><em>Example</em></strong></p>
 <pre><code>struct runtime_event {
@@ -697,8 +699,8 @@ struct event1 {
   event1(const runtime_event &amp;) {}
 };
 
-auto dispatch_event = msm::make_dispatch_table&lt;runtime_event, 1 /*min*/, 5 /*max*/&gt;(sm);
-assert(dispatch_event(event, event.id));
+auto dispatch_event = msm::utility::make_dispatch_table&lt;runtime_event, 1 /*min*/, 5 /*max*/&gt;(sm);
+dispatch_event(event, event.id);
 </code></pre>
 <p><img alt="CPP(BTN)" src="../Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp" />
 <img alt="CPP(BTN)" src="../Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp" /></p>
