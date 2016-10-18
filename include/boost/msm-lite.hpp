@@ -617,8 +617,19 @@ template <class T, class TEvent>
 struct get_all_events_impl<sm<T>, TEvent> {
   using type = aux::join_t<aux::type_list<TEvent>, typename sm<T>::events>;
 };
+template <class, class TEvent>
+struct get_sub_internal_events_impl {
+  using type = aux::conditional_t<aux::is_base_of<internal_event, TEvent>::value, aux::type_list<TEvent>, aux::type_list<>>;
+};
+template <class T, class TEvent>
+struct get_sub_internal_events_impl<sm<T>, TEvent> {
+  using type = aux::join_t<aux::type_list<TEvent>, typename sm_impl<T>::sub_internal_events>;
+};
 template <class... Ts>
 using get_all_events = aux::join_t<typename get_all_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
+template <class... Ts>
+using get_sub_interal_events =
+    aux::join_t<typename get_sub_internal_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
 template <class... Ts>
 using get_events = aux::type_list<typename Ts::event...>;
 template <class T>
@@ -691,7 +702,8 @@ class sm_impl {
   using has_history_states =
       aux::integral_constant<bool, aux::size<initial_states_t>::value != aux::size<initial_but_not_history_states_t>::value>;
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
-  using events_ids_t = aux::apply_t<aux::pool, events_t>;
+  using sub_internal_events = aux::apply_t<get_sub_interal_events, transitions_t>;
+  using events_ids_t = aux::apply_t<aux::pool, aux::apply_t<aux::unique_t, aux::join_t<sub_internal_events, events_t>>>;
   using defer = aux::apply_t<aux::variant, events_t>;
   using defer_t = defer_queue_t<defer>;
   using deps = aux::apply_t<merge_deps, transitions_t>;
@@ -741,8 +753,9 @@ class sm_impl {
       TSub &sub_sms_;
       defer_t &defer_;
     } self_{deps, *this, sub, defer_};
-    process_internal_event(self_, anonymous{});
-    process_internal_event(self_, on_entry{});
+    if (!process_internal_event(self_, anonymous{})) {
+      process_internal_event(self_, on_entry{});
+    }
   }
 
  private:

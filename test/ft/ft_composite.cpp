@@ -6,10 +6,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <boost/msm-lite.hpp>
-#include <iostream>
 #include <string>
-#include <typeinfo>
 #include <utility>
+#include <vector>
 
 namespace msm = boost::msm::lite;
 
@@ -614,4 +613,65 @@ test composite_anonymous_explicit_transitions = [] {
 
   sm.process_event("e3"_e);
   expect(sm.is("s2"_s));
+};
+
+test composite_sub_entry_exit = [] {
+  enum class calls {
+    a1_entry,
+    a1_exit,
+    b1_entry,
+    b1_exit
+  };
+
+  struct A {
+    auto operator()() const noexcept {
+      using namespace msm;
+      using msm::on_exit;
+      const auto a1 = state<class A1>;
+      const auto a2 = state<class A2>;
+      // clang-format off
+      return make_transition_table(
+        *a1 + event<e2> = a2,
+         a1 + on_entry / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
+         a1 + on_exit / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); }
+      );
+      // clang-format on
+    }
+  };
+
+  struct B {
+    auto operator()() const noexcept {
+      using namespace msm;
+      using msm::on_exit;
+      const auto b1 = state<class B1>;
+      const auto b2 = state<class B2>;
+      // clang-format off
+      return make_transition_table(
+        *b1 + event<e2> = b2,
+         b1 + on_entry / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
+         b1 + on_exit / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); }
+      );
+      // clang-format on
+    }
+  };
+
+  struct SM {
+    auto operator()() const noexcept {
+      using namespace msm;
+      using msm::on_exit;
+      // clang-format off
+      return make_transition_table(
+        *state<class init> = state<A>,
+         state<A> + event<e1> = state<B>,
+         state<B>  + event<e3> = "state"_s
+      );
+      // clang-format on
+    }
+  };
+
+  std::vector<calls> c_;
+  msm::sm<SM> sm{c_};
+  expect(std::vector<calls>{calls::a1_entry} == c_);
+  sm.process_event(e1{});
+  expect(std::vector<calls>{calls::a1_entry, calls::a1_exit, calls::b1_entry} == c_);
 };
