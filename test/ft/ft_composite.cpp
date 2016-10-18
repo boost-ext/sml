@@ -215,13 +215,15 @@ test composite_entry_exit_initial_complex = [] {
     auto operator()() const noexcept {
       using namespace msm;
 
-      // clang-format on
-      return make_transition_table(*ss1_1 + event<e1> = ss1_2,
-                                   ss1_1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS1_1_entry); },
-                                   ss1_2 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS1_2_entry); },
-                                   ss1_1 + msm::on_exit / [](std::vector<calls>& c) { c.push_back(calls::SS1_1_exit); },
-                                   ss1_2 + msm::on_exit / [](std::vector<calls>& c) { c.push_back(calls::SS1_2_exit); });
       // clang-format off
+      return make_transition_table(
+        *ss1_1 + event<e1> = ss1_2,
+         ss1_1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS1_1_entry); },
+         ss1_2 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS1_2_entry); },
+         ss1_1 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS1_1_exit); },
+         ss1_2 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS1_2_exit); }
+      );
+      // clang-format on
     }
   };
 
