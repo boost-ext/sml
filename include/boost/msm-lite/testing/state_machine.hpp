@@ -6,6 +6,7 @@
 BOOST_MSM_LITE_NAMESPACE_BEGIN
 
 namespace testing {
+
 template <class TSM>
 class state_machine : public detail::sm<TSM> {
   using states_ids_t = aux::apply_t<aux::type_id, typename detail::sm<TSM>::states>;
@@ -24,6 +25,7 @@ class state_machine : public detail::sm<TSM> {
 
 template <class T, class... TPolicies> /*, BOOST_MSM_LITE_REQUIRES(concepts::configurable<T>::value)*/
 using sm = testing::state_machine<detail::sm_policy<T, TPolicies...>>;
+
 }  // testing
 
 BOOST_MSM_LITE_NAMESPACE_END

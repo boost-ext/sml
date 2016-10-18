@@ -176,7 +176,9 @@ class sm_impl {
   }
 
   template <class TSelf, class TEvent, BOOST_MSM_LITE_REQUIRES(!aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
-  bool process_internal_event(TSelf&, const TEvent&, ...) { return false; }
+  bool process_internal_event(TSelf &, const TEvent &, ...) {
+    return false;
+  }
 
   template <class TSelf, class TEvent, BOOST_MSM_LITE_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
   bool process_internal_event(TSelf &self, const TEvent &event) {

@@ -6,8 +6,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <boost/msm-lite.hpp>
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 
 namespace msm = boost::msm::lite;
 
@@ -177,4 +177,3 @@ test unexpected_event_orthogonal_region = [] {
   sm.process_event(e2{});
   expect(sm.is("s1"_s, X));
 };
-

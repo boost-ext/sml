@@ -16,8 +16,8 @@ struct event2 {};
 
 test defer_minimal = [] {
   const auto c = [] {
-      using namespace msm;
-      // clang-format off
+    using namespace msm;
+    // clang-format off
       return make_transition_table(
        *"state1"_s + event<event1> / defer,
         "state1"_s + event<event2> = "state2"_s,

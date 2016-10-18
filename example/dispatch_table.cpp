@@ -37,7 +37,7 @@ struct dispatch_table {
 int main() {
   msm::sm<dispatch_table> sm;
 
-  auto dispatch_event = msm::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max*/>(sm);
+  auto dispatch_event = msm::utility::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max*/>(sm);
 
   {
     runtime_event event{1};

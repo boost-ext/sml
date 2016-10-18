@@ -36,15 +36,15 @@ int main() {
   using namespace msm;
   sm<error_handling> sm;
 
-  sm.process_event("event1"_e);// throws runtime_error
+  sm.process_event("event1"_e);  // throws runtime_error
   assert(sm.is("idle"_s, "exceptions handling"_s, "unexpected events handling"_s));
 
-  sm.process_event("event2"_e); // throws 0
+  sm.process_event("event2"_e);  // throws 0
   assert(sm.is("idle"_s, X, "unexpected events handling"_s));
 
-  sm.process_event(some_event{}); // unexpected event
+  sm.process_event(some_event{});  // unexpected event
   assert(sm.is("idle"_s, X, "unexpected events handling"_s));
 
-  sm.process_event(int{}); // unexpected any event
+  sm.process_event(int{});  // unexpected any event
   assert(sm.is("idle"_s, X, X));
 }

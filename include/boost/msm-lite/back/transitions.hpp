@@ -8,18 +8,14 @@ struct _ {};
 template <class TException>
 struct exception : internal_event {
   using type = TException;
-  explicit exception(const TException& exception = {})
-    : exception_(exception)
-  { }
+  explicit exception(const TException &exception = {}) : exception_(exception) {}
   TException exception_;
 };
 
 template <class TEvent = _>
 struct unexpected_event : internal_event {
   using type = TEvent;
-  explicit unexpected_event(const TEvent& event = {})
-    : event_(event)
-  { }
+  explicit unexpected_event(const TEvent &event = {}) : event_(event) {}
   TEvent event_;
 };
 
@@ -63,7 +59,7 @@ struct transitions<T> {
 template <>
 struct transitions<> {
   template <class SM, class TEvent>
-  static bool execute(SM & self, const TEvent & event, aux::byte & current_state) {
+  static bool execute(SM &self, const TEvent &event, aux::byte &current_state) {
     self.me_.process_internal_event(self, unexpected_event<TEvent>{event}, current_state);
     return false;
   }

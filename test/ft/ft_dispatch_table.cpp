@@ -42,10 +42,10 @@ struct event4 {};
 
 test dispatchable_concept = [] {
   using namespace msm;
-  static_expect(!concepts::dispatchable<runtime_event, aux::type_list<event4, event1>>::value);
-  static_expect(concepts::dispatchable<runtime_event, aux::type_list<>>::value);
-  static_expect(concepts::dispatchable<runtime_event, aux::type_list<event1, event2>>::value);
-  static_expect(concepts::dispatchable<runtime_event, aux::type_list<event2, event1>>::value);
+  static_expect(!utility::concepts::dispatchable<runtime_event, aux::type_list<event4, event1>>::value);
+  static_expect(utility::concepts::dispatchable<runtime_event, aux::type_list<>>::value);
+  static_expect(utility::concepts::dispatchable<runtime_event, aux::type_list<event1, event2>>::value);
+  static_expect(utility::concepts::dispatchable<runtime_event, aux::type_list<event2, event1>>::value);
 };
 
 test dispatch_runtime_event = [] {
@@ -66,7 +66,7 @@ test dispatch_runtime_event = [] {
 
   msm::sm<c> sm;
   expect(sm.is(idle));
-  auto dispatcher = msm::make_dispatch_table<runtime_event, 1 /*min*/, 10 /*max*/>(sm);
+  auto dispatcher = msm::utility::make_dispatch_table<runtime_event, 1 /*min*/, 10 /*max*/>(sm);
 
   {
     runtime_event event{1};
@@ -130,7 +130,7 @@ test dispatch_runtime_event_sub_sm = [] {
   msm::sm<c> sm;
   expect(sm.is(idle));
 
-  auto dispatcher = msm::make_dispatch_table<runtime_event, 1 /*min*/, 4 /*max*/>(sm);
+  auto dispatcher = msm::utility::make_dispatch_table<runtime_event, 1 /*min*/, 4 /*max*/>(sm);
 
   {
     runtime_event event{1};

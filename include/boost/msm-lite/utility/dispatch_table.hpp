@@ -5,7 +5,9 @@
 
 BOOST_MSM_LITE_NAMESPACE_BEGIN
 
+namespace utility {
 namespace concepts {
+
 template <class>
 aux::false_type dispatchable_impl(...);
 template <class...>
@@ -80,5 +82,7 @@ auto make_dispatch_table(sm<SM> &fsm) {
 }
 
 BOOST_MSM_LITE_NAMESPACE_END
+
+}  // utility
 
 #endif
