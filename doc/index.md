@@ -89,7 +89,7 @@ to avoid it `Boost.MSM-lite` may suit you!
     * Short and informative error messages (see [Error Messages](overview.md#error-messages))
     * Less boilerplate / no macros (see [Hello World](examples.md#hello-world))
     * Improve visibility by having all actions on transition table (see [States](examples.md#states))
-	* Allows loosely coupled design (see [Dependency Injection](examples.md#dependency-injection))
+    * Allows loosely coupled design (see [Dependency Injection](examples.md#dependency-injection))
     * Functional programming support using lamda expressions (see [Action/Guards](examples.md#action-guards))
     * No dependencies / one header (2k LOC)
 

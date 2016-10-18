@@ -576,3 +576,42 @@ test composite_with_orthogonal_regions_explicit_entry_deduce_region = [] {
   expect(sm.is(msm::state<sub>));
   // expect(subsm.is(idle, s3));
 };
+
+test composite_anonymous_explicit_transitions = [] {
+  struct SubState {
+    auto operator()() const noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+        *"ss1"_s + "e2"_e = "final"_s
+      );
+      // clang-format on
+    }
+  };
+
+  struct TopState {
+    auto operator()() const noexcept {
+      using namespace msm;
+      // clang-format off
+      return make_transition_table(
+          *"s1"_s + "e1"_e = state<SubState>,
+          state<SubState>("final"_s) + "e3"_e = "s2"_s   // Works.
+          //state<SubState>("final"_s) / []{} = "s2"_s     // Compiles, but doesn't work.
+          //state<SubState>("final"_s) = "s2"_s            // Compilation error.
+      );
+      // clang-format on
+    }
+  };
+
+  msm::sm<TopState> sm;
+  using namespace msm;
+
+  sm.process_event("e1"_e);
+  expect(sm.is(state<SubState>));
+
+  sm.process_event("e2"_e);
+  expect(sm.is(state<SubState>));
+
+  sm.process_event("e3"_e);
+  expect(sm.is("s2"_s));
+};

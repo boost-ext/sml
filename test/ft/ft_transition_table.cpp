@@ -119,6 +119,13 @@ test transition_table_types = [] {
       auto action1 = [] {};
       auto action2 = [](int, auto, float &) {};
 
+      struct sub {
+        auto operator()() noexcept {
+          using namespace msm;
+          return make_transition_table();
+        }
+      };
+
       // clang-format off
       return make_transition_table(
          *idle + event<e1> [guard1] / (action1, []{}) = s1
@@ -148,6 +155,9 @@ test transition_table_types = [] {
         , idle + event<e2> [guard1 || guard2] / (action1, action2, []{}, [](int, auto, float){}) = s1
         , idle + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float){}) = X
         , idle + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto) { return false; } ] / (action1, action2, []{}, [](int, auto, double){}) = X
+        , state<sub> + event<e1> / []{}
+        , state<sub>(s1) + event<e1> / []{}
+        , state<sub>(s1) = s2
         , s1 <= *idle + event<e1> [guard1] / (action1, []{})
         , s2 <= s1 + event<e2> / ([] { })
         , s1 <= s2 + event<e4> / defer

@@ -1368,6 +1368,10 @@ struct state<TState(TExplicitStates...)> : state_impl<state<TState(TExplicitStat
   using explicit_states = aux::type_list<TExplicitStates...>;
   static constexpr auto initial = false;
   static constexpr auto history = false;
+  template <class T>
+  auto operator=(const T &t) const {
+    return transition<T, state>{t, *this};
+  }
 };
 }
 namespace detail {
