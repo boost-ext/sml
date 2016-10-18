@@ -1014,7 +1014,7 @@ class sm {
   sm &operator=(const sm &) = delete;
   template <class... TDeps, BOOST_MSM_LITE_REQUIRES(dependable<TDeps...>::value)>
   explicit sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
-    start(aux::type<sub_sms_t>{});
+    static_cast<aux::pool_type<sm_impl<TSM>> &>(sub_sms_).value.start(deps_, sub_sms_);
   }
   explicit sm(deps_t &deps) : deps_(deps), sub_sms_{deps} { start(aux::type<sub_sms_t>{}); }
   template <class TEvent, BOOST_MSM_LITE_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
@@ -1051,13 +1051,6 @@ class sm {
     visit_current_states(
         [&](auto state) { result &= (aux::get_id<states_ids_t, 0, typename decltype(state)::type>() == state_ids[i++]); });
     return result;
-  }
-
- private:
-  template <class... Ts>
-  void start(const aux::type<aux::pool<Ts...>> &) {
-    int _[]{0, (static_cast<aux::pool_type<Ts> &>(sub_sms_).value.start(deps_, sub_sms_), 0)...};
-    (void)_;
   }
 
  protected:

@@ -6,7 +6,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <boost/msm-lite.hpp>
+#include <iostream>
 #include <string>
+#include <typeinfo>
 #include <utility>
 
 namespace msm = boost::msm::lite;
@@ -145,6 +147,48 @@ test composite_def_ctor = [] {
   sm.process_event(e5());
   expect(2 == in_sub);
   expect(sm.is(s2));
+};
+
+test composite_entry_exit_initial = [] {
+  struct sub {
+    auto operator()() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+         *idle + msm::on_entry / [this] { ++entry_calls; },
+          idle + msm::on_exit / [this] { ++exit_calls; }
+      );
+      // clang-format on
+    }
+
+    int entry_calls = 0;
+    int exit_calls = 0;
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      using namespace msm;
+
+      // clang-format off
+      return make_transition_table(
+         *state<sub> + msm::on_entry / [this] { ++entry_calls; },
+          state<sub> + msm::on_exit / [this] { ++exit_calls; }
+      );
+      // clang-format on
+    }
+
+    int entry_calls = 0;
+    int exit_calls = 0;
+  };
+
+  sub sub_;
+  c c_;
+  msm::sm<c> sm{c_, sub_};
+  expect(1 == c_.entry_calls);
+  expect(0 == c_.exit_calls);
+  expect(1 == sub_.entry_calls);
+  expect(0 == sub_.exit_calls);
 };
 
 test composite_transition_the_same_event = [] {

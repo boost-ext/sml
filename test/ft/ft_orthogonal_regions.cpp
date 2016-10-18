@@ -81,23 +81,46 @@ test orthogonal_regions_event_consumed_by_all_regions = [] {
   expect(sm.is(s2, s4));
 };
 
+test orthogonal_regions_initial_entry = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace msm;
+      // clang-format off
+
+      return make_transition_table(
+          *idle + msm::on_entry / [this] { ++entry_1; }
+        , *idle2 + msm::on_entry / [this] { ++entry_2; }
+      );
+      // clang-format on
+    }
+
+    int entry_1 = 0;
+    int entry_2 = 0;
+  };
+
+  c c_;
+  msm::sm<c> sm{c_};
+  expect(1 == c_.entry_1);
+  expect(1 == c_.entry_2);
+};
+
 test orthogonal_regions_entry_exit = [] {
   struct c {
     auto operator()() noexcept {
       using namespace msm;
-      auto entry_action = [this] { a_entry_action++; };
-      auto exit_action = [this] { a_exit_action++; };
+      auto entry_action = [this] { ++a_entry_action; };
+      auto exit_action = [this] { ++a_exit_action; };
 
       // clang-format off
-	  return make_transition_table(
-  		 *idle + event<e1> = s1
-  		, s1 + msm::on_entry / entry_action
-  		, s1 + msm::on_exit / exit_action
-  		, s1 + event<e2> = s2
+      return make_transition_table(
+         *idle + event<e1> = s1
+        , s1 + msm::on_entry / entry_action
+        , s1 + msm::on_exit / exit_action
+        , s1 + event<e2> = s2
 
-      ,*idle2 + event<e3> = s3
-      , s3 + event<e2> = s4
-	  );
+        ,*idle2 + event<e3> = s3
+        , s3 + event<e2> = s4
+      );
       // clang-format on
     }
 
