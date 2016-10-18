@@ -98,6 +98,19 @@
         
             <ul>
             
+                <li class="toctree-l3"><a href="#msm-lite-vs-boostmsm-euml-vs-booststatechart">MSM-lite vs Boost.MSM-eUML vs Boost.Statechart</a></li>
+                
+                    <li><a class="toctree-l4" href="#overview">Overview</a></li>
+                
+                    <li><a class="toctree-l4" href="#details">Details</a></li>
+                
+                    <li><a class="toctree-l4" href="#uml-features">UML features</a></li>
+                
+                    <li><a class="toctree-l4" href="#non-uml-features">Non-UML features</a></li>
+                
+                    <li><a class="toctree-l4" href="#benchmarks">Benchmarks</a></li>
+                
+            
             </ul>
         
     </li>
@@ -172,7 +185,264 @@
           <div role="main">
             <div class="section">
               
-                <table>
+                <h2 id="msm-lite-vs-boostmsm-euml-vs-booststatechart">MSM-lite vs Boost.MSM-eUML vs Boost.Statechart</h2>
+<hr />
+<h3 id="overview">Overview</h3>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>MSM-lite</th>
+<th>Boost.MSM-eUML</th>
+<th>Boost.Statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Standard</td>
+<td>C++14</td>
+<td>C++98/03</td>
+<td>C++98/03</td>
+</tr>
+<tr>
+<td>Version</td>
+<td>1.0.1</td>
+<td>1.61</td>
+<td>1.61</td>
+</tr>
+<tr>
+<td>License</td>
+<td>Boost 1.0</td>
+<td>Boost 1.0</td>
+<td>Boost 1.0</td>
+</tr>
+<tr>
+<td>Linkage</td>
+<td>header only</td>
+<td>header only</td>
+<td>header only</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="details">Details</h3>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>MSM-lite</th>
+<th>Boost.MSM-eUML</th>
+<th>Boost.Statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UML</td>
+<td>2.0</td>
+<td>2.0</td>
+<td>1.5</td>
+</tr>
+<tr>
+<td>RTTI</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Exceptions</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Memory Allocations</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="uml-features">UML features</h3>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>MSM-lite</th>
+<th>Boost.MSM-eUML</th>
+<th>Boost.Statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Transition</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Anonymous transition</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Internal transition</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Local transitions</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>State entry/exit</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Guard</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Action</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Event defering</td>
+<td>~</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Error handling</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Initial state</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Terminate State</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Explicit entry</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Explicit exit</td>
+<td>-</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Fork</td>
+<td>-</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Orthogonal regions</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Sub / Composite</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Shallow History</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Deep History</td>
+<td>~</td>
+<td>~</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="non-uml-features">Non-UML features</h3>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>MSM-lite</th>
+<th>Boost.MSM-eUML</th>
+<th>Boost.Statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Any event</td>
+<td>-</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Flags</td>
+<td>-</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Interrupt state</td>
+<td>-</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>State Visitor</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Serialization</td>
+<td>-</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Dispatcher</td>
+<td>✓</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Asynchronous SM</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="benchmarks">Benchmarks</h3>
+<table>
 <thead>
 <tr>
 <th>Test</th>
