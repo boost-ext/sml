@@ -37,7 +37,8 @@ struct get_sub_internal_events_impl<sm<T>, TEvent> {
 template <class... Ts>
 using get_all_events = aux::join_t<typename get_all_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
 template <class... Ts>
-using get_sub_interal_events = aux::join_t<typename get_sub_internal_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
+using get_sub_interal_events =
+    aux::join_t<typename get_sub_internal_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
 template <class... Ts>
 using get_events = aux::type_list<typename Ts::event...>;
 template <class T>
