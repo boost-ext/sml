@@ -6,8 +6,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <boost/msm-lite.hpp>
-#include <string>
 #include <map>
+#include <string>
 
 namespace msm = boost::msm::lite;
 
