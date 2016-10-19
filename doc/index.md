@@ -108,6 +108,7 @@ to avoid it `Boost.SML` may suit you!
 * Orthogonal regions (see [Orthogonal Regions](examples.md#orthogonal-regions))
 * Sub / Composite state machines (see [Composite](examples.md#composite))
 * History (see [History](examples.md#history))
+* Defer/Process (see [Defer/Process](examples.md#deferprocess))
 
 ###*Additional* features
 
