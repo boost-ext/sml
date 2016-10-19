@@ -9,9 +9,9 @@
 #include <cassert>
 #include <iostream>
 #include <typeinfo>
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 //<-
 namespace {
@@ -73,7 +73,7 @@ struct action2 {
 
 struct actions_guards {
   auto operator()() noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
        *"idle"_s + event<e1> = "s1"_s
@@ -95,11 +95,11 @@ struct actions_guards {
 };
 
 int main() {
-  msm::sm<actions_guards> sm{42};
+  sml::sm<actions_guards> sm{42};
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
   sm.process_event(e4{});
   sm.process_event(e5{});
-  assert(sm.is(msm::X));
+  assert(sm.is(sml::X));
 }

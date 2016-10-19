@@ -7,9 +7,9 @@
 //
 #include <cassert>
 #include <iostream>
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -24,7 +24,7 @@ auto action = [] { std::cout << "action" << std::endl; };
 
 struct hello_world {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
        *"idle"_s + event<e1> = "s1"_s
@@ -36,8 +36,8 @@ struct hello_world {
 };
 
 int main() {
-  msm::sm<hello_world> sm;
-  using namespace msm;
+  sml::sm<hello_world> sm;
+  using namespace sml;
   assert(sm.is("idle"_s));
   sm.process_event(e1{});
   assert(sm.is("s1"_s));

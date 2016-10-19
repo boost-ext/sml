@@ -5,11 +5,11 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "boost/msm-lite/utility/dispatch_table.hpp"
+#include "boost/sml/utility/dispatch_table.hpp"
 #include <cassert>
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct runtime_event {
   int id = 0;
@@ -24,7 +24,7 @@ struct event2 {
 
 struct dispatch_table {
   auto operator()() noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
        *"idle"_s + event<event1> = "s1"_s
@@ -35,9 +35,9 @@ struct dispatch_table {
 };
 
 int main() {
-  msm::sm<dispatch_table> sm;
+  sml::sm<dispatch_table> sm;
 
-  auto dispatch_event = msm::utility::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max*/>(sm);
+  auto dispatch_event = sml::utility::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max*/>(sm);
 
   {
     runtime_event event{1};
@@ -49,5 +49,5 @@ int main() {
     dispatch_event(event, event.id);
   }
 
-  assert(sm.is(msm::X));
+  assert(sm.is(sml::X));
 }

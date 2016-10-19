@@ -1,7 +1,7 @@
 #ifndef DEFER_W9M9BM8H
 #define DEFER_W9M9BM8H
 
-#include "boost/msm-lite/front/fwd.hpp"
+#include "boost/sml/front/fwd.hpp"
 
 namespace detail {
 

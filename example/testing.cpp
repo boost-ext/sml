@@ -6,10 +6,10 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <cassert>
-#include "boost/msm-lite.hpp"
-#include "boost/msm-lite/testing/state_machine.hpp"
+#include "boost/sml.hpp"
+#include "boost/sml/testing/state_machine.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -21,7 +21,7 @@ struct data {
 
 struct fsm {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
 
     auto guard = [](data& d) { return !d.value; };
     auto action = [](data& d) { d.value = 42; };
@@ -37,7 +37,7 @@ struct fsm {
 };
 
 int main() {
-  using namespace msm;
+  using namespace sml;
   data fake_data{0};
   testing::sm<fsm> sm{fake_data};
   sm.set_current_states("s2"_s);

@@ -1,16 +1,16 @@
 #ifndef BACK_E56KIYAC
 #define BACK_E56KIYAC
 
-#include "boost/msm-lite/aux_/type_traits.hpp"
-#include "boost/msm-lite/aux_/utility.hpp"
-#include "boost/msm-lite/back/concepts/callable.hpp"
-#include "boost/msm-lite/back/concepts/configurable.hpp"
-#include "boost/msm-lite/back/concepts/stringable.hpp"
-#include "boost/msm-lite/back/concepts/transitional.hpp"
-#include "boost/msm-lite/back/internal.hpp"
-#include "boost/msm-lite/back/mappings.hpp"
-#include "boost/msm-lite/back/policies.hpp"
-#include "boost/msm-lite/back/transitions.hpp"
+#include "boost/sml/aux_/type_traits.hpp"
+#include "boost/sml/aux_/utility.hpp"
+#include "boost/sml/back/concepts/callable.hpp"
+#include "boost/sml/back/concepts/configurable.hpp"
+#include "boost/sml/back/concepts/stringable.hpp"
+#include "boost/sml/back/concepts/transitional.hpp"
+#include "boost/sml/back/internal.hpp"
+#include "boost/sml/back/mappings.hpp"
+#include "boost/sml/back/policies.hpp"
+#include "boost/sml/back/transitions.hpp"
 
 namespace detail {
 
@@ -188,12 +188,12 @@ class sm_impl {
     (void)_;
   }
 
-  template <class TSelf, class TEvent, BOOST_MSM_LITE_REQUIRES(!aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
+  template <class TSelf, class TEvent, BOOST_SML_REQUIRES(!aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
   bool process_internal_event(TSelf &, const TEvent &, ...) {
     return false;
   }
 
-  template <class TSelf, class TEvent, BOOST_MSM_LITE_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
+  template <class TSelf, class TEvent, BOOST_SML_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
   bool process_internal_event(TSelf &self, const TEvent &event) {
     log_process_event<logger_t, sm_raw_t>(has_logger{}, self.deps_, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
@@ -204,12 +204,12 @@ class sm_impl {
 #endif  // __pph__
   }
 
-  template <class TSelf, class TEvent, BOOST_MSM_LITE_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
+  template <class TSelf, class TEvent, BOOST_SML_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
   bool process_internal_event(TSelf &self, const TEvent &event, aux::byte &current_state) {
     log_process_event<logger_t, sm_raw_t>(has_logger{}, self.deps_, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
     return process_event_noexcept(event, self, current_state, has_exceptions{});
-#else  // __pph__
+#else   // __pph__
     return process_event_impl<get_event_mapping_t<TEvent, mappings_t>>(event, self, states_t{}, current_state);
 #endif  // __pph__
   }
@@ -387,8 +387,10 @@ class sm_impl {
     // TODO
   }
 
-  template <class T, class TSelf, class... Ts, class... THs>  // history states, no explicit
-  void update_composite_states(TSelf &self, const aux::type_list<> &, const aux::true_type &, const aux::type_list<THs...> &) {
+  template <class T, class TSelf, class... Ts,
+            class... THs>  // history states, no explicit
+  void
+  update_composite_states(TSelf &self, const aux::type_list<> &, const aux::true_type &, const aux::type_list<THs...> &) {
     auto &sm = aux::try_get<T>(&self.sub_sms_);
     int _[]{0, (sm.current_state_[aux::get_id<typename T::initial_states_ids_t, -1, THs>()] =
                     aux::get_id<typename T::states_ids_t, -1, THs>(),
@@ -484,19 +486,19 @@ class sm {
   sm(const sm &) = delete;
   sm &operator=(const sm &) = delete;
 
-  template <class... TDeps, BOOST_MSM_LITE_REQUIRES(dependable<TDeps...>::value)>
+  template <class... TDeps, BOOST_SML_REQUIRES(dependable<TDeps...>::value)>
   explicit sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
     static_cast<aux::pool_type<sm_impl<TSM>> &>(sub_sms_).value.start(deps_, sub_sms_);
   }
 
   explicit sm(deps_t &deps) : deps_(deps), sub_sms_{deps} { start(aux::type<sub_sms_t>{}); }
 
-  template <class TEvent, BOOST_MSM_LITE_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
+  template <class TEvent, BOOST_SML_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
   void process_event(const TEvent &event) {
     static_cast<aux::pool_type<sm_impl<TSM>> &>(sub_sms_).value.process_event(event, deps_, sub_sms_);
   }
 
-  template <class TEvent, BOOST_MSM_LITE_REQUIRES(!aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
+  template <class TEvent, BOOST_SML_REQUIRES(!aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
   void process_event(const TEvent &) {
     static_cast<aux::pool_type<sm_impl<TSM>> &>(sub_sms_).value.process_event(unexpected_event<>{}, deps_, sub_sms_);
   }
@@ -506,7 +508,7 @@ class sm {
     process_event(TEvent{});
   }
 
-  template <class TVisitor, BOOST_MSM_LITE_REQUIRES(concepts::callable<void, TVisitor>::value)>
+  template <class TVisitor, BOOST_SML_REQUIRES(concepts::callable<void, TVisitor>::value)>
   void visit_current_states(const TVisitor &visitor) const {
     using states_t = typename sm_impl<TSM>::states_t;
     constexpr auto regions = sm_impl<TSM>::regions;
@@ -521,7 +523,7 @@ class sm {
     return result;
   }
 
-  template <class... TStates, BOOST_MSM_LITE_REQUIRES(sizeof...(TStates) == sm_impl<TSM>::regions)>
+  template <class... TStates, BOOST_SML_REQUIRES(sizeof...(TStates) == sm_impl<TSM>::regions)>
   bool is(const state<TStates> &...) const {
     auto result = true;
     auto i = 0;

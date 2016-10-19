@@ -9,26 +9,26 @@
 #if __has_include(<boost/di.hpp>)
 // clang-format on
 #include <boost/di.hpp>
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 
 namespace di = boost::di;
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
-const auto idle = msm::state<class idle>;
-const auto s1 = msm::state<class s1>;
+const auto idle = sml::state<class idle>;
+const auto s1 = sml::state<class s1>;
 
 test di_minimal = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       return make_transition_table(*idle + event<e1> / [](int i) { expect(42 == i); });
     }
   };
 
   auto injector = di::make_injector(di::bind<>.to(42));
-  auto sm = injector.create<msm::sm<c>>();
+  auto sm = injector.create<sml::sm<c>>();
   expect(sm.is(idle));
   sm.process_event(e1{});
   expect(sm.is(idle));
@@ -77,7 +77,7 @@ test di_complex = [] {
 
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
 
       auto guard1 = [](int i, const auto &, double d) {
         expect(42 == i);
@@ -128,13 +128,13 @@ test di_complex = [] {
     , di::bind<i5>.to<impl5>()
   );
   // clang-format on
-  auto sm = injector.create<msm::sm<c>>();
+  auto sm = injector.create<sml::sm<c>>();
   expect(sm.is(idle));
 
   sm.process_event(e1{});
   expect(sm.is(s1));
 
   sm.process_event(e2{});
-  expect(sm.is(msm::X));
+  expect(sm.is(sml::X));
 };
 #endif

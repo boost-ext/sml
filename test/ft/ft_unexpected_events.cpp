@@ -5,11 +5,11 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 #include <map>
 #include <string>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -17,7 +17,7 @@ struct e2 {};
 test unexpected_event_empty = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *"idle"_s  + unexpected_event<e1> = X
@@ -26,15 +26,15 @@ test unexpected_event_empty = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});
-  expect(sm.is(msm::X));
+  expect(sm.is(sml::X));
 };
 
 test unexpected_specific_initial_state = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *("idle"_s) + event<e1> / []{},
@@ -44,8 +44,8 @@ test unexpected_specific_initial_state = [] {
     }
   };
 
-  msm::sm<c> sm;
-  using namespace msm;
+  sml::sm<c> sm;
+  using namespace sml;
   sm.process_event(e1{});
   expect(sm.is("idle"_s));
   sm.process_event(e2{});
@@ -55,7 +55,7 @@ test unexpected_specific_initial_state = [] {
 test unexpected_specific_event = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *("idle"_s)   + event<e1> = "handled"_s,
@@ -65,8 +65,8 @@ test unexpected_specific_event = [] {
     }
   };
 
-  msm::sm<c> sm;
-  using namespace msm;
+  sml::sm<c> sm;
+  using namespace sml;
   sm.process_event(e1{});
   expect(sm.is("handled"_s));
   sm.process_event(e1{});
@@ -79,7 +79,7 @@ test unexpected_specific_event_with_data = [] {
   };
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *("idle"_s)   + event<e1> = "handled"_s,
@@ -90,8 +90,8 @@ test unexpected_specific_event_with_data = [] {
     }
   };
 
-  msm::sm<c> sm;
-  using namespace msm;
+  sml::sm<c> sm;
+  using namespace sml;
   sm.process_event(e1{});
   expect(sm.is("handled"_s));
   sm.process_event(event_data{42});
@@ -102,7 +102,7 @@ test unexpected_any_event = [] {
   enum class calls { unexpected_event_e1, unexpected_event_e2, unexpected_event_any };
   struct c {
     auto operator()() {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *("idle"_s)   + event<e1> = "handled"_s,
@@ -117,8 +117,8 @@ test unexpected_any_event = [] {
   };
 
   c c_;
-  msm::sm<c> sm{c_};
-  using namespace msm;
+  sml::sm<c> sm{c_};
+  using namespace sml;
   sm.process_event(e1{});
   expect(sm.is("handled"_s));
 
@@ -156,7 +156,7 @@ test unexpected_any_event = [] {
 test unexpected_event_orthogonal_region = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *("idle"_s)   + event<e1> = "s1"_s,
@@ -166,8 +166,8 @@ test unexpected_event_orthogonal_region = [] {
     }
   };
 
-  msm::sm<c> sm;
-  using namespace msm;
+  sml::sm<c> sm;
+  using namespace sml;
 
   sm.process_event(e1{});
   expect(sm.is("s1"_s, "errors"_s));

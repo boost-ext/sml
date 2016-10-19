@@ -5,11 +5,11 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 #include <string>
 #include <utility>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -18,14 +18,14 @@ struct e4 {};
 struct e5 {};
 struct e6 {};
 
-const auto idle = msm::state<class idle>;
-const auto s1 = msm::state<class s1>;
-const auto s2 = msm::state<class s2>;
+const auto idle = sml::state<class idle>;
+const auto s1 = sml::state<class s1>;
+const auto s2 = sml::state<class s2>;
 
 test terminate_state = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
@@ -35,22 +35,22 @@ test terminate_state = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   expect(sm.is(idle));
   sm.process_event(e1{});
   expect(sm.is(s1));
   sm.process_event(e2{});
-  expect(sm.is(msm::X));
+  expect(sm.is(sml::X));
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
-  expect(sm.is(msm::X));
+  expect(sm.is(sml::X));
 };
 
 test is_state = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
@@ -60,7 +60,7 @@ test is_state = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   expect(sm.is(idle));
   sm.process_event(e1{});
   expect(sm.is(s1));
@@ -73,7 +73,7 @@ test is_state = [] {
 test state_names = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -83,7 +83,7 @@ test state_names = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.visit_current_states([](auto state) { expect(std::string{"idle"} == std::string{state.c_str()}); });
   sm.process_event(e1{});
   sm.visit_current_states([](auto state) { expect(std::string{"s1"} == std::string{state.c_str()}); });
@@ -92,15 +92,15 @@ test state_names = [] {
 test states_entry_exit_actions = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       auto entry_action = [this] { a_entry_action++; };
       auto exit_action = [this] { a_exit_action++; };
 
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
-        , s1 + msm::on_entry / entry_action
-        , s1 + msm::on_exit / exit_action
+        , s1 + sml::on_entry / entry_action
+        , s1 + sml::on_exit / exit_action
         , s1 + event<e2> = s2
       );
       // clang-format on
@@ -111,7 +111,7 @@ test states_entry_exit_actions = [] {
   };
 
   c c_;
-  msm::sm<c> sm{c_};
+  sml::sm<c> sm{c_};
   expect(!c_.a_entry_action);
   expect(sm.is(idle));
   sm.process_event(e1{});

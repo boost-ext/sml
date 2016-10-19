@@ -5,16 +5,16 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct runtime_event {};
 struct e1 {};  // missing id
 
 struct not_dispatchable {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
         *"idle"_s + event<e1> = X
@@ -24,6 +24,6 @@ struct not_dispatchable {
 };
 
 int main() {
-  msm::sm<not_dispatchable> sm;
-  msm::make_dispatch_table<runtime_event, 1, 10>(sm);
+  sml::sm<not_dispatchable> sm;
+  sml::make_dispatch_table<runtime_event, 1, 10>(sm);
 }

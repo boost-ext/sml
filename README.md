@@ -7,7 +7,7 @@
 
 ---------------------------------------
 
-#Experimental Boost.MSM-lite
+#Experimental Boost.SML (formerly known as Boost.MSM-lite)
 
 > Your scalable C++14 header only eUML-like Meta State Machine library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/msm-lite/examples/index.html#hello-world))
 

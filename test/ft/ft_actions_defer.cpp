@@ -5,18 +5,18 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 #include <queue>
 #include <vector>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct event1 {};
 struct event2 {};
 
 test defer_minimal = [] {
   const auto c = [] {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
       return make_transition_table(
        *"state1"_s + event<event1> / defer,
@@ -26,10 +26,10 @@ test defer_minimal = [] {
       // clang-format off
   };
 
-  msm::sm<decltype(c), msm::defer_queue<std::queue>> sm{c};
+  sml::sm<decltype(c), sml::defer_queue<std::queue>> sm{c};
   sm.process_event(event1());
   sm.process_event(event2());
-  expect(sm.is(msm::X));
+  expect(sm.is(sml::X));
 };
 
 test defer_queue_check = [] {
@@ -37,7 +37,7 @@ test defer_queue_check = [] {
   class B;
 
   const auto c = [] {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
        *"state1"_s + event<event1> / defer,
@@ -48,15 +48,15 @@ test defer_queue_check = [] {
       // clang-format off
   };
 
-  msm::sm<decltype(c), msm::defer_queue<std::queue>> sm{c};
+  sml::sm<decltype(c), sml::defer_queue<std::queue>> sm{c};
   sm.process_event(event1());
   sm.process_event(event2());
-  expect(sm.is(msm::state<A>));
+  expect(sm.is(sml::state<A>));
 };
 
 test defer_transition = [] {
   const auto c = [] {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
        *"state1"_s + event<event1> / defer = "state2"_s,
@@ -65,15 +65,15 @@ test defer_transition = [] {
       // clang-format off
   };
 
-  msm::sm<decltype(c), msm::defer_queue<std::queue>> sm{c};
+  sml::sm<decltype(c), sml::defer_queue<std::queue>> sm{c};
   sm.process_event(event1());
-  expect(sm.is(msm::X));
+  expect(sm.is(sml::X));
 };
 
 test defer_and_transitions = [] {
   struct c {
     auto operator()() {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
        *"state1"_s + event<event1> / defer,
@@ -97,7 +97,7 @@ test defer_and_transitions = [] {
   };
 
   c c_;
-  msm::sm<c, msm::defer_queue<std::queue>> sm{c_};
+  sml::sm<c, sml::defer_queue<std::queue>> sm{c_};
   sm.process_event(event1());
   sm.process_event(event1());
   sm.process_event(event2());
@@ -114,7 +114,7 @@ test defer_and_transitions = [] {
 test defer_and_anonymous = [] {
   struct c {
     auto operator()() {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
        *"state1"_s + event<event1> / defer,
@@ -135,7 +135,7 @@ test defer_and_anonymous = [] {
   };
 
   c c_;
-  msm::sm<c, msm::defer_queue<std::queue>> sm{c_};
+  sml::sm<c, sml::defer_queue<std::queue>> sm{c_};
   sm.process_event(event1());
   sm.process_event(event2());
 

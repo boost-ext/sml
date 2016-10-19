@@ -3,7 +3,7 @@ Checks:          'clang-diagnostic-*,clang-analyzer-*,-clang-analyzer-alpha*,*,-
 HeaderFilterRegex: msm
 AnalyzeTemporaryDtors: false
 User:            git
-CheckOptions:    
+CheckOptions:
   - key:             google-readability-braces-around-statements.ShortStatementLines
     value:           '1'
   - key:             google-readability-function-size.StatementThreshold

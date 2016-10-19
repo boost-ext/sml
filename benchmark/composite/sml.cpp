@@ -6,9 +6,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "benchmark.hpp"
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct play {};
 struct end_pause {};
@@ -33,7 +33,7 @@ auto start_prev_song = [] {};
 
 struct playing {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     auto Song1 = state<class Song1>;
     auto Song2 = state<class Song2>;
     auto Song3 = state<class Song3>;
@@ -51,7 +51,7 @@ struct playing {
 
 struct player {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     auto Empty = state<class Empty>;
     auto Open = state<class Open>;
     auto Stopped = state<class Stopped>;
@@ -78,7 +78,7 @@ struct player {
 };
 
 int main() {
-  msm::sm<player> sm;
+  sml::sm<player> sm;
 
   benchmark_execution_speed([&] {
     for (auto i = 0; i < 1'000; ++i) {

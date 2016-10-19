@@ -1,8 +1,8 @@
 #ifndef CONFIGURABLE_UPXBJTZ8
 #define CONFIGURABLE_UPXBJTZ8
 
-#include "boost/msm-lite/aux_/type_traits.hpp"
-#include "boost/msm-lite/aux_/utility.hpp"
+#include "boost/sml/aux_/type_traits.hpp"
+#include "boost/sml/aux_/utility.hpp"
 
 namespace concepts {
 template <class T>

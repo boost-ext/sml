@@ -5,12 +5,12 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 #include <string>
 #include <utility>
-#include "boost/msm-lite/utility/dispatch_table.hpp"
+#include "boost/sml/utility/dispatch_table.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -19,10 +19,10 @@ struct e4 {};
 struct e5 {};
 struct e6 {};
 
-const auto idle = msm::state<class idle>;
-const auto idle2 = msm::state<class idle2>;
-const auto s1 = msm::state<class s1>;
-const auto s2 = msm::state<class s2>;
+const auto idle = sml::state<class idle>;
+const auto idle2 = sml::state<class idle2>;
+const auto s1 = sml::state<class s1>;
+const auto s2 = sml::state<class s2>;
 
 struct runtime_event {
   int id = 0;
@@ -41,7 +41,7 @@ struct event3 {
 struct event4 {};
 
 test dispatchable_concept = [] {
-  using namespace msm;
+  using namespace sml;
   static_expect(!utility::concepts::dispatchable<runtime_event, aux::type_list<event4, event1>>::value);
   static_expect(utility::concepts::dispatchable<runtime_event, aux::type_list<>>::value);
   static_expect(utility::concepts::dispatchable<runtime_event, aux::type_list<event1, event2>>::value);
@@ -51,7 +51,7 @@ test dispatchable_concept = [] {
 test dispatch_runtime_event = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -64,9 +64,9 @@ test dispatch_runtime_event = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   expect(sm.is(idle));
-  auto dispatcher = msm::utility::make_dispatch_table<runtime_event, 1 /*min*/, 10 /*max*/>(sm);
+  auto dispatcher = sml::utility::make_dispatch_table<runtime_event, 1 /*min*/, 10 /*max*/>(sm);
 
   {
     runtime_event event{1};
@@ -89,13 +89,13 @@ test dispatch_runtime_event = [] {
   {
     runtime_event event{3};
     dispatcher(event, event.id);
-    expect(sm.is(msm::X));
+    expect(sm.is(sml::X));
   }
 
   {
     runtime_event event{5};
     dispatcher(event, event.id);
-    expect(sm.is(msm::X));
+    expect(sm.is(sml::X));
   }
 };
 
@@ -104,7 +104,7 @@ test dispatch_runtime_event_sub_sm = [] {
 
   struct sub {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -116,7 +116,7 @@ test dispatch_runtime_event_sub_sm = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -127,36 +127,36 @@ test dispatch_runtime_event_sub_sm = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   expect(sm.is(idle));
 
-  auto dispatcher = msm::utility::make_dispatch_table<runtime_event, 1 /*min*/, 4 /*max*/>(sm);
+  auto dispatcher = sml::utility::make_dispatch_table<runtime_event, 1 /*min*/, 4 /*max*/>(sm);
 
   {
     runtime_event event{1};
     dispatcher(event, event.id);
-    expect(sm.is(msm::state<sub>));
+    expect(sm.is(sml::state<sub>));
     expect(0 == in_sub);
   }
 
   {
     runtime_event event{2};
     dispatcher(event, event.id);
-    expect(sm.is(msm::state<sub>));
+    expect(sm.is(sml::state<sub>));
     expect(1 == in_sub);
   }
 
   {
     runtime_event event{3};
     dispatcher(event, event.id);
-    expect(sm.is(msm::X));
+    expect(sm.is(sml::X));
     expect(1 == in_sub);
   }
 
   {
     runtime_event event{4};
     dispatcher(event, event.id);
-    expect(sm.is(msm::X));
+    expect(sm.is(sml::X));
     expect(1 == in_sub);
   }
 };

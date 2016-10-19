@@ -8,15 +8,15 @@
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct some_event {};
 
 struct error_handling {
   auto operator()() const {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
         *("idle"_s) + "event1"_e / [] { throw std::runtime_error{"error"}; }
@@ -33,7 +33,7 @@ struct error_handling {
 };
 
 int main() {
-  using namespace msm;
+  using namespace sml;
   sm<error_handling> sm;
 
   sm.process_event("event1"_e);  // throws runtime_error

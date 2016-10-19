@@ -8,13 +8,13 @@
 // clang-format off
 #if __has_include(<boost/di.hpp>)
 // clang-format on
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 #include <boost/di.hpp>
 #include <cassert>
 #include <typeinfo>
 #include <iostream>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -34,7 +34,7 @@ auto action = [](int i, auto e) {
 
 struct example {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
        *"idle"_s + event<e1> = "s1"_s
@@ -49,17 +49,17 @@ namespace di = boost::di;
 
 class controller {
  public:
-  explicit controller(msm::sm<example>& sm) : sm(sm) {}
+  explicit controller(sml::sm<example>& sm) : sm(sm) {}
 
   void start() {
     sm.process_event(e1{});
     sm.process_event(e2{});
     sm.process_event(e3{});
-    assert(sm.is(msm::X));
+    assert(sm.is(sml::X));
   }
 
  private:
-  msm::sm<example>& sm;
+  sml::sm<example>& sm;
 };
 
 int main() {

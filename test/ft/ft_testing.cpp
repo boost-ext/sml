@@ -5,12 +5,12 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 #include <string>
 #include <utility>
-#include "boost/msm-lite/testing/state_machine.hpp"
+#include "boost/sml/testing/state_machine.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -19,11 +19,11 @@ struct e4 {};
 struct e5 {};
 struct e6 {};
 
-const auto idle = msm::state<class idle>;
-const auto idle2 = msm::state<class idle2>;
-const auto s1 = msm::state<class s1>;
-const auto s2 = msm::state<class s2>;
-const auto s3 = msm::state<class s3>;
+const auto idle = sml::state<class idle>;
+const auto idle2 = sml::state<class idle2>;
+const auto s1 = sml::state<class s1>;
+const auto s2 = sml::state<class s2>;
+const auto s3 = sml::state<class s3>;
 
 test sm_testing = [] {
   struct data {
@@ -32,7 +32,7 @@ test sm_testing = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       auto guard = [](const data &d) { return d.value == 42; };
       auto action = [](data &d) { d.value = 123; };
@@ -54,7 +54,7 @@ test sm_testing = [] {
   {
     data fake_data;
     const data &c_fake_data = fake_data;
-    msm::testing::sm<c> sm{c_fake_data, fake_data};
+    sml::testing::sm<c> sm{c_fake_data, fake_data};
     expect(sm.is(idle));
 
     sm.process_event(e1{});
@@ -70,33 +70,33 @@ test sm_testing = [] {
   {
     data fake_data;
     const data &c_fake_data = fake_data;
-    msm::testing::sm<c> sm{fake_data, c_fake_data};
+    sml::testing::sm<c> sm{fake_data, c_fake_data};
     expect(sm.is(idle));
 
     sm.set_current_states(s2);
     fake_data.value = 42;
     sm.process_event(e3{});
-    expect(sm.is(msm::X));
+    expect(sm.is(sml::X));
     expect(87 == fake_data.value);
   }
 
   {
     data fake_data;
     const data &c_fake_data = fake_data;
-    msm::testing::sm<c> sm{c_fake_data, fake_data};
+    sml::testing::sm<c> sm{c_fake_data, fake_data};
     expect(sm.is(idle));
 
     sm.set_current_states(s2);
     fake_data.value = 42;
     sm.process_event(e3{});
-    expect(sm.is(msm::X));
+    expect(sm.is(sml::X));
     expect(87 == fake_data.value);
   }
 
   {
     data fake_data;
     const data &c_fake_data = fake_data;
-    msm::testing::sm<c> sm{fake_data, c_fake_data, true};
+    sml::testing::sm<c> sm{fake_data, c_fake_data, true};
     expect(sm.is(idle));
 
     sm.set_current_states(s1);
@@ -110,7 +110,7 @@ test sm_testing = [] {
 test sm_testing_orthogonal_regions = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
@@ -123,7 +123,7 @@ test sm_testing_orthogonal_regions = [] {
     }
   };
 
-  msm::testing::sm<c> sm;
+  sml::testing::sm<c> sm;
   expect(sm.is(idle, idle2));
   sm.set_current_states(s1, s3);
   expect(sm.is(s1, s3));

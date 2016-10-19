@@ -7,9 +7,9 @@
 //
 #include <cassert>
 #include <iostream>
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -17,14 +17,14 @@ struct e3 {};
 
 struct transitions {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
        *"idle"_s                / [] { std::cout << "anonymous transition" << std::endl; } = "s1"_s
       , "s1"_s + event<e1>      / [] { std::cout << "internal transition" << std::endl; }
       , "s1"_s + event<e2>      / [] { std::cout << "self transition" << std::endl; } = "s1"_s
-      , "s1"_s + msm::on_entry  / [] { std::cout << "s1 entry" << std::endl; }
-      , "s1"_s + msm::on_exit   / [] { std::cout << "s1 exit" << std::endl; }
+      , "s1"_s + sml::on_entry  / [] { std::cout << "s1 entry" << std::endl; }
+      , "s1"_s + sml::on_exit   / [] { std::cout << "s1 exit" << std::endl; }
       , "s1"_s + event<e3>      / [] { std::cout << "external transition" << std::endl; } = X
     );
     // clang-format on
@@ -32,9 +32,9 @@ struct transitions {
 };
 
 int main() {
-  msm::sm<transitions> sm;
+  sml::sm<transitions> sm;
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
-  assert(sm.is(msm::X));
+  assert(sm.is(sml::X));
 }

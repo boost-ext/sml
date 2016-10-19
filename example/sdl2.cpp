@@ -7,10 +7,10 @@
 //
 #include <cassert>
 #include <iostream>
-#include "boost/msm-lite.hpp"
-#include "boost/msm-lite/utility/dispatch_table.hpp"
+#include "boost/sml.hpp"
+#include "boost/sml/utility/dispatch_table.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 // clang-format off
 #if __has_include(<SDL2/SDL_events.h>)
@@ -48,13 +48,13 @@ struct sdl_event_impl {
 };
 
 template <SDL_EventType Id>
-decltype(msm::event<sdl_event_impl<Id>>) sdl_event{};
+decltype(sml::event<sdl_event_impl<Id>>) sdl_event{};
 
 auto is_key = [](auto key) { return [=](auto event) { return event.data.key.keysym.sym == key; }; };
 
 struct sdl2 {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
       //------------------------------------------------------------------------------//
@@ -76,8 +76,8 @@ struct sdl2 {
 };
 
 int main() {
-  msm::sm<sdl2> sm;
-  auto dispatch_event = msm::utility::make_dispatch_table<SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT>(sm);
+  sml::sm<sdl2> sm;
+  auto dispatch_event = sml::utility::make_dispatch_table<SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT>(sm);
 
   SDL_Event event;
 
@@ -108,5 +108,5 @@ int main() {
     dispatch_event(event, event.type);
   }
 
-  assert(sm.is(msm::X, msm::X));
+  assert(sm.is(sml::X, sml::X));
 }

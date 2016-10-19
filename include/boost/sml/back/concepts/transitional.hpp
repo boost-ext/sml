@@ -1,7 +1,7 @@
 #ifndef TRANSITIONAL_22NW4S2T
 #define TRANSITIONAL_22NW4S2T
 
-#include "boost/msm-lite/aux_/type_traits.hpp"
+#include "boost/sml/aux_/type_traits.hpp"
 
 namespace detail {
 struct on_entry;

@@ -5,12 +5,12 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 #include <string>
 #include <utility>
 #include <vector>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -19,11 +19,11 @@ struct e4 {};
 struct e5 {};
 struct e6 {};
 
-const auto idle = msm::state<class idle>;
-const auto idle2 = msm::state<class idle2>;
-const auto s1 = msm::state<class s1>;
-const auto s2 = msm::state<class s2>;
-const auto s3 = msm::state<class s3>;
+const auto idle = sml::state<class idle>;
+const auto idle2 = sml::state<class idle2>;
+const auto s1 = sml::state<class s1>;
+const auto s2 = sml::state<class s2>;
+const auto s3 = sml::state<class s3>;
 
 test composite = [] {
   static auto guard = [](int i) {
@@ -40,7 +40,7 @@ test composite = [] {
 
   struct sub {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -55,14 +55,14 @@ test composite = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
          *idle + event<e1> [guard2{}] / [this] { a_initial = true; } = s1
         , s1 + event<e2> [guard]  / [this]{ a_enter_sub_sm = true; } = state<sub>
-        , state<sub> + msm::on_entry / [this] { a_on_entry_sub_sm = true; }
-        , state<sub> + msm::on_exit / [this] { a_on_exit_sub_sm = true; }
+        , state<sub> + sml::on_entry / [this] { a_on_entry_sub_sm = true; }
+        , state<sub> + sml::on_exit / [this] { a_on_exit_sub_sm = true; }
         , state<sub> + event<e5> [guard2{}] / [this] { a_exit_sub_sm = true; } = s2
       );
       // clang-format on
@@ -77,7 +77,7 @@ test composite = [] {
 
   c c_;
   sub sub_;
-  msm::sm<c> sm{c_, sub_, 87.0, 42};
+  sml::sm<c> sm{c_, sub_, 87.0, 42};
 
   expect(sm.is(idle));
   sm.process_event(e1());
@@ -105,7 +105,7 @@ test composite_def_ctor = [] {
 
   struct sub {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -118,7 +118,7 @@ test composite_def_ctor = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -130,7 +130,7 @@ test composite_def_ctor = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
 
   expect(sm.is(idle));
   sm.process_event(e1());
@@ -151,14 +151,14 @@ test composite_def_ctor = [] {
 test composite_def_ctor_passed = [] {
   struct sub {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       return make_transition_table();
     }
   };
 
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -169,8 +169,8 @@ test composite_def_ctor_passed = [] {
   };
 
   sub s;
-  msm::sm<c> sm{s};
-  expect(sm.is(msm::state<sub>));
+  sml::sm<c> sm{s};
+  expect(sm.is(sml::state<sub>));
 };
 
 test composite_custom_ctor = [] {
@@ -180,7 +180,7 @@ test composite_custom_ctor = [] {
     explicit sub(int i) : i(i) {}
 
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -194,7 +194,7 @@ test composite_custom_ctor = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -227,21 +227,21 @@ test composite_custom_ctor = [] {
   {
     in_sub = 0;
     sub sub_{i};
-    msm::sm<c> sm{sub_};
+    sml::sm<c> sm{sub_};
     test(static_cast<decltype(sm)&&>(sm));
   }
 
   {
     in_sub = 0;
     sub sub_{i};
-    msm::sm<c> sm{sub_};
+    sml::sm<c> sm{sub_};
     test(static_cast<decltype(sm)&&>(sm));
   }
 
   {
     in_sub = 0;
     sub sub_{i};
-    msm::sm<c> sm{sub_};
+    sml::sm<c> sm{sub_};
     test(static_cast<decltype(sm)&&>(sm));
   }
 };
@@ -249,12 +249,12 @@ test composite_custom_ctor = [] {
 test composite_entry_exit_initial = [] {
   struct sub {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
-         *idle + msm::on_entry / [this] { ++entry_calls; },
-          idle + msm::on_exit / [this] { ++exit_calls; }
+         *idle + sml::on_entry / [this] { ++entry_calls; },
+          idle + sml::on_exit / [this] { ++exit_calls; }
       );
       // clang-format on
     }
@@ -265,12 +265,12 @@ test composite_entry_exit_initial = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
-         *state<sub> + msm::on_entry / [this] { ++entry_calls; },
-          state<sub> + msm::on_exit / [this] { ++exit_calls; }
+         *state<sub> + sml::on_entry / [this] { ++entry_calls; },
+          state<sub> + sml::on_exit / [this] { ++exit_calls; }
       );
       // clang-format on
     }
@@ -281,7 +281,7 @@ test composite_entry_exit_initial = [] {
 
   sub sub_;
   c c_;
-  msm::sm<c> sm{c_, sub_};
+  sml::sm<c> sm{c_, sub_};
   expect(1 == c_.entry_calls);
   expect(0 == c_.exit_calls);
   expect(1 == sub_.entry_calls);
@@ -304,22 +304,22 @@ test composite_entry_exit_initial_complex = [] {
     SS2_exit,
   };
 
-  static auto ss1_1 = msm::state<class SubSubState1_1>;
-  static auto ss1_2 = msm::state<class SubSubState1_2>;
-  static auto ss2_1 = msm::state<class SubSubState2_1>;
-  static auto ss2_2 = msm::state<class SubSubState2_2>;
+  static auto ss1_1 = sml::state<class SubSubState1_1>;
+  static auto ss1_2 = sml::state<class SubSubState1_2>;
+  static auto ss2_1 = sml::state<class SubSubState2_1>;
+  static auto ss2_2 = sml::state<class SubSubState2_2>;
 
   struct SubState1 {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
         *ss1_1 + event<e1> = ss1_2,
-         ss1_1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS1_1_entry); },
-         ss1_2 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS1_2_entry); },
-         ss1_1 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS1_1_exit); },
-         ss1_2 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS1_2_exit); }
+         ss1_1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS1_1_entry); },
+         ss1_2 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS1_2_entry); },
+         ss1_1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS1_1_exit); },
+         ss1_2 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS1_2_exit); }
       );
       // clang-format on
     }
@@ -327,40 +327,40 @@ test composite_entry_exit_initial_complex = [] {
 
   struct SubState2 {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
         *ss2_1 + event<e1> = ss2_1,
-         ss2_1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS2_1_entry); },
-         ss2_2 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS2_2_entry); },
-         ss2_1 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS2_1_exit); },
-         ss2_2 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS2_2_exit); }
+         ss2_1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS2_1_entry); },
+         ss2_2 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS2_2_entry); },
+         ss2_1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS2_1_exit); },
+         ss2_2 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS2_2_exit); }
       );
       // clang-format on
     }
   };
 
-  static const auto ss1 = msm::state<SubState1>;
-  static const auto ss2 = msm::state<SubState2>;
+  static const auto ss1 = sml::state<SubState1>;
+  static const auto ss2 = sml::state<SubState2>;
 
   struct TopState {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *ss1 + event<e2> = ss2,
-         ss1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS1_entry); },
-         ss2 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS2_entry); },
-         ss1 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS1_exit); },
-         ss2 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS2_exit); }
+         ss1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS1_entry); },
+         ss2 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS2_entry); },
+         ss1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS1_exit); },
+         ss2 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS2_exit); }
       );
       // clang-format on
     }
   };
 
   std::vector<calls> c_;
-  msm::sm<TopState> sm{c_};
+  sml::sm<TopState> sm{c_};
   expect(std::vector<calls>{calls::SS1_entry, calls::SS1_1_entry} == c_);
   expect(sm.is(ss1));
 
@@ -373,7 +373,7 @@ test composite_entry_exit_initial_complex = [] {
 test composite_transition_the_same_event = [] {
   struct sub {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
@@ -385,7 +385,7 @@ test composite_transition_the_same_event = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = state<sub>
@@ -397,11 +397,11 @@ test composite_transition_the_same_event = [] {
     }
   };
 
-  using namespace msm;
+  using namespace sml;
 
   c c_;
   sub sub_;
-  msm::sm<c> sm{c_, sub_};
+  sml::sm<c> sm{c_, sub_};
 
   expect(sm.is(idle));
   sm.process_event(e1());
@@ -430,7 +430,7 @@ test composite_transition_the_same_event = [] {
 test composite_history = [] {
   struct sub {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -443,7 +443,7 @@ test composite_history = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -456,11 +456,11 @@ test composite_history = [] {
     }
   };
 
-  using namespace msm;
+  using namespace sml;
 
   c c_;
   sub sub_;
-  msm::sm<c> sm{c_, sub_};
+  sml::sm<c> sm{c_, sub_};
 
   expect(sm.is(idle));
   sm.process_event(e1());
@@ -491,7 +491,7 @@ test composite_no_history_reenter_sub = [] {
 
   struct sub {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       const auto a = state<class A>;
       const auto b = state<class B>;
       const auto c = state<class C>;
@@ -499,12 +499,12 @@ test composite_no_history_reenter_sub = [] {
       return make_transition_table(
         *a + event<e1> = b,
          b + event<e2> = c,
-         a + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_a_entry); },
-         b + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_b_entry); },
-         c + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_c_entry); },
-         a + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_a_exit); },
-         b + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_b_exit); },
-         c + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_c_exit); }
+         a + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_a_entry); },
+         b + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_b_entry); },
+         c + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_c_entry); },
+         a + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_a_exit); },
+         b + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_b_exit); },
+         c + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_c_exit); }
       );
       // clang-format on
     }
@@ -512,7 +512,7 @@ test composite_no_history_reenter_sub = [] {
 
   struct c {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       const auto s = state<sub>;
       const auto x = state<class X>;
       // clang-format off
@@ -520,17 +520,17 @@ test composite_no_history_reenter_sub = [] {
         *"init1"_s = s,
          s + event<e3> = x,
          x + event<e4> = s,
-         s + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_entry); },
-         x + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
-         s + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_exit); },
-         x + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); }
+         s + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_entry); },
+         x + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
+         s + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_exit); },
+         x + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); }
       );
       // clang-format on
     }
   };
 
   std::vector<calls> c_;
-  msm::sm<c> sm{c_};
+  sml::sm<c> sm{c_};
   expect(std::vector<calls>{calls::s_entry, calls::s_a_entry} == c_);
 
   c_.clear();
@@ -553,7 +553,7 @@ test composite_no_history_reenter_sub = [] {
 test composite_history_region = [] {
   struct sub {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -568,7 +568,7 @@ test composite_history_region = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -581,9 +581,9 @@ test composite_history_region = [] {
     }
   };
 
-  using namespace msm;
+  using namespace sml;
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
 
   expect(sm.is(idle));
   sm.process_event(e1());
@@ -612,7 +612,7 @@ test composite_history_region = [] {
 test composite_with_orthogonal_regions = [] {
   struct sub {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *idle + event<e4> = s1
@@ -624,7 +624,7 @@ test composite_with_orthogonal_regions = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
@@ -637,11 +637,11 @@ test composite_with_orthogonal_regions = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
 
   expect(sm.is(idle, idle2));
   sm.process_event(e1());
-  expect(sm.is(s1, msm::state<sub>));
+  expect(sm.is(s1, sml::state<sub>));
 
   // expect(subsm.is(idle));
   sm.process_event(e4());
@@ -652,13 +652,13 @@ test composite_with_orthogonal_regions = [] {
   sm.process_event(e2());
   sm.process_event(e3());
   // expect(subsm.is(s2));
-  expect(sm.is(msm::X, msm::X));
+  expect(sm.is(sml::X, sml::X));
 };
 
 test composite_with_orthogonal_regions_explicit_entry = [] {
   struct sub {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          (*idle) + event<e1> = s1
@@ -673,7 +673,7 @@ test composite_with_orthogonal_regions_explicit_entry = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
        (*state<sub>) + event<e5> = s1
@@ -683,12 +683,12 @@ test composite_with_orthogonal_regions_explicit_entry = [] {
     }
   };
 
-  msm::sm<c> sm;
-  expect(sm.is(msm::state<sub>));
+  sml::sm<c> sm;
+  expect(sm.is(sml::state<sub>));
   // expect(subsm.is(idle, idle2));
 
   sm.process_event(e1());
-  expect(sm.is(msm::state<sub>));
+  expect(sm.is(sml::state<sub>));
   // expect(subsm.is(s1, idle2));
 
   sm.process_event(e5());
@@ -696,14 +696,14 @@ test composite_with_orthogonal_regions_explicit_entry = [] {
   // expect(subsm.is(s1, idle2));
 
   sm.process_event(e6());  // go back to sub
-  expect(sm.is(msm::state<sub>));
+  expect(sm.is(sml::state<sub>));
   // expect(subsm.is(s2, s3));
 };
 
 test composite_with_orthogonal_regions_explicit_entry_deduce_region = [] {
   struct sub {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          (*idle) + event<e1> = s1
@@ -718,7 +718,7 @@ test composite_with_orthogonal_regions_explicit_entry_deduce_region = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         (*state<sub>) + event<e5> = s1
@@ -728,12 +728,12 @@ test composite_with_orthogonal_regions_explicit_entry_deduce_region = [] {
     }
   };
 
-  msm::sm<c> sm;
-  expect(sm.is(msm::state<sub>));
+  sml::sm<c> sm;
+  expect(sm.is(sml::state<sub>));
   // expect(subsm.is(idle, idle2));
 
   sm.process_event(e1());
-  expect(sm.is(msm::state<sub>));
+  expect(sm.is(sml::state<sub>));
   // expect(subsm.is(s1, idle2));
 
   sm.process_event(e5());
@@ -741,14 +741,14 @@ test composite_with_orthogonal_regions_explicit_entry_deduce_region = [] {
   // expect(subsm.is(s1, idle2));
 
   sm.process_event(e6());  // go back to sub
-  expect(sm.is(msm::state<sub>));
+  expect(sm.is(sml::state<sub>));
   // expect(subsm.is(idle, s3));
 };
 
 test composite_anonymous_explicit_transitions = [] {
   struct SubState {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *"ss1"_s + "e2"_e = "final"_s
@@ -759,7 +759,7 @@ test composite_anonymous_explicit_transitions = [] {
 
   struct TopState {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
           *"s1"_s + "e1"_e = state<SubState>,
@@ -771,8 +771,8 @@ test composite_anonymous_explicit_transitions = [] {
     }
   };
 
-  msm::sm<TopState> sm;
-  using namespace msm;
+  sml::sm<TopState> sm;
+  using namespace sml;
 
   sm.process_event("e1"_e);
   expect(sm.is(state<SubState>));
@@ -789,14 +789,14 @@ test composite_sub_entry_exit = [] {
 
   struct A {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       const auto a1 = state<class A1>;
       const auto a2 = state<class A2>;
       // clang-format off
       return make_transition_table(
         *a1 + event<e2> = a2,
-         a1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
-         a1 + msm::on_exit / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); }
+         a1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
+         a1 + sml::on_exit / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); }
       );
       // clang-format on
     }
@@ -804,14 +804,14 @@ test composite_sub_entry_exit = [] {
 
   struct B {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       const auto b1 = state<class B1>;
       const auto b2 = state<class B2>;
       // clang-format off
       return make_transition_table(
         *b1 + event<e2> = b2,
-         b1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
-         b1 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); }
+         b1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
+         b1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); }
       );
       // clang-format on
     }
@@ -819,7 +819,7 @@ test composite_sub_entry_exit = [] {
 
   struct SM {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *state<class init> = state<A>,
@@ -831,7 +831,7 @@ test composite_sub_entry_exit = [] {
   };
 
   std::vector<calls> c_;
-  msm::sm<SM> sm{c_};
+  sml::sm<SM> sm{c_};
   expect(std::vector<calls>{calls::a1_entry} == c_);
   sm.process_event(e1{});
   expect(std::vector<calls>{calls::a1_entry, calls::a1_exit, calls::b1_entry} == c_);
@@ -842,14 +842,14 @@ test composite_anonymous_entry_transitions = [] {
 
   struct A {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       const auto a1 = state<class A1>;
 
       // clang-format off
       return make_transition_table(
         *"init"_s = a1,
-          a1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
-          a1 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); }
+          a1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
+          a1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); }
       );
       // clang-format on
     }
@@ -857,41 +857,41 @@ test composite_anonymous_entry_transitions = [] {
 
   struct B {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       const auto b1 = state<class A1>;
 
       // clang-format off
       return make_transition_table(
         *"init"_s = b1,
-          b1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
-          b1 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); }
+          b1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
+          b1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); }
       );
       // clang-format on
     }
   };
 
-  static const auto x = msm::state<class X>;
-  static const auto a = msm::state<A>;
-  static const auto b = msm::state<B>;
+  static const auto x = sml::state<class X>;
+  static const auto a = sml::state<A>;
+  static const auto b = sml::state<B>;
 
   struct Top {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
-        *x + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
-         x + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); },
-         a + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
-         a + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
-         b + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
-         b + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b_exit); }
+        *x + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
+         x + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); },
+         a + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
+         a + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
+         b + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
+         b + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b_exit); }
       );
       // clang-format on
     }
   };
 
   std::vector<calls> c_;
-  msm::sm<Top> sm{c_};
+  sml::sm<Top> sm{c_};
   expect(std::vector<calls>{calls::x_entry} == c_);
   expect(sm.is(x));
 };
@@ -914,15 +914,15 @@ test composite_entry_exit_sub_sm = [] {
 
   struct sub_1 {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *"ls1_1"_s + event<e1> = "ls1_2"_s
        , "ls1_2"_s + event<e2> = "ls1_1"_s
-       , "ls1_1"_s + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::ls1_1_entry); }
-       , "ls1_1"_s + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::ls1_1_exit); }
-       , "ls1_2"_s + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::ls1_2_entry); }
-       , "ls1_2"_s + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::ls1_2_exit); }
+       , "ls1_1"_s + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::ls1_1_entry); }
+       , "ls1_1"_s + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::ls1_1_exit); }
+       , "ls1_2"_s + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::ls1_2_entry); }
+       , "ls1_2"_s + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::ls1_2_exit); }
       );
       // clang-format on
     }
@@ -930,15 +930,15 @@ test composite_entry_exit_sub_sm = [] {
 
   struct sub_2 {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *"ls2_1"_s + event<e1> = "ls2_2"_s
        , "ls2_2"_s + event<e2> = "ls2_1"_s
-       , "ls2_1"_s + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::ls2_1_entry); }
-       , "ls2_1"_s + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::ls2_1_exit); }
-       , "ls2_2"_s + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::ls2_2_entry); }
-       , "ls2_2"_s + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::ls2_2_exit); }
+       , "ls2_1"_s + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::ls2_1_entry); }
+       , "ls2_1"_s + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::ls2_1_exit); }
+       , "ls2_2"_s + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::ls2_2_entry); }
+       , "ls2_2"_s + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::ls2_2_exit); }
       );
       // clang-format on
     }
@@ -946,22 +946,22 @@ test composite_entry_exit_sub_sm = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *state<sub_1> + event<e3> = state<sub_2>
        , state<sub_2> + event<e4> = state<sub_1>
-       , state<sub_1> + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::sub1_entry); }
-       , state<sub_1> + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::sub1_exit); }
-       , state<sub_2> + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::sub2_entry); }
-       , state<sub_2> + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::sub2_exit); }
+       , state<sub_1> + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::sub1_entry); }
+       , state<sub_1> + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::sub1_exit); }
+       , state<sub_2> + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::sub2_entry); }
+       , state<sub_2> + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::sub2_exit); }
       );
       // clang-format on
     }
   };
 
   std::vector<calls> c_;
-  msm::sm<c> sm{c_};
+  sml::sm<c> sm{c_};
   expect(std::vector<calls>{calls::sub1_entry, calls::ls1_1_entry} == c_);
 
   c_.clear();

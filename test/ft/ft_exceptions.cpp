@@ -5,18 +5,18 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
 struct e3 {};
 
-auto idle = msm::state<class idle>;
-auto error = msm::state<class error>;
-auto s1 = msm::state<class s1>;
-auto s2 = msm::state<class s2>;
+auto idle = sml::state<class idle>;
+auto error = sml::state<class error>;
+auto s1 = sml::state<class s1>;
+auto s2 = sml::state<class s2>;
 
 struct exception1 {};
 struct exception2 {};
@@ -27,7 +27,7 @@ struct exception_data {
 test exception_minimal = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
        *idle + event<e1> / [] { throw exception1{}; } = s1
@@ -37,15 +37,15 @@ test exception_minimal = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});  // throws exception1
-  expect(sm.is(msm::X));
+  expect(sm.is(sml::X));
 };
 
 test exception_no_transition = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
        *idle + event<e1> / [] { throw exception1{}; }
@@ -55,15 +55,15 @@ test exception_no_transition = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});  // throws exception1
-  expect(sm.is(msm::X));
+  expect(sm.is(sml::X));
 };
 
 test exception_data_minimal = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       auto guard = [](const auto& ex) { return ex.value == 42; };
 
       // clang-format off
@@ -75,15 +75,15 @@ test exception_data_minimal = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});  // throws exception1
-  expect(sm.is(msm::X));
+  expect(sm.is(sml::X));
 };
 
 test exception_many = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
        *idle + event<e1> / [] { throw exception2{}; } = s1
@@ -94,15 +94,15 @@ test exception_many = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});  // throws exception2
-  expect(sm.is(msm::X));
+  expect(sm.is(sml::X));
 };
 
 test generic_exception_handler = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
        *idle + event<e1> / [] { throw int{}; } = s1
@@ -113,15 +113,15 @@ test generic_exception_handler = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});  // throws int
-  expect(sm.is(msm::X));
+  expect(sm.is(sml::X));
 };
 
 test generic_exception_handler_priority = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
        *idle + event<e1> / [] { throw exception1{}; } = s1
@@ -132,7 +132,7 @@ test generic_exception_handler_priority = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});  // throws exception1
   expect(sm.is(s2));
 };
@@ -140,7 +140,7 @@ test generic_exception_handler_priority = [] {
 test exception_not_handled = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *idle + event<e1> / [] { throw exception1{}; } = s1
@@ -150,7 +150,7 @@ test exception_not_handled = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});
   expect(sm.is(s1));
 };
@@ -158,7 +158,7 @@ test exception_not_handled = [] {
 test exception_orthogonal_handler = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *idle + event<e1> / [] { throw exception1{}; } = s1
@@ -169,15 +169,15 @@ test exception_orthogonal_handler = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});  // throws exception1
-  expect(sm.is(s1, msm::X));
+  expect(sm.is(s1, sml::X));
 };
 
 test exception_orthogonal_handler_generic_handler = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *idle + event<e1> / [] { throw exception1{}; } = s1
@@ -187,15 +187,15 @@ test exception_orthogonal_handler_generic_handler = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});  // throws exception1
-  expect(sm.is(s1, msm::X));
+  expect(sm.is(s1, sml::X));
 };
 
 test exception_orthogonal_handler_generic_handler_with_exception = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *idle + event<e1> / [] { throw exception1{}; } = s1
@@ -206,15 +206,15 @@ test exception_orthogonal_handler_generic_handler_with_exception = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});  // throws exception1
-  expect(sm.is(s1, msm::X));
+  expect(sm.is(s1, sml::X));
 };
 
 test exception_and_unexpected_event = [] {
   struct c {
     auto operator()() const {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *idle + unexpected_event<e1> / [] { throw exception1{}; } = s1
@@ -224,7 +224,7 @@ test exception_and_unexpected_event = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});
   expect(sm.is(s1));
 };

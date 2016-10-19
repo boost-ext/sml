@@ -5,30 +5,30 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 #include <string>
 #include <utility>
 #include <vector>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
 struct e3 {};
 
-const auto idle = msm::state<class idle>;
-const auto s1 = msm::state<class s1>;
-const auto s2 = msm::state<class s2>;
-const auto s3 = msm::state<class s3>;
-const auto s4 = msm::state<class s4>;
+const auto idle = sml::state<class idle>;
+const auto s1 = sml::state<class s1>;
+const auto s2 = sml::state<class s2>;
+const auto s3 = sml::state<class s3>;
+const auto s4 = sml::state<class s4>;
 
 test transition = [] {
-  using namespace msm;
+  using namespace sml;
   struct c {
     auto operator()() noexcept { return make_transition_table(*idle + event<e1> = s1); }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   expect(sm.is(idle));
   sm.process_event(e1{});
   expect(sm.is(s1));
@@ -37,7 +37,7 @@ test transition = [] {
 test internal_transition = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
@@ -48,7 +48,7 @@ test internal_transition = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   expect(sm.is(idle));
   sm.process_event(e1{});
   expect(sm.is(s1));
@@ -61,7 +61,7 @@ test internal_transition = [] {
 test anonymous_transition = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
        *idle / [this] { a_called = true; } = s1
@@ -72,7 +72,7 @@ test anonymous_transition = [] {
   };
 
   c c_;
-  msm::sm<c> sm{c_};
+  sml::sm<c> sm{c_};
   expect(sm.is(s1));
   expect(c_.a_called);
 };
@@ -82,13 +82,13 @@ test self_transition = [] {
 
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *idle = s1 // anonymous-transition
        , s1 + event<e1> / [] (std::vector<calls>& c) { c.push_back(calls::s1_action); } = s1 // self-transition
-       , s1 + msm::on_entry / [] (std::vector<calls>& c) { c.push_back(calls::s1_entry); } // internal-transition
-       , s1 + msm::on_exit  / [] (std::vector<calls>& c) { c.push_back(calls::s1_exit); } // internal-transition
+       , s1 + sml::on_entry / [] (std::vector<calls>& c) { c.push_back(calls::s1_entry); } // internal-transition
+       , s1 + sml::on_exit  / [] (std::vector<calls>& c) { c.push_back(calls::s1_exit); } // internal-transition
       );
       // clang-format on
     }
@@ -96,7 +96,7 @@ test self_transition = [] {
 
   std::vector<calls> c_;
   ;
-  msm::sm<c> sm{c_};
+  sml::sm<c> sm{c_};
   expect(std::vector<calls>{calls::s1_entry} == c_);
 
   c_.clear();
@@ -107,12 +107,12 @@ test self_transition = [] {
 test no_transition = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       return make_transition_table(*idle + event<e1> = s1);
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   expect(sm.is(idle));
   sm.process_event(e2{});
   expect(sm.is(idle));
@@ -123,7 +123,7 @@ test no_transition = [] {
 test transition_with_action_with_event = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       auto action = [this](const e1&) { called = true; };
       return make_transition_table(*idle + event<e1> / action = s1);
     }
@@ -132,7 +132,7 @@ test transition_with_action_with_event = [] {
   };
 
   c c_;
-  msm::sm<c> sm{c_};
+  sml::sm<c> sm{c_};
   expect(sm.is(idle));
   sm.process_event(e1{});
   expect(c_.called);
@@ -142,7 +142,7 @@ test transition_with_action_with_event = [] {
 test transition_with_action_with_parameter = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       auto action = [this](int i) {
         called = true;
         expect(i == 42);
@@ -154,7 +154,7 @@ test transition_with_action_with_parameter = [] {
   };
 
   c c_;
-  msm::sm<c> sm{c_, 42};
+  sml::sm<c> sm{c_, 42};
   sm.process_event(e1{});
   expect(c_.called);
   expect(sm.is(s1));
@@ -163,7 +163,7 @@ test transition_with_action_with_parameter = [] {
 test transition_with_action_and_guad_with_parameter = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       auto guard = [this](double d) {
         g_called = true;
@@ -184,7 +184,7 @@ test transition_with_action_and_guad_with_parameter = [] {
   };
 
   c c_;
-  msm::sm<c> sm{c_, 87.0, 42};
+  sml::sm<c> sm{c_, 87.0, 42};
   sm.process_event(e1{});
   expect(c_.g_called);
   expect(c_.a_called);
@@ -194,11 +194,11 @@ test transition_with_action_and_guad_with_parameter = [] {
 test transition_with_action_and_guad_with_parameters_and_event = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       auto guard = [this](int i, auto e, double d) {
         g_called = true;
-        static_expect(msm::aux::is_same<decltype(e), e1>::value);
+        static_expect(sml::aux::is_same<decltype(e), e1>::value);
         expect(i == 42);
         expect(d == 87.0);
         return true;
@@ -219,7 +219,7 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
 
   c c_;
   auto f = 12.f;
-  msm::sm<c> sm{c_, 42, 87.0, f};
+  sml::sm<c> sm{c_, 42, 87.0, f};
   sm.process_event(e1{});
   expect(c_.g_called);
   expect(c_.a_called);
@@ -229,7 +229,7 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
 test transitions = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       auto yes = [] { return true; };
       auto no = [] { return false; };
 
@@ -244,7 +244,7 @@ test transitions = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
@@ -254,7 +254,7 @@ test transitions = [] {
 test transitions_dsl = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       auto yes = [] { return true; };
       auto no = [] { return false; };
 
@@ -269,7 +269,7 @@ test transitions_dsl = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
@@ -279,7 +279,7 @@ test transitions_dsl = [] {
 test transitions_dsl_mix = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       auto yes = [] { return true; };
       auto no = [] { return false; };
 
@@ -294,7 +294,7 @@ test transitions_dsl_mix = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
@@ -304,7 +304,7 @@ test transitions_dsl_mix = [] {
 test transition_loop = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
@@ -315,7 +315,7 @@ test transition_loop = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   expect(sm.is(idle));
   sm.process_event(e1{});
   expect(sm.is(s1));
@@ -330,7 +330,7 @@ test transition_loop = [] {
 test no_transitions = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       auto yes = [] { return true; };
       auto no = [] { return false; };
 
@@ -344,7 +344,7 @@ test no_transitions = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});
   sm.process_event(e3{});
   sm.process_event(e2{});
@@ -355,7 +355,7 @@ test no_transitions = [] {
 test transitions_states = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       auto yes = [] { return true; };
       auto no = [] { return false; };
 
@@ -370,18 +370,18 @@ test transitions_states = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
-  using namespace msm;
+  using namespace sml;
   expect(sm.is("s4"_s));
 };
 
 test transition_overload = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -394,14 +394,14 @@ test transition_overload = [] {
   };
 
   {
-    msm::sm<c> sm;
+    sml::sm<c> sm;
     sm.process_event(e1{});
     sm.process_event(42);
     expect(sm.is(s2));
   }
 
   {
-    msm::sm<c> sm;
+    sml::sm<c> sm;
     sm.process_event(e1{});
     sm.process_event(42.f);
     expect(sm.is(s3));
@@ -411,7 +411,7 @@ test transition_overload = [] {
 test initial_transition_overload = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -423,13 +423,13 @@ test initial_transition_overload = [] {
   };
 
   {
-    msm::sm<c> sm;
+    sml::sm<c> sm;
     sm.process_event(e1{});
     expect(sm.is(s1));
   }
 
   {
-    msm::sm<c> sm;
+    sml::sm<c> sm;
     sm.process_event(e2{});
     expect(sm.is(s2));
   }
@@ -438,10 +438,10 @@ test initial_transition_overload = [] {
 test initial_entry = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
-         *idle + msm::on_entry / [this] { ++entry_calls; }
+         *idle + sml::on_entry / [this] { ++entry_calls; }
       );
       // clang-format on
     }
@@ -450,6 +450,6 @@ test initial_entry = [] {
   };
 
   c c_;
-  msm::sm<c> sm{c_};
+  sml::sm<c> sm{c_};
   expect(1 == c_.entry_calls);
 };

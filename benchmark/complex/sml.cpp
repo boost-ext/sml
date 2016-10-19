@@ -6,9 +6,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "benchmark.hpp"
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -67,7 +67,7 @@ auto action = [] {};
 int main() {
   struct c {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       auto idle = state<class idle>;
       auto s1 = state<class s1>;
       auto s2 = state<class s2>;
@@ -176,7 +176,7 @@ int main() {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
 
   benchmark_execution_speed([&] {
     for (auto i = 0; i < 1'000'000; ++i) {

@@ -7,9 +7,9 @@
 //
 #include <cassert>
 #include <queue>
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {
   int i = 0;
@@ -20,13 +20,14 @@ struct dependency {
 
 struct dependencies {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
 
     const auto guard = [](dependency& d) {  /// more dependencies might be passed
       return !d.i;
     };
 
-    const auto action = [](dependency& d, const auto& event) {  /// event is deduced, order is not important
+    const auto action = [](dependency& d,
+                           const auto& event) {  /// event is deduced, order is not important
       d.i = event.i + 42;
     };
 
@@ -40,9 +41,10 @@ struct dependencies {
 };
 
 int main() {
-  using namespace msm;
+  using namespace sml;
   dependency d;
-  sm<dependencies> sm{d};  /// pass all dependencies (from guards, actions) via constructor (order is not important)
+  sm<dependencies> sm{d};  /// pass all dependencies (from guards, actions) via
+                           /// constructor (order is not important)
   assert(sm.is("idle"_s));
 
   sm.process_event(e1{0});

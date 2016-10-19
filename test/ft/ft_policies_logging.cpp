@@ -1,8 +1,8 @@
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 #include <sstream>
 #include <vector>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 std::vector<std::string> messages_out;
 
@@ -34,7 +34,7 @@ struct e2 {
 struct s1_label {
   static auto c_str() { return "A State"; }
 };
-auto s1 = msm::state<s1_label>;
+auto s1 = sml::state<s1_label>;
 
 test logging = [] {
   messages_out.clear();
@@ -49,7 +49,7 @@ test logging = [] {
 
   struct c {
     auto operator()() {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
           *"idle"_s + "e1"_e = s1
@@ -59,8 +59,8 @@ test logging = [] {
     }
   };
 
-  msm::sm<c, msm::logger<my_logger>> sm;
-  using namespace msm;
+  sml::sm<c, sml::logger<my_logger>> sm;
+  using namespace sml;
   sm.process_event("e1"_e);
   sm.process_event(e2{});
   expect(messages_out.size() == messages_expected.size());
@@ -85,20 +85,20 @@ test logging_entry_exit = [] {
 
   struct c {
     auto operator()() {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
           *"idle"_s + "e1"_e = s1
-        , s1 + msm::on_entry / [](){}
-        , s1 + msm::on_exit / [](){}
+        , s1 + sml::on_entry / [](){}
+        , s1 + sml::on_exit / [](){}
         , s1 + event<e2> = X
       );
       // clang-format on
     }
   };
 
-  msm::sm<c, msm::logger<my_logger>> sm;
-  using namespace msm;
+  sml::sm<c, sml::logger<my_logger>> sm;
+  using namespace sml;
   sm.process_event("e1"_e);
   sm.process_event(e2{});
   expect(messages_out.size() == messages_expected.size());

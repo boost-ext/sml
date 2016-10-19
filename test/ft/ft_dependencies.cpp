@@ -5,11 +5,11 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 #include <string>
 #include <utility>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -18,17 +18,17 @@ struct e4 {};
 struct e5 {};
 struct e6 {};
 
-const auto idle = msm::state<class idle>;
+const auto idle = sml::state<class idle>;
 
 test minimal_with_dependency = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       return make_transition_table(*idle + event<e1> / [](int i) { expect(42 == i); });
     }
   };
 
-  msm::sm<c> sm{42};
+  sml::sm<c> sm{42};
   expect(sm.is(idle));
   sm.process_event(e1{});
   expect(sm.is(idle));
@@ -37,7 +37,7 @@ test minimal_with_dependency = [] {
 test dependencies = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       auto guard = [](int i) {
         expect(i == 42);
@@ -46,7 +46,7 @@ test dependencies = [] {
 
       auto action = [](double d, auto event) {
         expect(d == 87.0);
-        expect(msm::aux::is_same<e1, decltype(event)>::value);
+        expect(sml::aux::is_same<e1, decltype(event)>::value);
       };
 
       // clang-format off
@@ -58,14 +58,14 @@ test dependencies = [] {
   };
 
   {
-    msm::sm<c> sm{42, 87.0};
+    sml::sm<c> sm{42, 87.0};
     sm.process_event(e1{});
-    expect(sm.is(msm::X));
+    expect(sm.is(sml::X));
   }
 
   {
-    msm::sm<c> sm{87.0, 42};
+    sml::sm<c> sm{87.0, 42};
     sm.process_event(e1{});
-    expect(sm.is(msm::X));
+    expect(sm.is(sml::X));
   }
 };

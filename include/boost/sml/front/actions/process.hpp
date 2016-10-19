@@ -1,7 +1,7 @@
 #ifndef PROCESS_Q3QVBZJG
 #define PROCESS_Q3QVBZJG
 
-#include "boost/msm-lite/front/fwd.hpp"
+#include "boost/sml/front/fwd.hpp"
 
 namespace detail {
 

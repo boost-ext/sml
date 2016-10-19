@@ -6,19 +6,19 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <cassert>
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {
   bool value = true;
 };
-auto event2 = msm::event<e2>;
+auto event2 = sml::event<e2>;
 
 struct events {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     auto guard = [](const e2& e) { return e.value; };
 
     // clang-format off
@@ -33,8 +33,8 @@ struct events {
 };
 
 int main() {
-  msm::sm<events> sm;
-  using namespace msm;
+  sml::sm<events> sm;
+  using namespace sml;
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event("e3"_e);

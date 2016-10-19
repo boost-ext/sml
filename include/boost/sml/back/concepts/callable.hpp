@@ -1,7 +1,7 @@
 #ifndef CALLABLE_IF8N0N6C
 #define CALLABLE_IF8N0N6C
 
-#include "boost/msm-lite/aux_/type_traits.hpp"
+#include "boost/sml/aux_/type_traits.hpp"
 
 namespace concepts {
 struct callable_fallback {

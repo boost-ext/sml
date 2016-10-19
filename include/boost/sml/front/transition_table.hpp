@@ -1,13 +1,13 @@
 #ifndef TRANSITION_TABLE_WKRWV6N0
 #define TRANSITION_TABLE_WKRWV6N0
 
-#include "boost/msm-lite/front/actions/defer.hpp"
-#include "boost/msm-lite/front/actions/process.hpp"
-#include "boost/msm-lite/front/event.hpp"
-#include "boost/msm-lite/front/fwd.hpp"
-#include "boost/msm-lite/front/operators.hpp"
-#include "boost/msm-lite/front/state.hpp"
-#include "boost/msm-lite/front/transition.hpp"
+#include "boost/sml/front/actions/defer.hpp"
+#include "boost/sml/front/actions/process.hpp"
+#include "boost/sml/front/event.hpp"
+#include "boost/sml/front/fwd.hpp"
+#include "boost/sml/front/operators.hpp"
+#include "boost/sml/front/state.hpp"
+#include "boost/sml/front/transition.hpp"
 
 template <class TEvent>
 detail::event<TEvent> event{};
@@ -57,12 +57,12 @@ __attribute__((unused)) static detail::state<detail::terminate_state> X;
 __attribute__((unused)) static detail::history_state H;
 __attribute__((unused)) static detail::defer defer;
 __attribute__((unused)) static detail::process process;
-template <class... Ts, BOOST_MSM_LITE_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
-                                                            aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
+template <class... Ts, BOOST_SML_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
+                                                       aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 auto make_transition_table(Ts... ts) {
   return aux::pool<Ts...>{ts...};
 }
-template <class T, class... TPolicies> /*, BOOST_MSM_LITE_REQUIRES(concepts::configurable<T>::value)*/
+template <class T, class... TPolicies> /*, BOOST_SML_REQUIRES(concepts::configurable<T>::value)*/
 using sm = detail::sm<detail::sm_policy<T, TPolicies...>>;
 
 #endif

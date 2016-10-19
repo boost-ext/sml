@@ -163,22 +163,19 @@ class not_ : operator_base {
 
 }  // detail
 
-template <class T, BOOST_MSM_LITE_REQUIRES(concepts::callable<bool, T>::value)>
+template <class T, BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
 auto operator!(const T &t) {
   return detail::not_<aux::zero_wrapper<T>>(aux::zero_wrapper<T>{t});
 }
-template <class T1, class T2,
-          BOOST_MSM_LITE_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
+template <class T1, class T2, BOOST_SML_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
 auto operator&&(const T1 &t1, const T2 &t2) {
   return detail::and_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
-template <class T1, class T2,
-          BOOST_MSM_LITE_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
+template <class T1, class T2, BOOST_SML_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
 auto operator||(const T1 &t1, const T2 &t2) {
   return detail::or_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
-template <class T1, class T2,
-          BOOST_MSM_LITE_REQUIRES(concepts::callable<void, T1>::value &&concepts::callable<void, T2>::value)>
+template <class T1, class T2, BOOST_SML_REQUIRES(concepts::callable<void, T1>::value &&concepts::callable<void, T2>::value)>
 auto operator,(const T1 &t1, const T2 &t2) {
   return detail::seq_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }

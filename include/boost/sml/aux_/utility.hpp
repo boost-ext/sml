@@ -1,7 +1,7 @@
 #ifndef UTILITY_7VRBTDG2
 #define UTILITY_7VRBTDG2
 
-#include "boost/msm-lite/aux_/type_traits.hpp"
+#include "boost/sml/aux_/type_traits.hpp"
 
 namespace aux {
 template <int...>

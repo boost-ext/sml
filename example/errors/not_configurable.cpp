@@ -5,15 +5,15 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 
 struct not_configurable {
   auto setup() const noexcept {  // should be configure
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
         *"idle"_s + event<e1> = X
@@ -23,6 +23,6 @@ struct not_configurable {
 };
 
 int main() {
-  msm::sm<not_configurable> sm;
+  sml::sm<not_configurable> sm;
   (void)sm;
 }

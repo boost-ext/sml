@@ -6,21 +6,21 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <cassert>
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
 struct e3 {};
 
-auto event1 = msm::event<e1>;
-auto event2 = msm::event<e2>;
-auto event3 = msm::event<e3>;
+auto event1 = sml::event<e1>;
+auto event2 = sml::event<e2>;
+auto event3 = sml::event<e3>;
 
-auto idle = msm::state<class idle>;
-auto s1 = msm::state<class s1>;
-auto s2 = msm::state<class s2>;
+auto idle = sml::state<class idle>;
+auto s1 = sml::state<class s1>;
+auto s2 = sml::state<class s2>;
 
 struct data {
   void set(int value) noexcept { i = value; }
@@ -45,7 +45,7 @@ struct {
 class euml_emulation {
  public:
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
       s1 <= *idle + event1,
@@ -58,13 +58,13 @@ class euml_emulation {
 
 int main() {
   data d{42};
-  msm::sm<euml_emulation> sm{d};
+  sml::sm<euml_emulation> sm{d};
   assert(sm.is(idle));
   sm.process_event(e1{});
   assert(sm.is(s1));
   sm.process_event(e2{});
   assert(sm.is(s2));
   sm.process_event(e3{});
-  assert(sm.is(msm::X));
+  assert(sm.is(sml::X));
   assert(123 == d.get());
 }

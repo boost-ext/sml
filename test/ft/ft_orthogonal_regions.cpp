@@ -5,12 +5,12 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 #include <string>
 #include <utility>
 #include <vector>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -19,17 +19,17 @@ struct e4 {};
 struct e5 {};
 struct e6 {};
 
-const auto idle = msm::state<class idle>;
-const auto idle2 = msm::state<class idle2>;
-const auto s1 = msm::state<class s1>;
-const auto s2 = msm::state<class s2>;
-const auto s3 = msm::state<class s3>;
-const auto s4 = msm::state<class s4>;
+const auto idle = sml::state<class idle>;
+const auto idle2 = sml::state<class idle2>;
+const auto s1 = sml::state<class s1>;
+const auto s2 = sml::state<class s2>;
+const auto s3 = sml::state<class s3>;
+const auto s4 = sml::state<class s4>;
 
 test orthogonal_regions = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -43,7 +43,7 @@ test orthogonal_regions = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   expect(sm.is(idle, idle2));
   sm.process_event(e1{});
   expect(sm.is(s1, idle2));
@@ -58,7 +58,7 @@ test orthogonal_regions = [] {
 test orthogonal_regions_event_consumed_by_all_regions = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
 
       // clang-format off
       return make_transition_table(
@@ -72,7 +72,7 @@ test orthogonal_regions_event_consumed_by_all_regions = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   expect(sm.is(idle, idle2));
   sm.process_event(e1{});
   expect(sm.is(s1, idle2));
@@ -85,12 +85,12 @@ test orthogonal_regions_event_consumed_by_all_regions = [] {
 test orthogonal_regions_initial_entry = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
 
       return make_transition_table(
-          *idle + msm::on_entry / [this] { ++entry_1; }
-        , *idle2 + msm::on_entry / [this] { ++entry_2; }
+          *idle + sml::on_entry / [this] { ++entry_1; }
+        , *idle2 + sml::on_entry / [this] { ++entry_2; }
       );
       // clang-format on
     }
@@ -100,7 +100,7 @@ test orthogonal_regions_initial_entry = [] {
   };
 
   c c_;
-  msm::sm<c> sm{c_};
+  sml::sm<c> sm{c_};
   expect(1 == c_.entry_1);
   expect(1 == c_.entry_2);
 };
@@ -109,7 +109,7 @@ test orthogonal_regions_entry_exit_multiple = [] {
   enum class calls { a_entry, a_exit, b_entry, b_exit, c_entry, c_exit };
   struct c {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       const auto a = state<class A>;
       const auto b = state<class B>;
       const auto c = state<class C>;
@@ -119,12 +119,12 @@ test orthogonal_regions_entry_exit_multiple = [] {
         *"init1"_s = a,
         *"init2"_s = b,
         *"init3"_s = c,
-        a + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
-        a + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
-        b + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
-        b + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b_exit); },
-        c + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::c_entry); },
-        c + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::c_exit); },
+        a + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
+        a + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
+        b + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
+        b + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b_exit); },
+        c + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::c_entry); },
+        c + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::c_exit); },
         a + event<e1> = X,
         b + event<e1> = X,
         c + event<e1> = X
@@ -134,27 +134,27 @@ test orthogonal_regions_entry_exit_multiple = [] {
   };
 
   std::vector<calls> c_;
-  msm::sm<c> sm{c_};
+  sml::sm<c> sm{c_};
   expect(std::vector<calls>{calls::a_entry, calls::b_entry, calls::c_entry} == c_);
 
   c_.clear();
   sm.process_event(e1{});
   expect(std::vector<calls>{calls::a_exit, calls::b_exit, calls::c_exit} == c_);
-  expect(sm.is(msm::X, msm::X, msm::X));
+  expect(sm.is(sml::X, sml::X, sml::X));
 };
 
 test orthogonal_regions_entry_exit = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       auto entry_action = [this] { ++a_entry_action; };
       auto exit_action = [this] { ++a_exit_action; };
 
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
-        , s1 + msm::on_entry / entry_action
-        , s1 + msm::on_exit / exit_action
+        , s1 + sml::on_entry / entry_action
+        , s1 + sml::on_exit / exit_action
         , s1 + event<e2> = s2
 
         ,*idle2 + event<e3> = s3
@@ -168,7 +168,7 @@ test orthogonal_regions_entry_exit = [] {
   };
 
   c c_;
-  msm::sm<c> sm{c_};
+  sml::sm<c> sm{c_};
   sm.process_event(e1{});
   expect(c_.a_entry_action == 1);
   expect(c_.a_exit_action == 0);
@@ -210,16 +210,16 @@ test orthogonal_regions_reentries = [] {
 
   struct A {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       const auto a1 = state<class A1>;
       const auto a2 = state<class A2>;
       // clang-format off
       return make_transition_table(
         *a1 + event<e4> = a2,
-         a1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
-         a1 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); },
-         a2 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a2_entry); },
-         a2 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a2_exit); }
+         a1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
+         a1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); },
+         a2 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a2_entry); },
+         a2 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a2_exit); }
       );
       // clang-format on
     }
@@ -227,16 +227,16 @@ test orthogonal_regions_reentries = [] {
 
   struct B {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       const auto b1 = state<class B1>;
       const auto b2 = state<class B2>;
       // clang-format off
       return make_transition_table(
         *b1 + event<e4> = b2,
-         b1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
-         b1 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); },
-         b2 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b2_entry); },
-         b2 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b2_exit); }
+         b1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
+         b1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); },
+         b2 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b2_entry); },
+         b2 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b2_exit); }
       );
       // clang-format on
     }
@@ -244,16 +244,16 @@ test orthogonal_regions_reentries = [] {
 
   struct C {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       const auto c1 = state<class C1>;
       const auto c2 = state<class C2>;
       // clang-format off
       return make_transition_table(
         *c1 + event<e4> = c2,
-         c1 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::c1_entry); },
-         c1 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::c1_exit); },
-         c2 + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::c2_entry); },
-         c2 + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::c2_exit); }
+         c1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::c1_entry); },
+         c1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::c1_exit); },
+         c2 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::c2_entry); },
+         c2 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::c2_exit); }
       );
       // clang-format on
     }
@@ -261,7 +261,7 @@ test orthogonal_regions_reentries = [] {
 
   struct D {
     auto operator()() const noexcept {
-      using namespace msm;
+      using namespace sml;
       const auto a = state<A>;
       const auto x = state<class X>;
       const auto b = state<B>;
@@ -276,25 +276,25 @@ test orthogonal_regions_reentries = [] {
           b + event<e2> = y,
           *"init3"_s = c,
           c + event<e3> = z,
-          a + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
-          a + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
-          x + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
-          x + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); },
-          b + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
-          b + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b_exit); },
-          y + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::y_entry); },
-          y + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::y_exit); },
-          c + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::c_entry); },
-          c + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::c_exit); },
-          z + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::z_entry); },
-          z + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::z_exit); }
+          a + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
+          a + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
+          x + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
+          x + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); },
+          b + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
+          b + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b_exit); },
+          y + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::y_entry); },
+          y + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::y_exit); },
+          c + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::c_entry); },
+          c + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::c_exit); },
+          z + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::z_entry); },
+          z + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::z_exit); }
       );
       // clang-format on
     }
   };
 
   std::vector<calls> c_;
-  msm::sm<D> sm{c_};
+  sml::sm<D> sm{c_};
   expect(std::vector<calls>{calls::a_entry, calls::a1_entry, calls::b_entry, calls::b1_entry, calls::c_entry,
                             calls::c1_entry} == c_);
 

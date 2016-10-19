@@ -5,23 +5,23 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 #include <string>
 #include <utility>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
 struct e3 {};
 
-const auto idle = msm::state<class idle>;
-const auto s1 = msm::state<class s1>;
+const auto idle = sml::state<class idle>;
+const auto s1 = sml::state<class s1>;
 
 test process_event = [] {
   struct c {
     auto operator()() {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
@@ -35,12 +35,12 @@ test process_event = [] {
   };
 
   c c_;
-  msm::sm<c> sm{c_};
+  sml::sm<c> sm{c_};
   expect(sm.is(idle));
   sm.process_event(e1{});
   expect(sm.is(s1));
   expect(!c_.a_called);
   sm.process_event(e2{});  // + process(e3{})
   expect(1 == c_.a_called);
-  expect(sm.is(msm::X));
+  expect(sm.is(sml::X));
 };

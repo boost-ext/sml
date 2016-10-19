@@ -9,9 +9,9 @@
 #include <iostream>
 #include <string>
 #include <typeinfo>
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -28,7 +28,7 @@ struct action {
 
 struct plant_uml {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
        *"idle"_s + event<e1> = "s1"_s
@@ -42,8 +42,8 @@ struct plant_uml {
 
 template <class T>
 void dump_transition() noexcept {
-  auto src_state = std::string{msm::state<typename T::src_state>.c_str()};
-  auto dst_state = std::string{msm::state<typename T::dst_state>.c_str()};
+  auto src_state = std::string{sml::state<typename T::src_state>.c_str()};
+  auto dst_state = std::string{sml::state<typename T::dst_state>.c_str()};
   if (dst_state == "X") {
     dst_state = "[*]";
   }
@@ -54,9 +54,9 @@ void dump_transition() noexcept {
 
   std::cout << src_state << " --> " << dst_state;
 
-  const auto has_event = !msm::aux::is_same<typename T::event, msm::detail::anonymous>::value;
-  const auto has_guard = !msm::aux::is_same<typename T::guard, msm::detail::always>::value;
-  const auto has_action = !msm::aux::is_same<typename T::action, msm::detail::none>::value;
+  const auto has_event = !sml::aux::is_same<typename T::event, sml::detail::anonymous>::value;
+  const auto has_guard = !sml::aux::is_same<typename T::guard, sml::detail::always>::value;
+  const auto has_action = !sml::aux::is_same<typename T::action, sml::detail::none>::value;
 
   if (has_event || has_guard || has_action) {
     std::cout << " :";
@@ -91,6 +91,6 @@ void dump(const SM&) noexcept {
 }
 
 int main() {
-  msm::sm<plant_uml> sm;
+  sml::sm<plant_uml> sm;
   dump(sm);
 }

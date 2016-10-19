@@ -5,13 +5,13 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 #include <cassert>
 #include <cstdio>
 #include <iostream>
 #include <typeinfo>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct my_logger {
   template <class SM, class TEvent>
@@ -49,7 +49,7 @@ struct action {
 
 struct logging {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
        *"idle"_s + event<e1> [ guard && guard ] / action = "s1"_s
@@ -59,7 +59,7 @@ struct logging {
 };
 
 int main() {
-  msm::sm<logging, msm::logger<my_logger>> sm;
+  sml::sm<logging, sml::logger<my_logger>> sm;
   sm.process_event(e1{});
   sm.process_event(e2{});
 }

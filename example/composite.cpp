@@ -7,9 +7,9 @@
 //
 #include <cassert>
 #include <iostream>
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -19,7 +19,7 @@ struct e5 {};
 
 struct sub {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
       return make_transition_table(
        *"idle"_s + event<e3> / [] { std::cout << "in sub sm" << std::endl; } = "s1"_s
@@ -31,7 +31,7 @@ struct sub {
 
 struct composite {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
      *"idle"_s + event<e1> = "s1"_s
@@ -43,9 +43,9 @@ struct composite {
 };
 
 int main() {
-  msm::sm<composite> sm;
+  sml::sm<composite> sm;
 
-  using namespace msm;
+  using namespace sml;
   assert(sm.is("idle"_s));
   // assert(sub_sm.is("idle"_s));
 

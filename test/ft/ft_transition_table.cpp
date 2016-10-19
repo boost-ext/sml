@@ -5,11 +5,11 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 #include <string>
 #include <utility>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -17,18 +17,18 @@ struct e3 {};
 struct e4 {};
 struct e5 {};
 
-const auto idle = msm::state<class idle>;
-const auto s1 = msm::state<class s1>;
-const auto s2 = msm::state<class s2>;
-const auto s3 = msm::state<class s3>;
-const auto s4 = msm::state<class s4>;
-const auto s5 = msm::state<class s5>;
-const auto end = msm::state<class end>;
+const auto idle = sml::state<class idle>;
+const auto s1 = sml::state<class s1>;
+const auto s2 = sml::state<class s2>;
+const auto s3 = sml::state<class s3>;
+const auto s4 = sml::state<class s4>;
+const auto s5 = sml::state<class s5>;
+const auto end = sml::state<class end>;
 
 test operators = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       auto yes = [] { return true; };
       auto no = [] { return false; };
       auto action = [](int &i) { i++; };
@@ -45,7 +45,7 @@ test operators = [] {
   };
 
   int i = 0;
-  msm::sm<c> sm{i};
+  sml::sm<c> sm{i};
 
   {
     i = 0;
@@ -79,7 +79,7 @@ test operators = [] {
 test uml_notation = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
@@ -89,11 +89,11 @@ test uml_notation = [] {
     }
   };
 
-  msm::sm<c> sm;
+  sml::sm<c> sm;
   sm.process_event(e1{});
   expect(sm.is(s1));
   sm.process_event(e2{});
-  expect(sm.is(msm::X));
+  expect(sm.is(sml::X));
 };
 
 struct c_guard {
@@ -112,7 +112,7 @@ struct c_action {
 test transition_table_types = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       auto guard1 = [] { return true; };
       auto guard2 = [](auto) { return false; };
       auto guard3 = [=](int v) { return [=] { return guard2(v); }; };
@@ -121,7 +121,7 @@ test transition_table_types = [] {
 
       struct sub {
         auto operator()() noexcept {
-          using namespace msm;
+          using namespace sml;
           return make_transition_table();
         }
       };
@@ -184,5 +184,5 @@ test transition_table_types = [] {
   };
 
   float f = 12.0;
-  msm::sm<c> sm{f, 42, 87.0, 0.0f};
+  sml::sm<c> sm{f, 42, 87.0, 0.0f};
 };

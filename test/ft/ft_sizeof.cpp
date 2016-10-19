@@ -5,12 +5,12 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 test transition_sizeof = [] {
-  using namespace msm;
+  using namespace sml;
   constexpr auto i = 0;
 
   {
@@ -67,18 +67,18 @@ test transition_sizeof = [] {
 test sm_sizeof_empty = [] {
   struct empty {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       return make_transition_table();
     }
   };
 
-  static_expect(1 /*current_state=1*/ == sizeof(msm::sm<empty>{}));
+  static_expect(1 /*current_state=1*/ == sizeof(sml::sm<empty>{}));
 };
 
 test sm_sizeof_default_guard_action = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *"idle"_s + "event1"_e = "s1"_s,
@@ -92,13 +92,13 @@ test sm_sizeof_default_guard_action = [] {
     }
   };
 
-  static_expect(1 /*current_state=1*/ == sizeof(msm::sm<c>{}));
+  static_expect(1 /*current_state=1*/ == sizeof(sml::sm<c>{}));
 };
 
 test sm_sizeof_no_capture = [] {
   struct no_capture_transition {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *"idle"_s + "event"_e [([]{})] / []{},
@@ -205,13 +205,13 @@ test sm_sizeof_no_capture = [] {
       // clang-format on
     }
   };
-  static_expect(1 /*current_state=1*/ == sizeof(msm::sm<no_capture_transition>));
+  static_expect(1 /*current_state=1*/ == sizeof(sml::sm<no_capture_transition>));
 };
 
 test sm_sizeof_more_than_256_transitions = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace msm;
+      using namespace sml;
       // clang-format off
       return make_transition_table(
         *"s1"_s + "event1"_e [([]{})] / []{} = "s2"_s,
@@ -475,5 +475,5 @@ test sm_sizeof_more_than_256_transitions = [] {
       // clang-format on
     }
   };
-  static_expect(2 /*current_state=2*/ == sizeof(msm::sm<c>));
+  static_expect(2 /*current_state=2*/ == sizeof(sml::sm<c>));
 };

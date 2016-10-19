@@ -1,9 +1,9 @@
 #ifndef SM_VEYB5F0H
 #define SM_VEYB5F0H
 
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-BOOST_MSM_LITE_NAMESPACE_BEGIN
+BOOST_SML_NAMESPACE_BEGIN
 
 namespace testing {
 
@@ -23,11 +23,11 @@ class state_machine : public detail::sm<TSM> {
   }
 };
 
-template <class T, class... TPolicies> /*, BOOST_MSM_LITE_REQUIRES(concepts::configurable<T>::value)*/
+template <class T, class... TPolicies> /*, BOOST_SML_REQUIRES(concepts::configurable<T>::value)*/
 using sm = testing::state_machine<detail::sm_policy<T, TPolicies...>>;
 
 }  // testing
 
-BOOST_MSM_LITE_NAMESPACE_END
+BOOST_SML_NAMESPACE_END
 
 #endif

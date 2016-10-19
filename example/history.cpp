@@ -7,13 +7,13 @@
 //
 #include <cassert>
 #include <iostream>
-#include "boost/msm-lite.hpp"
+#include "boost/sml.hpp"
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct sub {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
       return make_transition_table(
         "s1"_s <= "idle"_s(H) + "e1"_e / [] { std::cout << "in sub" << std::endl; }
@@ -25,7 +25,7 @@ struct sub {
 
 struct history {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     // clang-format off
     return make_transition_table(
       state<sub> <= *"idle"_s  + "e1"_e / [] { std::cout << "enter sub" << std::endl; }
@@ -37,8 +37,8 @@ struct history {
 };
 
 int main() {
-  msm::sm<history> sm;
-  using namespace msm;
+  sml::sm<history> sm;
+  using namespace sml;
   sm.process_event("e1"_e);
   sm.process_event("e1"_e);  // enter sub
   sm.process_event("e3"_e);  // exit sub

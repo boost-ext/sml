@@ -15,11 +15,11 @@ pph() {
   echo "//"
   echo "#pragma once"
   echo "#if (__cplusplus < 201305L && _MSC_VER < 1900)"
-  echo "#error \"Boost.MSM-lite requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)\""
+  echo "#error \"Boost.SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)\""
   echo "#else"
-  echo "#define BOOST_MSM_LITE_VERSION ${version}'${revision}'${patch}"
-  echo "#define BOOST_MSM_LITE_NAMESPACE_BEGIN namespace boost { namespace msm { namespace lite { inline namespace v${version}_${revision}_${patch} {"
-  echo "#define BOOST_MSM_LITE_NAMESPACE_END }}}}"
+  echo "#define BOOST_SML_VERSION ${version}'${revision}'${patch}"
+  echo "#define BOOST_SML_NAMESPACE_BEGIN namespace boost { namespace sml { inline namespace v${version}_${revision}_${patch} {"
+  echo "#define BOOST_SML_NAMESPACE_END }}}"
   echo "#if !defined(__has_builtin)"
   echo "#define __has_builtin(...) 0"
   echo "#endif"
@@ -38,9 +38,9 @@ pph() {
   find . -iname "*.hpp" | xargs sed -i "s/\(.*\)__pph__/\/\/\/\/\1/g"
   find . -iname "*.hpp" | xargs sed -i "s/.*\(clang-format.*\)/\/\/\/\/\1/g"
   echo '
-    BOOST_MSM_LITE_NAMESPACE_BEGIN
-    #include "boost/msm-lite/back/state_machine.hpp"
-    #include "boost/msm-lite/front/transition_table.hpp"' > tmp.hpp
+    BOOST_SML_NAMESPACE_BEGIN
+    #include "boost/sml/back/state_machine.hpp"
+    #include "boost/sml/front/transition_table.hpp"' > tmp.hpp
   cpp -C -P -nostdinc -I. -DBOOST_DI_INJECT_HPP tmp.hpp 2>/dev/null | \
     sed "s/\/\/\/\///" | \
     sed "s/[ $]*#define/##define/g" | \
@@ -48,7 +48,7 @@ pph() {
     sed "s/clang-format\(.*\)/\/\/ clang-format\1/g" | \
     sed "s/^##define/#define/g"
   cd .. && rm -rf tmp
-  echo "BOOST_MSM_LITE_NAMESPACE_END"
+  echo "BOOST_SML_NAMESPACE_END"
   echo "#endif"
   echo "#if defined(__clang__)"
   echo "#pragma clang diagnostic pop"
@@ -59,5 +59,5 @@ pph() {
 }
 
 set -e
-cd ${0%/*}/../include && pph `head -1 ../doc/CHANGELOG.md  | sed "s/.*\[\(.*\)\].*/\1/" | tr '.' ' '` > "boost/msm-lite.hpp"
-${CLANG_FORMAT:=clang-format} -i "boost/msm-lite.hpp"
+cd ${0%/*}/../include && pph `head -1 ../doc/CHANGELOG.md  | sed "s/.*\[\(.*\)\].*/\1/" | tr '.' ' '` > "boost/sml.hpp"
+${CLANG_FORMAT:=clang-format} -i "boost/sml.hpp"

@@ -1,7 +1,7 @@
 #ifndef TYPE_TRAITS_XM72V8F0
 #define TYPE_TRAITS_XM72V8F0
 
-#define BOOST_MSM_LITE_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0  // __pph__
+#define BOOST_SML_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0  // __pph__
 
 namespace aux {
 using byte = unsigned char;
