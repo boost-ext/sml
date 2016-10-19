@@ -3,6 +3,7 @@
 * [States](#states)
 * [Actions Guards](#actions-guards)
 * [Transitions](#transitions)
+* [Defer/Process](#deferprocess)
 * [Orthogonal Regions](#orthogonal-regions)
 * [Composite](#composite)
 * [History](#history)
@@ -11,6 +12,7 @@
 * [Testing](#testing)
 * [Runtime Dispatcher](#runtime-dispatcher)
 * [eUML Emulation](#euml-emulation)
+* [Dependencies](#dependencies)
 * [Dependency Injection](#dependency-injection)
 * [SDL2 Integration](#sdl2-integration)
 * [Plant UML Integration](#plant-uml-integration)
@@ -31,6 +33,9 @@
 
 ###Transitions
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp)
+
+###Defer/Process
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/defer_and_process.cpp)
 
 ###Orthogonal Regions
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp)
@@ -55,6 +60,9 @@
 
 ###eUML Emulation
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp)
+
+###Dependencies
+![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependencies.cpp)
 
 ###Dependency Injection
 ![CPP](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp)

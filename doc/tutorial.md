@@ -136,7 +136,8 @@ our transitions.
     |------------|-------------|
     | state + event<e> [ guard ] | internal transition on event e when guard |
     | src\_state / [] {} = dst\_state | anonymous transition with action |
-    | src\_state + event<e> = dst\_state | transition on event e without guard or action |
+    | src\_state / [] {} = src\_state | self transition (calls on_exit/on_entry) |
+    | src\_state + event<e> = dst\_state | external transition on event e without guard or action |
     | src\_state + event<e> [ guard ] / action = dst\_state | transition from src\_state to dst\_state on event e with guard and action |
     | src\_state + event<e> [ guard && (![]{return true;} && guard2) ] / (action, action2, []{}) = dst\_state | transition from src\_state to dst\_state on event e with guard and action |
 
@@ -146,7 +147,8 @@ our transitions.
     |------------|-------------|
     | state + event<e> [ guard ] | internal transition on event e when guard |
     | dst\_state <= src\_state / [] {} | anonymous transition with action |
-    | dst\_state <= src\_state + event<e> | transition on event e without guard or action |
+    | src\_state <= src\_state / [] {} | self transition (calls on_exit/on_entry) |
+    | dst\_state <= src\_state + event<e> | external transition on event e without guard or action |
     | dst\_state <= src\_state + event<e> [ guard ] / action | transition from src\_state to dst\_state on event e with guard and action |
     | dst\_state <= src\_state + event<e> [ guard && (![]{return true;} && guard2) ] / (action, action2, []{}) | transition from src\_state to dst\_state on event e with guard and action |
 
