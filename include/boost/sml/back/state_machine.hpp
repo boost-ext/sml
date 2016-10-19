@@ -209,7 +209,7 @@ class sm_impl {
     log_process_event<logger_t, sm_raw_t>(has_logger{}, self.deps_, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
     return process_event_noexcept(event, self, current_state, has_exceptions{});
-#else   // __pph__
+#else  // __pph__
     return process_event_impl<get_event_mapping_t<TEvent, mappings_t>>(event, self, states_t{}, current_state);
 #endif  // __pph__
   }
