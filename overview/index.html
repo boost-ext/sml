@@ -6,9 +6,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <meta name="author" content="Krzysztof Jusiak">
+  <meta name="author" content="Kris Jusiak">
   
-  <title>Overview - Boost.MSM-lite</title>
+  <title>Overview - Boost.SML</title>
   
 
   <link rel="shortcut icon" href="../img/favicon.ico">
@@ -64,7 +64,7 @@
 	<nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
 
       <img src="../img/boost.png" />
-      <a href="../index.html" class="icon icon-home" style="font-weight:bold;text-align:left;padding:0.809em;color:#fcfcfc;margin-bottom:0.809em"> Boost.MSM-lite</a>
+      <a href="../index.html" class="icon icon-home" style="font-weight:bold;text-align:left;padding:0.809em;color:#fcfcfc;margin-bottom:0.809em"> Boost.SML</a>
 
       <div class="wy-side-nav-search">
 		<div role="search">
@@ -169,7 +169,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">Boost.MSM-lite</a>
+        <a href="../index.html">Boost.SML</a>
       </nav>
 
       
@@ -195,16 +195,16 @@
               
                 <h3 id="quick-start">Quick Start</h3>
 <ul>
-<li>Get <a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp">boost/msm-lite.hpp</a> header</li>
+<li>Get <a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/sml.hpp">boost/sml.hpp</a> header</li>
 </ul>
-<pre><code class="sh">wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp
+<pre><code class="sh">wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/sml.hpp
 </code></pre>
 
 <ul>
-<li>Include the header and define <code>msm</code> namespace alias</li>
+<li>Include the header and define <code>sml</code> namespace alias</li>
 </ul>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
-namespace msm = boost::msm::lite;
+<pre><code class="cpp">#include &quot;boost/sml.hpp&quot;
+namespace sml = boost::sml;
 </code></pre>
 
 <ul>
@@ -238,23 +238,23 @@ namespace msm = boost::msm::lite;
 </thead>
 <tbody>
 <tr>
-<td><code>BOOST_MSM_LITE_VERSION</code></td>
-<td>Current version of Boost.MSM-lite (ex. 1'0'0)</td>
+<td><code>BOOST_SML_VERSION</code></td>
+<td>Current version of Boost.SML (ex. 1'0'0)</td>
 </tr>
 </tbody>
 </table>
 <h3 id="exception-safety">Exception Safety</h3>
 <ul>
-<li>Boost.MSM-lite doesn't use exceptions internally and therefore might be compiled with <code>-fno-exceptions</code>.</li>
+<li>Boost.SML doesn't use exceptions internally and therefore might be compiled with <code>-fno-exceptions</code>.</li>
 <li>If guard/action throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will stay in a current state.</li>
 <li>Exceptions might be caught using transition table via <code>exception</code> event. See <a href="../tutorial/index.html#8-error-handling">Error handling</a>.</li>
 </ul>
 <h3 id="thread-safety">Thread Safety</h3>
 <ul>
-<li>Boost.MSM-lite is not thread safe by default.</li>
+<li>Boost.SML is not thread safe by default.</li>
 <li>Thread Safety might be enabled by defining a thread_safe policy when creating a State Machine</li>
 </ul>
-<pre><code class="cpp">msm::sm&lt;example, msm::thread_safe&lt;std::recursive_mutex&gt;&gt; sm;
+<pre><code class="cpp">sml::sm&lt;example, sml::thread_safe&lt;std::recursive_mutex&gt;&gt; sm;
 sm.process_event(event{}); // thread safe call
 </code></pre>
 

@@ -3,9 +3,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 
-<meta name="author" content="Krzysztof Jusiak">
+<meta name="author" content="Kris Jusiak">
 <link rel="canonical" href="http://boost-experimental.github.io/msm-lite/overview/index.html">
-<title>Overview - Boost.MSM-lite</title>
+<title>Overview - Boost.SML</title>
 
 <link href="../css/boostbook.css" rel="stylesheet">
 <link href="../css/github.css" rel="stylesheet">
@@ -63,16 +63,16 @@
 <div class="section">
 <h3 id="quick-start">Quick Start</h3>
 <ul>
-<li>Get <a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp">boost/msm-lite.hpp</a> header</li>
+<li>Get <a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/sml.hpp">boost/sml.hpp</a> header</li>
 </ul>
-<pre><code class="sh">wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp
+<pre><code class="sh">wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/sml.hpp
 </code></pre>
 
 <ul>
-<li>Include the header and define <code>msm</code> namespace alias</li>
+<li>Include the header and define <code>sml</code> namespace alias</li>
 </ul>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
-namespace msm = boost::msm::lite;
+<pre><code class="cpp">#include &quot;boost/sml.hpp&quot;
+namespace sml = boost::sml;
 </code></pre>
 
 <ul>
@@ -106,23 +106,23 @@ namespace msm = boost::msm::lite;
 </thead>
 <tbody>
 <tr>
-<td><code>BOOST_MSM_LITE_VERSION</code></td>
-<td>Current version of Boost.MSM-lite (ex. 1'0'0)</td>
+<td><code>BOOST_SML_VERSION</code></td>
+<td>Current version of Boost.SML (ex. 1'0'0)</td>
 </tr>
 </tbody>
 </table>
 <h3 id="exception-safety">Exception Safety</h3>
 <ul>
-<li>Boost.MSM-lite doesn't use exceptions internally and therefore might be compiled with <code>-fno-exceptions</code>.</li>
+<li>Boost.SML doesn't use exceptions internally and therefore might be compiled with <code>-fno-exceptions</code>.</li>
 <li>If guard/action throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will stay in a current state.</li>
 <li>Exceptions might be caught using transition table via <code>exception</code> event. See <a href="../tutorial/index.html#8-error-handling">Error handling</a>.</li>
 </ul>
 <h3 id="thread-safety">Thread Safety</h3>
 <ul>
-<li>Boost.MSM-lite is not thread safe by default.</li>
+<li>Boost.SML is not thread safe by default.</li>
 <li>Thread Safety might be enabled by defining a thread_safe policy when creating a State Machine</li>
 </ul>
-<pre><code class="cpp">msm::sm&lt;example, msm::thread_safe&lt;std::recursive_mutex&gt;&gt; sm;
+<pre><code class="cpp">sml::sm&lt;example, sml::thread_safe&lt;std::recursive_mutex&gt;&gt; sm;
 sm.process_event(event{}); // thread safe call
 </code></pre>
 
@@ -131,15 +131,15 @@ sm.process_event(event{}); // thread safe call
 </ul>
 <h3 id="error-messages">Error messages</h3>
 <p><strong><em>Not configurable</em></strong></p>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+<pre><code class="cpp">#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 
 struct not_configurable {
   auto setup() const noexcept {  // should be configure
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
         *&quot;idle&quot;_s + event&lt;e1&gt; = X
     );
@@ -147,7 +147,7 @@ struct not_configurable {
 };
 
 int main() {
-  msm::sm&lt;not_configurable&gt; sm;
+  sml::sm&lt;not_configurable&gt; sm;
   (void)sm;
 }
 </code></pre>
@@ -156,9 +156,9 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_configurable.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_configurable.cpp</a></li>
 </ul>
 <p><strong><em>Not callable</em></strong></p>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+<pre><code class="cpp">#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 
@@ -166,7 +166,7 @@ struct im_not_callable {};
 
 struct not_callable {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
         *&quot;idle&quot;_s + event&lt;e1&gt; / im_not_callable{} = X // not callable
     );
@@ -180,16 +180,16 @@ int main() {}
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_callable.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_callable.cpp</a></li>
 </ul>
 <p><strong><em>Not transitional</em></strong></p>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+<pre><code class="cpp">#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct im_not_a_transition {};
 
 struct not_transitional {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
         *&quot;idle&quot;_s + event&lt;e1&gt; = X
       , im_not_a_transition{} // not transitional
@@ -204,16 +204,16 @@ int main() {}
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_transitional.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/errors/not_transitional.cpp</a></li>
 </ul>
 <p><strong><em>Not dispatchable</em></strong></p>
-<pre><code class="cpp">#include &quot;boost/msm-lite.hpp&quot;
+<pre><code class="cpp">#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct runtime_event {};
 struct e1 {};  // missing id
 
 struct not_dispatchable {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
         *&quot;idle&quot;_s + event&lt;e1&gt; = X
     );
@@ -221,8 +221,8 @@ struct not_dispatchable {
 };
 
 int main() {
-  msm::sm&lt;not_dispatchable&gt; sm;
-  msm::make_dispatch_table&lt;runtime_event, 1, 10&gt;(sm);
+  sml::sm&lt;not_dispatchable&gt; sm;
+  sml::make_dispatch_table&lt;runtime_event, 1, 10&gt;(sm);
 }
 </code></pre>
 

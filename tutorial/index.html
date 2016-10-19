@@ -6,9 +6,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <meta name="author" content="Krzysztof Jusiak">
+  <meta name="author" content="Kris Jusiak">
   
-  <title>Tutorial - Boost.MSM-lite</title>
+  <title>Tutorial - Boost.SML</title>
   
 
   <link rel="shortcut icon" href="../img/favicon.ico">
@@ -64,7 +64,7 @@
 	<nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
 
       <img src="../img/boost.png" />
-      <a href="../index.html" class="icon icon-home" style="font-weight:bold;text-align:left;padding:0.809em;color:#fcfcfc;margin-bottom:0.809em"> Boost.MSM-lite</a>
+      <a href="../index.html" class="icon icon-home" style="font-weight:bold;text-align:left;padding:0.809em;color:#fcfcfc;margin-bottom:0.809em"> Boost.SML</a>
 
       <div class="wy-side-nav-search">
 		<div role="search">
@@ -178,7 +178,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">Boost.MSM-lite</a>
+        <a href="../index.html">Boost.SML</a>
       </nav>
 
       
@@ -202,9 +202,9 @@
           <div role="main">
             <div class="section">
               
-                <p>All code examples include <code>boost/msm-lite.hpp</code> as well as declare a convienent msm namespace alias.</p>
-<pre><code class="cpp">#include &lt;boost/msm-lite.hpp&gt;
-namespace msm = boost::msm::lite;
+                <p>All code examples include <code>boost/sml.hpp</code> as well as declare a convienent <code>sml</code> namespace alias.</p>
+<pre><code class="cpp">#include &lt;boost/sml.hpp&gt;
+namespace sml = boost::sml;
 </code></pre>
 
 <h3 id="0-read-boostmsm-euml-documentation">0. Read Boost.MSM - eUML documentation</h3>
@@ -219,11 +219,11 @@ namespace msm = boost::msm::lite;
 </code></pre>
 
 <p>You can also create event instance in order to simplify transition table notation.</p>
-<pre><code class="cpp">auto event = msm::event&lt;my_event&gt;;
+<pre><code class="cpp">auto event = sml::event&lt;my_event&gt;;
 </code></pre>
 
 <p>If you happen to have a Clang/GCC compiler, you can create an Event on the fly.</p>
-<pre><code class="cpp">using namespace msm;
+<pre><code class="cpp">using namespace sml;
 auto event  = &quot;event&quot;_t;
 </code></pre>
 
@@ -231,21 +231,21 @@ auto event  = &quot;event&quot;_t;
 <p>A State can have entry/exit behaviour executed whenever machine enters/leaves State and
 represents current location of the state machine flow.</p>
 <p>To create a state below snippet might be used.</p>
-<pre><code class="cpp">auto idle = msm::state&lt;class idle&gt;;
+<pre><code class="cpp">auto idle = sml::state&lt;class idle&gt;;
 </code></pre>
 
 <p>If you happen to have a Clang/GCC compiler, you can create a State on the fly.</p>
-<pre><code class="cpp">using namespace msm;
+<pre><code class="cpp">using namespace sml;
 auto state  = &quot;idle&quot;_s;
 </code></pre>
 
 <p>However, please notice that above solution is a non-standard extension for Clang/GCC.</p>
-<p><code>msm-lite</code> states cannot have data as data is injected directly into guards/actions instead.</p>
+<p><code>SML</code> states cannot have data as data is injected directly into guards/actions instead.</p>
 <p>A state machine might be a State itself.</p>
-<pre><code class="cpp">msm::state&lt;state_machine&gt; composite;
+<pre><code class="cpp">sml::state&lt;state_machine&gt; composite;
 </code></pre>
 
-<p><code>msm-lite</code> supports <code>terminate</code> state, which stops events to be processed. It defined by <code>X</code>.</p>
+<p><code>SML</code> supports <code>terminate</code> state, which stops events to be processed. It defined by <code>X</code>.</p>
 <pre><code class="cpp">&quot;state&quot;_s = X;
 </code></pre>
 
@@ -295,7 +295,7 @@ struct action4 {
 <h3 id="3-create-a-transition-table">3. Create a transition table</h3>
 <p>When we have states and events handy we can finally create a transition table which represents
 our transitions.</p>
-<p><code>msm-lite</code> is using eUML-like DSL in order to be as close as possible to UML design.</p>
+<p><code>SML</code> is using eUML-like DSL in order to be as close as possible to UML design.</p>
 <ul>
 <li>
 <p>Transition Table DSL</p>
@@ -387,7 +387,7 @@ our transitions.</p>
 </code></pre>
 
 <p>To create a transition table <a href="../user_guide/index.html#make_transition_table-state-machine"><code>make_transition_table</code></a> is provided.</p>
-<pre><code class="cpp">using namespace msm; // Postfix Notation
+<pre><code class="cpp">using namespace sml; // Postfix Notation
 
 make_transition_table(
  *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s
@@ -396,7 +396,7 @@ make_transition_table(
 </code></pre>
 
 <p>or</p>
-<pre><code class="cpp">using namespace msm; // Prefix Notation
+<pre><code class="cpp">using namespace sml; // Prefix Notation
 
 make_transition_table(
   &quot;dst_state&quot;_s &lt;= *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action
@@ -410,7 +410,7 @@ make_transition_table(
 <hr />
 <h3 id="4-set-initial-states">4. Set initial states</h3>
 <p>Initial state tells the state machine where to start. It can be set by prefixing a State with <code>*</code>.</p>
-<pre><code class="cpp">using namespace msm;
+<pre><code class="cpp">using namespace sml;
 make_transition_table(
  *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s,
   &quot;dst_state&quot;_s + event&lt;game_over&gt; = X
@@ -420,7 +420,7 @@ make_transition_table(
 <p>Initial/Current state might be remembered by the State Machine so that whenever it will reentered
 the last active state will reactivated. In order to enable history you just have
 to replace <code>*</code> with postfixed <code>(H)</code> when declaring the initial state.</p>
-<pre><code class="cpp">using namespace msm;
+<pre><code class="cpp">using namespace sml;
 make_transition_table(
   &quot;src_state&quot;_s(H) + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s,
   &quot;dst_state&quot;_s    + event&lt;game_over&gt;                   = X
@@ -429,7 +429,7 @@ make_transition_table(
 
 <p>You can have more than one initial state. All initial states will be executed in pseudo-parallel way
 . Such states are called <code>Orthogonal regions</code>.</p>
-<pre><code class="cpp">using namespace msm;
+<pre><code class="cpp">using namespace sml;
 make_transition_table(
  *&quot;region_1&quot;_s   + event&lt;my_event1&gt; [ guard ] / action = &quot;dst_state1&quot;_s,
   &quot;dst_state1&quot;_s + event&lt;game_over&gt; = X,
@@ -449,7 +449,7 @@ To create a state machine, we have to add a transition table.</p>
 <pre><code class="cpp">class example {
 public:
   auto opeartor()() {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
      *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s,
       &quot;dst_state&quot;_s + event&lt;game_over&gt; = X
@@ -459,7 +459,7 @@ public:
 </code></pre>
 
 <p>Having transition table configured we can create a state machine.</p>
-<pre><code class="cpp">msm::sm&lt;example&gt; sm;
+<pre><code class="cpp">sml::sm&lt;example&gt; sm;
 </code></pre>
 
 <p>State machine constructor provides required dependencies for actions and guards.</p>
@@ -474,9 +474,9 @@ auto action = [](int i){}  |
                  |         |
                  \-\   /---/
                    |   |
-msm::sm&lt;exmple&gt; s{42, 87.0};
+sml::sm&lt;exmple&gt; s{42, 87.0};
 
-msm::sm&lt;exmple&gt; s{87.0, 42}; // order in which parameters have to passed is not specificied
+sml::sm&lt;exmple&gt; s{87.0, 42}; // order in which parameters have to passed is not specificied
 </code></pre>
 
 <p>Passing and maintaining a lot of dependencies might be tedious and requires huge amount of boilerplate code.
@@ -498,28 +498,28 @@ sm.process_event(e1{});
 <h3 id="6-process-events">6. Process events</h3>
 <p>State machine is a simple creature. Its main purpose is to process events.
 In order to do it, <code>process_event</code> method might be used.</p>
-<pre><code class="cpp">msm::sm&lt;example&gt; sm;
+<pre><code class="cpp">sml::sm&lt;example&gt; sm;
 
 sm.process_event(my_event{}); // handled
 sm.process_event(int{}); // not handled -&gt; unexpected_event&lt;int&gt;
 </code></pre>
 
 <p>Process event might be also triggered on transition table.</p>
-<pre><code>using namespace msm;
+<pre><code>using namespace sml;
 return make_transition_table(
  *&quot;s1&quot;_s + event&lt;my_event&gt; / process_event(other_event{}) = &quot;s2&quot;_s,
   &quot;s2&quot;_s + event&lt;other_event&gt; = X
 );
 </code></pre>
 
-<p><code>msm-lite</code> also provides a way to dispatch dynamically created events into the state machine.</p>
+<p><code>SML</code> also provides a way to dispatch dynamically created events into the state machine.</p>
 <pre><code class="cpp">struct game_over {
   static constexpr auto id = SDL_QUIT;
   // explicit game_over(const SDL_Event&amp;) noexcept; // optional, when defined runtime event will be passed
 };
 enum SDL_EventType { SDL_FIRSTEVENT = 0, SDL_QUIT, SDL_KEYUP, SDL_MOUSEBUTTONUP, SDL_LASTEVENT };
 //create dispatcher from state machine and range of events
-auto dispatch_event = msm::utility::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
+auto dispatch_event = sml::utility::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
 SDL_Event event{SDL_QUIT};
 dispatch_event(event, event.type); // will call sm.process(game_over{});
 </code></pre>
@@ -564,7 +564,7 @@ make_transition_table(
 </code></pre>
 
 <p>We can always check whether a State Machine is in terminate state by.</p>
-<pre><code class="cpp">assert(sm.is(msm::X)); // doesn't matter how many regions there are
+<pre><code class="cpp">assert(sm.is(sml::X)); // doesn't matter how many regions there are
 </code></pre>
 
 <p>When exceptions are enabled (project is NOT compiled with <code>-fno-exceptions</code>) they
@@ -584,9 +584,9 @@ Please, notice that when there is no exception handler defined in the Transition
 <hr />
 <h3 id="9-test-it">9. Test it</h3>
 <p>Sometimes it's useful to verify whether a state machine is in a specific state, for example, if
-we are in a terminate state or not. We can do it with <code>msm-lite</code> using <code>is</code> or <code>visit_current_states</code>
+we are in a terminate state or not. We can do it with <code>SML</code> using <code>is</code> or <code>visit_current_states</code>
 functionality.</p>
-<pre><code class="cpp">msm::sm&lt;example&gt; sm;
+<pre><code class="cpp">sml::sm&lt;example&gt; sm;
 sm.process_event(my_event{});
 assert(sm.is(X)); // is(X, s1, ...) when you have orthogonal regions
 
@@ -595,7 +595,7 @@ assert(sm.is(X)); // is(X, s1, ...) when you have orthogonal regions
 sm.visit_current_states([](auto state) { std::cout &lt;&lt; state.c_str() &lt;&lt; std::endl; });
 </code></pre>
 
-<p>On top of that, <code>msm-lite</code> provides testing facilities to check state machine as a whole.
+<p>On top of that, <code>SML</code> provides testing facilities to check state machine as a whole.
 <code>set_current_states</code> method is available from <code>testing::sm</code> in order to set state machine
 in a requested state.</p>
 <pre><code class="cpp">testing::sm&lt;example&gt; sm{fake_data...};
@@ -608,7 +608,7 @@ assert(sm.is(X));
 <p>&nbsp;</p>
 <hr />
 <h3 id="10-debug-it">10. Debug it</h3>
-<p><code>msm-lite</code> provides logging capabilities in order to inspect state machine flow.
+<p><code>SML</code> provides logging capabilities in order to inspect state machine flow.
 To enable logging you can use (Logger Policy)(user_guide.md#policies)</p>
 <pre><code class="cpp">struct my_logger {
   template &lt;class SM, class TEvent&gt;
@@ -633,7 +633,7 @@ To enable logging you can use (Logger Policy)(user_guide.md#policies)</p>
   }
 };
 
-msm::sm&lt;logging, msm::logger&lt;my_logger&gt;&gt; sm;
+sml::sm&lt;logging, sml::logger&lt;my_logger&gt;&gt; sm;
 sm.process_event(my_event{}); // will call my_logger appropriately
 </code></pre>
 

@@ -3,9 +3,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 
-<meta name="author" content="Krzysztof Jusiak">
+<meta name="author" content="Kris Jusiak">
 <link rel="canonical" href="http://boost-experimental.github.io/msm-lite/examples/index.html">
-<title>Examples - Boost.MSM-lite</title>
+<title>Examples - Boost.SML</title>
 
 <link href="../css/boostbook.css" rel="stylesheet">
 <link href="../css/github.css" rel="stylesheet">
@@ -129,9 +129,9 @@
 <h3 id="hello-world">Hello World</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -146,7 +146,7 @@ auto action = [] { std::cout &lt;&lt; &quot;action&quot; &lt;&lt; std::endl; };
 
 struct hello_world {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
        *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
       , &quot;s1&quot;_s + event&lt;e2&gt; [ guard ] / action = &quot;s2&quot;_s
@@ -156,8 +156,8 @@ struct hello_world {
 };
 
 int main() {
-  msm::sm&lt;hello_world&gt; sm;
-  using namespace msm;
+  sml::sm&lt;hello_world&gt; sm;
+  using namespace sml;
   assert(sm.is(&quot;idle&quot;_s));
   sm.process_event(e1{});
   assert(sm.is(&quot;s1&quot;_s));
@@ -173,19 +173,19 @@ int main() {
 </ul>
 <h3 id="events">Events</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {
   bool value = true;
 };
-auto event2 = msm::event&lt;e2&gt;;
+auto event2 = sml::event&lt;e2&gt;;
 
 struct events {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     auto guard = [](const e2&amp; e) { return e.value; };
 
     return make_transition_table(
@@ -198,8 +198,8 @@ struct events {
 };
 
 int main() {
-  msm::sm&lt;events&gt; sm;
-  using namespace msm;
+  sml::sm&lt;events&gt; sm;
+  using namespace sml;
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(&quot;e3&quot;_e);
@@ -214,9 +214,9 @@ int main() {
 <h3 id="states">States</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -224,12 +224,12 @@ struct e3 {};
 
 struct states {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     const auto idle = state&lt;class idle&gt;;
     return make_transition_table(
        *idle + event&lt;e1&gt; = &quot;s1&quot;_s
-      , &quot;s1&quot;_s + msm::on_entry / [] { std::cout &lt;&lt; &quot;s1 on entry&quot; &lt;&lt; std::endl; }
-      , &quot;s1&quot;_s + msm::on_exit / [] { std::cout &lt;&lt; &quot;s1 on exit&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + sml::on_entry / [] { std::cout &lt;&lt; &quot;s1 on entry&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + sml::on_exit / [] { std::cout &lt;&lt; &quot;s1 on exit&quot; &lt;&lt; std::endl; }
       , &quot;s1&quot;_s + event&lt;e2&gt; = state&lt;class s2&gt;
       , state&lt;class s2&gt; + event&lt;e3&gt; = X
     );
@@ -237,11 +237,11 @@ struct states {
 };
 
 int main() {
-  msm::sm&lt;states&gt; sm;
+  sml::sm&lt;states&gt; sm;
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
-  assert(sm.is(msm::X));
+  assert(sm.is(sml::X));
 }
 </code></pre>
 
@@ -253,9 +253,9 @@ int main() {
 #include &lt;cassert&gt;
 #include &lt;iostream&gt;
 #include &lt;typeinfo&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 
 struct e1 {};
@@ -291,7 +291,7 @@ struct action2 {
 
 struct actions_guards {
   auto operator()() noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
        *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
       , &quot;s1&quot;_s + event&lt;e2&gt; [ guard1 ] / action1 = &quot;s2&quot;_s
@@ -311,13 +311,13 @@ struct actions_guards {
 };
 
 int main() {
-  msm::sm&lt;actions_guards&gt; sm{42};
+  sml::sm&lt;actions_guards&gt; sm{42};
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
   sm.process_event(e4{});
   sm.process_event(e5{});
-  assert(sm.is(msm::X));
+  assert(sm.is(sml::X));
 }
 </code></pre>
 
@@ -327,9 +327,9 @@ int main() {
 <h3 id="transitions">Transitions</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -337,24 +337,24 @@ struct e3 {};
 
 struct transitions {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
        *&quot;idle&quot;_s                / [] { std::cout &lt;&lt; &quot;anonymous transition&quot; &lt;&lt; std::endl; } = &quot;s1&quot;_s
       , &quot;s1&quot;_s + event&lt;e1&gt;      / [] { std::cout &lt;&lt; &quot;internal transition&quot; &lt;&lt; std::endl; }
       , &quot;s1&quot;_s + event&lt;e2&gt;      / [] { std::cout &lt;&lt; &quot;self transition&quot; &lt;&lt; std::endl; } = &quot;s1&quot;_s
-      , &quot;s1&quot;_s + msm::on_entry  / [] { std::cout &lt;&lt; &quot;s1 entry&quot; &lt;&lt; std::endl; }
-      , &quot;s1&quot;_s + msm::on_exit   / [] { std::cout &lt;&lt; &quot;s1 exit&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + sml::on_entry  / [] { std::cout &lt;&lt; &quot;s1 entry&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + sml::on_exit   / [] { std::cout &lt;&lt; &quot;s1 exit&quot; &lt;&lt; std::endl; }
       , &quot;s1&quot;_s + event&lt;e3&gt;      / [] { std::cout &lt;&lt; &quot;external transition&quot; &lt;&lt; std::endl; } = X
     );
   }
 };
 
 int main() {
-  msm::sm&lt;transitions&gt; sm;
+  sml::sm&lt;transitions&gt; sm;
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(e3{});
-  assert(sm.is(msm::X));
+  assert(sm.is(sml::X));
 }
 </code></pre>
 
@@ -364,9 +364,9 @@ int main() {
 <h3 id="deferprocess">Defer/Process</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;queue&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -375,7 +375,7 @@ struct e4 {};
 
 struct defer_and_process {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
        *&quot;idle&quot;_s + event&lt;e1&gt; / defer
       , &quot;idle&quot;_s + event&lt;e2&gt; = &quot;s1&quot;_s
@@ -387,8 +387,8 @@ struct defer_and_process {
 };
 
 int main() {
-  using namespace msm;
-  sm&lt;defer_and_process, msm::defer_queue&lt;std::queue&gt;&gt; sm;  /// defer_queue policy to enable deferred events using std::queue
+  using namespace sml;
+  sm&lt;defer_and_process, sml::defer_queue&lt;std::queue&gt;&gt; sm;  /// defer_queue policy to enable deferred events using std::queue
   assert(sm.is(&quot;idle&quot;_s));
 
   sm.process_event(e1{});
@@ -398,7 +398,7 @@ int main() {
   assert(sm.is(&quot;s2&quot;_s));
 
   sm.process_event(e3{});  /// triggers s2.process(e4) -&gt; X (via processed e4)
-  assert(sm.is(msm::X));
+  assert(sm.is(sml::X));
 }
 </code></pre>
 
@@ -407,9 +407,9 @@ int main() {
 </ul>
 <h3 id="orthogonal-regions">Orthogonal Regions</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -417,7 +417,7 @@ struct e3 {};
 
 struct orthogonal_regions {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
      *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
     , &quot;s1&quot;_s + event&lt;e2&gt; = X
@@ -429,8 +429,8 @@ struct orthogonal_regions {
 };
 
 int main() {
-  msm::sm&lt;orthogonal_regions&gt; sm;
-  using namespace msm;
+  sml::sm&lt;orthogonal_regions&gt; sm;
+  using namespace sml;
   assert(sm.is(&quot;idle&quot;_s, &quot;idle2&quot;_s));
   sm.process_event(e1{});
   assert(sm.is(&quot;s1&quot;_s, &quot;idle2&quot;_s));
@@ -447,9 +447,9 @@ int main() {
 <h3 id="composite">Composite</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -459,7 +459,7 @@ struct e5 {};
 
 struct sub {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
       return make_transition_table(
        *&quot;idle&quot;_s + event&lt;e3&gt; / [] { std::cout &lt;&lt; &quot;in sub sm&quot; &lt;&lt; std::endl; } = &quot;s1&quot;_s
       , &quot;s1&quot;_s + event&lt;e4&gt; / [] { std::cout &lt;&lt; &quot;finish sub sm&quot; &lt;&lt; std::endl; } = X
@@ -469,7 +469,7 @@ struct sub {
 
 struct composite {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
      *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
     , &quot;s1&quot;_s + event&lt;e2&gt; / [] { std::cout &lt;&lt; &quot;enter sub sm&quot; &lt;&lt; std::endl; } = state&lt;sub&gt;
@@ -479,9 +479,9 @@ struct composite {
 };
 
 int main() {
-  msm::sm&lt;composite&gt; sm;
+  sml::sm&lt;composite&gt; sm;
 
-  using namespace msm;
+  using namespace sml;
   assert(sm.is(&quot;idle&quot;_s));
   // assert(sub_sm.is(&quot;idle&quot;_s));
 
@@ -513,13 +513,13 @@ int main() {
 <h3 id="history">History</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct sub {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
       return make_transition_table(
         &quot;s1&quot;_s &lt;= &quot;idle&quot;_s(H) + &quot;e1&quot;_e / [] { std::cout &lt;&lt; &quot;in sub&quot; &lt;&lt; std::endl; }
       , X      &lt;= &quot;s1&quot;_s      + &quot;e2&quot;_e / [] { std::cout &lt;&lt; &quot;in sub again&quot; &lt;&lt; std::endl; }
@@ -529,7 +529,7 @@ struct sub {
 
 struct history {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
       state&lt;sub&gt; &lt;= *&quot;idle&quot;_s  + &quot;e1&quot;_e / [] { std::cout &lt;&lt; &quot;enter sub&quot; &lt;&lt; std::endl; }
     , &quot;s1&quot;_s     &lt;= state&lt;sub&gt; + &quot;e3&quot;_e / [] { std::cout &lt;&lt; &quot;exit sub&quot; &lt;&lt; std::endl; }
@@ -539,8 +539,8 @@ struct history {
 };
 
 int main() {
-  msm::sm&lt;history&gt; sm;
-  using namespace msm;
+  sml::sm&lt;history&gt; sm;
+  using namespace sml;
   sm.process_event(&quot;e1&quot;_e);
   sm.process_event(&quot;e1&quot;_e);  // enter sub
   sm.process_event(&quot;e3&quot;_e);  // exit sub
@@ -556,15 +556,15 @@ int main() {
 <pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
 #include &lt;stdexcept&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct some_event {};
 
 struct error_handling {
   auto operator()() const {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
         *(&quot;idle&quot;_s) + &quot;event1&quot;_e / [] { throw std::runtime_error{&quot;error&quot;}; }
       ,   &quot;idle&quot;_s  + &quot;event2&quot;_e / [] { throw 0; }
@@ -579,7 +579,7 @@ struct error_handling {
 };
 
 int main() {
-  using namespace msm;
+  using namespace sml;
   sm&lt;error_handling&gt; sm;
 
   sm.process_event(&quot;event1&quot;_e);  // throws runtime_error
@@ -600,13 +600,13 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp</a></li>
 </ul>
 <h3 id="logging">Logging</h3>
-<pre><code class="cpp">#include &lt;boost/msm-lite.hpp&gt;
+<pre><code class="cpp">#include &lt;boost/sml.hpp&gt;
 #include &lt;cassert&gt;
 #include &lt;cstdio&gt;
 #include &lt;iostream&gt;
 #include &lt;typeinfo&gt;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct my_logger {
   template &lt;class SM, class TEvent&gt;
@@ -644,7 +644,7 @@ struct action {
 
 struct logging {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
        *&quot;idle&quot;_s + event&lt;e1&gt; [ guard &amp;&amp; guard ] / action = &quot;s1&quot;_s
     );
@@ -652,7 +652,7 @@ struct logging {
 };
 
 int main() {
-  msm::sm&lt;logging, msm::logger&lt;my_logger&gt;&gt; sm;
+  sml::sm&lt;logging, sml::logger&lt;my_logger&gt;&gt; sm;
   sm.process_event(e1{});
   sm.process_event(e2{});
 }
@@ -663,10 +663,10 @@ int main() {
 </ul>
 <h3 id="testing">Testing</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
-#include &quot;boost/msm-lite.hpp&quot;
-#include &quot;boost/msm-lite/testing/state_machine.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
+#include &quot;boost/sml/testing/state_machine.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -678,7 +678,7 @@ struct data {
 
 struct fsm {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
 
     auto guard = [](data&amp; d) { return !d.value; };
     auto action = [](data&amp; d) { d.value = 42; };
@@ -692,7 +692,7 @@ struct fsm {
 };
 
 int main() {
-  using namespace msm;
+  using namespace sml;
   data fake_data{0};
   testing::sm&lt;fsm&gt; sm{fake_data};
   sm.set_current_states(&quot;s2&quot;_s);
@@ -706,11 +706,11 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp</a></li>
 </ul>
 <h3 id="runtime-dispatcher">Runtime Dispatcher</h3>
-<pre><code class="cpp">#include &quot;boost/msm-lite/utility/dispatch_table.hpp&quot;
+<pre><code class="cpp">#include &quot;boost/sml/utility/dispatch_table.hpp&quot;
 #include &lt;cassert&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct runtime_event {
   int id = 0;
@@ -725,7 +725,7 @@ struct event2 {
 
 struct dispatch_table {
   auto operator()() noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
        *&quot;idle&quot;_s + event&lt;event1&gt; = &quot;s1&quot;_s
       , &quot;s1&quot;_s + event&lt;event2&gt; = X
@@ -734,9 +734,9 @@ struct dispatch_table {
 };
 
 int main() {
-  msm::sm&lt;dispatch_table&gt; sm;
+  sml::sm&lt;dispatch_table&gt; sm;
 
-  auto dispatch_event = msm::utility::make_dispatch_table&lt;runtime_event, 1 /*min*/, 5 /*max*/&gt;(sm);
+  auto dispatch_event = sml::utility::make_dispatch_table&lt;runtime_event, 1 /*min*/, 5 /*max*/&gt;(sm);
 
   {
     runtime_event event{1};
@@ -748,7 +748,7 @@ int main() {
     dispatch_event(event, event.id);
   }
 
-  assert(sm.is(msm::X));
+  assert(sm.is(sml::X));
 }
 </code></pre>
 
@@ -757,21 +757,21 @@ int main() {
 </ul>
 <h3 id="euml-emulation">eUML Emulation</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
 struct e3 {};
 
-auto event1 = msm::event&lt;e1&gt;;
-auto event2 = msm::event&lt;e2&gt;;
-auto event3 = msm::event&lt;e3&gt;;
+auto event1 = sml::event&lt;e1&gt;;
+auto event2 = sml::event&lt;e2&gt;;
+auto event3 = sml::event&lt;e3&gt;;
 
-auto idle = msm::state&lt;class idle&gt;;
-auto s1 = msm::state&lt;class s1&gt;;
-auto s2 = msm::state&lt;class s2&gt;;
+auto idle = sml::state&lt;class idle&gt;;
+auto s1 = sml::state&lt;class s1&gt;;
+auto s2 = sml::state&lt;class s2&gt;;
 
 struct data {
   void set(int value) noexcept { i = value; }
@@ -796,7 +796,7 @@ struct {
 class euml_emulation {
  public:
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
       s1 &lt;= *idle + event1,
       s2 &lt;= s1    + event2 [ guard ],
@@ -807,14 +807,14 @@ class euml_emulation {
 
 int main() {
   data d{42};
-  msm::sm&lt;euml_emulation&gt; sm{d};
+  sml::sm&lt;euml_emulation&gt; sm{d};
   assert(sm.is(idle));
   sm.process_event(e1{});
   assert(sm.is(s1));
   sm.process_event(e2{});
   assert(sm.is(s2));
   sm.process_event(e3{});
-  assert(sm.is(msm::X));
+  assert(sm.is(sml::X));
   assert(123 == d.get());
 }
 </code></pre>
@@ -825,9 +825,9 @@ int main() {
 <h3 id="dependencies">Dependencies</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;queue&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {
   int i = 0;
@@ -838,13 +838,14 @@ struct dependency {
 
 struct dependencies {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
 
     const auto guard = [](dependency&amp; d) {  /// more dependencies might be passed
       return !d.i;
     };
 
-    const auto action = [](dependency&amp; d, const auto&amp; event) {  /// event is deduced, order is not important
+    const auto action = [](dependency&amp; d,
+                           const auto&amp; event) {  /// event is deduced, order is not important
       d.i = event.i + 42;
     };
 
@@ -856,9 +857,10 @@ struct dependencies {
 };
 
 int main() {
-  using namespace msm;
+  using namespace sml;
   dependency d;
-  sm&lt;dependencies&gt; sm{d};  /// pass all dependencies (from guards, actions) via constructor (order is not important)
+  sm&lt;dependencies&gt; sm{d};  /// pass all dependencies (from guards, actions) via
+                           /// constructor (order is not important)
   assert(sm.is(&quot;idle&quot;_s));
 
   sm.process_event(e1{0});
@@ -877,13 +879,13 @@ int main() {
 </ul>
 <h3 id="dependency-injection">Dependency Injection</h3>
 <pre><code class="cpp">#if __has_include(&lt;boost/di.hpp&gt;)
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 #include &lt;boost/di.hpp&gt;
 #include &lt;cassert&gt;
 #include &lt;typeinfo&gt;
 #include &lt;iostream&gt;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -903,7 +905,7 @@ auto action = [](int i, auto e) {
 
 struct example {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
        *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
       , &quot;s1&quot;_s + event&lt;e2&gt; [ guard ] / action = &quot;s2&quot;_s
@@ -916,17 +918,17 @@ namespace di = boost::di;
 
 class controller {
  public:
-  explicit controller(msm::sm&lt;example&gt;&amp; sm) : sm(sm) {}
+  explicit controller(sml::sm&lt;example&gt;&amp; sm) : sm(sm) {}
 
   void start() {
     sm.process_event(e1{});
     sm.process_event(e2{});
     sm.process_event(e3{});
-    assert(sm.is(msm::X));
+    assert(sm.is(sml::X));
   }
 
  private:
-  msm::sm&lt;example&gt;&amp; sm;
+  sml::sm&lt;example&gt;&amp; sm;
 };
 
 int main() {
@@ -944,10 +946,10 @@ int main() {}
 <h3 id="sdl2-integration">SDL2 Integration</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
 #include &lt;iostream&gt;
-#include &quot;boost/msm-lite.hpp&quot;
-#include &quot;boost/msm-lite/utility/dispatch_table.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
+#include &quot;boost/sml/utility/dispatch_table.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 #if __has_include(&lt;SDL2/SDL_events.h&gt;)
 #include &lt;SDL2/SDL_events.h&gt;
@@ -983,13 +985,13 @@ struct sdl_event_impl {
 };
 
 template &lt;SDL_EventType Id&gt;
-decltype(msm::event&lt;sdl_event_impl&lt;Id&gt;&gt;) sdl_event{};
+decltype(sml::event&lt;sdl_event_impl&lt;Id&gt;&gt;) sdl_event{};
 
 auto is_key = [](auto key) { return [=](auto event) { return event.data.key.keysym.sym == key; }; };
 
 struct sdl2 {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
       //------------------------------------------------------------------------------//
         &quot;wait_for_user_input&quot;_s &lt;= *&quot;idle&quot;_s
@@ -1009,8 +1011,8 @@ struct sdl2 {
 };
 
 int main() {
-  msm::sm&lt;sdl2&gt; sm;
-  auto dispatch_event = msm::utility::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
+  sml::sm&lt;sdl2&gt; sm;
+  auto dispatch_event = sml::utility::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
 
   SDL_Event event;
 
@@ -1041,7 +1043,7 @@ int main() {
     dispatch_event(event, event.type);
   }
 
-  assert(sm.is(msm::X, msm::X));
+  assert(sm.is(sml::X, sml::X));
 }
 </code></pre>
 
@@ -1053,9 +1055,9 @@ int main() {
 #include &lt;iostream&gt;
 #include &lt;string&gt;
 #include &lt;typeinfo&gt;
-#include &quot;boost/msm-lite.hpp&quot;
+#include &quot;boost/sml.hpp&quot;
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -1072,7 +1074,7 @@ struct action {
 
 struct plant_uml {
   auto operator()() const noexcept {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
        *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
       , &quot;s1&quot;_s + event&lt;e2&gt; [ guard ] / action = &quot;s2&quot;_s
@@ -1084,8 +1086,8 @@ struct plant_uml {
 
 template &lt;class T&gt;
 void dump_transition() noexcept {
-  auto src_state = std::string{msm::state&lt;typename T::src_state&gt;.c_str()};
-  auto dst_state = std::string{msm::state&lt;typename T::dst_state&gt;.c_str()};
+  auto src_state = std::string{sml::state&lt;typename T::src_state&gt;.c_str()};
+  auto dst_state = std::string{sml::state&lt;typename T::dst_state&gt;.c_str()};
   if (dst_state == &quot;X&quot;) {
     dst_state = &quot;[*]&quot;;
   }
@@ -1096,9 +1098,9 @@ void dump_transition() noexcept {
 
   std::cout &lt;&lt; src_state &lt;&lt; &quot; --&gt; &quot; &lt;&lt; dst_state;
 
-  const auto has_event = !msm::aux::is_same&lt;typename T::event, msm::detail::anonymous&gt;::value;
-  const auto has_guard = !msm::aux::is_same&lt;typename T::guard, msm::detail::always&gt;::value;
-  const auto has_action = !msm::aux::is_same&lt;typename T::action, msm::detail::none&gt;::value;
+  const auto has_event = !sml::aux::is_same&lt;typename T::event, sml::detail::anonymous&gt;::value;
+  const auto has_guard = !sml::aux::is_same&lt;typename T::guard, sml::detail::always&gt;::value;
+  const auto has_action = !sml::aux::is_same&lt;typename T::action, sml::detail::none&gt;::value;
 
   if (has_event || has_guard || has_action) {
     std::cout &lt;&lt; &quot; :&quot;;
@@ -1133,7 +1135,7 @@ void dump(const SM&amp;) noexcept {
 }
 
 int main() {
-  msm::sm&lt;plant_uml&gt; sm;
+  sml::sm&lt;plant_uml&gt; sm;
   dump(sm);
 }
 </code></pre>
