@@ -44,15 +44,9 @@ struct transitions<T> {
   }
 
   template <class SM, class>
-  static bool execute(SM &self, const on_entry &event, aux::byte &current_state) {
-    aux::get<T>(self.me_.transitions_).execute(self, event, current_state);
-    return false;  // let the top sm process on_entry event
-  }
-
-  template <class SM, class>
   static bool execute(SM &self, const on_exit &event, aux::byte &current_state) {
     aux::get<T>(self.me_.transitions_).execute(self, event, current_state);
-    return false;  // let the top sm process on_exit event
+    return false;  // from bottom to top
   }
 };
 
@@ -72,12 +66,25 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
     const auto handled = aux::try_get<sm_impl<TSM>>(&self.sub_sms_).process_event(event, self.deps_, self.sub_sms_);
     return handled ? handled : transitions<T, Ts...>::execute(self, event, current_state);
   }
+
+  template <class SM, class>
+  static bool execute(SM &self, const on_entry& event, aux::byte &current_state) {
+    transitions<T, Ts...>::execute(self, event, current_state);
+    aux::try_get<sm_impl<TSM>>(&self.sub_sms_).process_event(event, self.deps_, self.sub_sms_);
+    return true; // from top to bottom
+  }
 };
 
 template <class TSM>
 struct transitions_sub<sm<TSM>> {
   template <class SM, class TEvent>
   static bool execute(SM &self, const TEvent &event, aux::byte &) {
+    aux::try_get<sm_impl<TSM>>(&self.sub_sms_).process_event(event, self.deps_, self.sub_sms_);
+    return true;
+  }
+
+  template <class SM>
+  static bool execute(SM &self, const on_entry &event, aux::byte &) {
     return aux::try_get<sm_impl<TSM>>(&self.sub_sms_).process_event(event, self.deps_, self.sub_sms_);
   }
 };
