@@ -18,14 +18,14 @@ struct e3 {};
 const auto idle = msm::state<class idle>;
 const auto s1 = msm::state<class s1>;
 
-test queue_event = [] {
+test process_event = [] {
   struct c {
     auto operator()() {
       using namespace msm;
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
-        , s1 + event<e2> / queue(e3{})
+        , s1 + event<e2> / process(e3{})
         , s1 + event<e3> / [this] { a_called++; } = X
       );
       // clang-format on
@@ -40,7 +40,7 @@ test queue_event = [] {
   sm.process_event(e1{});
   expect(sm.is(s1));
   expect(!c_.a_called);
-  sm.process_event(e2{});  // + queue(e3{})
+  sm.process_event(e2{});  // + process(e3{})
   expect(1 == c_.a_called);
   expect(sm.is(msm::X));
 };

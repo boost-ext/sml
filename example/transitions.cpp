@@ -22,7 +22,7 @@ struct transitions {
     return make_transition_table(
        *"idle"_s  / [] { std::cout << "anonymous transition" << std::endl; } = "s1"_s
       , "s1"_s + event<e1> / [] { std::cout << "internal transition" << std::endl; }
-      , "s1"_s + event<e2> / ([] { std::cout << "process internal event" << std::endl; }, queue(e3{})) = X
+      , "s1"_s + event<e2> / ([] { std::cout << "process internal event" << std::endl; }, process(e3{})) = X
       , "s1"_s + event<e3> / [] { std::cout << "process event: e3"; }
     );
     // clang-format on

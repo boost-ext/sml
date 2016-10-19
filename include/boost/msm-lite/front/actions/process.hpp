@@ -1,15 +1,15 @@
-#ifndef QUEUE_Q3QVBZJG
-#define QUEUE_Q3QVBZJG
+#ifndef PROCESS_Q3QVBZJG
+#define PROCESS_Q3QVBZJG
 
 #include "boost/msm-lite/front/fwd.hpp"
 
 namespace detail {
 
-struct queue {
+struct process {
   template <class TEvent>
-  class queue_impl : public action_base {
+  class process_impl : public action_base {
    public:
-    explicit queue_impl(const TEvent &event) : event(event) {}
+    explicit process_impl(const TEvent &event) : event(event) {}
 
     template <class TSelf, class T>
     void operator()(TSelf &self, const T &) {
@@ -22,7 +22,7 @@ struct queue {
 
   template <class TEvent>
   auto operator()(const TEvent &event) {
-    return queue_impl<TEvent>{event};
+    return process_impl<TEvent>{event};
   }
 };
 

@@ -1103,11 +1103,11 @@ struct defer : action_base {
 };
 }
 namespace detail {
-struct queue {
+struct process {
   template <class TEvent>
-  class queue_impl : public action_base {
+  class process_impl : public action_base {
    public:
-    explicit queue_impl(const TEvent &event) : event(event) {}
+    explicit process_impl(const TEvent &event) : event(event) {}
     template <class TSelf, class T>
     void operator()(TSelf &self, const T &) {
       self.me_.process_event(event, self.deps_, self.sub_sms_);
@@ -1118,7 +1118,7 @@ struct queue {
   };
   template <class TEvent>
   auto operator()(const TEvent &event) {
-    return queue_impl<TEvent>{event};
+    return process_impl<TEvent>{event};
   }
 };
 }
@@ -1709,7 +1709,7 @@ struct logger : aux::pair<detail::logger_policy__, logger<T>> {
 __attribute__((unused)) static detail::state<detail::terminate_state> X;
 __attribute__((unused)) static detail::history_state H;
 __attribute__((unused)) static detail::defer defer;
-__attribute__((unused)) static detail::queue queue;
+__attribute__((unused)) static detail::process process;
 template <class... Ts, BOOST_MSM_LITE_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
                                                             aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 auto make_transition_table(Ts... ts) {

@@ -50,7 +50,7 @@ test process_event_reentrant = [] {
       using namespace msm;
       // clang-format off
       return make_transition_table(
-         *"idle"_s + event<e1> / queue(e2{})
+         *"idle"_s + event<e1> / process(e2{})
         , "idle"_s + event<e2> = "s2"_s
       );
       // clang-format on
