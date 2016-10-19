@@ -14,9 +14,9 @@
 ```cpp
 #include <cassert>
 #include <iostream>
-#include <boost/msm-lite.hpp>
+#include <boost/sml.hpp>
 
-namespace msm = boost::msm::lite;
+namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
@@ -27,7 +27,7 @@ struct hello_world {
     const auto guard = [] { std::cout << "guard" << '\n'; return true; };
     const auto action = [] { std::cout << "action" << '\n'; };
 
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
        *"idle"_s + event<e1> = "s1"_s
       , "s1"_s   + event<e2> [ guard ] / action = "s2"_s
@@ -37,9 +37,9 @@ struct hello_world {
 };
 
 int main() {
-  msm::sm<hello_world> sm;
+  sml::sm<hello_world> sm;
   std::cout << "sizeof(sm): " << sizeof(sm) << "b" << '\n';
-  using namespace msm;
+  using namespace sml;
   assert(sm.is("idle"_s));
   sm.process_event(e1{});
   assert(sm.is("s1"_s));
@@ -65,9 +65,9 @@ in place action
     * [UML State Machine](http://boost-experimental.github.io/msm-lite/index.html#uml-state-machine)
     * [Do I need a State Machine?](http://boost-experimental.github.io/msm-lite/index.html#do-i-need-a-state-machine)
     * [Real Life examples?](http://boost-experimental.github.io/msm-lite/index.html#real-life-examples)
-    * [Why Boost.MSM-lite?](http://boost-experimental.github.io/msm-lite/index.html#why-boostmsm-lite)
+    * [Why Boost.SML?](http://boost-experimental.github.io/msm-lite/index.html#why-boostsml)
     * [Problems with Boost.MSM - eUML](http://boost-experimental.github.io/msm-lite/index.html#problems-with-boostmsm-euml)
-    * [Boost.MSM-lite design goals](http://boost-experimental.github.io/msm-lite/index.html#boostmsm-lite-design-goals)
+    * [Boost.SML design goals](http://boost-experimental.github.io/msm-lite/index.html#boostsml-design-goals)
     * [What 'lite' implies?](http://boost-experimental.github.io/msm-lite/index.html#what-lite-implies)
     * [*Supported* UML features](http://boost-experimental.github.io/msm-lite/index.html#supported-uml-features)
     * [*Additional* features](http://boost-experimental.github.io/msm-lite/index.html#additional-features)
@@ -82,7 +82,7 @@ in place action
     * [Thread Safety](http://boost-experimental.github.io/msm-lite/overview/index.html#thread-safety)
     * [Error messages](http://boost-experimental.github.io/msm-lite/overview/index.html#error-messages)
 * [Benchmarks](http://boost-experimental.github.io/msm-lite/benchmarks/index.html)
-    * [MSM-lite vs Boost.MSM-eUML vs Boost.Statechart](http://boost-experimental.github.io/msm-lite/benchmarks/index.html#msm-lite-vs-boostmsm-euml-vs-booststatechart)
+    * [Boost.SML vs Boost.MSM-eUML vs Boost.Statechart](http://boost-experimental.github.io/msm-lite/benchmarks/index.html#boostsml-vs-boostmsm-euml-vs-booststatechart)
     * [Overview](http://boost-experimental.github.io/msm-lite/benchmarks/index.html#overview)
     * [Details](http://boost-experimental.github.io/msm-lite/benchmarks/index.html#details)
     * [UML features](http://boost-experimental.github.io/msm-lite/benchmarks/index.html#uml-features)
@@ -140,4 +140,4 @@ in place action
 
 ---
 
-**Disclaimer** `Boost.MSM-lite` is not an official Boost library.
+**Disclaimer** `Boost.SML` is not an official Boost library.

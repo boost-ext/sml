@@ -1,8 +1,8 @@
-All code examples include `boost/msm-lite.hpp` as well as declare a convienent msm namespace alias.
+All code examples include `boost/sml.hpp` as well as declare a convienent `sml` namespace alias.
 
 ```cpp
-#include <boost/msm-lite.hpp>
-namespace msm = boost::msm::lite;
+#include <boost/sml.hpp>
+namespace sml = boost::sml;
 ```
 
 ###0. Read Boost.MSM - eUML documentation
@@ -22,13 +22,13 @@ struct my_event { ... };
 You can also create event instance in order to simplify transition table notation.
 
 ```cpp
-auto event = msm::event<my_event>;
+auto event = sml::event<my_event>;
 ```
 
 If you happen to have a Clang/GCC compiler, you can create an Event on the fly.
 
 ```cpp
-using namespace msm;
+using namespace sml;
 auto event  = "event"_t;
 ```
 
@@ -40,27 +40,27 @@ represents current location of the state machine flow.
 To create a state below snippet might be used.
 
 ```cpp
-auto idle = msm::state<class idle>;
+auto idle = sml::state<class idle>;
 ```
 
 If you happen to have a Clang/GCC compiler, you can create a State on the fly.
 
 ```cpp
-using namespace msm;
+using namespace sml;
 auto state  = "idle"_s;
 ```
 
 However, please notice that above solution is a non-standard extension for Clang/GCC.
 
-`msm-lite` states cannot have data as data is injected directly into guards/actions instead.
+`SML` states cannot have data as data is injected directly into guards/actions instead.
 
 A state machine might be a State itself.
 
 ```cpp
-msm::state<state_machine> composite;
+sml::state<state_machine> composite;
 ```
 
-`msm-lite` supports `terminate` state, which stops events to be processed. It defined by `X`.
+`SML` supports `terminate` state, which stops events to be processed. It defined by `X`.
 
 ```cpp
 "state"_s = X;
@@ -126,7 +126,7 @@ struct action4 {
 When we have states and events handy we can finally create a transition table which represents
 our transitions.
 
-`msm-lite` is using eUML-like DSL in order to be as close as possible to UML design.
+`SML` is using eUML-like DSL in order to be as close as possible to UML design.
 
 * Transition Table DSL
 
@@ -166,7 +166,7 @@ src_state + event [ guard ] / action = dst_state
 To create a transition table [`make_transition_table`](user_guide.md#make_transition_table-state-machine) is provided.
 
 ```cpp
-using namespace msm; // Postfix Notation
+using namespace sml; // Postfix Notation
 
 make_transition_table(
  *"src_state"_s + event<my_event> [ guard ] / action = "dst_state"_s
@@ -177,7 +177,7 @@ make_transition_table(
 or
 
 ```cpp
-using namespace msm; // Prefix Notation
+using namespace sml; // Prefix Notation
 
 make_transition_table(
   "dst_state"_s <= *"src_state"_s + event<my_event> [ guard ] / action
@@ -197,7 +197,7 @@ make_transition_table(
 Initial state tells the state machine where to start. It can be set by prefixing a State with `*`.
 
 ```cpp
-using namespace msm;
+using namespace sml;
 make_transition_table(
  *"src_state"_s + event<my_event> [ guard ] / action = "dst_state"_s,
   "dst_state"_s + event<game_over> = X
@@ -209,7 +209,7 @@ the last active state will reactivated. In order to enable history you just have
 to replace `*` with postfixed `(H)` when declaring the initial state.
 
 ```cpp
-using namespace msm;
+using namespace sml;
 make_transition_table(
   "src_state"_s(H) + event<my_event> [ guard ] / action = "dst_state"_s,
   "dst_state"_s    + event<game_over>                   = X
@@ -220,7 +220,7 @@ You can have more than one initial state. All initial states will be executed in
 . Such states are called `Orthogonal regions`.
 
 ```cpp
-using namespace msm;
+using namespace sml;
 make_transition_table(
  *"region_1"_s   + event<my_event1> [ guard ] / action = "dst_state1"_s,
   "dst_state1"_s + event<game_over> = X,
@@ -246,7 +246,7 @@ To create a state machine, we have to add a transition table.
 class example {
 public:
   auto opeartor()() {
-    using namespace msm;
+    using namespace sml;
     return make_transition_table(
      *"src_state"_s + event<my_event> [ guard ] / action = "dst_state"_s,
       "dst_state"_s + event<game_over> = X
@@ -258,7 +258,7 @@ public:
 Having transition table configured we can create a state machine.
 
 ```cpp
-msm::sm<example> sm;
+sml::sm<example> sm;
 ```
 
 State machine constructor provides required dependencies for actions and guards.
@@ -275,9 +275,9 @@ auto action = [](int i){}  |
                  |         |
                  \-\   /---/
                    |   |
-msm::sm<exmple> s{42, 87.0};
+sml::sm<exmple> s{42, 87.0};
 
-msm::sm<exmple> s{87.0, 42}; // order in which parameters have to passed is not specificied
+sml::sm<exmple> s{87.0, 42}; // order in which parameters have to passed is not specificied
 ```
 
 Passing and maintaining a lot of dependencies might be tedious and requires huge amount of boilerplate code.
@@ -307,7 +307,7 @@ State machine is a simple creature. Its main purpose is to process events.
 In order to do it, `process_event` method might be used.
 
 ```cpp
-msm::sm<example> sm;
+sml::sm<example> sm;
 
 sm.process_event(my_event{}); // handled
 sm.process_event(int{}); // not handled -> unexpected_event<int>
@@ -316,14 +316,14 @@ sm.process_event(int{}); // not handled -> unexpected_event<int>
 Process event might be also triggered on transition table.
 
 ```
-using namespace msm;
+using namespace sml;
 return make_transition_table(
  *"s1"_s + event<my_event> / process_event(other_event{}) = "s2"_s,
   "s2"_s + event<other_event> = X
 );
 ```
 
-`msm-lite` also provides a way to dispatch dynamically created events into the state machine.
+`SML` also provides a way to dispatch dynamically created events into the state machine.
 
 ```cpp
 struct game_over {
@@ -332,7 +332,7 @@ struct game_over {
 };
 enum SDL_EventType { SDL_FIRSTEVENT = 0, SDL_QUIT, SDL_KEYUP, SDL_MOUSEBUTTONUP, SDL_LASTEVENT };
 //create dispatcher from state machine and range of events
-auto dispatch_event = msm::utility::make_dispatch_table<SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT>(sm);
+auto dispatch_event = sml::utility::make_dispatch_table<SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT>(sm);
 SDL_Event event{SDL_QUIT};
 dispatch_event(event, event.type); // will call sm.process(game_over{});
 ```
@@ -388,7 +388,7 @@ make_transition_table(
 
 We can always check whether a State Machine is in terminate state by.
 ```cpp
-assert(sm.is(msm::X)); // doesn't matter how many regions there are
+assert(sm.is(sml::X)); // doesn't matter how many regions there are
 ```
 
 When exceptions are enabled (project is NOT compiled with `-fno-exceptions`) they
@@ -414,11 +414,11 @@ make_transition_table(
 ###9. Test it
 
 Sometimes it's useful to verify whether a state machine is in a specific state, for example, if
-we are in a terminate state or not. We can do it with `msm-lite` using `is` or `visit_current_states`
+we are in a terminate state or not. We can do it with `SML` using `is` or `visit_current_states`
 functionality.
 
 ```cpp
-msm::sm<example> sm;
+sml::sm<example> sm;
 sm.process_event(my_event{});
 assert(sm.is(X)); // is(X, s1, ...) when you have orthogonal regions
 
@@ -427,7 +427,7 @@ assert(sm.is(X)); // is(X, s1, ...) when you have orthogonal regions
 sm.visit_current_states([](auto state) { std::cout << state.c_str() << std::endl; });
 ```
 
-On top of that, `msm-lite` provides testing facilities to check state machine as a whole.
+On top of that, `SML` provides testing facilities to check state machine as a whole.
 `set_current_states` method is available from `testing::sm` in order to set state machine
 in a requested state.
 
@@ -446,7 +446,7 @@ assert(sm.is(X));
 
 ###10. Debug it
 
-`msm-lite` provides logging capabilities in order to inspect state machine flow.
+`SML` provides logging capabilities in order to inspect state machine flow.
 To enable logging you can use (Logger Policy)(user_guide.md#policies)
 
 ```cpp
@@ -473,7 +473,7 @@ struct my_logger {
   }
 };
 
-msm::sm<logging, msm::logger<my_logger>> sm;
+sml::sm<logging, sml::logger<my_logger>> sm;
 sm.process_event(my_event{}); // will call my_logger appropriately
 ```
 

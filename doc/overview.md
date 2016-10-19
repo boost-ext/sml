@@ -1,14 +1,14 @@
 ###Quick Start
 
-* Get [boost/msm-lite.hpp](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp) header
+* Get [boost/sml.hpp](https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/sml.hpp) header
 ```sh
-wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/msm-lite.hpp
+wget https://raw.githubusercontent.com/boost-experimental/msm-lite/master/include/boost/sml.hpp
 ```
 
-* Include the header and define `msm` namespace alias
+* Include the header and define `sml` namespace alias
 ```cpp
-#include "boost/msm-lite.hpp"
-namespace msm = boost::msm::lite;
+#include "boost/sml.hpp"
+namespace sml = boost::sml;
 ```
 
 * Compile with C++14 support
@@ -33,22 +33,22 @@ git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && make 
 ###Configuration
 | Macro                                                         | Description                                                  |
 | --------------------------------------------------------------|--------------------------------------------------------------|
-| `BOOST_MSM_LITE_VERSION`                                      | Current version of Boost.MSM-lite (ex. 1'0'0)                |
+| `BOOST_SML_VERSION`                                           | Current version of Boost.SML (ex. 1'0'0)                |
 
 
 ###Exception Safety
 
-* Boost.MSM-lite doesn't use exceptions internally and therefore might be compiled with `-fno-exceptions`.
+* Boost.SML doesn't use exceptions internally and therefore might be compiled with `-fno-exceptions`.
 * If guard/action throws an exception [State Machine](user_guide.md##sm-state-machine) will stay in a current state.
 * Exceptions might be caught using transition table via `exception` event. See [Error handling](tutorial.md#8-error-handling).
 
 ###Thread Safety
 
-* Boost.MSM-lite is not thread safe by default.
+* Boost.SML is not thread safe by default.
   * Thread Safety might be enabled by defining a thread_safe policy when creating a State Machine
 
 ```cpp
-msm::sm<example, msm::thread_safe<std::recursive_mutex>> sm;
+sml::sm<example, sml::thread_safe<std::recursive_mutex>> sm;
 sm.process_event(event{}); // thread safe call
 ```
 

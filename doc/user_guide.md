@@ -2,7 +2,7 @@
 
 ***Header***
 
-    #include <boost/msm-lite.hpp>
+    #include <boost/sml.hpp>
 
 ***Description***
 
@@ -29,7 +29,7 @@ Requirements for transition.
 
 ***Example***
 
-    using namespace msm;
+    using namespace sml;
 
     {
     auto transition = ("idle"_s = X); // Postfix Notation
@@ -51,7 +51,7 @@ Requirements for transition.
 
 ***Header***
 
-    #include <boost/msm-lite.hpp>
+    #include <boost/sml.hpp>
 
 ***Description***
 
@@ -90,7 +90,7 @@ Requirements for the state machine.
 
 ***Header***
 
-    #include <boost/msm-lite.hpp>
+    #include <boost/sml.hpp>
 
 ***Description***
 
@@ -127,7 +127,7 @@ Requirements for action and guards.
 
 ***Header***
 
-    #include <boost/msm-lite.hpp>
+    #include <boost/sml.hpp>
 
 ***Description***
 
@@ -174,7 +174,7 @@ Requirements for the dispatch table.
 
 ***Header***
 
-    #include <boost/msm-lite.hpp>
+    #include <boost/sml.hpp>
 
 ***Description***
 
@@ -240,7 +240,7 @@ Represents a state machine state.
 
 ***Header***
 
-    #include <boost/msm-lite.hpp>
+    #include <boost/sml.hpp>
 
 ***Description***
 
@@ -291,7 +291,7 @@ Represents a state machine event.
 
 ***Header***
 
-    #include <boost/msm-lite.hpp>
+    #include <boost/sml.hpp>
 
 ***Description***
 
@@ -337,7 +337,7 @@ Creates a transition table.
 
 ***Header***
 
-    #include <boost/msm-lite.hpp>
+    #include <boost/sml.hpp>
 
 ***Description***
 
@@ -382,7 +382,7 @@ Creates a State Machine.
 
 ***Semantics***
 
-    msm::sm<T>{...};
+    sml::sm<T>{...};
     sm.process_event(TEvent{});
     sm.visit_current_states([](auto state){});
     sm.is(X);
@@ -395,14 +395,14 @@ Creates a State Machine.
     class example {
     public:
       auto operator()() const noexcept {
-        using namespace msm;
+        using namespace sml;
         return make_transition_table(
           *"idle"_s + event<my_event> / [](int i) { std::cout << i << std::endl; } = X
         );
       }
     };
 
-    msm::sm<example> sm{42};
+    sml::sm<example> sm{42};
     assert(sm.is("idle"_s));
     sm.process_event(int{}); // no handled, will call unexpected_event<int>
     sm.process_event(my_event{}); // handled
@@ -422,7 +422,7 @@ Creates a State Machine.
 
 ***Header***
 
-    #include <boost/msm-lite.hpp>
+    #include <boost/sml.hpp>
 
 ***Description***
 
@@ -440,10 +440,10 @@ Additional State Machine configurations.
 
 ***Example***
 
-    msm::sm<example, msm::thread_safe<std::recursive_mutex>> sm; // thread safe policy
-    msm::sm<example, msm::logger<my_logger>> sm; // logger policy
-    msm::sm<example, msm::thread_safe<std::recursive_mutex>, msm::logger<my_logger>> sm; // thread safe and logger policy
-    msm::sm<example, msm::logger<my_logger>, msm::thread_safe<std::recursive_mutex>> sm; // thread safe and logger policy
+    sml::sm<example, sml::thread_safe<std::recursive_mutex>> sm; // thread safe policy
+    sml::sm<example, sml::logger<my_logger>> sm; // logger policy
+    sml::sm<example, sml::thread_safe<std::recursive_mutex>, sml::logger<my_logger>> sm; // thread safe and logger policy
+    sml::sm<example, sml::logger<my_logger>, sml::thread_safe<std::recursive_mutex>> sm; // thread safe and logger policy
 
 ![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)
 
@@ -455,7 +455,7 @@ Additional State Machine configurations.
 
 ***Header***
 
-    #include <boost/msm-lite/testing/state_machine.hpp>
+    #include <boost/sml/testing/state_machine.hpp>
 
 ***Description***
 
@@ -465,9 +465,9 @@ Creates a state machine with testing capabilities.
 
     namespace testing {
       template <class T>
-      class sm : public msm::sm<T> {
+      class sm : public sml::sm<T> {
        public:
-        using msm::sm<T>::sm;
+        using sml::sm<T>::sm;
 
         template <class... TStates>
         void set_current_states(const detail::state<TStates> &...) noexcept;
@@ -480,12 +480,12 @@ Creates a state machine with testing capabilities.
 
 ***Semantics***
 
-    msm::testing::sm<T>{...};
+    sml::testing::sm<T>{...};
     sm.set_current_states("s1"_s);
 
 ***Example***
 
-    msm::testing::sm<T>{inject_fake_data...};
+    sml::testing::sm<T>{inject_fake_data...};
     sm.set_current_states("s1"_s);
     sm.process_event(TEvent{});
     sm.is(X);
@@ -500,7 +500,7 @@ Creates a state machine with testing capabilities.
 
 ***Header***
 
-    #include <boost/msm-lite/utility/dispatch_table.hpp>
+    #include <boost/sml/utility/dispatch_table.hpp>
 
 ***Description***
 
@@ -519,7 +519,7 @@ Creates a dispatch table to handle runtime events.
 
 ***Semantics***
 
-    msm::utility::make_dispatch_table<T, 0, 10>(sm);
+    sml::utility::make_dispatch_table<T, 0, 10>(sm);
 
 ***Example***
 
@@ -531,7 +531,7 @@ Creates a dispatch table to handle runtime events.
       event1(const runtime_event &) {}
     };
 
-    auto dispatch_event = msm::utility::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max*/>(sm);
+    auto dispatch_event = sml::utility::make_dispatch_table<runtime_event, 1 /*min*/, 5 /*max*/>(sm);
     dispatch_event(event, event.id);
 
 ![CPP(BTN)](Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp)
