@@ -676,12 +676,12 @@ struct data {
   int value = 0;
 };
 
-struct fsm {
+struct testing {
   auto operator()() const noexcept {
     using namespace sml;
 
-    auto guard = [](data&amp; d) { return !d.value; };
-    auto action = [](data&amp; d) { d.value = 42; };
+    const auto guard = [](data&amp; d) { return !d.value; };
+    const auto action = [](data&amp; d) { d.value = 42; };
 
     return make_transition_table(
        *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
@@ -694,7 +694,7 @@ struct fsm {
 int main() {
   using namespace sml;
   data fake_data{0};
-  testing::sm&lt;fsm&gt; sm{fake_data};
+  testing::sm&lt;testing&gt; sm{fake_data};
   sm.set_current_states(&quot;s2&quot;_s);
   sm.process_event(e3{});
   assert(sm.is(X));
@@ -833,7 +833,7 @@ struct e1 {
   int i = 0;
 };
 struct dependency {
-  int i;
+  int i = 0;
 };
 
 struct dependencies {
