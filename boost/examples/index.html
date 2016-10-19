@@ -483,27 +483,27 @@ int main() {
 
   using namespace sml;
   assert(sm.is(&quot;idle&quot;_s));
-  // assert(sub_sm.is(&quot;idle&quot;_s));
+  assert(sm.is&lt;sub&gt;(&quot;idle&quot;_s));
 
   sm.process_event(e1{});
   assert(sm.is(&quot;s1&quot;_s));
-  // assert(sub_sm.is(&quot;idle&quot;_s));
+  assert(sm.is&lt;sub&gt;(&quot;idle&quot;_s));
 
   sm.process_event(e2{});  // enter sub sm
   assert(sm.is(state&lt;sub&gt;));
-  // assert(sub_sm.is(&quot;idle&quot;_s));
+  assert(sm.is&lt;sub&gt;(&quot;idle&quot;_s));
 
   sm.process_event(e3{});  // in sub sm
   assert(sm.is(state&lt;sub&gt;));
-  // assert(sub_sm.is(&quot;s1&quot;_s));
+  assert(sm.is&lt;sub&gt;(&quot;s1&quot;_s));
 
   sm.process_event(e4{});  // finish sub sm
   assert(sm.is(state&lt;sub&gt;));
-  // assert(sub_sm.is(X));
+  assert(sm.is&lt;sub&gt;(X));
 
   sm.process_event(e5{});  // exit sub sm
   assert(sm.is(X));
-  // assert(sub_sm.is(X));
+  assert(sm.is&lt;sub&gt;(X));
 }
 </code></pre>
 
@@ -694,7 +694,7 @@ struct testing {
 int main() {
   using namespace sml;
   data fake_data{0};
-  testing::sm&lt;testing&gt; sm{fake_data};
+  sml::testing::sm&lt;::testing&gt; sm{fake_data};
   sm.set_current_states(&quot;s2&quot;_s);
   sm.process_event(e3{});
   assert(sm.is(X));
