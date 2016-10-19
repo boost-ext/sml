@@ -14,6 +14,8 @@ pph() {
   echo "// (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)"
   echo "//"
   echo "#pragma once"
+  echo "#ifndef BOOST_SML_HPP"
+  echo "#define BOOST_SML_HPP"
   echo "#if (__cplusplus < 201305L && _MSC_VER < 1900)"
   echo "#error \"Boost.SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)\""
   echo "#else"
@@ -54,6 +56,7 @@ pph() {
   echo "#pragma clang diagnostic pop"
   echo "#elif defined(__GNUC__)"
   echo "#pragma GCC diagnostic pop"
+  echo "#endif"
   echo "#endif"
   echo
 }

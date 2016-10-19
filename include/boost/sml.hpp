@@ -5,6 +5,8 @@
 // (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 #pragma once
+#ifndef BOOST_SML_HPP
+#define BOOST_SML_HPP
 #if (__cplusplus < 201305L && _MSC_VER < 1900)
 #error "Boost.SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
@@ -1721,4 +1723,5 @@ BOOST_SML_NAMESPACE_END
 #pragma clang diagnostic pop
 #elif defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
 #endif
