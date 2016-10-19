@@ -940,9 +940,9 @@ class sm_impl {
     (void)src_state;
     (void)dst_state;
     current_state = new_state;
-    process_internal_event(self, on_entry{}, current_state);
     update_composite_states<sm_impl<T>>(self, TExplicit{}, typename sm_impl<T>::has_history_states{},
                                         typename sm_impl<T>::initial_but_not_history_states_t{});
+    process_internal_event(self, on_entry{}, current_state);
   }
   template <class T, class TSelf, class... Ts>
   void update_composite_states(TSelf &self, const aux::type_list<Ts...> &, ...) {

@@ -374,7 +374,6 @@ test composite_transition_the_same_event = [] {
   struct sub {
     auto operator()() noexcept {
       using namespace msm;
-
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
@@ -387,7 +386,6 @@ test composite_transition_the_same_event = [] {
   struct c {
     auto operator()() noexcept {
       using namespace msm;
-
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = state<sub>
@@ -486,6 +484,70 @@ test composite_history = [] {
   sm.process_event(e4());
   expect(sm.is(state<sub>));
   // expect(subsm.is(s2));  // history
+};
+
+test composite_no_history_reenter_sub = [] {
+  enum class calls { s_a_entry, s_b_entry, s_c_entry, s_a_exit, s_b_exit, s_c_exit, s_entry, s_exit, x_entry, x_exit };
+
+  struct sub {
+    auto operator()() const noexcept {
+      using namespace msm;
+      const auto a = state<class A>;
+      const auto b = state<class B>;
+      const auto c = state<class C>;
+      // clang-format off
+      return make_transition_table(
+        *a + event<e1> = b,
+         b + event<e2> = c,
+         a + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_a_entry); },
+         b + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_b_entry); },
+         c + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_c_entry); },
+         a + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_a_exit); },
+         b + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_b_exit); },
+         c + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_c_exit); }
+      );
+      // clang-format on
+    }
+  };
+
+  struct c {
+    auto operator()() const noexcept {
+      using namespace msm;
+      const auto s = state<sub>;
+      const auto x = state<class X>;
+      // clang-format off
+      return make_transition_table(
+        *"init1"_s = s,
+         s + event<e3> = x,
+         x + event<e4> = s,
+         s + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_entry); },
+         x + msm::on_entry / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
+         s + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_exit); },
+         x + msm::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); }
+      );
+      // clang-format on
+    }
+  };
+
+  std::vector<calls> c_;
+  msm::sm<c> sm{c_};
+  expect(std::vector<calls>{calls::s_entry, calls::s_a_entry} == c_);
+
+  c_.clear();
+  sm.process_event(e1{});
+  expect(std::vector<calls>{calls::s_a_exit, calls::s_b_entry} == c_);
+
+  c_.clear();
+  sm.process_event(e2{});
+  expect(std::vector<calls>{calls::s_b_exit, calls::s_c_entry} == c_);
+
+  c_.clear();
+  sm.process_event(e3{});
+  expect(std::vector<calls>{calls::s_c_exit, calls::s_exit, calls::x_entry} == c_);
+
+  c_.clear();
+  sm.process_event(e4{});
+  expect(std::vector<calls>{calls::x_exit, calls::s_entry, calls::s_a_entry /*no history*/} == c_);
 };
 
 test composite_history_region = [] {
