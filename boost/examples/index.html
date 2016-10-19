@@ -316,7 +316,7 @@ struct transitions {
     return make_transition_table(
        *&quot;idle&quot;_s  / [] { std::cout &lt;&lt; &quot;anonymous transition&quot; &lt;&lt; std::endl; } = &quot;s1&quot;_s
       , &quot;s1&quot;_s + event&lt;e1&gt; / [] { std::cout &lt;&lt; &quot;internal transition&quot; &lt;&lt; std::endl; }
-      , &quot;s1&quot;_s + event&lt;e2&gt; / ([] { std::cout &lt;&lt; &quot;process internal event&quot; &lt;&lt; std::endl; }, queue(e3{})) = X
+      , &quot;s1&quot;_s + event&lt;e2&gt; / ([] { std::cout &lt;&lt; &quot;process internal event&quot; &lt;&lt; std::endl; }, process(e3{})) = X
       , &quot;s1&quot;_s + event&lt;e3&gt; / [] { std::cout &lt;&lt; &quot;process event: e3&quot;; }
     );
   }
