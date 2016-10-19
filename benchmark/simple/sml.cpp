@@ -8,7 +8,7 @@
 #include "benchmark.hpp"
 #include <boost/sml.hpp>
 
-namespace sml = boost::smllite;
+namespace sml = boost::sml;
 
 struct play {};
 struct end_pause {};
