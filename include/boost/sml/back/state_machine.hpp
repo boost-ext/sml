@@ -146,6 +146,7 @@ class sm_impl {
 
     struct self {
       using type __attribute__((unused)) = sm_impl;
+      using state_t __attribute__((unused)) = sm_impl::state_t;
       TDeps &deps_;
       sm_impl &me_;
       TSub &sub_sms_;
@@ -168,6 +169,7 @@ class sm_impl {
   void start(TDeps &deps, TSub &sub) {
     struct self {
       using type __attribute__((unused)) = sm_impl;
+      using state_t __attribute__((unused)) = sm_impl::state_t;
       TDeps &deps_;
       sm_impl &me_;
       TSub &sub_sms_;
@@ -206,7 +208,7 @@ class sm_impl {
   }
 
   template <class TSelf, class TEvent, BOOST_SML_REQUIRES(aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>
-  bool process_internal_event(TSelf &self, const TEvent &event, aux::byte &current_state) {
+  bool process_internal_event(TSelf &self, const TEvent &event, state_t &current_state) {
     log_process_event<logger_t, sm_raw_t>(has_logger{}, self.deps_, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
     return process_event_noexcept(event, self, current_state, has_exceptions{});
@@ -219,7 +221,7 @@ class sm_impl {
   bool process_event_impl(const TEvent &event, TSelf &self, const aux::type_list<TStates...> &,
                           const aux::index_sequence<0> &) {
     static bool (*dispatch_table[sizeof...(TStates)])(
-        TSelf &, const TEvent &, aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<TSelf, TEvent>...};
+        TSelf &, const TEvent &, state_t &) = {&get_state_mapping_t<TStates, TMappings>::template execute<TSelf, TEvent>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
     return dispatch_table[current_state_[0]](self, event, current_state_[0]);
@@ -229,7 +231,7 @@ class sm_impl {
   bool process_event_impl(const TEvent &event, TSelf &self, const aux::type_list<TStates...> &,
                           const aux::index_sequence<Ns...> &) {
     static bool (*dispatch_table[sizeof...(TStates)])(
-        TSelf &, const TEvent &, aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<TSelf, TEvent>...};
+        TSelf &, const TEvent &, state_t &) = {&get_state_mapping_t<TStates, TMappings>::template execute<TSelf, TEvent>...};
     auto handled = false;
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
@@ -239,9 +241,9 @@ class sm_impl {
   }
 
   template <class TMappings, class TEvent, class TSelf, class... TStates>
-  bool process_event_impl(const TEvent &event, TSelf &self, const aux::type_list<TStates...> &, aux::byte &current_state) {
+  bool process_event_impl(const TEvent &event, TSelf &self, const aux::type_list<TStates...> &, state_t &current_state) {
     static bool (*dispatch_table[sizeof...(TStates)])(
-        TSelf &, const TEvent &, aux::byte &) = {&get_state_mapping_t<TStates, TMappings>::template execute<TSelf, TEvent>...};
+        TSelf &, const TEvent &, state_t &) = {&get_state_mapping_t<TStates, TMappings>::template execute<TSelf, TEvent>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
     return dispatch_table[current_state](self, event, current_state);
@@ -255,12 +257,12 @@ class sm_impl {
   }
 
   template <class TEvent, class TSelf>
-  bool process_event_noexcept(const TEvent &event, TSelf &self, aux::byte &current_state, const aux::false_type &) noexcept {
+  bool process_event_noexcept(const TEvent &event, TSelf &self, state_t &current_state, const aux::false_type &) noexcept {
     return process_event_impl<get_event_mapping_t<TEvent, mappings_t>>(event, self, states_t{}, current_state);
   }
 
   template <class TEvent, class TSelf>
-  bool process_event_noexcept(const TEvent &event, TSelf &self, aux::byte &current_state, const aux::true_type &) noexcept {
+  bool process_event_noexcept(const TEvent &event, TSelf &self, state_t &current_state, const aux::true_type &) noexcept {
     try {
       return process_event_impl<get_event_mapping_t<TEvent, mappings_t>>(event, self, states_t{}, current_state);
     } catch (...) {
@@ -347,17 +349,17 @@ class sm_impl {
   }
 
   template <class, class TSelf, class TSrcState, class TDstState>
-  void update_current_state(TSelf &, aux::byte &, const aux::byte &, const TSrcState &, const TDstState &,
-                            const aux::true_type &) {}
+  void update_current_state(TSelf &, state_t &, const state_t &, const TSrcState &, const TDstState &, const aux::true_type &) {
+  }
 
   template <class TExplicit, class TSelf, class TSrcState, class TDstState>
-  void update_current_state(TSelf &self, aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
+  void update_current_state(TSelf &self, state_t &current_state, const state_t &new_state, const TSrcState &src_state,
                             const TDstState &dst_state, const aux::false_type &) {
     update_current_state_impl<TExplicit>(self, current_state, new_state, src_state, dst_state);
   }
 
   template <class, class TSelf, class TSrcState, class TDstState>
-  void update_current_state_impl(TSelf &self, aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
+  void update_current_state_impl(TSelf &self, state_t &current_state, const state_t &new_state, const TSrcState &src_state,
                                  const TDstState &dst_state) {
     process_internal_event(self, on_exit{}, current_state);
     log_state_change<logger_t, sm_raw_t>(has_logger{}, self.deps_, src_state, dst_state);
@@ -368,7 +370,7 @@ class sm_impl {
   }
 
   template <class TExplicit, class TSelf, class TSrcState, class T>
-  void update_current_state_impl(TSelf &self, aux::byte &current_state, const aux::byte &new_state, const TSrcState &src_state,
+  void update_current_state_impl(TSelf &self, state_t &current_state, const state_t &new_state, const TSrcState &src_state,
                                  const state<sm<T>> &dst_state) {
     process_internal_event(self, on_exit{}, current_state);
     log_state_change<logger_t, sm_raw_t>(has_logger{}, self.deps_, src_state, dst_state);

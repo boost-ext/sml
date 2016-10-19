@@ -28,7 +28,7 @@ struct transitions_sub;
 template <class T, class... Ts>
 struct transitions<T, Ts...> {
   template <class SM, class TEvent>
-  static bool execute(SM &self, const TEvent &event, aux::byte &current_state) {
+  static bool execute(SM &self, const TEvent &event, typename SM::state_t &current_state) {
     if (aux::get<T>(self.me_.transitions_).execute(self, event, current_state)) {
       return true;
     }
@@ -39,12 +39,12 @@ struct transitions<T, Ts...> {
 template <class T>
 struct transitions<T> {
   template <class SM, class TEvent>
-  static bool execute(SM &self, const TEvent &event, aux::byte &current_state) {
+  static bool execute(SM &self, const TEvent &event, typename SM::state_t &current_state) {
     return aux::get<T>(self.me_.transitions_).execute(self, event, current_state);
   }
 
   template <class SM, class>
-  static bool execute(SM &self, const on_exit &event, aux::byte &current_state) {
+  static bool execute(SM &self, const on_exit &event, typename SM::state_t &current_state) {
     aux::get<T>(self.me_.transitions_).execute(self, event, current_state);
     return false;  // from bottom to top
   }
@@ -53,7 +53,7 @@ struct transitions<T> {
 template <>
 struct transitions<> {
   template <class SM, class TEvent>
-  static bool execute(SM &self, const TEvent &event, aux::byte &current_state) {
+  static bool execute(SM &self, const TEvent &event, typename SM::state_t &current_state) {
     self.me_.process_internal_event(self, unexpected_event<TEvent>{event}, current_state);
     return false;
   }
@@ -62,13 +62,13 @@ struct transitions<> {
 template <class TSM, class T, class... Ts>
 struct transitions_sub<sm<TSM>, T, Ts...> {
   template <class SM, class TEvent>
-  static bool execute(SM &self, const TEvent &event, aux::byte &current_state) {
+  static bool execute(SM &self, const TEvent &event, typename SM::state_t &current_state) {
     const auto handled = aux::try_get<sm_impl<TSM>>(&self.sub_sms_).process_event(event, self.deps_, self.sub_sms_);
     return handled ? handled : transitions<T, Ts...>::execute(self, event, current_state);
   }
 
   template <class SM, class>
-  static bool execute(SM &self, const on_entry &event, aux::byte &current_state) {
+  static bool execute(SM &self, const on_entry &event, typename SM::state_t &current_state) {
     transitions<T, Ts...>::execute(self, event, current_state);
     aux::try_get<sm_impl<TSM>>(&self.sub_sms_).process_event(event, self.deps_, self.sub_sms_);
     return true;  // from top to bottom
@@ -78,13 +78,13 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
 template <class TSM>
 struct transitions_sub<sm<TSM>> {
   template <class SM, class TEvent>
-  static bool execute(SM &self, const TEvent &event, aux::byte &) {
+  static bool execute(SM &self, const TEvent &event, typename SM::state_t &) {
     aux::try_get<sm_impl<TSM>>(&self.sub_sms_).process_event(event, self.deps_, self.sub_sms_);
     return true;
   }
 
   template <class SM>
-  static bool execute(SM &self, const on_entry &event, aux::byte &) {
+  static bool execute(SM &self, const on_entry &event, typename SM::state_t &) {
     return aux::try_get<sm_impl<TSM>>(&self.sub_sms_).process_event(event, self.deps_, self.sub_sms_);
   }
 };

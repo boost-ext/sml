@@ -32,6 +32,9 @@ test/ut/%.out:
 test/ft/ft_sizeof.out:
 	$(CXX) test/ft/ft_sizeof.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ft/ft_sizeof.out && $($(MEMCHECK)) test/ft/ft_sizeof.out
 
+test/ft/ft_state_machine.out:
+	$(CXX) test/ft/ft_state_machine.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ft/ft_state_machine.out && $($(MEMCHECK)) test/ft/ft_state_machine.out
+
 test/ft/ft_exceptions.out:
 	$(CXX) test/ft/ft_exceptions.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ft/ft_exceptions.out && $($(MEMCHECK)) test/ft/ft_exceptions.out
 
