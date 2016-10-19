@@ -247,10 +247,12 @@ int main() {
 
 namespace msm = boost::msm::lite;
 
+
 struct e1 {};
 struct e2 {};
 struct e3 {};
 struct e4 {};
+struct e5 {};
 
 auto guard1 = [] {
   std::cout &lt;&lt; &quot;guard1&quot; &lt;&lt; std::endl;
@@ -263,6 +265,12 @@ auto guard2 = [](int i) {
   return false;
 };
 
+bool guard3(int i) {
+  assert(42 == i);
+  std::cout &lt;&lt; &quot;guard3&quot; &lt;&lt; std::endl;
+  return true;
+}
+
 auto action1 = [](auto e) { std::cout &lt;&lt; &quot;action1: &quot; &lt;&lt; typeid(e).name() &lt;&lt; std::endl; };
 struct action2 {
   void operator()(int i) {
@@ -272,18 +280,24 @@ struct action2 {
 };
 
 struct actions_guards {
-  auto operator()() const noexcept {
+  auto operator()() noexcept {
     using namespace msm;
     return make_transition_table(
        *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
       , &quot;s1&quot;_s + event&lt;e2&gt; [ guard1 ] / action1 = &quot;s2&quot;_s
       , &quot;s2&quot;_s + event&lt;e3&gt; [ guard1 &amp;&amp; ![] { return false;} ] / (action1, action2{}) = &quot;s3&quot;_s
       , &quot;s3&quot;_s + event&lt;e4&gt; [ !guard1 || guard2 ] / (action1, [] { std::cout &lt;&lt; &quot;action3&quot; &lt;&lt; std::endl; }) = &quot;s4&quot;_s
-      , &quot;s3&quot;_s + event&lt;e4&gt; [ guard1 ] / ([] { std::cout &lt;&lt; &quot;action4&quot; &lt;&lt; std::endl; }, [this] { action4(); }) = X
+      , &quot;s3&quot;_s + event&lt;e4&gt; [ guard1 ] / ([] { std::cout &lt;&lt; &quot;action4&quot; &lt;&lt; std::endl; }, [this] { action4(); }) = &quot;s5&quot;_s
+      , &quot;s5&quot;_s + event&lt;e5&gt; [ call(guard3) || guard2 ] / call(this, &amp;actions_guards::action5) = X
     );
   }
 
   void action4() const { std::cout &lt;&lt; &quot;action4&quot; &lt;&lt; std::endl; }
+
+  void action5(int i, const e5&amp;) {
+    assert(42 == i);
+    std::cout &lt;&lt; &quot;action5&quot; &lt;&lt; std::endl;
+  }
 };
 
 int main() {
@@ -292,6 +306,7 @@ int main() {
   sm.process_event(e2{});
   sm.process_event(e3{});
   sm.process_event(e4{});
+  sm.process_event(e5{});
   assert(sm.is(msm::X));
 }
 </code></pre>
