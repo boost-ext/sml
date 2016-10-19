@@ -295,7 +295,8 @@ test orthogonal_regions_reentries = [] {
 
   std::vector<calls> c_;
   msm::sm<D> sm{c_};
-  expect(std::vector<calls>{calls::a_entry, calls::a1_entry, calls::b_entry, calls::b1_entry, calls::c_entry, calls::c1_entry} == c_);
+  expect(std::vector<calls>{calls::a_entry, calls::a1_entry, calls::b_entry, calls::b1_entry, calls::c_entry,
+                            calls::c1_entry} == c_);
 
   c_.clear();
   sm.process_event(e2{});
