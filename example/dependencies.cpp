@@ -15,7 +15,7 @@ struct e1 {
   int i = 0;
 };
 struct dependency {
-  int i;
+  int i = 0;
 };
 
 struct dependencies {
