@@ -835,7 +835,20 @@ test composite_anonymous_entry_transitions = [] {
 };
 
 test composite_entry_exit_sub_sm = [] {
-  enum class calls { ls1_1_entry, ls1_1_exit, ls1_2_entry, ls1_2_exit, ls2_1_entry, ls2_1_exit, ls2_2_entry, ls2_2_exit, sub1_entry, sub1_exit, sub2_entry, sub2_exit };
+  enum class calls {
+    ls1_1_entry,
+    ls1_1_exit,
+    ls1_2_entry,
+    ls1_2_exit,
+    ls2_1_entry,
+    ls2_1_exit,
+    ls2_2_entry,
+    ls2_2_exit,
+    sub1_entry,
+    sub1_exit,
+    sub2_entry,
+    sub2_exit
+  };
 
   struct sub_1 {
     auto operator()() const noexcept {

@@ -123,4 +123,3 @@ test states_entry_exit_actions = [] {
   expect(1 == c_.a_exit_action);
   expect(sm.is(s2));
 };
-

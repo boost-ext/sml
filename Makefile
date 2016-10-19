@@ -55,12 +55,12 @@ example/errors/%.out:
 example/%.out:
 	$(CXX) example/$*.cpp $(CXXFLAGS) -I include -o example/$*.out && $($(MEMCHECK)) example/$*.out
 
-style_check:
+style:
 	@find include example test -iname "*.hpp" -or -iname "*.cpp" | xargs $(CLANG_FORMAT) -i
 	@git diff include example test
 	@exit `git ls-files -m include example test | wc -l`
 
-static_check:
+static_analysis:
 	$(CLANG_TIDY) $(wildcard test/ft/*.cpp test/ut/*.cpp) -- -std=c++1y -I include -I test -include common/test.hpp
 
 doc: readme doc_$(MKDOCS_THEME)

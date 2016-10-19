@@ -68,10 +68,10 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
   }
 
   template <class SM, class>
-  static bool execute(SM &self, const on_entry& event, aux::byte &current_state) {
+  static bool execute(SM &self, const on_entry &event, aux::byte &current_state) {
     transitions<T, Ts...>::execute(self, event, current_state);
     aux::try_get<sm_impl<TSM>>(&self.sub_sms_).process_event(event, self.deps_, self.sub_sms_);
-    return true; // from top to bottom
+    return true;  // from top to bottom
   }
 };
 
