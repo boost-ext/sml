@@ -58,8 +58,8 @@ test unexpected_specific_event = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-         *("idle"_s)   + event<e1> = "handled"_s,
-           "handled"_s + unexpected_event<e1> = X
+        *("idle"_s)   + event<e1> = "handled"_s,
+          "handled"_s + unexpected_event<e1> = X
       );
       // clang-format on
     }
@@ -105,10 +105,10 @@ test unexpected_any_event = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-         *("idle"_s)   + event<e1> = "handled"_s,
-           "handled"_s + unexpected_event<e1> / [this] { ++ue_calls[calls::unexpected_event_e1]; },
-           "handled"_s + unexpected_event<e2> / [this] { ++ue_calls[calls::unexpected_event_e2]; },
-           "handled"_s + unexpected_event<> / [this] { ++ue_calls[calls::unexpected_event_any]; } = X
+        *("idle"_s)   + event<e1> = "handled"_s,
+          "handled"_s + unexpected_event<e1> / [this] { ++ue_calls[calls::unexpected_event_e1]; },
+          "handled"_s + unexpected_event<e2> / [this] { ++ue_calls[calls::unexpected_event_e2]; },
+          "handled"_s + unexpected_event<> / [this] { ++ue_calls[calls::unexpected_event_any]; } = X
       );
       // clang-format on
     }
@@ -159,8 +159,8 @@ test unexpected_event_orthogonal_region = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-         *("idle"_s)   + event<e1> = "s1"_s,
-         *("errors"_s) + unexpected_event<e2> = X
+        *("idle"_s)   + event<e1> = "s1"_s,
+        *("errors"_s) + unexpected_event<e2> = X
       );
       // clang-format on
     }

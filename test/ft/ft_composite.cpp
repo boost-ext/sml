@@ -246,6 +246,45 @@ test composite_custom_ctor = [] {
   }
 };
 
+test composite_is = [] {
+  struct sub {
+    auto operator()() noexcept {
+      using namespace sml;
+
+      // clang-format off
+      return make_transition_table(
+        *s1 + event<e2> = X
+      );
+      // clang-format on
+    }
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+
+      // clang-format off
+      return make_transition_table(
+        *idle + event<e1> = state<sub>
+       , state<sub> + event<e3> = X // TODO remove me
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c> sm;
+  expect(sm.is(idle));
+  expect(sm.is<sub>(s1));
+
+  sm.process_event(e1{});
+  expect(sm.is(sml::state<sub>));
+  expect(sm.is<sub>(s1));
+
+  sm.process_event(e2{});
+  expect(sm.is(sml::state<sub>));
+  expect(sm.is<sub>(sml::X));
+};
+
 test composite_entry_exit_initial = [] {
   struct sub {
     auto operator()() noexcept {
@@ -253,8 +292,8 @@ test composite_entry_exit_initial = [] {
 
       // clang-format off
       return make_transition_table(
-         *idle + sml::on_entry / [this] { ++entry_calls; },
-          idle + sml::on_exit / [this] { ++exit_calls; }
+       *idle + sml::on_entry / [this] { ++entry_calls; },
+        idle + sml::on_exit / [this] { ++exit_calls; }
       );
       // clang-format on
     }
@@ -269,8 +308,8 @@ test composite_entry_exit_initial = [] {
 
       // clang-format off
       return make_transition_table(
-         *state<sub> + sml::on_entry / [this] { ++entry_calls; },
-          state<sub> + sml::on_exit / [this] { ++exit_calls; }
+       *state<sub> + sml::on_entry / [this] { ++entry_calls; },
+        state<sub> + sml::on_exit / [this] { ++exit_calls; }
       );
       // clang-format on
     }
@@ -406,25 +445,25 @@ test composite_transition_the_same_event = [] {
   expect(sm.is(idle));
   sm.process_event(e1());
   expect(sm.is(state<sub>));
-  // expect(subsm.is(idle));
+  expect(sm.is<sub>(idle));
 
   sm.process_event(e4());
 
   sm.process_event(e1());
   expect(sm.is(state<sub>));
-  // expect(subsm.is(s1));
+  expect(sm.is<sub>(s1));
 
   sm.process_event(e2());
   expect(sm.is(state<sub>));
-  // expect(subsm.is(s2));
+  expect(sm.is<sub>(s2));
 
   sm.process_event(e3());
   expect(sm.is("s1"_s));
-  // expect(subsm.is(s2));
+  expect(sm.is<sub>(s2));
 
   sm.process_event(e4());
   expect(sm.is(state<sub>));
-  // expect(subsm.is(idle));  // no history
+  expect(sm.is<sub>(idle));  // no history
 };
 
 test composite_with_orthogonal_regions = [] {
@@ -456,20 +495,21 @@ test composite_with_orthogonal_regions = [] {
   };
 
   sml::sm<c> sm;
-
   expect(sm.is(idle, idle2));
+
   sm.process_event(e1());
   expect(sm.is(s1, sml::state<sub>));
+  expect(sm.is<sub>(idle));
 
-  // expect(subsm.is(idle));
   sm.process_event(e4());
-  // expect(subsm.is(s1));
+  expect(sm.is<sub>(s1));
+
   sm.process_event(e4());
-  // expect(subsm.is(s2));
+  expect(sm.is<sub>(s2));
 
   sm.process_event(e2());
   sm.process_event(e3());
-  // expect(subsm.is(s2));
+  expect(sm.is<sub>(s2));
   expect(sm.is(sml::X, sml::X));
 };
 
@@ -503,19 +543,19 @@ test composite_with_orthogonal_regions_explicit_entry = [] {
 
   sml::sm<c> sm;
   expect(sm.is(sml::state<sub>));
-  // expect(subsm.is(idle, idle2));
+  expect(sm.is<sub>(idle, idle2));
 
   sm.process_event(e1());
   expect(sm.is(sml::state<sub>));
-  // expect(subsm.is(s1, idle2));
+  expect(sm.is<sub>(s1, idle2));
 
   sm.process_event(e5());
   expect(sm.is(s1));
-  // expect(subsm.is(s1, idle2));
+  expect(sm.is<sub>(s1, idle2));
 
   sm.process_event(e6());  // go back to sub
   expect(sm.is(sml::state<sub>));
-  // expect(subsm.is(s2, s3));
+  expect(sm.is<sub>(s2, s3));
 };
 
 test composite_with_orthogonal_regions_explicit_entry_deduce_region = [] {
@@ -548,19 +588,19 @@ test composite_with_orthogonal_regions_explicit_entry_deduce_region = [] {
 
   sml::sm<c> sm;
   expect(sm.is(sml::state<sub>));
-  // expect(subsm.is(idle, idle2));
+  expect(sm.is<sub>(idle, idle2));
 
   sm.process_event(e1());
   expect(sm.is(sml::state<sub>));
-  // expect(subsm.is(s1, idle2));
+  expect(sm.is<sub>(s1, idle2));
 
   sm.process_event(e5());
   expect(sm.is(s1));
-  // expect(subsm.is(s1, idle2));
+  expect(sm.is<sub>(s1, idle2));
 
   sm.process_event(e6());  // go back to sub
   expect(sm.is(sml::state<sub>));
-  // expect(subsm.is(idle, s3));
+  expect(sm.is<sub>(s1, s3));
 };
 
 test composite_anonymous_explicit_transitions = [] {
@@ -582,8 +622,8 @@ test composite_anonymous_explicit_transitions = [] {
       return make_transition_table(
           *"s1"_s + "e1"_e = state<SubState>,
           state<SubState>("final"_s) + "e3"_e = "s2"_s   // Works.
-          //state<SubState>("final"_s) / []{} = "s2"_s     // Compiles, but doesn't work.
-          //state<SubState>("final"_s) = "s2"_s            // Compilation error.
+          //state<SubState>("final"_s) / []{} = "s2"_s   // TODO Compiles, but doesn't work.
+          //state<SubState>("final"_s) = "s2"_s          // TODO Compilation error.
       );
       // clang-format on
     }

@@ -39,7 +39,7 @@ struct testing {
 int main() {
   using namespace sml;
   data fake_data{0};
-  testing::sm<testing> sm{fake_data};
+  sml::testing::sm<::testing> sm{fake_data};
   sm.set_current_states("s2"_s);
   sm.process_event(e3{});
   assert(sm.is(X));

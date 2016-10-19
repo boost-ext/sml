@@ -62,25 +62,25 @@ test history = [] {
   expect(sm.is(idle));
   sm.process_event(e1());
   expect(sm.is(state<sub>));
-  // expect(subsm.is(idle));
+  expect(sm.is<sub>(idle));
 
   sm.process_event(e4());
 
   sm.process_event(e1());
   expect(sm.is(state<sub>));
-  // expect(subsm.is(s1));
+  expect(sm.is<sub>(s1));
 
   sm.process_event(e2());
   expect(sm.is(state<sub>));
-  // expect(subsm.is(s2));
+  expect(sm.is<sub>(s2));
 
   sm.process_event(e3());
   expect(sm.is("s1"_s));
-  // expect(subsm.is(s2));
+  expect(sm.is<sub>(s2));
 
   sm.process_event(e4());
   expect(sm.is(state<sub>));
-  // expect(subsm.is(s2));  // history
+  expect(sm.is<sub>(s2));  // history
 };
 
 test no_history_reenter_sub = [] {
@@ -185,25 +185,23 @@ test history_region = [] {
   expect(sm.is(idle));
   sm.process_event(e1());
   expect(sm.is(state<sub>));
-  // expect(subsm.is(idle, idle2));
+  expect(sm.is<sub>(idle, idle2));
 
   sm.process_event(e4());
 
   sm.process_event(e1());
   expect(sm.is(state<sub>));
-  // expect(subsm.is(s1, idle2));
+  expect(sm.is<sub>(s1, idle2));
 
   sm.process_event(e2());
   expect(sm.is(state<sub>));
-  // expect(subsm.is(s2, s3));
+  expect(sm.is<sub>(s2, s3));
 
   sm.process_event(e3());
   expect(sm.is("s1"_s));
-  // expect(subsm.is(s2, s3));
+  expect(sm.is<sub>(s2, s3));
 
   sm.process_event(e4());
   expect(sm.is(state<sub>));
-  // expect(subsm.is(s2, idle2));  // history for region 1
+  expect(sm.is<sub>(s2, idle2));  // history for region 1
 };
-
-

@@ -47,25 +47,25 @@ int main() {
 
   using namespace sml;
   assert(sm.is("idle"_s));
-  // assert(sub_sm.is("idle"_s));
+  assert(sm.is<sub>("idle"_s));
 
   sm.process_event(e1{});
   assert(sm.is("s1"_s));
-  // assert(sub_sm.is("idle"_s));
+  assert(sm.is<sub>("idle"_s));
 
   sm.process_event(e2{});  // enter sub sm
   assert(sm.is(state<sub>));
-  // assert(sub_sm.is("idle"_s));
+  assert(sm.is<sub>("idle"_s));
 
   sm.process_event(e3{});  // in sub sm
   assert(sm.is(state<sub>));
-  // assert(sub_sm.is("s1"_s));
+  assert(sm.is<sub>("s1"_s));
 
   sm.process_event(e4{});  // finish sub sm
   assert(sm.is(state<sub>));
-  // assert(sub_sm.is(X));
+  assert(sm.is<sub>(X));
 
   sm.process_event(e5{});  // exit sub sm
   assert(sm.is(X));
-  // assert(sub_sm.is(X));
+  assert(sm.is<sub>(X));
 }

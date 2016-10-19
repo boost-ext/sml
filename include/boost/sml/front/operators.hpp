@@ -56,13 +56,13 @@ template <class... Ts, class T, class TEvent, class TSelf>
 auto call_impl(const aux::type<void> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TSelf &self) {
   object(get_arg<Ts>(event, self)...);
   using sm = typename TSelf::type;
-  log_action<typename sm::logger_t, typename sm::sm_raw_t>(typename sm::has_logger{}, self.deps_, object, event);
+  log_action<typename sm::logger_t, typename sm::sm_t>(typename sm::has_logger{}, self.deps_, object, event);
 }
 template <class... Ts, class T, class TEvent, class TSelf>
 auto call_impl(const aux::type<bool> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TSelf &self) {
   const auto result = object(get_arg<Ts>(event, self)...);
   using sm = typename TSelf::type;
-  log_guard<typename sm::logger_t, typename sm::sm_raw_t>(typename sm::has_logger{}, self.deps_, object, event, result);
+  log_guard<typename sm::logger_t, typename sm::sm_t>(typename sm::has_logger{}, self.deps_, object, event, result);
   return result;
 }
 template <class... Ts, class T, class TEvent, class TSelf, aux::enable_if_t<!aux::is_base_of<operator_base, T>::value, int> = 0>
