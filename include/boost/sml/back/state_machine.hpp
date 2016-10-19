@@ -117,6 +117,7 @@ class sm_impl {
   using defer = aux::apply_t<aux::variant, events_t>;
   using defer_t = defer_queue_t<defer>;
   using deps = aux::apply_t<merge_deps, transitions_t>;
+  using state_t = aux::conditional_t<(aux::size<states_t>::value > 0xFF), unsigned short, aux::byte>;
   static constexpr auto regions = aux::size<initial_states_t>::value > 0 ? aux::size<initial_states_t>::value : 1;
   static_assert(regions > 0, "At least one initial state is required");
 
@@ -422,9 +423,7 @@ class sm_impl {
   auto create_lock(const aux::type<T> &) {
     struct lock_guard {
       explicit lock_guard(thread_safety_t &synch) : thread_safety_(synch) { thread_safety_.lock(); }
-
       ~lock_guard() { thread_safety_.unlock(); }
-
       thread_safety_t &thread_safety_;
     };
     return lock_guard{thread_safety_};
@@ -433,7 +432,7 @@ class sm_impl {
   transitions_t transitions_;
 
  public:
-  aux::conditional_t<(aux::size<states_t>::value > 0xFF), unsigned short, aux::byte> current_state_[regions];
+  state_t current_state_[regions];
 
  private:
   thread_safety_t thread_safety_;
