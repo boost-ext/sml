@@ -1,8 +1,10 @@
-##Boost.SML vs Boost.MSM-eUML vs Boost.Statechart
+**Boost.SML vs Boost.MSM-eUML vs Boost.Statechart**
 
 ----
 
-###Overview
+##Features
+
+*Overview*
 
 | Library     | Boost.SML   | Boost.MSM-eUML  | Boost.Statechart |
 | --------    | ----------- | --------------- | ---------------- |
@@ -11,9 +13,7 @@
 | License     | Boost 1.0   | Boost 1.0       | Boost 1.0        |
 | Linkage     | header only | header only     | header only      |
 
-----
-
-###Details
+*Details*
 
 | Library            | Boost.SML   | Boost.MSM-eUML  | Boost.Statechart |
 | ------------------ | ----------- | --------------- | ---------------- |
@@ -22,9 +22,7 @@
 | Exceptions         | -           | -               | ✓                |
 | Memory Allocations | -           | -               | ✓                |
 
-----
-
-###UML features
+*UML features*
 
 | Library              | Boost.SML | Boost.MSM-eUML | Boost.Statechart |
 | -------------------- | --------- | -------------- | ---------------- |
@@ -47,9 +45,7 @@
 | Shallow History      | ✓         | ✓              | ✓                |
 | Deep History         | ~         | ~              | ✓                |
 
-----
-
-###Non-UML features
+*Non-UML features*
 
 | Library              | Boost.SML | Boost.MSM-eUML | Boost.Statechart |
 | -------------------- | --------- | -------------- | ---------------- |
@@ -63,7 +59,7 @@
 
 ----
 
-###Benchmarks
+##Benchmarks
 
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |
 | ---- | -------- | ------ | ------ | ----------- | -------------- |

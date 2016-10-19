@@ -81,12 +81,8 @@ in place action
     * [Exception Safety](http://boost-experimental.github.io/msm-lite/overview/index.html#exception-safety)
     * [Thread Safety](http://boost-experimental.github.io/msm-lite/overview/index.html#thread-safety)
     * [Error messages](http://boost-experimental.github.io/msm-lite/overview/index.html#error-messages)
-* [Benchmarks](http://boost-experimental.github.io/msm-lite/benchmarks/index.html)
-    * [Boost.SML vs Boost.MSM-eUML vs Boost.Statechart](http://boost-experimental.github.io/msm-lite/benchmarks/index.html#boostsml-vs-boostmsm-euml-vs-booststatechart)
-    * [Overview](http://boost-experimental.github.io/msm-lite/benchmarks/index.html#overview)
-    * [Details](http://boost-experimental.github.io/msm-lite/benchmarks/index.html#details)
-    * [UML features](http://boost-experimental.github.io/msm-lite/benchmarks/index.html#uml-features)
-    * [Non-UML features](http://boost-experimental.github.io/msm-lite/benchmarks/index.html#non-uml-features)
+* [Features/Benchmarks](http://boost-experimental.github.io/msm-lite/benchmarks/index.html)
+    * [Features](http://boost-experimental.github.io/msm-lite/benchmarks/index.html#features)
     * [Benchmarks](http://boost-experimental.github.io/msm-lite/benchmarks/index.html#benchmarks)
 * [Tutorial](http://boost-experimental.github.io/msm-lite/tutorial/index.html)
     * [0. Read Boost.MSM - eUML documentation](http://boost-experimental.github.io/msm-lite/tutorial/index.html#0-read-boostmsm-euml-documentation)
@@ -136,8 +132,3 @@ in place action
     * [[1.0.0] - 2016-01-28](http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html#100-2016-01-28)
 * [TODO](http://boost-experimental.github.io/msm-lite/TODO/index.html)
 
-[](GENERATE_TOC_END)
-
----
-
-**Disclaimer** `Boost.SML` is not an official Boost library.

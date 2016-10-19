@@ -19,12 +19,12 @@ struct data {
   int value = 0;
 };
 
-struct fsm {
+struct testing {
   auto operator()() const noexcept {
     using namespace sml;
 
-    auto guard = [](data& d) { return !d.value; };
-    auto action = [](data& d) { d.value = 42; };
+    const auto guard = [](data& d) { return !d.value; };
+    const auto action = [](data& d) { d.value = 42; };
 
     // clang-format off
     return make_transition_table(
@@ -39,7 +39,7 @@ struct fsm {
 int main() {
   using namespace sml;
   data fake_data{0};
-  testing::sm<fsm> sm{fake_data};
+  testing::sm<testing> sm{fake_data};
   sm.set_current_states("s2"_s);
   sm.process_event(e3{});
   assert(sm.is(X));
