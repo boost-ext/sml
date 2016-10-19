@@ -194,8 +194,12 @@ our transitions.</p>
 <td>anonymous transition with action</td>
 </tr>
 <tr>
+<td>src_state / [] {} = src_state</td>
+<td>self transition (calls on_exit/on_entry)</td>
+</tr>
+<tr>
 <td>src_state + event<e> = dst_state</td>
-<td>transition on event e without guard or action</td>
+<td>external transition on event e without guard or action</td>
 </tr>
 <tr>
 <td>src_state + event<e> [ guard ] / action = dst_state</td>
@@ -227,8 +231,12 @@ our transitions.</p>
 <td>anonymous transition with action</td>
 </tr>
 <tr>
+<td>src_state &lt;= src_state / [] {}</td>
+<td>self transition (calls on_exit/on_entry)</td>
+</tr>
+<tr>
 <td>dst_state &lt;= src_state + event<e></td>
-<td>transition on event e without guard or action</td>
+<td>external transition on event e without guard or action</td>
 </tr>
 <tr>
 <td>dst_state &lt;= src_state + event<e> [ guard ] / action</td>

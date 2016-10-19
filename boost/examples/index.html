@@ -48,6 +48,10 @@
     
 
     
+        <dt><span class="section"><a href="#deferprocess">Defer/Process</a></span></dt>
+    
+
+    
         <dt><span class="section"><a href="#orthogonal-regions">Orthogonal Regions</a></span></dt>
     
 
@@ -80,6 +84,10 @@
     
 
     
+        <dt><span class="section"><a href="#dependencies">Dependencies</a></span></dt>
+    
+
+    
         <dt><span class="section"><a href="#dependency-injection">Dependency Injection</a></span></dt>
     
 
@@ -103,6 +111,7 @@
 <li><a href="#states">States</a></li>
 <li><a href="#actions-guards">Actions Guards</a></li>
 <li><a href="#transitions">Transitions</a></li>
+<li><a href="#deferprocess">Defer/Process</a></li>
 <li><a href="#orthogonal-regions">Orthogonal Regions</a></li>
 <li><a href="#composite">Composite</a></li>
 <li><a href="#history">History</a></li>
@@ -111,6 +120,7 @@
 <li><a href="#testing">Testing</a></li>
 <li><a href="#runtime-dispatcher">Runtime Dispatcher</a></li>
 <li><a href="#euml-emulation">eUML Emulation</a></li>
+<li><a href="#dependencies">Dependencies</a></li>
 <li><a href="#dependency-injection">Dependency Injection</a></li>
 <li><a href="#sdl2-integration">SDL2 Integration</a></li>
 <li><a href="#plant-uml-integration">Plant UML Integration</a></li>
@@ -329,10 +339,12 @@ struct transitions {
   auto operator()() const noexcept {
     using namespace msm;
     return make_transition_table(
-       *&quot;idle&quot;_s  / [] { std::cout &lt;&lt; &quot;anonymous transition&quot; &lt;&lt; std::endl; } = &quot;s1&quot;_s
-      , &quot;s1&quot;_s + event&lt;e1&gt; / [] { std::cout &lt;&lt; &quot;internal transition&quot; &lt;&lt; std::endl; }
-      , &quot;s1&quot;_s + event&lt;e2&gt; / ([] { std::cout &lt;&lt; &quot;process internal event&quot; &lt;&lt; std::endl; }, process(e3{})) = X
-      , &quot;s1&quot;_s + event&lt;e3&gt; / [] { std::cout &lt;&lt; &quot;process event: e3&quot;; }
+       *&quot;idle&quot;_s                / [] { std::cout &lt;&lt; &quot;anonymous transition&quot; &lt;&lt; std::endl; } = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + event&lt;e1&gt;      / [] { std::cout &lt;&lt; &quot;internal transition&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + event&lt;e2&gt;      / [] { std::cout &lt;&lt; &quot;self transition&quot; &lt;&lt; std::endl; } = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + msm::on_entry  / [] { std::cout &lt;&lt; &quot;s1 entry&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + msm::on_exit   / [] { std::cout &lt;&lt; &quot;s1 exit&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + event&lt;e3&gt;      / [] { std::cout &lt;&lt; &quot;external transition&quot; &lt;&lt; std::endl; } = X
     );
   }
 };
@@ -341,12 +353,57 @@ int main() {
   msm::sm&lt;transitions&gt; sm;
   sm.process_event(e1{});
   sm.process_event(e2{});
+  sm.process_event(e3{});
   assert(sm.is(msm::X));
 }
 </code></pre>
 
 <ul>
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp</a></li>
+</ul>
+<h3 id="deferprocess">Defer/Process</h3>
+<pre><code class="cpp">#include &lt;cassert&gt;
+#include &lt;queue&gt;
+#include &quot;boost/msm-lite.hpp&quot;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {};
+struct e2 {};
+struct e3 {};
+struct e4 {};
+
+struct defer_and_process {
+  auto operator()() const noexcept {
+    using namespace msm;
+    return make_transition_table(
+       *&quot;idle&quot;_s + event&lt;e1&gt; / defer
+      , &quot;idle&quot;_s + event&lt;e2&gt; = &quot;s1&quot;_s
+      , &quot;s1&quot;_s   + event&lt;e1&gt; = &quot;s2&quot;_s
+      , &quot;s2&quot;_s   + event&lt;e3&gt; / process(e4{})
+      , &quot;s2&quot;_s   + event&lt;e4&gt; = X
+    );
+  }
+};
+
+int main() {
+  using namespace msm;
+  sm&lt;defer_and_process, msm::defer_queue&lt;std::queue&gt;&gt; sm;  /// defer_queue policy to enable deferred events using std::queue
+  assert(sm.is(&quot;idle&quot;_s));
+
+  sm.process_event(e1{});
+  assert(sm.is(&quot;idle&quot;_s));
+
+  sm.process_event(e2{});  /// triggers idle -&gt; s1 and s1 -&gt; s2 (via deferred e1)
+  assert(sm.is(&quot;s2&quot;_s));
+
+  sm.process_event(e3{});  /// triggers s2.process(e4) -&gt; X (via processed e4)
+  assert(sm.is(msm::X));
+}
+</code></pre>
+
+<ul>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/defer_and_process.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/defer_and_process.cpp</a></li>
 </ul>
 <h3 id="orthogonal-regions">Orthogonal Regions</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
@@ -764,6 +821,59 @@ int main() {
 
 <ul>
 <li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp</a></li>
+</ul>
+<h3 id="dependencies">Dependencies</h3>
+<pre><code class="cpp">#include &lt;cassert&gt;
+#include &lt;queue&gt;
+#include &quot;boost/msm-lite.hpp&quot;
+
+namespace msm = boost::msm::lite;
+
+struct e1 {
+  int i = 0;
+};
+struct dependency {
+  int i;
+};
+
+struct dependencies {
+  auto operator()() const noexcept {
+    using namespace msm;
+
+    const auto guard = [](dependency&amp; d) {  /// more dependencies might be passed
+      return !d.i;
+    };
+
+    const auto action = [](dependency&amp; d, const auto&amp; event) {  /// event is deduced, order is not important
+      d.i = event.i + 42;
+    };
+
+    return make_transition_table(
+       *&quot;idle&quot;_s + event&lt;e1&gt; [ guard ] / action = &quot;s1&quot;_s
+      , &quot;s1&quot;_s   + event&lt;e1&gt; [ ([](const auto&amp; event, dependency&amp; d) { return d.i == event.i; }) ] = X
+     );
+  }
+};
+
+int main() {
+  using namespace msm;
+  dependency d;
+  sm&lt;dependencies&gt; sm{d};  /// pass all dependencies (from guards, actions) via constructor (order is not important)
+  assert(sm.is(&quot;idle&quot;_s));
+
+  sm.process_event(e1{0});
+  assert(sm.is(&quot;s1&quot;_s));  /// action sets dependency.i to 42
+
+  sm.process_event(e1{0});
+  assert(sm.is(&quot;s1&quot;_s));  /// not satisfied, dependency.i(42) != event.i(0)
+
+  sm.process_event(e1{42});
+  assert(sm.is(X));  /// transition to X
+}
+</code></pre>
+
+<ul>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependencies.cpp">https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependencies.cpp</a></li>
 </ul>
 <h3 id="dependency-injection">Dependency Injection</h3>
 <pre><code class="cpp">#if __has_include(&lt;boost/di.hpp&gt;)
