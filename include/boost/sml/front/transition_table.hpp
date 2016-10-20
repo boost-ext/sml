@@ -64,7 +64,7 @@ __attribute__((unused)) static detail::history_state H;
 __attribute__((unused)) static detail::defer defer;
 __attribute__((unused)) static detail::process process;
 template <class... Ts, __BOOST_SML_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
-                                                       aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
+                                                         aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 auto make_transition_table(Ts... ts) {
   return aux::pool<Ts...>{ts...};
 }

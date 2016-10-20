@@ -15,11 +15,11 @@ struct process {
   template <class TEvent>
   class process_impl : public action_base {
    public:
-    explicit process_impl(const TEvent &event) : event(event) {}
+    explicit process_impl(const TEvent& event) : event(event) {}
 
-    template <class T, class TSM, class TDeps>
-    void operator()(const T &, TSM&, TDeps&) {
-      //self.me_.process_event(event, self.deps_, self.sub_sms_);
+    template <class T, class TSM, class TDeps, class TSubs>
+    void operator()(const T&, TSM& sm, TDeps& deps, TSubs& subs) {
+      sm.process_event(event, deps, subs);
     }
 
    private:
@@ -27,7 +27,7 @@ struct process {
   };
 
   template <class TEvent>
-  auto operator()(const TEvent &event) {
+  auto operator()(const TEvent& event) {
     return process_impl<TEvent>{event};
   }
 };
