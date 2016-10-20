@@ -7,9 +7,13 @@
 #ifndef BOOST_SML_FRONT_EVENT_HPP
 #define BOOST_SML_FRONT_EVENT_HPP
 
-#include "boost/sml/front/fwd.hpp"
-
 namespace detail {
+
+template <class, class>
+struct transition_eg;
+
+template <class, class>
+struct transition_ea;
 
 template <class>
 struct event {

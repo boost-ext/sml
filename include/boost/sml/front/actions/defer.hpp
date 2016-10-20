@@ -7,7 +7,7 @@
 #ifndef BOOST_SML_FRONT_ACTIONS_DEFER_HPP
 #define BOOST_SML_FRONT_ACTIONS_DEFER_HPP
 
-#include "boost/sml/front/fwd.hpp"
+#include "boost/sml/front/operators.hpp"
 
 namespace detail {
 

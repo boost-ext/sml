@@ -10,6 +10,7 @@
 namespace detail {
 
 struct operator_base {};
+struct action_base {};
 
 template <class TEvent>
 struct event_type {

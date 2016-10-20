@@ -7,13 +7,12 @@
 #ifndef BOOST_SML_FRONT_TRANSITION_TABLE_HPP
 #define BOOST_SML_FRONT_TRANSITION_TABLE_HPP
 
-#include "boost/sml/front/actions/defer.hpp"
-#include "boost/sml/front/actions/process.hpp"
 #include "boost/sml/front/event.hpp"
-#include "boost/sml/front/fwd.hpp"
 #include "boost/sml/front/operators.hpp"
 #include "boost/sml/front/state.hpp"
 #include "boost/sml/front/transition.hpp"
+#include "boost/sml/front/actions/defer.hpp"
+#include "boost/sml/front/actions/process.hpp"
 
 template <class TEvent>
 detail::event<TEvent> event{};

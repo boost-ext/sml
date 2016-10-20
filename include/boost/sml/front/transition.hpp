@@ -7,8 +7,6 @@
 #ifndef BOOST_SML_FRONT_TRANSITION_HPP
 #define BOOST_SML_FRONT_TRANSITION_HPP
 
-#include "boost/sml/front/fwd.hpp"
-
 namespace detail {
 
 template <class, class>
@@ -42,6 +40,9 @@ struct none {
   void operator()() {}
   aux::byte _[0];
 };
+
+template <class...>
+struct transition;
 
 template <class E, class G>
 struct transition<event<E>, G> {

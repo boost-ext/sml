@@ -1080,47 +1080,10 @@ class sm {
 };
 }
 namespace detail {
-struct action_base {};
-template <class...>
-struct transition;
-template <class, class>
-struct transition_sg;
-template <class, class>
-struct transition_sa;
 template <class, class>
 struct transition_eg;
 template <class, class>
 struct transition_ea;
-}
-namespace detail {
-struct defer : action_base {
-  template <class TEvent, class TSM, class TDeps, class TSubs>
-  void operator()(const TEvent &event, TSM &sm, TDeps &, TSubs &) {
-    sm.defer_.push(event);
-  }
-};
-}
-namespace detail {
-struct process {
-  template <class TEvent>
-  class process_impl : public action_base {
-   public:
-    explicit process_impl(const TEvent &event) : event(event) {}
-    template <class T, class TSM, class TDeps, class TSubs>
-    void operator()(const T &, TSM &sm, TDeps &deps, TSubs &subs) {
-      sm.process_event(event, deps, subs);
-    }
-
-   private:
-    TEvent event;
-  };
-  template <class TEvent>
-  auto operator()(const TEvent &event) {
-    return process_impl<TEvent>{event};
-  }
-};
-}
-namespace detail {
 template <class>
 struct event {
   template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
@@ -1135,6 +1098,7 @@ struct event {
 }
 namespace detail {
 struct operator_base {};
+struct action_base {};
 template <class TEvent>
 struct event_type {
   using type = TEvent;
@@ -1309,6 +1273,14 @@ struct internal {};
 struct initial_state {};
 struct terminate_state {};
 struct history_state {};
+template <class...>
+struct transition;
+template <class, class>
+struct transition_sa;
+template <class, class>
+struct transition_sg;
+template <class, class>
+struct transition_eg;
 template <class>
 struct state;
 template <class>
@@ -1428,6 +1400,8 @@ struct none {
   void operator()() {}
   aux::byte _[0];
 };
+template <class...>
+struct transition;
 template <class E, class G>
 struct transition<event<E>, G> {
   template <class T>
@@ -1669,6 +1643,34 @@ struct transition<state<S1>, state<S2>, event<E>, always, none> {
     return true;
   }
   aux::byte _[0];
+};
+}
+namespace detail {
+struct defer : action_base {
+  template <class TEvent, class TSM, class TDeps, class TSubs>
+  void operator()(const TEvent &event, TSM &sm, TDeps &, TSubs &) {
+    sm.defer_.push(event);
+  }
+};
+}
+namespace detail {
+struct process {
+  template <class TEvent>
+  class process_impl : public action_base {
+   public:
+    explicit process_impl(const TEvent &event) : event(event) {}
+    template <class T, class TSM, class TDeps, class TSubs>
+    void operator()(const T &, TSM &sm, TDeps &deps, TSubs &subs) {
+      sm.process_event(event, deps, subs);
+    }
+
+   private:
+    TEvent event;
+  };
+  template <class TEvent>
+  auto operator()(const TEvent &event) {
+    return process_impl<TEvent>{event};
+  }
 };
 }
 template <class TEvent>

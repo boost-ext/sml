@@ -14,6 +14,18 @@ struct initial_state {};
 struct terminate_state {};
 struct history_state {};
 
+template<class...>
+struct transition;
+
+template<class, class>
+struct transition_sa;
+
+template<class, class>
+struct transition_sg;
+
+template<class, class>
+struct transition_eg;
+
 template <class>
 struct state;
 template <class>
