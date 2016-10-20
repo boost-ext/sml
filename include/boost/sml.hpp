@@ -752,8 +752,7 @@ class sm_impl {
       TDeps &deps_;
       sm_impl &me_;
       TSub &sub_sms_;
-      defer_t &defer_;
-    } self_{deps, *this, sub, defer_};
+    } const self_{deps, *this, sub};
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
     const auto handled = process_event_noexcept(event, self_, has_exceptions{});
 #else
@@ -773,8 +772,7 @@ class sm_impl {
       TDeps &deps_;
       sm_impl &me_;
       TSub &sub_sms_;
-      defer_t &defer_;
-    } self_{deps, *this, sub, defer_};
+    } const self_{deps, *this, sub};
     if (!process_internal_event(self_, anonymous{})) {
       process_internal_event(self_, on_entry{});
     }
@@ -1000,8 +998,6 @@ class sm_impl {
 
  public:
   state_t current_state_[regions];
-
- private:
   thread_safety_t thread_safety_;
   defer_t defer_;
 };
@@ -1112,7 +1108,7 @@ namespace detail {
 struct defer : action_base {
   template <class TSelf, class TEvent>
   void operator()(TSelf &self, const TEvent &event) {
-    self.defer_.push(event);
+    self.me_.defer_.push(event);
   }
 };
 }
