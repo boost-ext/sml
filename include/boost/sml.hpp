@@ -1080,23 +1080,6 @@ class sm {
 };
 }
 namespace detail {
-template <class, class>
-struct transition_eg;
-template <class, class>
-struct transition_ea;
-template <class>
-struct event {
-  template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
-  auto operator[](const T &t) const {
-    return transition_eg<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
-  }
-  template <class T, __BOOST_SML_REQUIRES(concepts::callable<void, T>::value)>
-  auto operator/(const T &t) const {
-    return transition_ea<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
-  }
-};
-}
-namespace detail {
 struct operator_base {};
 struct action_base {};
 template <class TEvent>
@@ -1267,6 +1250,51 @@ auto operator||(const T1 &t1, const T2 &t2) {
 template <class T1, class T2, __BOOST_SML_REQUIRES(concepts::callable<void, T1>::value &&concepts::callable<void, T2>::value)>
 auto operator,(const T1 &t1, const T2 &t2) {
   return detail::seq_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
+}
+namespace detail {
+struct defer : action_base {
+  template <class TEvent, class TSM, class TDeps, class TSubs>
+  void operator()(const TEvent &event, TSM &sm, TDeps &, TSubs &) {
+    sm.defer_.push(event);
+  }
+};
+}
+namespace detail {
+struct process {
+  template <class TEvent>
+  class process_impl : public action_base {
+   public:
+    explicit process_impl(const TEvent &event) : event(event) {}
+    template <class T, class TSM, class TDeps, class TSubs>
+    void operator()(const T &, TSM &sm, TDeps &deps, TSubs &subs) {
+      sm.process_event(event, deps, subs);
+    }
+
+   private:
+    TEvent event;
+  };
+  template <class TEvent>
+  auto operator()(const TEvent &event) {
+    return process_impl<TEvent>{event};
+  }
+};
+}
+namespace detail {
+template <class, class>
+struct transition_eg;
+template <class, class>
+struct transition_ea;
+template <class>
+struct event {
+  template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
+  auto operator[](const T &t) const {
+    return transition_eg<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
+  }
+  template <class T, __BOOST_SML_REQUIRES(concepts::callable<void, T>::value)>
+  auto operator/(const T &t) const {
+    return transition_ea<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
+  }
+};
 }
 namespace detail {
 struct internal {};
@@ -1643,34 +1671,6 @@ struct transition<state<S1>, state<S2>, event<E>, always, none> {
     return true;
   }
   aux::byte _[0];
-};
-}
-namespace detail {
-struct defer : action_base {
-  template <class TEvent, class TSM, class TDeps, class TSubs>
-  void operator()(const TEvent &event, TSM &sm, TDeps &, TSubs &) {
-    sm.defer_.push(event);
-  }
-};
-}
-namespace detail {
-struct process {
-  template <class TEvent>
-  class process_impl : public action_base {
-   public:
-    explicit process_impl(const TEvent &event) : event(event) {}
-    template <class T, class TSM, class TDeps, class TSubs>
-    void operator()(const T &, TSM &sm, TDeps &deps, TSubs &subs) {
-      sm.process_event(event, deps, subs);
-    }
-
-   private:
-    TEvent event;
-  };
-  template <class TEvent>
-  auto operator()(const TEvent &event) {
-    return process_impl<TEvent>{event};
-  }
 };
 }
 template <class TEvent>
