@@ -51,11 +51,11 @@ struct state_impl : state_str<TState> {
   auto operator+(const T &t) const {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
-  template <class T, BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
+  template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
   auto operator[](const T &t) const {
     return transition_sg<TState, aux::zero_wrapper<T>>{static_cast<const TState &>(*this), aux::zero_wrapper<T>{t}};
   }
-  template <class T, BOOST_SML_REQUIRES(concepts::callable<void, T>::value)>
+  template <class T, __BOOST_SML_REQUIRES(concepts::callable<void, T>::value)>
   auto operator/(const T &t) const {
     return transition_sa<TState, aux::zero_wrapper<T>>{static_cast<const TState &>(*this), aux::zero_wrapper<T>{t}};
   }

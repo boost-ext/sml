@@ -4,8 +4,8 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-#ifndef DEFER_W9M9BM8H
-#define DEFER_W9M9BM8H
+#ifndef BOOST_SML_FRONT_ACTIONS_DEFER_HPP
+#define BOOST_SML_FRONT_ACTIONS_DEFER_HPP
 
 #include "boost/sml/front/fwd.hpp"
 

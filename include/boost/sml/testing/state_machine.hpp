@@ -29,7 +29,7 @@ class state_machine : public detail::sm<TSM> {
   }
 };
 
-template <class T, class... TPolicies> /*, BOOST_SML_REQUIRES(concepts::configurable<T>::value)*/
+template <class T, class... TPolicies> /*, __BOOST_SML_REQUIRES(concepts::configurable<T>::value)*/
 using sm = testing::state_machine<detail::sm_policy<T, TPolicies...>>;
 
 }  // testing

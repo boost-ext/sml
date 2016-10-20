@@ -7,7 +7,7 @@
 #ifndef BOOST_SML_AUX_TYPE_TRAITS_HPP
 #define BOOST_SML_AUX_TYPE_TRAITS_HPP
 
-#define BOOST_SML_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0  // __pph__
+#define __BOOST_SML_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0  // __pph__
 
 namespace aux {
 using byte = unsigned char;

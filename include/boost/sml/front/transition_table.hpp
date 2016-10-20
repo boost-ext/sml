@@ -63,12 +63,12 @@ __attribute__((unused)) static detail::state<detail::terminate_state> X;
 __attribute__((unused)) static detail::history_state H;
 __attribute__((unused)) static detail::defer defer;
 __attribute__((unused)) static detail::process process;
-template <class... Ts, BOOST_SML_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
+template <class... Ts, __BOOST_SML_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
                                                        aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 auto make_transition_table(Ts... ts) {
   return aux::pool<Ts...>{ts...};
 }
-template <class T, class... TPolicies> /*, BOOST_SML_REQUIRES(concepts::configurable<T>::value)*/
+template <class T, class... TPolicies> /*, __BOOST_SML_REQUIRES(concepts::configurable<T>::value)*/
 using sm = detail::sm<detail::sm_policy<T, TPolicies...>>;
 
 #endif
