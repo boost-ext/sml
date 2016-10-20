@@ -3,6 +3,9 @@
 
 namespace detail {
 
+template <class>
+class sm_impl;
+
 struct _ {};
 
 template <class TException>

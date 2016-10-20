@@ -7,17 +7,21 @@ namespace detail {
 
 template <class, class>
 struct ignore;
+
 template <class E, class... Ts>
 struct ignore<E, aux::type_list<Ts...>> {
   using type = aux::join_t<aux::conditional_t<aux::is_same<event_type_t<E>, aux::remove_reference_t<Ts>>::value,
                                               aux::type_list<>, aux::type_list<Ts>>...>;
 };
+
 template <class T, class E, class = void>
 struct get_deps {
   using type = typename ignore<E, args_t<T, E>>::type;
 };
+
 template <class T, class E>
 using get_deps_t = typename get_deps<T, E>::type;
+
 template <template <class...> class T, class... Ts, class E>
 struct get_deps<T<Ts...>, E, aux::enable_if_t<aux::is_base_of<operator_base, T<Ts...>>::value>> {
   using type = aux::join_t<get_deps_t<Ts, E>...>;
@@ -42,12 +46,14 @@ struct transition<event<E>, G> {
   event<E> e;
   G g;
 };
+
 template <class E, class G, class A>
 struct transition<event<E>, G, A> {
   event<E> e;
   G g;
   A a;
 };
+
 template <class S2, class G, class A>
 struct transition<state<S2>, G, A> : transition<state<internal>, state<S2>, event<anonymous>, G, A> {
   using transition<state<internal>, state<S2>, event<anonymous>, G, A>::g;
@@ -58,11 +64,13 @@ struct transition<state<S2>, G, A> : transition<state<internal>, state<S2>, even
     return transition<T, state<S2>, event<anonymous>, G, A>{g, a};
   }
 };
+
 template <class S1, class S2>
 struct transition<state<S1>, state<S2>> : transition<state<S1>, state<S2>, event<anonymous>, always, none> {
   transition(const state<S1> &, const state<S2> &)
       : transition<state<S1>, state<S2>, event<anonymous>, always, none>{always{}, none{}} {}
 };
+
 template <class S2, class G>
 struct transition_sg<state<S2>, G> : transition<state<internal>, state<S2>, event<anonymous>, G, none> {
   using transition<state<internal>, state<S2>, event<anonymous>, G, none>::g;
@@ -76,6 +84,7 @@ struct transition_sg<state<S2>, G> : transition<state<internal>, state<S2>, even
     return transition<T, state<S2>, event<anonymous>, G, none>{g, none{}};
   }
 };
+
 template <class S2, class A>
 struct transition_sa<state<S2>, A> : transition<state<internal>, state<S2>, event<anonymous>, always, A> {
   using transition<state<internal>, state<S2>, event<anonymous>, always, A>::a;
@@ -86,6 +95,7 @@ struct transition_sa<state<S2>, A> : transition<state<internal>, state<S2>, even
     return transition<T, state<S2>, event<anonymous>, always, A>{always{}, a};
   }
 };
+
 template <class S2, class E>
 struct transition<state<S2>, event<E>> {
   template <class T>
@@ -95,6 +105,7 @@ struct transition<state<S2>, event<E>> {
   const state<S2> &s2;
   event<E> e;
 };
+
 template <class E, class G>
 struct transition_eg<event<E>, G> {
   template <class T>
@@ -104,16 +115,19 @@ struct transition_eg<event<E>, G> {
   event<E> e;
   G g;
 };
+
 template <class E, class A>
 struct transition_ea<event<E>, A> {
   event<E> e;
   A a;
 };
+
 template <class S1, class S2, class G, class A>
 struct transition<state<S1>, transition<state<S2>, G, A>> : transition<state<S1>, state<S2>, event<anonymous>, G, A> {
   transition(const state<S1> &, const transition<state<S2>, G, A> &t)
       : transition<state<S1>, state<S2>, event<anonymous>, G, A>{t.g, t.a} {}
 };
+
 template <class S1, class E, class G, class A>
 struct transition<state<S1>, transition<event<E>, G, A>> : transition<state<internal>, state<S1>, event<E>, G, A> {
   using transition<state<internal>, state<S1>, event<E>, G, A>::g;
@@ -125,21 +139,25 @@ struct transition<state<S1>, transition<event<E>, G, A>> : transition<state<inte
     return transition<T, state<S1>, event<E>, G, A>{g, a};
   }
 };
+
 template <class S1, class S2, class E>
 struct transition<state<S1>, transition<state<S2>, event<E>>> : transition<state<S1>, state<S2>, event<E>, always, none> {
   transition(const state<S1> &, const transition<state<S2>, event<E>> &)
       : transition<state<S1>, state<S2>, event<E>, always, none>{always{}, none{}} {}
 };
+
 template <class S1, class S2, class G>
 struct transition<state<S1>, transition_sg<state<S2>, G>> : transition<state<S1>, state<S2>, event<anonymous>, G, none> {
   transition(const state<S1> &, const transition_sg<state<S2>, G> &t)
       : transition<state<S1>, state<S2>, event<anonymous>, G, none>{t.g, none{}} {}
 };
+
 template <class S1, class S2, class A>
 struct transition<state<S1>, transition_sa<state<S2>, A>> : transition<state<S1>, state<S2>, event<anonymous>, always, A> {
   transition(const state<S1> &, const transition_sa<state<S2>, A> &t)
       : transition<state<S1>, state<S2>, event<anonymous>, always, A>{always{}, t.a} {}
 };
+
 template <class S2, class E, class G>
 struct transition<state<S2>, transition_eg<event<E>, G>> : transition<state<internal>, state<S2>, event<E>, G, none> {
   using transition<state<internal>, state<S2>, event<E>, G, none>::g;
@@ -150,12 +168,14 @@ struct transition<state<S2>, transition_eg<event<E>, G>> : transition<state<inte
     return transition<T, state<S2>, event<E>, G, none>{g, none{}};
   }
 };
+
 template <class S1, class S2, class E, class G>
 struct transition<state<S1>, transition<state<S2>, transition_eg<event<E>, G>>>
     : transition<state<S1>, state<S2>, event<E>, G, none> {
   transition(const state<S1> &, const transition<state<S2>, transition_eg<event<E>, G>> &t)
       : transition<state<S1>, state<S2>, event<E>, G, none>{t.g, none{}} {}
 };
+
 template <class S2, class E, class A>
 struct transition<state<S2>, transition_ea<event<E>, A>> : transition<state<internal>, state<S2>, event<E>, always, A> {
   using transition<state<internal>, state<S2>, event<E>, always, A>::a;
@@ -166,12 +186,14 @@ struct transition<state<S2>, transition_ea<event<E>, A>> : transition<state<inte
     return transition<T, state<S2>, event<E>, always, A>{always{}, a};
   }
 };
+
 template <class S1, class S2, class E, class A>
 struct transition<state<S1>, transition<state<S2>, transition_ea<event<E>, A>>>
     : transition<state<S1>, state<S2>, event<E>, always, A> {
   transition(const state<S1> &, const transition<state<S2>, transition_ea<event<E>, A>> &t)
       : transition<state<S1>, state<S2>, event<E>, always, A>{always{}, t.a} {}
 };
+
 template <class S1, class S2, class E, class G, class A>
 struct transition<state<S1>, transition<state<S2>, transition<event<E>, G, A>>>
     : transition<state<S1>, state<S2>, event<E>, G, A> {

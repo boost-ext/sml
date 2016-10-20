@@ -405,13 +405,9 @@ namespace detail {
 template <class>
 class sm;
 template <class>
-class sm_impl;
-template <class>
 struct state;
 template <class>
 struct event;
-template <class>
-struct exception;
 template <class...>
 struct transitions;
 template <class...>
@@ -539,6 +535,8 @@ struct no_policy {
 };
 }
 namespace detail {
+template <class>
+class sm_impl;
 struct _ {};
 template <class TException>
 struct exception : internal_event {
