@@ -17,9 +17,9 @@ struct process {
    public:
     explicit process_impl(const TEvent &event) : event(event) {}
 
-    template <class TSelf, class T>
-    void operator()(TSelf &self, const T &) {
-      self.me_.process_event(event, self.deps_, self.sub_sms_);
+    template <class T, class TSM, class TDeps>
+    void operator()(const T &, TSM&, TDeps&) {
+      //self.me_.process_event(event, self.deps_, self.sub_sms_);
     }
 
    private:

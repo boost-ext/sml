@@ -223,13 +223,13 @@ struct transition<state<S1>, state<S2>, event<E>, G, A> {
 
   transition(const G &g, const A &a) : g(g), a(a) {}
 
-  template <class SM>
-  bool execute(SM &self, const E &event, typename SM::state_t &current_state) {
-    if (call(g, event, self)) {
-      self.me_.template update_current_state<typename state<S1>::explicit_states>(
-          self, current_state, aux::get_id<typename SM::type::states_ids_t, -1, dst_state>(), state<src_state>{},
+  template<class SM, class TDeps, class TSubs>
+  bool execute(const E &event, SM& sm, TDeps& deps, TSubs& subs, typename SM::state_t &current_state) {
+    if (call(g, event, sm, deps)) {
+      sm.template update_current_state<typename state<S1>::explicit_states>(
+          deps, subs, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{},
           state<dst_state>{}, is_internal{});
-      call(a, event, self);
+      call(a, event, sm, deps);
       return true;
     }
     return false;
@@ -255,12 +255,12 @@ struct transition<state<S1>, state<S2>, event<E>, always, A> {
 
   transition(const always &, const A &a) : a(a) {}
 
-  template <class SM>
-  bool execute(SM &self, const E &event, typename SM::state_t &current_state) {
-    self.me_.template update_current_state<typename state<S1>::explicit_states>(
-        self, current_state, aux::get_id<typename SM::type::states_ids_t, -1, dst_state>(), state<src_state>{},
+  template<class SM, class TDeps, class TSubs>
+  bool execute(const E &event, SM& sm, TDeps& deps, TSubs& subs, typename SM::state_t &current_state) {
+    sm.template update_current_state<typename state<S1>::explicit_states>(
+        deps, subs, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{},
         state<dst_state>{}, is_internal{});
-    call(a, event, self);
+    call(a, event, sm, deps);
     return true;
   }
 
@@ -283,11 +283,11 @@ struct transition<state<S1>, state<S2>, event<E>, G, none> {
 
   transition(const G &g, const none &) : g(g) {}
 
-  template <class SM>
-  bool execute(SM &self, const E &event, typename SM::state_t &current_state) {
-    if (call(g, event, self)) {
-      self.me_.template update_current_state<typename state<S1>::explicit_states>(
-          self, current_state, aux::get_id<typename SM::type::states_ids_t, -1, dst_state>(), state<src_state>{},
+  template<class SM, class TDeps, class TSubs>
+  bool execute(const E &event, SM& sm, TDeps& deps, TSubs& subs, typename SM::state_t &current_state) {
+    if (call(g, event, sm, deps)) {
+      sm.template update_current_state<typename state<S1>::explicit_states>(
+          deps, subs, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{},
           state<dst_state>{}, is_internal{});
       return true;
     }
@@ -313,10 +313,10 @@ struct transition<state<S1>, state<S2>, event<E>, always, none> {
 
   transition(const always &, const none &) {}
 
-  template <class SM>
-  bool execute(SM &self, const E &, typename SM::state_t &current_state) {
-    self.me_.template update_current_state<typename state<S1>::explicit_states>(
-        self, current_state, aux::get_id<typename SM::type::states_ids_t, -1, dst_state>(), state<src_state>{},
+  template<class SM, class TDeps, class TSubs>
+  bool execute(const E &, SM& sm, TDeps& deps, TSubs& subs, typename SM::state_t &current_state) {
+    sm.template update_current_state<typename state<S1>::explicit_states>(
+        deps, subs, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), state<src_state>{},
         state<dst_state>{}, is_internal{});
     return true;
   }

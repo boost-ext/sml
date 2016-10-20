@@ -12,9 +12,9 @@
 namespace detail {
 
 struct defer : action_base {
-  template <class TSelf, class TEvent>
-  void operator()(TSelf& self, const TEvent& event) {
-    self.me_.defer_.push(event);
+  template <class TEvent, class TSM, class TDeps>
+  void operator()(const TEvent& event, TSM& sm, TDeps&) {
+    sm.defer_.push(event);
   }
 };
 
