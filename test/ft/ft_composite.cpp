@@ -266,7 +266,6 @@ test composite_is = [] {
       // clang-format off
       return make_transition_table(
         *idle + event<e1> = state<sub>
-       , state<sub> + event<e3> = X // TODO remove me
       );
       // clang-format on
     }
