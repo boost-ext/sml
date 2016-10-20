@@ -750,6 +750,7 @@ class sm_impl {
     struct self {
       using type __attribute__((unused)) = sm_impl;
       using state_t __attribute__((unused)) = sm_impl::state_t;
+      using has_logger __attribute__((unused)) = sm_impl::has_logger;
       TDeps &deps_;
       sm_impl &me_;
       TSub &sub_sms_;
@@ -770,6 +771,7 @@ class sm_impl {
     struct self {
       using type __attribute__((unused)) = sm_impl;
       using state_t __attribute__((unused)) = sm_impl::state_t;
+      using has_logger __attribute__((unused)) = sm_impl::has_logger;
       TDeps &deps_;
       sm_impl &me_;
       TSub &sub_sms_;
@@ -1194,38 +1196,46 @@ decltype(auto) get_arg(const TEvent &event, TSelf &) {
   return event;
 }
 template <class... Ts, class T, class TEvent, class TSelf>
-auto call_impl(const aux::type<void> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TSelf &self) {
+auto call_impl_with_logger(const aux::type<void> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TSelf &self) {
   object(get_arg<Ts>(event, self)...);
   using sm = typename TSelf::type;
   log_action<typename sm::logger_t, typename sm::sm_t>(typename sm::has_logger{}, self.deps_, object, event);
 }
 template <class... Ts, class T, class TEvent, class TSelf>
-auto call_impl(const aux::type<bool> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TSelf &self) {
+auto call_impl_with_logger(const aux::type<bool> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TSelf &self) {
   const auto result = object(get_arg<Ts>(event, self)...);
   using sm = typename TSelf::type;
   log_guard<typename sm::logger_t, typename sm::sm_t>(typename sm::has_logger{}, self.deps_, object, event, result);
   return result;
 }
-template <class... Ts, class T, class TEvent, class TSelf, aux::enable_if_t<!aux::is_base_of<operator_base, T>::value, int> = 0>
-auto call_impl(const aux::type_list<Ts...> &args, T object, const TEvent &event, TSelf &self) {
+template <class... Ts, class T, class TEvent, class TSelf>
+auto call_impl(const aux::type_list<Ts...> &args, T object, const TEvent &event, TSelf &self, const aux::false_type &,
+               const aux::true_type &) {
   using result_type = decltype(object(get_arg<Ts>(event, self)...));
-  return call_impl(aux::type<result_type>{}, args, object, event, self);
+  using type = aux::type<result_type>;
+  return call_impl_with_logger(type{}, args, object, event, self);
 }
-template <class... Ts, class T, class TEvent, class TSelf, aux::enable_if_t<aux::is_base_of<operator_base, T>::value, int> = 0>
-auto call_impl(const aux::type_list<Ts...> &, T object, const TEvent &event, TSelf &self) {
+template <class... Ts, class T, class TEvent, class TSelf>
+auto call_impl(const aux::type_list<Ts...> &, T object, const TEvent &event, TSelf &self, const aux::false_type &,
+               const aux::false_type &) {
+  return object(get_arg<Ts>(event, self)...);
+}
+template <class... Ts, class T, class TEvent, class TSelf, class TLogger>
+auto call_impl(const aux::type_list<Ts...> &, T object, const TEvent &event, TSelf &self, const aux::true_type &,
+               const TLogger &) {
   return object(event, self);
 }
 template <class T, class TEvent, class TSelf>
-auto call(T object, const TEvent &event, TSelf &self, const aux::false_type &) {
-  return call_impl(args_t<T, TEvent>{}, object, event, self);
+auto call_check_special(T object, const TEvent &event, TSelf &self, const aux::false_type &) {
+  return call_impl(args_t<T, TEvent>{}, object, event, self, aux::is_base_of<operator_base, T>{}, typename TSelf::has_logger{});
 }
 template <class T, class TEvent, class TSelf>
-auto call(T object, const TEvent &event, TSelf &self, const aux::true_type &) {
+auto call_check_special(T object, const TEvent &event, TSelf &self, const aux::true_type &) {
   return object(self, event);
 }
 template <class T, class TEvent, class TSelf>
 auto call(T object, const TEvent &event, TSelf &self) {
-  return call(object, event, self, aux::is_base_of<action_base, T>{});
+  return call_check_special(object, event, self, aux::is_base_of<action_base, T>{});
 }
 template <class... Ts>
 class seq_ : operator_base {

@@ -157,6 +157,7 @@ class sm_impl {
     struct self {
       using type __attribute__((unused)) = sm_impl;
       using state_t __attribute__((unused)) = sm_impl::state_t;
+      using has_logger __attribute__((unused)) = sm_impl::has_logger;
       TDeps &deps_;
       sm_impl &me_;
       TSub &sub_sms_;
@@ -180,6 +181,7 @@ class sm_impl {
     struct self {
       using type __attribute__((unused)) = sm_impl;
       using state_t __attribute__((unused)) = sm_impl::state_t;
+      using has_logger __attribute__((unused)) = sm_impl::has_logger;
       TDeps &deps_;
       sm_impl &me_;
       TSub &sub_sms_;
