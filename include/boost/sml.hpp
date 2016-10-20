@@ -938,8 +938,6 @@ class sm_impl {
                                  const TDstState &dst_state) {
     process_internal_event(self, on_exit{}, current_state);
     log_state_change<logger_t, sm_t>(has_logger{}, self.deps_, src_state, dst_state);
-    (void)src_state;
-    (void)dst_state;
     current_state = new_state;
     process_internal_event(self, on_entry{}, current_state);
   }
@@ -948,8 +946,6 @@ class sm_impl {
                                  const state<sm<T>> &dst_state) {
     process_internal_event(self, on_exit{}, current_state);
     log_state_change<logger_t, sm_t>(has_logger{}, self.deps_, src_state, dst_state);
-    (void)src_state;
-    (void)dst_state;
     current_state = new_state;
     update_composite_states<sm_impl<T>>(self, TExplicit{}, typename sm_impl<T>::has_history_states{},
                                         typename sm_impl<T>::initial_but_not_history_states_t{});
