@@ -1,5 +1,11 @@
-#ifndef DISPATCH_TABLE_QUT9E60B
-#define DISPATCH_TABLE_QUT9E60B
+//
+// Copyright (c) 2016 Krzysztof Jusiak (krzysztof at jusiak dot net)
+//
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+#ifndef BOOST_SML_UTILITY_DISPATCH_TABLE_HPP
+#define BOOST_SML_UTILITY_DISPATCH_TABLE_HPP
 
 #include "boost/sml.hpp"
 
