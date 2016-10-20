@@ -478,14 +478,14 @@ template <class>
 transitions<> get_state_mapping_impl(...);
 template <class T, class... Ts>
 transitions<Ts...> get_state_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
-template <class S>
-transitions_sub<S> get_sub_state_mapping_impl(...);
-template <class T, class... Ts>
-transitions_sub<T, Ts...> get_sub_state_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
 template <class T, class U>
 struct get_state_mapping {
   using type = decltype(get_state_mapping_impl<T>((U *)0));
 };
+template <class S>
+transitions_sub<S> get_sub_state_mapping_impl(...);
+template <class T, class... Ts>
+transitions_sub<T, Ts...> get_sub_state_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
 template <class T, class U>
 struct get_state_mapping<sm<T>, U> {
   using type = decltype(get_sub_state_mapping_impl<sm<T>>((U *)0));
