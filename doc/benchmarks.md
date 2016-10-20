@@ -63,7 +63,7 @@
 
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |
 | ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Simple Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/simple) | -O2 -s | 6 | 5 | 12 | 1'000'000 |
+|[Simple Test](https://github.com/boost-experimental/sml/tree/master/test/pt/simple) | -O2 -s | 6 | 5 | 12 | 1'000'000 |
 
 | Clang-3.7        | Boost.SML      | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] |[Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|-------------------|
@@ -83,7 +83,7 @@
 
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |
 | ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Composite Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/composite) | -O2 -s | 8 | 5 + 3 | 12 + 4 | 1'000 * 1'000 |
+|[Composite Test](https://github.com/boost-experimental/sml/tree/master/test/pt/composite) | -O2 -s | 8 | 5 + 3 | 12 + 4 | 1'000 * 1'000 |
 
 | Clang-3.7        | Boost.SML      | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|--------------------|
@@ -103,7 +103,7 @@
 
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |
 | ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Complex Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/complex) | -O2 -s | 50 | 50 | 50 | 1'000'000 |
+|[Complex Test](https://github.com/boost-experimental/sml/tree/master/test/pt/complex) | -O2 -s | 50 | 50 | 50 | 1'000'000 |
 
 | Clang-3.7        | Boost.SML      | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|--------------------|
@@ -123,7 +123,7 @@
 
 | Test |
 | ---- |
-|[Header Test](https://github.com/boost-experimental/msm-lite/tree/master/test/pt/header) |
+|[Header Test](https://github.com/boost-experimental/sml/tree/master/test/pt/header) |
 
 | Clang-3.7        | Boost.SML      | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|--------------------|

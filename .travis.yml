@@ -117,12 +117,12 @@ script:
   - if [ "${CHECK}" != "" ]; then (travis_wait make style static_analysis); fi
   - if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${DOCUMENTATION}" != "" ]; then (
     pip install --user travis https://github.com/mkdocs/mkdocs/archive/b30f38fe299738e8ce614e53c3342cc8bef02b5b.zip --upgrade
-    && git clone https://github.com/boost-experimental/msm-lite && cd msm-lite && rm -rf *
+    && git clone https://github.com/boost-experimental/sml && cd sml && rm -rf *
     && git checkout -b gh-pages -t origin/gh-pages && git reset --hard && cd ..
-    && MKDOCS_THEME=boost-experimental MKDOCS_SITE=../msm-lite make doc
-    && MKDOCS_THEME=boost-classic MKDOCS_SITE=../msm-lite/boost make doc readme
-    && cd msm-lite && git add -A . && git commit -am "doc update"
-    && git push --force --quiet "https://${GH_TOKEN}@github.com/boost-experimental/msm-lite.git"); fi
+    && MKDOCS_THEME=boost-experimental MKDOCS_SITE=../sml make doc
+    && MKDOCS_THEME=boost-classic MKDOCS_SITE=../sml/boost make doc readme
+    && cd sml && git add -A . && git commit -am "doc update"
+    && git push --force --quiet "https://${GH_TOKEN}@github.com/boost-experimental/sml.git"); fi
 
 after_success:
   - if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${COVERAGE}" != "" ]; then (pip

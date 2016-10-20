@@ -1,9 +1,9 @@
 {
-    "key": "msm-lite",
-    "name": "Boost.MSM-lite",
+    "key": "sml",
+    "name": "Boost.SML",
     "authors": [ "Krzysztof Jusiak" ],
     "maintainers": [ "krzysztof at jusiak dot net" ],
-    "description": "C++14 Meta State Machine library",
+    "description": "C++14 State Machine Library",
     "std": [ "14" ],
     "category": [ "Design Patterns" ]
 }

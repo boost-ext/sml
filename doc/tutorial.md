@@ -72,9 +72,9 @@ States are printable too.
 assert(string("idle") == "idle"_s.c_str());
 ```
 
-![CPP(BTN)](Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/events.cpp)
-![CPP(BTN)](Run_States_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp)
-![CPP(BTN)](Run_Composite_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp)
+![CPP(BTN)](Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/events.cpp)
+![CPP(BTN)](Run_States_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/states.cpp)
+![CPP(BTN)](Run_Composite_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/composite.cpp)
 
 &nbsp;
 
@@ -115,7 +115,7 @@ struct action4 {
 };
 ```
 
-![CPP(BTN)](Run_Actions_Guards_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/actions_guards.cpp)
+![CPP(BTN)](Run_Actions_Guards_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/actions_guards.cpp)
 
 &nbsp;
 
@@ -185,8 +185,8 @@ make_transition_table(
 );
 ```
 
-![CPP(BTN)](Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp)
-![CPP(BTN)](Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp)
+![CPP(BTN)](Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/transitions.cpp)
+![CPP(BTN)](Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/euml_emulation.cpp)
 
 &nbsp;
 
@@ -230,8 +230,8 @@ make_transition_table(
 );
 ```
 
-![CPP(BTN)](Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp)
-![CPP(BTN)](Run_History_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/history.cpp)
+![CPP(BTN)](Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/orthogonal_regions.cpp)
+![CPP(BTN)](Run_History_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/history.cpp)
 
 &nbsp;
 
@@ -294,8 +294,8 @@ auto sm = injector.create<sm<example>>();
 sm.process_event(e1{});
 ```
 
-![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
-![CPP(BTN)](Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp)
+![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/hello_world.cpp)
+![CPP(BTN)](Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/dependency_injection.cpp)
 
 &nbsp;
 
@@ -337,9 +337,9 @@ SDL_Event event{SDL_QUIT};
 dispatch_event(event, event.type); // will call sm.process(game_over{});
 ```
 
-![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp)
-![CPP(BTN)](Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp)
-![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp)
+![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/hello_world.cpp)
+![CPP(BTN)](Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/dispatch_table.cpp)
+![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/sdl2.cpp)
 
 &nbsp;
 
@@ -405,7 +405,7 @@ make_transition_table(
 );
 ```
 
-![CPP(BTN)](Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp)
+![CPP(BTN)](Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/error_handling.cpp)
 
 &nbsp;
 
@@ -438,7 +438,7 @@ sm.process_event(event{});
 assert(sm.is(X));
 ```
 
-![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp)
+![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/testing.cpp)
 
 &nbsp;
 
@@ -477,8 +477,8 @@ sml::sm<logging, sml::logger<my_logger>> sm;
 sm.process_event(my_event{}); // will call my_logger appropriately
 ```
 
-![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp)
-![CPP(BTN)](Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/plant_uml.cpp)
+![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/logging.cpp)
+![CPP(BTN)](Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/plant_uml.cpp)
 
 &nbsp;
 
