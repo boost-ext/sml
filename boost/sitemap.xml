@@ -3,7 +3,7 @@
 
     
     <url>
-     <loc>http://boost-experimental.github.io/msm-lite/index.html</loc>
+     <loc>http://boost-experimental.github.io/sml/index.html</loc>
      <lastmod>2016-10-20</lastmod>
      <changefreq>daily</changefreq>
     </url>
@@ -11,7 +11,7 @@
 
     
     <url>
-     <loc>http://boost-experimental.github.io/msm-lite/overview/index.html</loc>
+     <loc>http://boost-experimental.github.io/sml/overview/index.html</loc>
      <lastmod>2016-10-20</lastmod>
      <changefreq>daily</changefreq>
     </url>
@@ -19,7 +19,7 @@
 
     
     <url>
-     <loc>http://boost-experimental.github.io/msm-lite/benchmarks/index.html</loc>
+     <loc>http://boost-experimental.github.io/sml/benchmarks/index.html</loc>
      <lastmod>2016-10-20</lastmod>
      <changefreq>daily</changefreq>
     </url>
@@ -27,7 +27,7 @@
 
     
     <url>
-     <loc>http://boost-experimental.github.io/msm-lite/tutorial/index.html</loc>
+     <loc>http://boost-experimental.github.io/sml/tutorial/index.html</loc>
      <lastmod>2016-10-20</lastmod>
      <changefreq>daily</changefreq>
     </url>
@@ -35,7 +35,7 @@
 
     
     <url>
-     <loc>http://boost-experimental.github.io/msm-lite/user_guide/index.html</loc>
+     <loc>http://boost-experimental.github.io/sml/user_guide/index.html</loc>
      <lastmod>2016-10-20</lastmod>
      <changefreq>daily</changefreq>
     </url>
@@ -43,7 +43,7 @@
 
     
     <url>
-     <loc>http://boost-experimental.github.io/msm-lite/examples/index.html</loc>
+     <loc>http://boost-experimental.github.io/sml/examples/index.html</loc>
      <lastmod>2016-10-20</lastmod>
      <changefreq>daily</changefreq>
     </url>
@@ -51,7 +51,7 @@
 
     
     <url>
-     <loc>http://boost-experimental.github.io/msm-lite/CHANGELOG/index.html</loc>
+     <loc>http://boost-experimental.github.io/sml/CHANGELOG/index.html</loc>
      <lastmod>2016-10-20</lastmod>
      <changefreq>daily</changefreq>
     </url>
@@ -59,7 +59,7 @@
 
     
     <url>
-     <loc>http://boost-experimental.github.io/msm-lite/TODO/index.html</loc>
+     <loc>http://boost-experimental.github.io/sml/TODO/index.html</loc>
      <lastmod>2016-10-20</lastmod>
      <changefreq>daily</changefreq>
     </url>

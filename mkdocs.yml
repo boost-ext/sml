@@ -1,10 +1,10 @@
 copyright: Copyright &copy; 2016
 
 site_name: Boost.SML
-site_url: http://boost-experimental.github.io/msm-lite
+site_url: http://boost-experimental.github.io/sml
 site_author: Kris Jusiak
-repo_url: https://github.com/boost-experimental/msm-lite
-repo_name: msm-lite
+repo_url: https://github.com/boost-experimental/sml
+repo_name: sml
 docs_dir: .
 use_directory_urls: false
 theme_dir: themes/boost

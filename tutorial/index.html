@@ -253,9 +253,9 @@ auto state  = &quot;idle&quot;_s;
 <pre><code class="cpp">assert(string(&quot;idle&quot;) == &quot;idle&quot;_s.c_str());
 </code></pre>
 
-<p><img alt="CPP(BTN)" src="../Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/events.cpp" />
-<img alt="CPP(BTN)" src="../Run_States_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/states.cpp" />
-<img alt="CPP(BTN)" src="../Run_Composite_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/composite.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/events.cpp" />
+<img alt="CPP(BTN)" src="../Run_States_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/states.cpp" />
+<img alt="CPP(BTN)" src="../Run_Composite_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/composite.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="2-create-guards-and-actions">2. Create guards and actions</h3>
@@ -289,7 +289,7 @@ struct action4 {
 };
 </code></pre>
 
-<p><img alt="CPP(BTN)" src="../Run_Actions_Guards_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/actions_guards.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Actions_Guards_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/actions_guards.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="3-create-a-transition-table">3. Create a transition table</h3>
@@ -404,8 +404,8 @@ make_transition_table(
 );
 </code></pre>
 
-<p><img alt="CPP(BTN)" src="../Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/transitions.cpp" />
-<img alt="CPP(BTN)" src="../Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/euml_emulation.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/transitions.cpp" />
+<img alt="CPP(BTN)" src="../Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/euml_emulation.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="4-set-initial-states">4. Set initial states</h3>
@@ -439,8 +439,8 @@ make_transition_table(
 );
 </code></pre>
 
-<p><img alt="CPP(BTN)" src="../Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/orthogonal_regions.cpp" />
-<img alt="CPP(BTN)" src="../Run_History_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/history.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/orthogonal_regions.cpp" />
+<img alt="CPP(BTN)" src="../Run_History_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/history.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="5-create-a-state-machine">5. Create a state machine</h3>
@@ -491,8 +491,8 @@ auto sm = injector.create&lt;sm&lt;example&gt;&gt;();
 sm.process_event(e1{});
 </code></pre>
 
-<p><img alt="CPP(BTN)" src="../Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" />
-<img alt="CPP(BTN)" src="../Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dependency_injection.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/hello_world.cpp" />
+<img alt="CPP(BTN)" src="../Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/dependency_injection.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="6-process-events">6. Process events</h3>
@@ -524,9 +524,9 @@ SDL_Event event{SDL_QUIT};
 dispatch_event(event, event.type); // will call sm.process(game_over{});
 </code></pre>
 
-<p><img alt="CPP(BTN)" src="../Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/hello_world.cpp" />
-<img alt="CPP(BTN)" src="../Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/dispatch_table.cpp" />
-<img alt="CPP(BTN)" src="../Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/sdl2.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/hello_world.cpp" />
+<img alt="CPP(BTN)" src="../Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/dispatch_table.cpp" />
+<img alt="CPP(BTN)" src="../Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/sdl2.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="8-handle-errors">8. Handle errors</h3>
@@ -579,7 +579,7 @@ Please, notice that when there is no exception handler defined in the Transition
 );
 </code></pre>
 
-<p><img alt="CPP(BTN)" src="../Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/error_handling.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/error_handling.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="9-test-it">9. Test it</h3>
@@ -604,7 +604,7 @@ sm.process_event(event{});
 assert(sm.is(X));
 </code></pre>
 
-<p><img alt="CPP(BTN)" src="../Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/testing.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/testing.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
 <h3 id="10-debug-it">10. Debug it</h3>
@@ -637,8 +637,8 @@ sml::sm&lt;logging, sml::logger&lt;my_logger&gt;&gt; sm;
 sm.process_event(my_event{}); // will call my_logger appropriately
 </code></pre>
 
-<p><img alt="CPP(BTN)" src="../Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/logging.cpp" />
-<img alt="CPP(BTN)" src="../Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-experimental/msm-lite/master/example/plant_uml.cpp" /></p>
+<p><img alt="CPP(BTN)" src="../Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/logging.cpp" />
+<img alt="CPP(BTN)" src="../Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/plant_uml.cpp" /></p>
 <p>&nbsp;</p>
 <hr />
               
@@ -647,8 +647,8 @@ sm.process_event(my_event{}); // will call my_logger appropriately
           <footer>
 
   <select onChange="window.location.href=this.value" style="position: absolute; top: 20px; right: 30px; z-index: 10;">
-    <option value="https://boost-experimental.github.io/msm-lite" selected>Theme: Boost Experimental</option>
-    <option value="https://boost-experimental.github.io/msm-lite/boost">Theme: Boost Classic</option>
+    <option value="https://boost-experimental.github.io/sml" selected>Theme: Boost Experimental</option>
+    <option value="https://boost-experimental.github.io/sml/boost">Theme: Boost Classic</option>
   </select>
 
   
@@ -667,7 +667,7 @@ sm.process_event(my_event{}); // will call my_logger appropriately
   <div id="disqus_thread"></div>
   <script type="text/javascript">
   /* * * CONFIGURATION VARIABLES * * */
-  var disqus_shortname = 'msm-lite';
+  var disqus_shortname = 'sml';
 
   /* * * DON'T EDIT BELOW THIS LINE * * */
   (function() {

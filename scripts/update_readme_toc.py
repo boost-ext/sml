@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#update_readme_toc.py doc/mkdocs.yml README.md http://boost-experimental.github.io/msm-lite
+#update_readme_toc.py doc/mkdocs.yml README.md http://boost-experimental.github.io/sml
 
 import fileinput, sys, os
 
