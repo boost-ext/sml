@@ -75,9 +75,16 @@ int main() {
 <center>
 <table>
   <tr>
+    <th></th>
+    <th>Clang-3.8</th>
+    <th>GCC-6</th>
+  </tr>
+
+  <tr>
     <td></td>
-    <td>Clang-3.8</td>
-    <td>GCC-6</td>
+    <td rowspan="3">
+      <a href="http://boost-experimental.github.io/sml/benchmarks/index.html#benchmarks">Benchmarks</a>
+    </td>
   </tr>
 
   <tr>
@@ -111,13 +118,6 @@ main:
 	call	*process_event<close> // jump table
   ...
       </code></pre>
-    </td>
-  </tr>
-
-  <tr>
-    <td></td>
-    <td rowspan="3">
-      <a href="http://boost-experimental.github.io/sml/benchmarks/index.html#benchmarks">Benchmarks</a>
     </td>
   </tr>
 </table>
