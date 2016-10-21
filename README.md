@@ -12,7 +12,9 @@
 > Your scalable C++14 header State Machine Library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world))
 
 <p align="center">
+  <br />
   <b>Let's close TCP connection!</b>
+  <br />
 </p>
 
 <p align="center"><img src="doc/images/tcp_release.png" alt="tcp release"/></p>
@@ -69,6 +71,7 @@ int main() {
 }
 ```
 
+<p align="center">
 <table>
   <tr>
     <td><b>Hello World</b></td>
@@ -77,15 +80,15 @@ int main() {
   </tr>
 
   <tr>
-    <td>Compilation Time [s]</td>
-    <td>0.102</td>
-    <td>0.118</td>
+    <td>Compilation Time</td>
+    <td>0.102s</td>
+    <td>0.118s</td>
   </tr>
 
   <tr>
-    <td>Binary size (stripped) [kb]</td>
-    <td>6.2</td>
-    <td>6.2</td>
+    <td>Binary size (stripped)</td>
+    <td>6.2kb</td>
+    <td>6.2kb</td>
   </tr>
 
   <tr>
@@ -160,6 +163,7 @@ main:
     </td>
   </tr>
 </table>
+</p>
 
 ---------------------------------------
 
