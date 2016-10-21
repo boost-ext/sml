@@ -27,6 +27,14 @@
 
     
     <url>
+     <loc>http://boost-experimental.github.io/sml/uml_vs_sml/index.html</loc>
+     <lastmod>2016-10-21</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
      <loc>http://boost-experimental.github.io/sml/tutorial/index.html</loc>
      <lastmod>2016-10-21</lastmod>
      <changefreq>daily</changefreq>
@@ -44,6 +52,14 @@
     
     <url>
      <loc>http://boost-experimental.github.io/sml/examples/index.html</loc>
+     <lastmod>2016-10-21</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>http://boost-experimental.github.io/sml/faq/index.html</loc>
      <lastmod>2016-10-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
