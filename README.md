@@ -79,7 +79,7 @@ int main() {
 | ----------------- | ------------- | ------ |
 | Compilation time  | 0.102s        | 0.118s |
 | Binary size       | 6.2k          | 6.2k   |
-| Asm x86-64        | <code>aa</code> |
+| Asm x86-64        | <code>aa<br/>bb</code> |
 
 </center>
 
