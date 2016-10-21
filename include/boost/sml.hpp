@@ -1723,6 +1723,10 @@ auto make_transition_table(Ts... ts) {
 }
 template <class T, class... TPolicies>
 using sm = detail::sm<detail::sm_policy<T, TPolicies...>>;
+template <class TExpr, class... TArgs>
+auto make_sm(TExpr expr, TArgs &&... args) {
+  return sml::sm<TExpr>{expr, args...};
+};
 BOOST_SML_NAMESPACE_END
 #endif
 #if defined(__clang__)

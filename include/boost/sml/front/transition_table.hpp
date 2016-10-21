@@ -70,4 +70,9 @@ auto make_transition_table(Ts... ts) {
 template <class T, class... TPolicies> /*, __BOOST_SML_REQUIRES(concepts::configurable<T>::value)*/
 using sm = detail::sm<detail::sm_policy<T, TPolicies...>>;
 
+template <class TExpr, class... TArgs>
+auto make_sm(TExpr expr, TArgs&&... args) {
+  return sml::sm<TExpr>{expr, args...};
+};
+
 #endif
