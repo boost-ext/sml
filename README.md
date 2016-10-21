@@ -73,16 +73,7 @@ int main() {
 }
 ```
 
-<center>
-
-|                   | Clang-3.8     | GCC-6  |
-| ----------------- | ------------- | ------ |
-| Compilation time  | 0.102s        | 0.118s |
-| Binary size       | 6.2k          | 6.2k   |
-| Asm x86-64        | <code>aa<br/>bb</code> |
-
-</center>
-
+<p align="center">
 <table>
   <tr>
     <th></th>
@@ -128,6 +119,7 @@ main:
     </td>
   </tr>
 </table>
+</p>
 
 ---------------------------------------
 
