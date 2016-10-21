@@ -109,6 +109,9 @@
                 <li class="toctree-l3"><a href="#thread-safety">Thread Safety</a></li>
                 
             
+                <li class="toctree-l3"><a href="#design">Design</a></li>
+                
+            
                 <li class="toctree-l3"><a href="#error-messages">Error messages</a></li>
                 
             
@@ -276,6 +279,26 @@ sm.process_event(event{}); // thread safe call
 <ul>
 <li>See <a href="../user_guide/index.html#policies">Thread Safe Policy</a></li>
 </ul>
+<h3 id="design">Design</h3>
+<p><a href="../images/sml.png"><img alt="Design" src="../images/sml.png" /></a></p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Front-End]</td>
+<td>Transition Table Domain Specific Language</td>
+</tr>
+<tr>
+<td>[Back-End]</td>
+<td><a href="../user_guide/index.html##sm-state-machine">State Machine</a> implementation details</td>
+</tr>
+</tbody>
+</table>
 <h3 id="error-messages">Error messages</h3>
 <p><strong><em>Not configurable</em></strong>
 <img alt="CPP" src="https://raw.githubusercontent.com/boost-experimental/sml/master/example/errors/not_configurable.cpp" /></p>
