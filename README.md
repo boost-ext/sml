@@ -115,7 +115,9 @@ main:
   </tr>
 
   <tr rowspan="4">
-    <a href="http://boost-experimental.github.io/sml/benchmarks/index.html#benchmarks">Benchmarks</a>
+    <td>
+      <a href="http://boost-experimental.github.io/sml/benchmarks/index.html#benchmarks">Benchmarks</a>
+    </td>
   </tr>
 </table>
 </center>
