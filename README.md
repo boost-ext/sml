@@ -44,14 +44,15 @@ int main() {
   const auto send_ack = [] {};
 
   auto sm = make_sm([&] {
-    // clang-format off
+    /**
+     * src_state + event [ guard ] / action = dst_state
+     */
     return make_transition_table(
       *("established"_s) + event<close> / send_fin = "fin wait 1"_s,
         "fin wait 1"_s   + event<ack> [ is_ack_valid ] = "fin wait 2"_s,
         "fin wait 2"_s   + event<fin> [ is_fin_valid ] / send_ack = "timed wait"_s,
         "timed wait"_s   + event<timeout> = X
     );
-    // clang-format on
   });
 
   static_assert(1 == sizeof(sm), "sizeof(sm) != 1b");
@@ -95,8 +96,6 @@ int main() {
     <td>ASM x86-64</td>
     <td colspan="2">
       <pre><code>
-ASM x86-64
-
 initialize:
 	movb	$1, (%r8) // current state = 1
 	movl	$1, %eax  // return true
@@ -119,45 +118,29 @@ process_event<fin>:
 
 process_event<timeout>:
 	movb	$1, (%r8) // current state = 4
-	movl	$1, %eax  // return true
+	movl	$5, %eax  // return true
 	ret
 
 main:
-	subq	$24, %rsp
+	subq	$24, %rsp                 // stack frame
 	leaq	14(%rsp), %r8
 	leaq	15(%rsp), %rdi
 	movb	$0, 14(%rsp)
 	movq	%r8, %rcx
 	movq	%r8, %rdx
 	movq	%r8, %rsi
-	call	initialize                // default
-
-	movzbl	14(%rsp), %eax
-	leaq	14(%rsp), %r8
-	leaq	15(%rsp), %rdi
-	movq	%r8, %rcx
-	movq	%r8, %rdx
-	movq	%r8, %rsi
+	call	*initialize               // init states
+  ...
 	call	*process_event<close>
-
-	movzbl	14(%rsp), %eax
-	leaq	14(%rsp), %r8
-	leaq	15(%rsp), %rdi
-	movq	%r8, %rcx
-	movq	%r8, %rdx
-	movq	%r8, %rsi
+  ...
 	call	*process_event<ack>
-
-	movzbl	14(%rsp), %eax
-	leaq	14(%rsp), %r8
-	leaq	15(%rsp), %rdi
-	movq	%r8, %rcx
-	movq	%r8, %rdx
-	movq	%r8, %rsi
+  ...
 	call	*process_event<fin>
+  ...
+	call	*process_event<timeout>
 
-	xorl	%eax, %eax              // return 0
-	addq	$24, %rsp
+	xorl	%eax, %eax              // return 0 <- main
+	addq	$24, %rsp               // stack frame
 
       </code></pre>
     </td>
