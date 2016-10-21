@@ -11,13 +11,15 @@
 
 > Your scalable C++14 header State Machine Library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world))
 
----
+<p align="center">
+  <b>Let's close TCP connection!</b>
+</p>
 
-> **"Let's close TCP connection!"**
-
-<center>[![TCP Release](doc/images/tcp_release.png)](doc/images/tcp_release.png)</center>
+<p align="center"><img src="doc/images/tcp_release.png" alt="tcp release"/></p>
 
 ```cpp
+// $CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-errors hello_world.cpp
+
 #include <cassert>
 #include <boost/sml.hpp>
 
@@ -67,13 +69,9 @@ int main() {
 }
 ```
 
-```sh
-$CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-errors hello_world.cpp
-```
-
 <table>
   <tr>
-    <td>Hello World Example</td>
+    <td><b>Hello World</b></td>
     <td>Clang-3.8</td>
     <td>GCC-6</td>
   </tr>
