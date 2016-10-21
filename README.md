@@ -114,8 +114,8 @@ main:
     </td>
   </tr>
 
-  <tr rowspan="4">
-    <td>
+  <tr>
+    <td rowspan="4">
       <a href="http://boost-experimental.github.io/sml/benchmarks/index.html#benchmarks">Benchmarks</a>
     </td>
   </tr>
