@@ -58,7 +58,7 @@ int main() {
   static_assert(1 == sizeof(sm), "sizeof(sm) != 1b");
   assert(sm.is("established"_s));
 
-  sm.process_event(close{});
+  sm.process_event(close{}); /// complexity O(1) -> jump table
   assert(sm.is("fin wait 1"_s));
 
   sm.process_event(ack{});
@@ -96,52 +96,20 @@ int main() {
     <td>ASM x86-64</td>
     <td colspan="2">
       <pre><code>
-initialize:
-	movb	$1, (%r8) // current state = 1
-	movl	$1, %eax  // return true
-	ret
-
 process_event<close>:
-	movb	$2, (%r8) // current state = 2
-	movl	$1, %eax  // return true
-	ret
-
-process_event<ack>:
-	movb	$3, (%r8) // current state = 3
-	movl	$1, %eax  // return true
-	ret
-
-process_event<fin>:
-	movb	$4, (%r8) // current state = 4
-	movl	$1, %eax  // return true
-	ret
-
-process_event<timeout>:
-	movb	$1, (%r8) // current state = 4
-	movl	$5, %eax  // return true
+	movb	$1, (%r8) // current state = 1
+	movl	$1, %eax  // handled
 	ret
 
 main:
-	subq	$24, %rsp                 // stack frame
 	leaq	14(%rsp), %r8
 	leaq	15(%rsp), %rdi
 	movb	$0, 14(%rsp)
 	movq	%r8, %rcx
 	movq	%r8, %rdx
 	movq	%r8, %rsi
-	call	*initialize               // init states
+	call	*process_event<close> // jump table
   ...
-	call	*process_event<close>
-  ...
-	call	*process_event<ack>
-  ...
-	call	*process_event<fin>
-  ...
-	call	*process_event<timeout>
-
-	xorl	%eax, %eax              // return 0 <- main
-	addq	$24, %rsp               // stack frame
-
       </code></pre>
     </td>
   </tr>
