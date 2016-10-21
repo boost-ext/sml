@@ -74,11 +74,11 @@ int main() {
 ```
 
 <center>
-                  | Clang-3.8     | GCC-6  |
------------------ | ------------- | ------ |
-Compilation time  | 0.102s        | 0.118s |
-Binary size       | 6.2k          | 6.2k   |
-Asm x86-64        | <code>mov a, x <br/> mov b, x</code> | |
+|                   | Clang-3.8     | GCC-6  |
+| ----------------- | ------------- | ------ |
+| Compilation time  | 0.102s        | 0.118s |
+| Binary size       | 6.2k          | 6.2k   |
+| Asm x86-64        | <code>mov a, x <br/> mov b, x</code> |
 </center>
 
 <table>
