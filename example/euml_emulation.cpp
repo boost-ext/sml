@@ -22,29 +22,21 @@ auto idle = sml::state<class idle>;
 auto s1 = sml::state<class s1>;
 auto s2 = sml::state<class s2>;
 
-struct data {
-  void set(int value) noexcept { i = value; }
-  int get() const noexcept { return i; }
-  int i = 0;
-};
+class euml_emulation;
 
-struct {
+struct Guard {
   template <class TEvent>
-  bool operator()(const TEvent&, data& d) const noexcept {
-    return d.get() == 42;
-  }
+  bool operator()(euml_emulation&, const TEvent&) const;
 } guard;
 
-struct {
+struct Action {
   template <class TEvent>
-  void operator()(const TEvent&, data& d) noexcept {
-    d.set(123);
-  }
+  void operator()(euml_emulation&, const TEvent&);
 } action;
 
 class euml_emulation {
  public:
-  auto operator()() const noexcept {
+  auto operator()() const {
     using namespace sml;
     // clang-format off
     return make_transition_table(
@@ -54,11 +46,28 @@ class euml_emulation {
     );
     // clang-format on
   }
+
+  template <class TEvent>
+  bool call_guard(const TEvent&) {
+    return true;
+  }
+
+  void call_action(const e3&) {}
 };
 
+template <class TEvent>
+bool Guard::operator()(euml_emulation& sm, const TEvent& event) const {
+  return sm.call_guard(event);
+}
+
+template <class TEvent>
+void Action::operator()(euml_emulation& sm, const TEvent& event) {
+  sm.call_action(event);
+}
+
 int main() {
-  data d{42};
-  sml::sm<euml_emulation> sm{d};
+  euml_emulation euml;
+  sml::sm<euml_emulation> sm{euml};
   assert(sm.is(idle));
   sm.process_event(e1{});
   assert(sm.is(s1));
@@ -66,5 +75,4 @@ int main() {
   assert(sm.is(s2));
   sm.process_event(e3{});
   assert(sm.is(sml::X));
-  assert(123 == d.get());
 }

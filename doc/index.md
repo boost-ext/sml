@@ -67,7 +67,7 @@ to avoid it `Boost.SML` may suit you!
 * Sometimes hard to follow as not all actions might be seen on transition table (ex. initial states, state entry/exit actions)
 * A lot of boilerplate code with actions/guards (requires fsm, event, source state, target state)
 * Data in states makes it harder to share/encapsulate (UML compliant though)
-* Loosley coupled design is hard to achieve
+* Loosely coupled design is hard to achieve
 * Functional programming emulation
 * Huge complexity may overwhelm in the beginning
 * A lot of Boost dependencies

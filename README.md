@@ -9,52 +9,136 @@
 
 #Experimental Boost.SML (formerly called Boost.MSM-lite)
 
-> Your scalable C++14 header only eUML-like Meta State Machine library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world))
+> Your scalable C++14 header State Machine Library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world))
+
+> **"Let's close TCP connection!"**
+
+<center>[![TCP Release](images/tcp_release.png)](images/tcp_release.png)</center>
 
 ```cpp
 #include <cassert>
-#include <iostream>
 #include <boost/sml.hpp>
 
 namespace sml = boost::sml;
 
-struct e1 {};
-struct e2 {};
-struct e3 {};
-
-struct hello_world {
-  auto operator()() const {
-    const auto guard = [] { std::cout << "guard" << '\n'; return true; };
-    const auto action = [] { std::cout << "action" << '\n'; };
-
-    using namespace sml;
-    return make_transition_table(
-       *"idle"_s + event<e1> = "s1"_s
-      , "s1"_s   + event<e2> [ guard ] / action = "s2"_s
-      , "s2"_s   + event<e3> / [] { std::cout << "in place action" << '\n'; } = X
-    );
-  }
-};
+struct close {};
+struct ack {};
+struct fin {};
+struct timeout {};
 
 int main() {
-  sml::sm<hello_world> sm;
-  std::cout << "sizeof(sm): " << sizeof(sm) << "b" << '\n';
   using namespace sml;
-  assert(sm.is("idle"_s));
-  sm.process_event(e1{});
-  assert(sm.is("s1"_s));
-  sm.process_event(e2{});
-  assert(sm.is("s2"_s));
-  sm.process_event(e3{});
-  assert(sm.is(X));
+
+  /// guards
+  const auto is_ack_valid = [](const ack&) { return true; };
+  const auto is_fin_valid = [](const fin&) { return true; };
+
+  /// actions
+  const auto send_fin = [] {};
+  const auto send_ack = [] {};
+
+  auto sm = make_sm([&] {
+    // clang-format off
+    return make_transition_table(
+      *("established"_s) + event<close> / send_fin = "fin wait 1"_s,
+        "fin wait 1"_s   + event<ack> [ is_ack_valid ] = "fin wait 2"_s,
+        "fin wait 2"_s   + event<fin> [ is_fin_valid ] / send_ack = "timed wait"_s,
+        "timed wait"_s   + event<timeout> = X
+    );
+    // clang-format on
+  });
+
+  static_assert(1 == sizeof(sm), "sizeof(sm) != 1b");
+  assert(sm.is("established"_s));
+
+  sm.process_event(close{});
+  assert(sm.is("fin wait 1"_s));
+
+  sm.process_event(ack{});
+  assert(sm.is("fin wait 2"_s));
+
+  sm.process_event(fin{});
+  assert(sm.is("timed wait"_s));
+
+  sm.process_event(timeout{});
+  assert(sm.is(X));  /// closed
 }
 ```
 
 ```sh
-sizeof(sm): 1b
-guard
-action
-in place action
+$CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-errors hello_world.cpp
+```
+
+| Hello World Example          | Clang-3.8 | GCC-6 |
+| ---------------------------- | --------- | ----- |
+| Compilation Time [s]         | 0.102     | 0.118 |
+| ---------------------------- | --------- | ----- |
+| Binary size (stripped) [kb]  | 6.2       | 6.2   |
+
+* ASM x86-64
+
+```cpp
+initialize:
+	movb	$1, (%r8) // current state = 1
+	movl	$1, %eax  // return true
+	ret
+
+process_event<close>:
+	movb	$2, (%r8) // current state = 2
+	movl	$1, %eax  // return true
+	ret
+
+process_event<ack>:
+	movb	$3, (%r8) // current state = 3
+	movl	$1, %eax  // return true
+	ret
+
+process_event<fin>:
+	movb	$4, (%r8) // current state = 4
+	movl	$1, %eax  // return true
+	ret
+
+process_event<timeout>:
+	movb	$1, (%r8) // current state = 4
+	movl	$1, %eax  // return true
+	ret
+
+main:
+	subq	$24, %rsp
+	leaq	14(%rsp), %r8
+	leaq	15(%rsp), %rdi
+	movb	$0, 14(%rsp)
+	movq	%r8, %rcx
+	movq	%r8, %rdx
+	movq	%r8, %rsi
+	call	initialize                // default
+
+	movzbl	14(%rsp), %eax
+	leaq	14(%rsp), %r8
+	leaq	15(%rsp), %rdi
+	movq	%r8, %rcx
+	movq	%r8, %rdx
+	movq	%r8, %rsi
+	call	*process_event<close>
+
+	movzbl	14(%rsp), %eax
+	leaq	14(%rsp), %r8
+	leaq	15(%rsp), %rdi
+	movq	%r8, %rcx
+	movq	%r8, %rdx
+	movq	%r8, %rsi
+	call	*process_event<ack>
+
+	movzbl	14(%rsp), %eax
+	leaq	14(%rsp), %r8
+	leaq	15(%rsp), %rdi
+	movq	%r8, %rcx
+	movq	%r8, %rdx
+	movq	%r8, %rsi
+	call	*process_event<fin>
+
+	xorl	%eax, %eax              // return 0
+	addq	$24, %rsp
 ```
 
 ---------------------------------------
