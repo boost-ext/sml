@@ -11,6 +11,8 @@
 
 > Your scalable C++14 header State Machine Library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world))
 
+---
+
 > **"Let's close TCP connection!"**
 
 <center>[![TCP Release](doc/images/tcp_release.png)](doc/images/tcp_release.png)</center>
@@ -91,7 +93,7 @@ $CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-er
   <tr>
     <td>ASM x86-64</td>
     <td colspan="2">
-      <code>
+      <pre><code>
 ASM x86-64
 
 initialize:
@@ -156,7 +158,7 @@ main:
 	xorl	%eax, %eax              // return 0
 	addq	$24, %rsp
 
-      </code>
+      </code></pre>
     </td>
   </tr>
 </table>
