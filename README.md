@@ -193,3 +193,6 @@ main:
     * [[1.0.0] - 2016-01-28](http://boost-experimental.github.io/sml/CHANGELOG/index.html#100-2016-01-28)
 * [TODO](http://boost-experimental.github.io/sml/TODO/index.html)
 
+---
+
+**Disclaimer** `Boost.DI` is not an official Boost library.
