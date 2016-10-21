@@ -55,6 +55,15 @@ sm.process_event(event{}); // thread safe call
 
 * See [Thread Safe Policy](user_guide.md#policies)
 
+###Design
+
+[![Design](images/sml.png)](images/sml.png)
+
+| Component    | Description |
+| ------------ | ----------- |
+| [Front-End]  | Transition Table Domain Specific Language |
+| [Back-End]   | [State Machine](user_guide.md##sm-state-machine) implementation details |
+
 ###Error messages
 
 ***Not configurable***
