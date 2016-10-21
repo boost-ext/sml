@@ -79,7 +79,7 @@ int main() {
     <th>Clang-3.8</th>
     <th>GCC-6</th>
 
-    <td rowspan="3">
+    <td rowspan="4">
       <a href="http://boost-experimental.github.io/sml/benchmarks/index.html#benchmarks">More Benchmarks</a>
     </td>
   </tr>
