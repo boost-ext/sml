@@ -81,19 +81,19 @@ int main() {
   </tr>
 
   <tr>
-    <td><b>Compilation Time</b></td>
+    <td>Compilation Timej/td>
     <td>0.102s</td>
     <td>0.118s</td>
   </tr>
 
   <tr>
-    <td><b>Binary size (stripped)</b></td>
+    <td>Binary size (stripped)</td>
     <td>6.2kb</td>
     <td>6.2kb</td>
   </tr>
 
   <tr>
-    <td><b>ASM x86-64</b></td>
+    <td>ASM x86-64</td>
     <td colspan="2">
       <pre><code>
 process_event<close>:
@@ -115,6 +115,8 @@ main:
   </tr>
 </table>
 </center>
+
+---------------------------------------
 
 ###Documentation
 
