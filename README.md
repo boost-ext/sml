@@ -27,6 +27,7 @@
 
 namespace sml = boost::sml;
 
+// events
 struct close {};
 struct ack {};
 struct fin {};
