@@ -128,40 +128,49 @@
 <hr />
 <h3 id="hello-world">Hello World</h3>
 <pre><code class="cpp">#include &lt;cassert&gt;
-#include &lt;iostream&gt;
 #include &quot;boost/sml.hpp&quot;
 
 namespace sml = boost::sml;
 
-struct e1 {};
-struct e2 {};
+struct close {};
+struct ack {};
+struct fin {};
+struct timeout {};
 
 int main() {
   using namespace sml;
 
-  auto guard = [] {
-    std::cout &lt;&lt; &quot;guard&quot; &lt;&lt; std::endl;
-    return true;
-  };
+  /// guards
+  const auto is_ack_valid = [](const ack&amp;) { return true; };
+  const auto is_fin_valid = [](const fin&amp;) { return true; };
 
-  auto action = [] {
-    std::cout &lt;&lt; &quot;action&quot; &lt;&lt; std::endl;
-  };
+  /// actions
+  const auto send_fin = [] {};
+  const auto send_ack = [] {};
 
-  auto sm = make_sm([&amp;]{
+  auto sm = make_sm([&amp;] {
     return make_transition_table(
-      *(&quot;idle&quot;_s) + event&lt;e1&gt; = &quot;s1&quot;_s
-      , &quot;s1&quot;_s    + event&lt;e2&gt; [ guard ] / action = X
+      *(&quot;established&quot;_s) + event&lt;close&gt; / send_fin = &quot;fin wait 1&quot;_s,
+        &quot;fin wait 1&quot;_s   + event&lt;ack&gt; [ is_ack_valid ] = &quot;fin wait 2&quot;_s,
+        &quot;fin wait 2&quot;_s   + event&lt;fin&gt; [ is_fin_valid ] / send_ack = &quot;timed wait&quot;_s,
+        &quot;timed wait&quot;_s   + event&lt;timeout&gt; / send_ack = X
     );
   });
 
-  std::cout &lt;&lt; &quot;sizeof(sm): &quot; &lt;&lt; sizeof(sm) &lt;&lt; &quot;b&quot; &lt;&lt; std::endl;
+  static_assert(1 == sizeof(sm), &quot;sizeof(sm) != 1b&quot;);
+  assert(sm.is(&quot;established&quot;_s));
 
-  assert(sm.is(&quot;idle&quot;_s));
-  sm.process_event(e1{});
-  assert(sm.is(&quot;s1&quot;_s));
-  sm.process_event(e2{});
-  assert(sm.is(X)); /// terminate state
+  sm.process_event(close{});
+  assert(sm.is(&quot;fin wait 1&quot;_s));
+
+  sm.process_event(ack{});
+  assert(sm.is(&quot;fin wait 2&quot;_s));
+
+  sm.process_event(fin{});
+  assert(sm.is(&quot;timed wait&quot;_s));
+
+  sm.process_event(timeout{});
+  assert(sm.is(X));  /// closed
 }
 </code></pre>
 
@@ -770,29 +779,21 @@ auto idle = sml::state&lt;class idle&gt;;
 auto s1 = sml::state&lt;class s1&gt;;
 auto s2 = sml::state&lt;class s2&gt;;
 
-struct data {
-  void set(int value) noexcept { i = value; }
-  int get() const noexcept { return i; }
-  int i = 0;
-};
+class euml_emulation;
 
-struct {
+struct Guard {
   template &lt;class TEvent&gt;
-  bool operator()(const TEvent&amp;, data&amp; d) const noexcept {
-    return d.get() == 42;
-  }
+  bool operator()(euml_emulation&amp;, const TEvent&amp;) const;
 } guard;
 
-struct {
+struct Action {
   template &lt;class TEvent&gt;
-  void operator()(const TEvent&amp;, data&amp; d) noexcept {
-    d.set(123);
-  }
+  void operator()(euml_emulation&amp;, const TEvent&amp;);
 } action;
 
 class euml_emulation {
  public:
-  auto operator()() const noexcept {
+  auto operator()() const {
     using namespace sml;
     return make_transition_table(
       s1 &lt;= *idle + event1,
@@ -800,11 +801,28 @@ class euml_emulation {
       X  &lt;= s2    + event3 [ guard ] / action
     );
   }
+
+  template &lt;class TEvent&gt;
+  bool call_guard(const TEvent&amp;) {
+    return true;
+  }
+
+  void call_action(const e3&amp;) {}
 };
 
+template &lt;class TEvent&gt;
+bool Guard::operator()(euml_emulation&amp; sm, const TEvent&amp; event) const {
+  return sm.call_guard(event);
+}
+
+template &lt;class TEvent&gt;
+void Action::operator()(euml_emulation&amp; sm, const TEvent&amp; event) {
+  sm.call_action(event);
+}
+
 int main() {
-  data d{42};
-  sml::sm&lt;euml_emulation&gt; sm{d};
+  euml_emulation euml;
+  sml::sm&lt;euml_emulation&gt; sm{euml};
   assert(sm.is(idle));
   sm.process_event(e1{});
   assert(sm.is(s1));
@@ -812,7 +830,6 @@ int main() {
   assert(sm.is(s2));
   sm.process_event(e3{});
   assert(sm.is(sml::X));
-  assert(123 == d.get());
 }
 </code></pre>
 

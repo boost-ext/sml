@@ -1,0 +1,16 @@
+'
+' Copyright (c) 2016 Krzysztof Jusiak (krzysztof at jusiak dot net)
+'
+' Distributed under the Boost Software License, Version 1.0.
+' (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+'
+@startuml tcp_release.png
+
+[*] -up-> established
+established -> fin_wait_1  : close / send_fin
+fin_wait_1 --> fin_wait_2  : ack [ is_ack_valid ]
+fin_wait_2 --> timed_wait  : fin [ is_fin_valid ] / send_ack
+timed_wait -left-> [*]     : timeout
+
+@enduml
+
