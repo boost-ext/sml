@@ -72,7 +72,7 @@ int main() {
 }
 ```
 
-<p align="center">
+<center>
 <table>
   <tr>
     <td></td>
@@ -114,7 +114,7 @@ main:
     </td>
   </tr>
 </table>
-</p>
+</center>
 
 ---------------------------------------
 
