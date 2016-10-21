@@ -52,6 +52,10 @@
     
 
     
+        <dt><span class="section"><a href="#design">Design</a></span></dt>
+    
+
+    
         <dt><span class="section"><a href="#error-messages">Error messages</a></span></dt>
     
 
@@ -114,13 +118,14 @@ namespace sml = boost::sml;
 <h3 id="exception-safety">Exception Safety</h3>
 <ul>
 <li>Boost.SML doesn't use exceptions internally and therefore might be compiled with <code>-fno-exceptions</code>.</li>
-<li>If guard/action throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will stay in a current state.</li>
+<li>If guard throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will stay in a current state.</li>
+<li>If action throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will be in the new state</li>
 <li>Exceptions might be caught using transition table via <code>exception</code> event. See <a href="../tutorial/index.html#8-error-handling">Error handling</a>.</li>
 </ul>
 <h3 id="thread-safety">Thread Safety</h3>
 <ul>
 <li>Boost.SML is not thread safe by default.</li>
-<li>Thread Safety might be enabled by defining a thread_safe policy when creating a State Machine</li>
+<li>Thread Safety might be enabled by defining a thread_safe policy when creating a State Machine. Lock type has to be provided.</li>
 </ul>
 <pre><code class="cpp">sml::sm&lt;example, sml::thread_safe&lt;std::recursive_mutex&gt;&gt; sm;
 sm.process_event(event{}); // thread safe call
@@ -129,6 +134,26 @@ sm.process_event(event{}); // thread safe call
 <ul>
 <li>See <a href="../user_guide/index.html#policies">Thread Safe Policy</a></li>
 </ul>
+<h3 id="design">Design</h3>
+<p><a href="../images/sml.png"><img alt="Design" src="../images/sml.png" /></a></p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Front-End]</td>
+<td>Transition Table Domain Specific Language</td>
+</tr>
+<tr>
+<td>[Back-End]</td>
+<td><a href="../user_guide/index.html##sm-state-machine">State Machine</a> implementation details</td>
+</tr>
+</tbody>
+</table>
 <h3 id="error-messages">Error messages</h3>
 <p><strong><em>Not configurable</em></strong></p>
 <pre><code class="cpp">#include &lt;boost/sml.hpp&gt;
