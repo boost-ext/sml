@@ -75,7 +75,7 @@ int main() {
 <p align="center">
 <table>
   <tr>
-    <td><b>Hello World</b></td>
+    <td></td>
     <td>Clang-3.8</td>
     <td>GCC-6</td>
   </tr>
