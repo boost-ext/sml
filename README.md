@@ -118,8 +118,6 @@ main:
 
 ###Documentation
 
----
-
 [](GENERATE_TOC_BEGIN)
 
 * [Introduction](http://boost-experimental.github.io/sml/index.html)
