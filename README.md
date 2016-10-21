@@ -13,7 +13,7 @@
 
 > **"Let's close TCP connection!"**
 
-<center>[![TCP Release](images/tcp_release.png)](images/tcp_release.png)</center>
+<center>[![TCP Release](doc/images/tcp_release.png)](doc/images/tcp_release.png)</center>
 
 ```cpp
 #include <cassert>
@@ -69,15 +69,31 @@ int main() {
 $CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-errors hello_world.cpp
 ```
 
-| Hello World Example          | Clang-3.8 | GCC-6 |
-| ---------------------------- | --------- | ----- |
-| Compilation Time [s]         | 0.102     | 0.118 |
-| ---------------------------- | --------- | ----- |
-| Binary size (stripped) [kb]  | 6.2       | 6.2   |
+<table>
+  <tr>
+    <td>Hello World Example</td>
+    <td>Clang-3.8</td>
+    <td>GCC-6</td>
+  </tr>
 
-* ASM x86-64
+  <tr>
+    <td>Compilation Time [s]</td>
+    <td>0.102</td>
+    <td>0.118</td>
+  </tr>
 
-```cpp
+  <tr>
+    <td>Binary size (stripped) [kb]</td>
+    <td>6.2</td>
+    <td>6.2</td>
+  </tr>
+
+  <tr>
+    <td>ASM x86-64</td>
+    <td colspan="2">
+      <code>
+ASM x86-64
+
 initialize:
 	movb	$1, (%r8) // current state = 1
 	movl	$1, %eax  // return true
@@ -139,7 +155,11 @@ main:
 
 	xorl	%eax, %eax              // return 0
 	addq	$24, %rsp
-```
+
+      </code>
+    </td>
+  </tr>
+</table>
 
 ---------------------------------------
 
