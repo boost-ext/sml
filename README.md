@@ -35,11 +35,11 @@ struct timeout {};
 int main() {
   using namespace sml;
 
-  /// guards
+  // guards
   const auto is_ack_valid = [](const ack&) { return true; };
   const auto is_fin_valid = [](const fin&) { return true; };
 
-  /// actions
+  // actions
   const auto send_fin = [] {};
   const auto send_ack = [] {};
 
@@ -58,7 +58,7 @@ int main() {
   static_assert(1 == sizeof(sm), "sizeof(sm) != 1b");
   assert(sm.is("established"_s));
 
-  sm.process_event(close{}); /// complexity O(1) -> jump table
+  sm.process_event(close{}); // complexity O(1) -> jump table
   assert(sm.is("fin wait 1"_s));
 
   sm.process_event(ack{});
