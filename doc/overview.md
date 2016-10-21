@@ -39,13 +39,14 @@ git clone https://github.com/boost-experimental/sml && cd sml && make test
 ###Exception Safety
 
 * Boost.SML doesn't use exceptions internally and therefore might be compiled with `-fno-exceptions`.
-* If guard/action throws an exception [State Machine](user_guide.md##sm-state-machine) will stay in a current state.
+* If guard throws an exception [State Machine](user_guide.md##sm-state-machine) will stay in a current state.
+* If action throws an exception [State Machine](user_guide.md##sm-state-machine) will be in the new state
 * Exceptions might be caught using transition table via `exception` event. See [Error handling](tutorial.md#8-error-handling).
 
 ###Thread Safety
 
 * Boost.SML is not thread safe by default.
-  * Thread Safety might be enabled by defining a thread_safe policy when creating a State Machine
+  * Thread Safety might be enabled by defining a thread_safe policy when creating a State Machine. Lock type has to be provided.
 
 ```cpp
 sml::sm<example, sml::thread_safe<std::recursive_mutex>> sm;
