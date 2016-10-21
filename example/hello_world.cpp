@@ -11,7 +11,7 @@
 namespace sml = boost::sml;
 
 // events
-struct close {};
+struct release {};
 struct ack {};
 struct fin {};
 struct timeout {};
@@ -30,7 +30,7 @@ int main() {
   auto sm = make_sm([&] {
     // clang-format off
     return make_transition_table(
-      *("established"_s) + event<close> / send_fin = "fin wait 1"_s,
+      *("established"_s) + event<release> / send_fin = "fin wait 1"_s,
         "fin wait 1"_s   + event<ack> [ is_ack_valid ] = "fin wait 2"_s,
         "fin wait 2"_s   + event<fin> [ is_fin_valid ] / send_ack = "timed wait"_s,
         "timed wait"_s   + event<timeout> / send_ack = X
@@ -41,7 +41,7 @@ int main() {
   static_assert(1 == sizeof(sm), "sizeof(sm) != 1b");
   assert(sm.is("established"_s));
 
-  sm.process_event(close{});
+  sm.process_event(release{});
   assert(sm.is("fin wait 1"_s));
 
   sm.process_event(ack{});
@@ -51,5 +51,5 @@ int main() {
   assert(sm.is("timed wait"_s));
 
   sm.process_event(timeout{});
-  assert(sm.is(X));  /// closed
+  assert(sm.is(X));  // released
 }

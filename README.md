@@ -13,7 +13,7 @@
 
 <p align="center">
   <br />
-  <b>Let's close TCP connection!</b>
+  <b>Let's release a TCP connection!</b>
   <br />
 </p>
 
@@ -28,7 +28,7 @@
 namespace sml = boost::sml;
 
 // events
-struct close {};
+struct release {};
 struct ack {};
 struct fin {};
 struct timeout {};
@@ -49,7 +49,7 @@ int main() {
      * src_state + event [ guard ] / action = dst_state
      */
     return make_transition_table(
-      *("established"_s) + event<close> / send_fin = "fin wait 1"_s,
+      *("established"_s) + event<release> / send_fin = "fin wait 1"_s,
         "fin wait 1"_s   + event<ack> [ is_ack_valid ] = "fin wait 2"_s,
         "fin wait 2"_s   + event<fin> [ is_fin_valid ] / send_ack = "timed wait"_s,
         "timed wait"_s   + event<timeout> = X
@@ -59,7 +59,7 @@ int main() {
   static_assert(1 == sizeof(sm), "sizeof(sm) != 1b");
   assert(sm.is("established"_s));
 
-  sm.process_event(close{}); // complexity O(1) -> jump table
+  sm.process_event(release{}); // complexity O(1) -> jump table
   assert(sm.is("fin wait 1"_s));
 
   sm.process_event(ack{});
@@ -69,7 +69,7 @@ int main() {
   assert(sm.is("timed wait"_s));
 
   sm.process_event(timeout{});
-  assert(sm.is(X));  /// closed
+  assert(sm.is(X));  // released
 }
 ```
 
@@ -101,7 +101,7 @@ int main() {
     <td>ASM x86-64</td>
     <td colspan="2">
       <pre><code>
-process_event<close>:
+process_event<release>:
 	movb	$1, (%r8) // current state = 1
 	movl	$1, %eax  // handled
 	ret
@@ -113,7 +113,7 @@ main:
 	movq	%r8, %rcx
 	movq	%r8, %rdx
 	movq	%r8, %rsi
-	call	*process_event<close> // jump table
+	call	*process_event<release> // jump table
   ...
       </code></pre>
     </td>
