@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 #include <typeinfo>
-#include "boost/sml.hpp"
+#include <boost/sml.hpp>
 
 namespace sml = boost::sml;
 

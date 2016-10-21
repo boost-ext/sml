@@ -6,7 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <cassert>
-#include "boost/sml.hpp"
+#include <boost/sml.hpp>
 
 namespace sml = boost::sml;
 

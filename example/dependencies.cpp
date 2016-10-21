@@ -7,7 +7,7 @@
 //
 #include <cassert>
 #include <queue>
-#include "boost/sml.hpp"
+#include <boost/sml.hpp>
 
 namespace sml = boost::sml;
 

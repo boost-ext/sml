@@ -8,7 +8,7 @@
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
-#include "boost/sml.hpp"
+#include <boost/sml.hpp>
 
 namespace sml = boost::sml;
 
