@@ -114,13 +114,14 @@ namespace sml = boost::sml;
 <h3 id="exception-safety">Exception Safety</h3>
 <ul>
 <li>Boost.SML doesn't use exceptions internally and therefore might be compiled with <code>-fno-exceptions</code>.</li>
-<li>If guard/action throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will stay in a current state.</li>
+<li>If guard throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will stay in a current state.</li>
+<li>If action throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will be in the new state</li>
 <li>Exceptions might be caught using transition table via <code>exception</code> event. See <a href="../tutorial/index.html#8-error-handling">Error handling</a>.</li>
 </ul>
 <h3 id="thread-safety">Thread Safety</h3>
 <ul>
 <li>Boost.SML is not thread safe by default.</li>
-<li>Thread Safety might be enabled by defining a thread_safe policy when creating a State Machine</li>
+<li>Thread Safety might be enabled by defining a thread_safe policy when creating a State Machine. Lock type has to be provided.</li>
 </ul>
 <pre><code class="cpp">sml::sm&lt;example, sml::thread_safe&lt;std::recursive_mutex&gt;&gt; sm;
 sm.process_event(event{}); // thread safe call
@@ -131,7 +132,7 @@ sm.process_event(event{}); // thread safe call
 </ul>
 <h3 id="error-messages">Error messages</h3>
 <p><strong><em>Not configurable</em></strong></p>
-<pre><code class="cpp">#include &quot;boost/sml.hpp&quot;
+<pre><code class="cpp">#include &lt;boost/sml.hpp&gt;
 
 namespace sml = boost::sml;
 
@@ -156,7 +157,7 @@ int main() {
 <li><a href="https://raw.githubusercontent.com/boost-experimental/sml/master/example/errors/not_configurable.cpp">https://raw.githubusercontent.com/boost-experimental/sml/master/example/errors/not_configurable.cpp</a></li>
 </ul>
 <p><strong><em>Not callable</em></strong></p>
-<pre><code class="cpp">#include &quot;boost/sml.hpp&quot;
+<pre><code class="cpp">#include &lt;boost/sml.hpp&gt;
 
 namespace sml = boost::sml;
 
@@ -180,7 +181,7 @@ int main() {}
 <li><a href="https://raw.githubusercontent.com/boost-experimental/sml/master/example/errors/not_callable.cpp">https://raw.githubusercontent.com/boost-experimental/sml/master/example/errors/not_callable.cpp</a></li>
 </ul>
 <p><strong><em>Not transitional</em></strong></p>
-<pre><code class="cpp">#include &quot;boost/sml.hpp&quot;
+<pre><code class="cpp">#include &lt;boost/sml.hpp&gt;
 
 namespace sml = boost::sml;
 
@@ -204,7 +205,7 @@ int main() {}
 <li><a href="https://raw.githubusercontent.com/boost-experimental/sml/master/example/errors/not_transitional.cpp">https://raw.githubusercontent.com/boost-experimental/sml/master/example/errors/not_transitional.cpp</a></li>
 </ul>
 <p><strong><em>Not dispatchable</em></strong></p>
-<pre><code class="cpp">#include &quot;boost/sml.hpp&quot;
+<pre><code class="cpp">#include &lt;boost/sml.hpp&gt;
 
 namespace sml = boost::sml;
 
