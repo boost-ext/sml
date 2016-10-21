@@ -95,10 +95,10 @@ to avoid it `Boost.SML` may suit you!
 
 ###What 'lite' implies?
 
-* Minimal learning curve
-* Maximized performance
 * Guaranteed quick compilation times
+* Maximized performance
 * No dependencies
+* Easy/Intuitive to use
 
 ###*Supported* UML features
 
