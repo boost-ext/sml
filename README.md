@@ -81,7 +81,7 @@ int main() {
   </tr>
 
   <tr>
-    <td>Compilation Timej/td>
+    <td>Compilation Time</td>
     <td>0.102s</td>
     <td>0.118s</td>
   </tr>
@@ -112,6 +112,10 @@ main:
   ...
       </code></pre>
     </td>
+  </tr>
+
+  <tr rowspan="4">
+    <a href="http://boost-experimental.github.io/sml/benchmarks/index.html#benchmarks">Benchmarks</a>
   </tr>
 </table>
 </center>
