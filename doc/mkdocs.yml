@@ -16,8 +16,10 @@ pages:
 - Introduction: index.md
 - Overview: overview.md
 - Features/Benchmarks: benchmarks.md
+- UML vs SML: uml_vs_sml.md
 - Tutorial: tutorial.md
 - User Guide: user_guide.md
 - Examples: examples.md
+- FAQ: faq.md
 - CHANGELOG: CHANGELOG.md
 - TODO: TODO.md

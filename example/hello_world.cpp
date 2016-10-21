@@ -10,6 +10,7 @@
 
 namespace sml = boost::sml;
 
+// events
 struct close {};
 struct ack {};
 struct fin {};
@@ -18,11 +19,11 @@ struct timeout {};
 int main() {
   using namespace sml;
 
-  /// guards
+  // guards
   const auto is_ack_valid = [](const ack&) { return true; };
   const auto is_fin_valid = [](const fin&) { return true; };
 
-  /// actions
+  // actions
   const auto send_fin = [] {};
   const auto send_ack = [] {};
 

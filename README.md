@@ -150,6 +150,7 @@ main:
 * [Features/Benchmarks](http://boost-experimental.github.io/sml/benchmarks/index.html)
     * [Features](http://boost-experimental.github.io/sml/benchmarks/index.html#features)
     * [Benchmarks](http://boost-experimental.github.io/sml/benchmarks/index.html#benchmarks)
+* [UML vs SML](http://boost-experimental.github.io/sml/uml_vs_sml/index.html)
 * [Tutorial](http://boost-experimental.github.io/sml/tutorial/index.html)
     * [0. Read Boost.MSM - eUML documentation](http://boost-experimental.github.io/sml/tutorial/index.html#0-read-boostmsm-euml-documentation)
     * [1. Create events and states](http://boost-experimental.github.io/sml/tutorial/index.html#1-create-events-and-states)
@@ -192,12 +193,15 @@ main:
     * [Dependency Injection](http://boost-experimental.github.io/sml/examples/index.html#dependency-injection)
     * [SDL2 Integration](http://boost-experimental.github.io/sml/examples/index.html#sdl2-integration)
     * [Plant UML Integration](http://boost-experimental.github.io/sml/examples/index.html#plant-uml-integration)
+* [FAQ](http://boost-experimental.github.io/sml/faq/index.html)
 * [CHANGELOG](http://boost-experimental.github.io/sml/CHANGELOG/index.html)
     * [ [1.1.0] - 2016-XX-XX](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-110-2016-xx-xx)
     * [ [1.0.1] - 2016-05-06](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-101-2016-05-06)
     * [[1.0.0] - 2016-01-28](http://boost-experimental.github.io/sml/CHANGELOG/index.html#100-2016-01-28)
 * [TODO](http://boost-experimental.github.io/sml/TODO/index.html)
 
+[](GENERATE_TOC_END)
+
 ---
 
-**Disclaimer** `Boost.DI` is not an official Boost library.
+**Disclaimer** `Boost.SML` is not an official Boost library.
