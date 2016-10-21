@@ -21,6 +21,8 @@ all: test example
 pph:
 	@tools/pph.sh
 
+check: style pph_check
+
 test: $(patsubst %.cpp, %.out, $(wildcard test/ft/*.cpp test/ut/*.cpp))
 
 test/ft/%.out:
@@ -62,6 +64,10 @@ style:
 	@find include example test -iname "*.hpp" -or -iname "*.cpp" | xargs $(CLANG_FORMAT) -i
 	@git diff include example test
 	@exit `git ls-files -m include example test | wc -l`
+
+pph_check: pph
+	@git diff include/boost/sml.hpp
+	@git diff --quiet include/boost/sml.hpp
 
 static_analysis:
 	$(CLANG_TIDY) $(wildcard test/ft/*.cpp test/ut/*.cpp) -- -std=c++1y -I include -I test -include common/test.hpp

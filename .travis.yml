@@ -114,7 +114,7 @@ before_install:
 script:
   - if [ "${CXX}" != "" ] && [ "${COVERAGE}" == "" ]; then (travis_wait make test example); fi
   - if [ "${CXX}" != "" ] && [ "${COVERAGE}" != "" ]; then (travis_wait make test); fi
-  - if [ "${CHECK}" != "" ]; then (travis_wait make style static_analysis); fi
+  - if [ "${CHECK}" != "" ]; then (travis_wait make check); fi
   - if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${DOCUMENTATION}" != "" ]; then (
     pip install --user travis https://github.com/mkdocs/mkdocs/archive/b30f38fe299738e8ce614e53c3342cc8bef02b5b.zip --upgrade
     && git clone https://github.com/boost-experimental/sml && cd sml && rm -rf *
