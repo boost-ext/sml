@@ -135,36 +135,33 @@ namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
-struct e3 {};
-
-auto guard = [] {
-  std::cout &lt;&lt; &quot;guard&quot; &lt;&lt; std::endl;
-  return true;
-};
-
-auto action = [] { std::cout &lt;&lt; &quot;action&quot; &lt;&lt; std::endl; };
-
-struct hello_world {
-  auto operator()() const noexcept {
-    using namespace sml;
-    return make_transition_table(
-       *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
-      , &quot;s1&quot;_s + event&lt;e2&gt; [ guard ] / action = &quot;s2&quot;_s
-      , &quot;s2&quot;_s + event&lt;e3&gt; / [] { std::cout &lt;&lt; &quot;in place action&quot; &lt;&lt; std::endl; } = X
-    );
-  }
-};
 
 int main() {
-  sml::sm&lt;hello_world&gt; sm;
   using namespace sml;
+
+  auto guard = [] {
+    std::cout &lt;&lt; &quot;guard&quot; &lt;&lt; std::endl;
+    return true;
+  };
+
+  auto action = [] {
+    std::cout &lt;&lt; &quot;action&quot; &lt;&lt; std::endl;
+  };
+
+  auto sm = make_sm([&amp;]{
+    return make_transition_table(
+      *(&quot;idle&quot;_s) + event&lt;e1&gt; = &quot;s1&quot;_s
+      , &quot;s1&quot;_s    + event&lt;e2&gt; [ guard ] / action = X
+    );
+  });
+
+  std::cout &lt;&lt; &quot;sizeof(sm): &quot; &lt;&lt; sizeof(sm) &lt;&lt; &quot;b&quot; &lt;&lt; std::endl;
+
   assert(sm.is(&quot;idle&quot;_s));
   sm.process_event(e1{});
   assert(sm.is(&quot;s1&quot;_s));
   sm.process_event(e2{});
-  assert(sm.is(&quot;s2&quot;_s));
-  sm.process_event(e3{});
-  assert(sm.is(X));
+  assert(sm.is(X)); /// terminate state
 }
 </code></pre>
 
