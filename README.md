@@ -9,7 +9,7 @@
 
 #Experimental Boost.SML (formerly called Boost.MSM-lite)
 
-> Your scalable C++14 header State Machine Library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world))
+> Your scalable C++14 header State Machine Library with no dependencies (**[__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world)**)
 
 <p align="center">
   <br />
