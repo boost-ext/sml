@@ -118,7 +118,7 @@ main:
 
 ###Documentation
 
----------------------------------------
+---
 
 [](GENERATE_TOC_BEGIN)
 
