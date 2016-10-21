@@ -81,16 +81,13 @@ int main() {
   </tr>
 
   <tr>
-    <td></td>
-    <td rowspan="3">
-      <a href="http://boost-experimental.github.io/sml/benchmarks/index.html#benchmarks">Benchmarks</a>
-    </td>
-  </tr>
-
-  <tr>
     <td>Compilation Time</td>
     <td>0.102s</td>
     <td>0.118s</td>
+
+    <td rowspan="3">
+      <a href="http://boost-experimental.github.io/sml/benchmarks/index.html#benchmarks">Benchmarks</a>
+    </td>
   </tr>
 
   <tr>
