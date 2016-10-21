@@ -19,9 +19,11 @@
 
 <p align="center"><img src="doc/images/tcp_release.png" alt="tcp release"/></p>
 
-```cpp
-// $CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-errors hello_world.cpp
+```sh
+$CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-errors hello_world.cpp
+```
 
+```cpp
 #include <cassert>
 #include <boost/sml.hpp>
 
