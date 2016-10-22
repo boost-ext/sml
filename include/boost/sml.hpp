@@ -228,6 +228,7 @@ template <template <class...> class T, class D>
 using apply_t = typename apply<T, D>::type;
 template <int, class T>
 struct tuple_type {
+  explicit tuple_type(const T &object) : value(object) {}
   T value;
 };
 template <class, class...>
@@ -235,7 +236,7 @@ struct tuple_impl;
 template <int... Ns, class... Ts>
 struct tuple_impl<index_sequence<Ns...>, Ts...> : tuple_type<Ns, Ts>... {
   using boost_di_inject__ = aux::type_list<Ts...>;
-  explicit tuple_impl(Ts... ts) : tuple_type<Ns, Ts>{ts}... {}
+  explicit tuple_impl(Ts... ts) : tuple_type<Ns, Ts>(ts)... {}
 };
 template <>
 struct tuple_impl<index_sequence<0>> {
