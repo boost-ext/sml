@@ -205,16 +205,19 @@ constexpr auto max() {
 }
 
 template <class... Ts>
-struct variant {
+class variant {
   using ids_t = type_id<Ts...>;
-  alignas(max<alignof(Ts)...>()) byte data[max<sizeof(Ts)...>()];
+  static constexpr auto alignment = max<alignof(Ts)...>();
+  static constexpr auto size = max<sizeof(Ts)...>();
 
+ public:
   template <class T>
   variant(T object) {  // non explicit
     id = get_id<ids_t, -1, T>();
     new (&data) T(static_cast<T &&>(object));
   }
 
+  alignas(alignment) byte data[size];
   int id = -1;
 };
 
