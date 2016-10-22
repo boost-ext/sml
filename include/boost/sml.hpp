@@ -694,10 +694,10 @@ template <class... Ts>
 using get_states = aux::join_t<aux::type_list<typename Ts::src_state, typename Ts::dst_state>...>;
 template <class... Ts>
 using get_initial_states =
-    aux::join_t<aux::conditional_t<Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>...>;
+    aux::join_t<typename aux::conditional<Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>::type...>;
 template <class... Ts>
-using get_history_states =
-    aux::join_t<aux::conditional_t<!Ts::history && Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>...>;
+using get_history_states = aux::join_t<
+    typename aux::conditional<!Ts::history && Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>::type...>;
 template <class>
 no_policy get_policy(...);
 template <class T, class TPolicy>

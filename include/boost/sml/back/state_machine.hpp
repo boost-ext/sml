@@ -24,56 +24,74 @@ template <class, class, class TEvent>
 struct get_all_events_impl {
   using type = aux::conditional_t<aux::is_base_of<internal_event, TEvent>::value, aux::type_list<>, aux::type_list<TEvent>>;
 };
+
 template <class TSrc, class TDst, class TEvent>
 struct get_all_events_impl<TSrc, TDst, unexpected_event<TEvent>> {
   using type = aux::type_list<TEvent>;
 };
+
 template <class TSrc, class TDst, class TEvent>
 struct get_all_events_impl<sm<TSrc>, TDst, TEvent> {
   using type = aux::join_t<aux::type_list<TEvent>, typename sm<TSrc>::events>;
 };
+
 template <class TSrc, class TDst, class TEvent>
 struct get_all_events_impl<TSrc, sm<TDst>, TEvent> {
   using type = aux::join_t<aux::type_list<TEvent>, typename sm<TDst>::events>;
 };
+
 template <class TSrc, class TDst, class TEvent>
 struct get_all_events_impl<sm<TSrc>, sm<TDst>, TEvent> {
   using type = aux::join_t<aux::type_list<TEvent>, typename sm<TSrc>::events, typename sm<TDst>::events>;
 };
+
 template <class, class TEvent>
 struct get_sub_internal_events_impl {
   using type = aux::conditional_t<aux::is_base_of<internal_event, TEvent>::value, aux::type_list<TEvent>, aux::type_list<>>;
 };
+
 template <class T, class TEvent>
 struct get_sub_internal_events_impl<sm<T>, TEvent> {
   using type = aux::join_t<aux::type_list<TEvent>, typename sm_impl<T>::sub_internal_events>;
 };
+
 template <class... Ts>
 using get_all_events =
     aux::join_t<typename get_all_events_impl<typename Ts::src_state, typename Ts::dst_state, typename Ts::event>::type...>;
+
 template <class... Ts>
 using get_sub_internal_events =
     aux::join_t<typename get_sub_internal_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
+
 template <class... Ts>
 using get_events = aux::type_list<typename Ts::event...>;
+
 template <class T>
 struct get_exception : aux::type_list<> {};
+
 template <class T>
 struct get_exception<exception<T>> : aux::type_list<exception<T>> {};
+
 template <class... Ts>
 using get_exceptions = aux::join_t<typename get_exception<Ts>::type...>;
+
 template <class... Ts>
 using get_states = aux::join_t<aux::type_list<typename Ts::src_state, typename Ts::dst_state>...>;
+
 template <class... Ts>
 using get_initial_states =
-    aux::join_t<aux::conditional_t<Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>...>;
+    aux::join_t<typename aux::conditional<Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>::type...>;
+
 template <class... Ts>
-using get_history_states =
-    aux::join_t<aux::conditional_t<!Ts::history && Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>...>;
+using get_history_states = aux::join_t<
+    typename aux::conditional<!Ts::history && Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>::type...>;
+
 template <class>
 no_policy get_policy(...);
+
 template <class T, class TPolicy>
 TPolicy get_policy(aux::pair<T, TPolicy> *);
+
 template <class SM, class... TPolicies>
 struct sm_policy {
   using sm = SM;
@@ -83,14 +101,19 @@ struct sm_policy {
   template <class T>
   using rebind = sm_policy<T, TPolicies...>;
 };
+
 template <class>
 struct get_sub_sm : aux::type_list<> {};
+
 template <class T>
 struct get_sub_sm<sm<T>> : aux::join_t<aux::type_list<T>, typename sm<T>::sub_sms> {};
+
 template <class... Ts>
 using get_sub_sms = aux::join_t<typename get_sub_sm<Ts>::type...>;
+
 template <class... Ts>
 using get_sm_t = aux::type_list<typename Ts::sm...>;
+
 template <class... Ts>
 using merge_deps = aux::join_t<typename Ts::deps...>;
 
