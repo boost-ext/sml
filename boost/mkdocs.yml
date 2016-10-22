@@ -7,7 +7,7 @@ repo_url: https://github.com/boost-experimental/sml
 repo_name: sml
 docs_dir: .
 use_directory_urls: false
-theme_dir: themes/boost
+theme_dir: themes/boost-experimental
 google_analytics: ['UA-73083568-1', 'auto']
 extra_javascript: []
 extra_css: []
@@ -16,8 +16,8 @@ pages:
 - Introduction: index.md
 - Overview: overview.md
 - Features/Benchmarks: benchmarks.md
-- UML vs SML: uml_vs_sml.md
 - Tutorial: tutorial.md
+- UML vs SML: uml_vs_sml.md
 - User Guide: user_guide.md
 - Examples: examples.md
 - FAQ: faq.md

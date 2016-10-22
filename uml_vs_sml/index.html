@@ -100,19 +100,46 @@
 <li>
           
             <li>
-    <li class="toctree-l1 current">
-        <a class="current" href="index.html">UML vs SML</a>
-        
-            <ul>
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../tutorial/index.html">Tutorial</a>
         
     </li>
 <li>
           
             <li>
-    <li class="toctree-l1 ">
-        <a class="" href="../tutorial/index.html">Tutorial</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="index.html">UML vs SML</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#unified-modeling-languagetm-uml-version-25">Unified Modeling Language™ (UML®) Version 2.5</a></li>
+                
+                    <li><a class="toctree-l4" href="#initial-pseudostate">Initial Pseudostate</a></li>
+                
+                    <li><a class="toctree-l4" href="#terminate-pseudostate">Terminate Pseudostate</a></li>
+                
+                    <li><a class="toctree-l4" href="#external-transition">External transition</a></li>
+                
+                    <li><a class="toctree-l4" href="#anonymous-transition">Anonymous transition</a></li>
+                
+                    <li><a class="toctree-l4" href="#internal-transition">Internal transition</a></li>
+                
+                    <li><a class="toctree-l4" href="#entryexit-action">Entry/Exit action</a></li>
+                
+                    <li><a class="toctree-l4" href="#self-transition">Self transition</a></li>
+                
+                    <li><a class="toctree-l4" href="#subcomposite">Sub/Composite</a></li>
+                
+                    <li><a class="toctree-l4" href="#orthogonal-regions">Orthogonal regions</a></li>
+                
+                    <li><a class="toctree-l4" href="#deep-history">Deep History</a></li>
+                
+                    <li><a class="toctree-l4" href="#shallow-history">Shallow History</a></li>
+                
+                    <li><a class="toctree-l4" href="#event-defering">Event defering</a></li>
+                
+            
+            </ul>
         
     </li>
 <li>
@@ -186,7 +213,63 @@
           <div role="main">
             <div class="section">
               
-                
+                <h2 id="unified-modeling-languagetm-uml-version-25">Unified Modeling Language™ (UML®) Version 2.5</h2>
+<ul>
+<li><a href="http://www.omg.org/spec/UML/2.5">http://www.omg.org/spec/UML/2.5</a></li>
+</ul>
+<hr />
+<h3 id="initial-pseudostate">Initial Pseudostate</h3>
+<p>UML <img alt="" src="../images/initial_state.png" /></p>
+<p>SML</p>
+<pre><code class="cpp">*(&quot;idle&quot;)
+</code></pre>
+
+<hr />
+<h3 id="terminate-pseudostate">Terminate Pseudostate</h3>
+<p>UML <img alt="" src="../images/initial_state.png" /></p>
+<p>SML</p>
+<pre><code class="cpp">X
+</code></pre>
+
+<hr />
+<h3 id="external-transition">External transition</h3>
+<p>UML <img alt="" src="../images/external_transition.png" /></p>
+<p>SML</p>
+<pre><code class="cpp">&quot;src_state&quot;_s + event [ guard ] / action = &quot;dst_state&quot;_s
+</code></pre>
+
+<blockquote>
+<p><strong><em>where</em></strong></p>
+</blockquote>
+<pre><code class="cpp">struct event {};
+const auto guard = [] { return true; };
+const auto action = [] {};
+</code></pre>
+
+<hr />
+<h3 id="anonymous-transition">Anonymous transition</h3>
+<p>UML <img alt="" src="../images/anonymous_transition.png" /></p>
+<p>SML</p>
+<pre><code class="cpp">idle [ guard ] / action = connecting
+</code></pre>
+
+<hr />
+<h3 id="internal-transition">Internal transition</h3>
+<hr />
+<h3 id="entryexit-action">Entry/Exit action</h3>
+<hr />
+<h3 id="self-transition">Self transition</h3>
+<hr />
+<h3 id="subcomposite">Sub/Composite</h3>
+<hr />
+<h3 id="orthogonal-regions">Orthogonal regions</h3>
+<hr />
+<h3 id="deep-history">Deep History</h3>
+<hr />
+<h3 id="shallow-history">Shallow History</h3>
+<hr />
+<h3 id="event-defering">Event defering</h3>
+<hr />
               
             </div>
           </div>
@@ -200,10 +283,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../tutorial/index.html" class="btn btn-neutral float-right" title="Tutorial">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../user_guide/index.html" class="btn btn-neutral float-right" title="User Guide">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../benchmarks/index.html" class="btn btn-neutral" title="Features/Benchmarks"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../tutorial/index.html" class="btn btn-neutral" title="Tutorial"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -245,10 +328,10 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../benchmarks/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../tutorial/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../tutorial/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../user_guide/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

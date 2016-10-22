@@ -18,7 +18,7 @@
 
 <hr>
 <div class="spirit-nav">
-<a accesskey="p"  href="../benchmarks/index.html"><img src="../images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../images/home.png" alt="Home"></a><a accesskey="n"  href="../tutorial/index.html"><img src="../images/next.png" alt="Next"></a>
+<a accesskey="p"  href="../tutorial/index.html"><img src="../images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../images/home.png" alt="Home"></a><a accesskey="n"  href="../user_guide/index.html"><img src="../images/next.png" alt="Next"></a>
 </div>
 
 <div class="chapter">
@@ -27,13 +27,100 @@
 <div class="toc">
 <dl class="toc">
 
+    
+        <dt><span class="section"><a href="#unified-modeling-languagetm-uml-version-25">Unified Modeling Language™ (UML®) Version 2.5</a></span></dt>
+        <dd><dl>
+            
+                <dt><span class="section"><a href="#initial-pseudostate">Initial Pseudostate</a></span></dt>
+            
+                <dt><span class="section"><a href="#terminate-pseudostate">Terminate Pseudostate</a></span></dt>
+            
+                <dt><span class="section"><a href="#external-transition">External transition</a></span></dt>
+            
+                <dt><span class="section"><a href="#anonymous-transition">Anonymous transition</a></span></dt>
+            
+                <dt><span class="section"><a href="#internal-transition">Internal transition</a></span></dt>
+            
+                <dt><span class="section"><a href="#entryexit-action">Entry/Exit action</a></span></dt>
+            
+                <dt><span class="section"><a href="#self-transition">Self transition</a></span></dt>
+            
+                <dt><span class="section"><a href="#subcomposite">Sub/Composite</a></span></dt>
+            
+                <dt><span class="section"><a href="#orthogonal-regions">Orthogonal regions</a></span></dt>
+            
+                <dt><span class="section"><a href="#deep-history">Deep History</a></span></dt>
+            
+                <dt><span class="section"><a href="#shallow-history">Shallow History</a></span></dt>
+            
+                <dt><span class="section"><a href="#event-defering">Event defering</a></span></dt>
+            
+        </dl></dd>
+    
+
 </dl>
 </div>
 
 
 
 <div class="section">
+<h2 id="unified-modeling-languagetm-uml-version-25">Unified Modeling Language™ (UML®) Version 2.5</h2>
+<ul>
+<li><a href="http://www.omg.org/spec/UML/2.5">http://www.omg.org/spec/UML/2.5</a></li>
+</ul>
+<hr />
+<h3 id="initial-pseudostate">Initial Pseudostate</h3>
+<p>UML <img alt="" src="../images/initial_state.png" /></p>
+<p>SML</p>
+<pre><code class="cpp">*(&quot;idle&quot;)
+</code></pre>
 
+<hr />
+<h3 id="terminate-pseudostate">Terminate Pseudostate</h3>
+<p>UML <img alt="" src="../images/initial_state.png" /></p>
+<p>SML</p>
+<pre><code class="cpp">X
+</code></pre>
+
+<hr />
+<h3 id="external-transition">External transition</h3>
+<p>UML <img alt="" src="../images/external_transition.png" /></p>
+<p>SML</p>
+<pre><code class="cpp">&quot;src_state&quot;_s + event [ guard ] / action = &quot;dst_state&quot;_s
+</code></pre>
+
+<blockquote>
+<p><strong><em>where</em></strong></p>
+</blockquote>
+<pre><code class="cpp">struct event {};
+const auto guard = [] { return true; };
+const auto action = [] {};
+</code></pre>
+
+<hr />
+<h3 id="anonymous-transition">Anonymous transition</h3>
+<p>UML <img alt="" src="../images/anonymous_transition.png" /></p>
+<p>SML</p>
+<pre><code class="cpp">idle [ guard ] / action = connecting
+</code></pre>
+
+<hr />
+<h3 id="internal-transition">Internal transition</h3>
+<hr />
+<h3 id="entryexit-action">Entry/Exit action</h3>
+<hr />
+<h3 id="self-transition">Self transition</h3>
+<hr />
+<h3 id="subcomposite">Sub/Composite</h3>
+<hr />
+<h3 id="orthogonal-regions">Orthogonal regions</h3>
+<hr />
+<h3 id="deep-history">Deep History</h3>
+<hr />
+<h3 id="shallow-history">Shallow History</h3>
+<hr />
+<h3 id="event-defering">Event defering</h3>
+<hr />
 </div>
 
 <script src="../js/highlight.pack.js"></script>
@@ -54,7 +141,7 @@ hljs.initHighlightingOnLoad();
 
 <hr>
 <div class="spirit-nav">
-<a accesskey="p"  href="../benchmarks/index.html"><img src="../images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../images/home.png" alt="Home"></a><a accesskey="n"  href="../tutorial/index.html"><img src="../images/next.png" alt="Next"></a>
+<a accesskey="p"  href="../tutorial/index.html"><img src="../images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../images/home.png" alt="Home"></a><a accesskey="n"  href="../user_guide/index.html"><img src="../images/next.png" alt="Next"></a>
 </div>
 
 <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
