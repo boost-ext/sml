@@ -63,7 +63,7 @@
 
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |
 | ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Simple Test](https://github.com/boost-experimental/sml/tree/master/test/pt/simple) | -O2 -s | 6 | 5 | 12 | 1'000'000 |
+|[Simple Test](https://github.com/boost-experimental/sml/tree/master/test/pt/simple) | -O2 -s, /Ox | 6 | 5 | 12 | 1'000'000 |
 
 | Clang-3.7        | Boost.SML      | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] |[Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|-------------------|
@@ -79,11 +79,18 @@
 | Memory usage     | 1b             | 32b              | 28b                | 224b              |
 | Executable size  | 11K            | 67K              | 15K + boost_system | 63K               |
 
+| MSVC-2015        | Boost.SML      | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
+|------------------|----------------|------------------|--------------------|--------------------|
+| Compilation time | 0.450s         |                  |                    |                    |
+| Execution time   | 27ms           |                  |                    |                    |
+| Memory usage     | 16b            |                  |                    |                    |
+| Executable size  | 206K           |                  |                    |                    |
+
 ---------------------------------------
 
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |
 | ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Composite Test](https://github.com/boost-experimental/sml/tree/master/test/pt/composite) | -O2 -s | 8 | 5 + 3 | 12 + 4 | 1'000 * 1'000 |
+|[Composite Test](https://github.com/boost-experimental/sml/tree/master/test/pt/composite) | -O2 -s, /Ox | 8 | 5 + 3 | 12 + 4 | 1'000 * 1'000 |
 
 | Clang-3.7        | Boost.SML      | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|--------------------|
@@ -99,11 +106,18 @@
 | Memory usage     | 2b             | 60b              | 52b                | 224b               |
 | Executable size  | 12K            | 91K              | 15K + boost_system | 83K                |
 
+| MSVC-2015        | Boost.SML      | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
+|------------------|----------------|------------------|--------------------|--------------------|
+| Compilation time | 0.599s         |                  |                    |                    |
+| Execution time   | 21ms           |                  |                    |                    |
+| Memory usage     | 23b            |                  |                    |                    |
+| Executable size  | 224K           |                  |                    |                    |
+
 ---
 
 | Test | CXXFLAGS | Events | States | Transitions | Process Events |
 | ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Complex Test](https://github.com/boost-experimental/sml/tree/master/test/pt/complex) | -O2 -s | 50 | 50 | 50 | 1'000'000 |
+|[Complex Test](https://github.com/boost-experimental/sml/tree/master/test/pt/complex) | -O2 -s, /Ox | 50 | 50 | 50 | 1'000'000 |
 
 | Clang-3.7        | Boost.SML      | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|--------------------|
@@ -119,6 +133,13 @@
 | Memory usage     | 1b             | 120b             | 72b                | 224b               |
 | Executable size  | 35K            | 271K             | 47K + boost_system | 215K               |
 
+| MSVC-2015        | Boost.SML      | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
+|------------------|----------------|------------------|--------------------|--------------------|
+| Compilation time | 1.891s         |                  |                    |                    |
+| Execution time   | 166ms          |                  |                    |                    |
+| Memory usage     | 104b           |                  |                    |                    |
+| Executable size  | 224K           |                  |                    |                    |
+
 ---
 
 | Test |
@@ -132,6 +153,10 @@
 | GCC-5.2          | Boost.SML      | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
 |------------------|----------------|------------------|--------------------|--------------------|
 | Compilation time | 0.073s         | 3.197s           | 3.986s             | 0.704s             |
+
+| MSVC-2015        | Boost.SML      | [Boost.MSM-eUML] | [Boost.MSM3-eUML2] | [Boost.Statechart] |
+|------------------|----------------|------------------|--------------------|--------------------|
+| Compilation time | 0.182s         |                  |                    |                    |
 
 
 * To run benchmarks
