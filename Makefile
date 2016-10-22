@@ -6,7 +6,7 @@
 #
 .PHONY: all doc clean test example
 CXX?=clang++
-CXXFLAGS:=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors
+CXXFLAGS?=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
 GCOV:=-fprofile-arcs -ftest-coverage
 CLANG_FORMAT?=clang-format
