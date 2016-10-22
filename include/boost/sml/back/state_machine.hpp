@@ -221,7 +221,8 @@ class sm_impl {
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
                           const aux::index_sequence<0> &) {
-    static bool (*dispatch_table[sizeof...(TStates)])(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &) = {
+    using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
+    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {
         &get_state_mapping_t<TStates, TMappings>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
@@ -231,7 +232,8 @@ class sm_impl {
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates, int... Ns>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
                           const aux::index_sequence<Ns...> &) {
-    static bool (*dispatch_table[sizeof...(TStates)])(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &) = {
+    using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
+    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {
         &get_state_mapping_t<TStates, TMappings>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     auto handled = false;
     const auto lock = create_lock(aux::type<thread_safety_t>{});
@@ -244,7 +246,8 @@ class sm_impl {
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
                           state_t &current_state) {
-    static bool (*dispatch_table[sizeof...(TStates)])(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &) = {
+    using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
+    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {
         &get_state_mapping_t<TStates, TMappings>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
@@ -337,14 +340,16 @@ class sm_impl {
   template <class TVisitor, class... TStates>
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<0> &) const {
-    static void (*dispatch_table[sizeof...(TStates)])(const TVisitor &) = {&sm_impl::visit_state<TVisitor, TStates>...};
+    using dispatch_table_t = void (*)(const TVisitor &);
+    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {&sm_impl::visit_state<TVisitor, TStates>...};
     dispatch_table[current_state_[0]](visitor);
   }
 
   template <class TVisitor, class... TStates, int... Ns>
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<Ns...> &) const {
-    static void (*dispatch_table[sizeof...(TStates)])(const TVisitor &) = {&sm_impl::visit_state<TVisitor, TStates>...};
+    using dispatch_table_t = void (*)(const TVisitor &);
+    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {&sm_impl::visit_state<TVisitor, TStates>...};
     int _[]{0, (dispatch_table[current_state_[Ns]](visitor), 0)...};
     (void)_;
   }
@@ -471,8 +476,8 @@ class sm {
 
   template <class... TDeps>
   struct dependable : aux::is_same<aux::bool_list<aux::always<TDeps>::value...>,
-                                  aux::bool_list<aux::is_base_of<aux::remove_reference_t<TDeps>, sm_all_t>::value ||
-                                                 aux::is_base_of<aux::pool_type<TDeps>, deps_t>::value...>> {};
+                                   aux::bool_list<aux::is_base_of<aux::remove_reference_t<TDeps>, sm_all_t>::value ||
+                                                  aux::is_base_of<aux::pool_type<TDeps>, deps_t>::value...>> {};
 
  public:
   using states = typename sm_impl<TSM>::states_t;

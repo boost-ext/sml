@@ -11,15 +11,41 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
 #pragma clang diagnostic ignored "-Wzero-length-array"
+#if !defined(__BOOST_SML_UNUSED)
 #define __BOOST_SML_UNUSED __attribute__((unused))
+#endif
+#if !defined(__BOOST_SML_VT_INIT)
+#define __BOOST_SML_VT_INIT \
+  {}
+#endif
+#if !defined(__BOOST_SML_ZERO_SIZE)
+#define __BOOST_SML_ZERO_SIZE(T) T _[0]
+#endif
 #elif defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
+#if !defined(__BOOST_SML_UNUSED)
 #define __BOOST_SML_UNUSED __attribute__((unused))
+#endif
+#if !defined(__BOOST_SML_VT_INIT)
+#define __BOOST_SML_VT_INIT \
+  {}
+#endif
+#if !defined(__BOOST_SML_ZERO_SIZE)
+#define __BOOST_SML_ZERO_SIZE(T) T _[0]
+#endif
 #elif defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable : 4200)
+#if !defined(__BOOST_SML_UNUSED)
 #define __BOOST_SML_UNUSED
+#endif
+#if !defined(__BOOST_SML_VT_INIT)
+#define __BOOST_SML_VT_INIT
+#endif
+#if !defined(__BOOST_SML_ZERO_SIZE)
+#define __BOOST_SML_ZERO_SIZE(T)
+#endif
 #endif
 
 #if !defined(__has_builtin)
