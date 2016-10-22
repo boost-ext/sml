@@ -21,6 +21,7 @@
 
 ```cpp
 // $CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-errors hello_world.cpp
+// cl /std:c++14 /Ox /W3 hello_world.cpp
 
 #include <cassert>
 #include <boost/sml.hpp>
@@ -73,12 +74,15 @@ int main() {
 }
 ```
 
+> On MSVC-2015 instead of `"state_name"_s` `state<class state_name>` has to be used.
+
 <p align="center">
 <table>
   <tr>
     <th></th>
     <th>Clang-3.8</th>
     <th>GCC-6</th>
+    <th>MSVC-2015</th>
 
     <td rowspan="4">
       <a href="http://boost-experimental.github.io/sml/benchmarks/index.html#benchmarks">More Benchmarks</a>
@@ -89,12 +93,14 @@ int main() {
     <td>Compilation Time</td>
     <td>0.102s</td>
     <td>0.118s</td>
+    <td>0.296s</td>
   </tr>
 
   <tr>
     <td>Binary size (stripped)</td>
     <td>6.2kb</td>
     <td>6.2kb</td>
+    <td>105kb</td>
   </tr>
 
   <tr>
