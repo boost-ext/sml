@@ -9,17 +9,6 @@
 
 namespace aux {
 
-test is_constructible_types = [] {
-  struct c {
-    c(int, double) {}
-  };
-  static_expect(is_constructible<int>::value);
-  static_expect(is_constructible<c, int, double>::value);
-  static_expect(!is_constructible<c, int, double, float>::value);
-  static_expect(!is_constructible<c, int>::value);
-  static_expect(!is_constructible<c, double>::value);
-};
-
 test is_same_types = [] {
   static_expect(!is_same<int, double>::value);
   static_expect(is_same<int, int>::value);

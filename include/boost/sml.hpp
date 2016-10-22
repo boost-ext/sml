@@ -26,7 +26,6 @@
 #pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
 #pragma clang diagnostic ignored "-Wzero-length-array"
 #elif defined(__GNUC__)
-#define __has_extension(...) 0
 #define __has_builtin(...) 0
 #define __BOOST_SML_UNUSED __attribute__((unused))
 #define __BOOST_SML_VT_INIT \
@@ -35,7 +34,6 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #elif defined(_MSC_VER)
-#define __has_extension(...) 0
 #define __has_builtin(...) 0
 #define __BOOST_SML_UNUSED
 #define __BOOST_SML_VT_INIT
@@ -114,17 +112,6 @@ struct is_base_of : integral_constant<bool, __is_base_of(T, U)> {
 };
 #else
 using is_base_of = integral_constant<bool, __is_base_of(T, U)>;
-#endif
-#if __has_extension(is_constructible)
-template <class T, class... TArgs>
-using is_constructible = integral_constant<bool, __is_constructible(T, TArgs...)>;
-#else
-template <class T, class... TArgs>
-decltype(void(T(declval<TArgs>()...)), true_type{}) test_is_constructible(int);
-template <class, class...>
-false_type test_is_constructible(...);
-template <class T, class... TArgs>
-using is_constructible = decltype(test_is_constructible<T, TArgs...>(0));
 #endif
 template <class T>
 struct remove_reference {
@@ -1790,11 +1777,9 @@ BOOST_SML_NAMESPACE_END
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #elif defined(__GNUC__)
-#undef __has_extension
 #undef __has_builtin
 #pragma GCC diagnostic pop
 #elif defined(_MSC_VER)
-#undef __has_extension
 #undef __has_builtin
 #pragma warning(pop)
 #endif

@@ -130,6 +130,7 @@ class seq_ : operator_base {
 
   aux::tuple<Ts...> a;
 };
+
 template <class... Ts>
 class and_ : operator_base {
  public:
@@ -151,6 +152,7 @@ class and_ : operator_base {
 
   aux::tuple<Ts...> g;
 };
+
 template <class... Ts>
 class or_ : operator_base {
  public:
@@ -172,6 +174,7 @@ class or_ : operator_base {
 
   aux::tuple<Ts...> g;
 };
+
 template <class T>
 class not_ : operator_base {
  public:
@@ -192,14 +195,17 @@ template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
 auto operator!(const T &t) {
   return detail::not_<aux::zero_wrapper<T>>(aux::zero_wrapper<T>{t});
 }
+
 template <class T1, class T2, __BOOST_SML_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
 auto operator&&(const T1 &t1, const T2 &t2) {
   return detail::and_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
+
 template <class T1, class T2, __BOOST_SML_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
 auto operator||(const T1 &t1, const T2 &t2) {
   return detail::or_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
+
 template <class T1, class T2, __BOOST_SML_REQUIRES(concepts::callable<void, T1>::value &&concepts::callable<void, T2>::value)>
 auto operator,(const T1 &t1, const T2 &t2) {
   return detail::seq_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});

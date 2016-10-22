@@ -51,9 +51,6 @@
 #if !defined(__has_builtin)
 #define __has_builtin(...) 0
 #endif
-#if !defined(__has_extension)
-#define __has_extension(...) 0
-#endif
 
 #include <cstdio>
 #include <cstdlib>

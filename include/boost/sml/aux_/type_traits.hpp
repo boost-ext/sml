@@ -77,21 +77,9 @@ template <class T, class U>
 #if defined(_MSC_VER)  // __pph__
 struct is_base_of : integral_constant<bool, __is_base_of(T, U)> {
 };
-#else                                  // __pph__
-using is_base_of = integral_constant<bool, __is_base_of(T, U)>;
-#endif                                 // __pph__
-#if __has_extension(is_constructible)  // __pph__
-template <class T, class... TArgs>
-using is_constructible = integral_constant<bool, __is_constructible(T, TArgs...)>;
 #else   // __pph__
-template <class T, class... TArgs>
-decltype(void(T(declval<TArgs>()...)), true_type{}) test_is_constructible(int);
-template <class, class...>
-false_type test_is_constructible(...);
-template <class T, class... TArgs>
-using is_constructible = decltype(test_is_constructible<T, TArgs...>(0));
+using is_base_of = integral_constant<bool, __is_base_of(T, U)>;
 #endif  // __pph__
-
 template <class T>
 struct remove_reference {
   using type = T;
