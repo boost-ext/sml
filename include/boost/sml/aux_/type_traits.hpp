@@ -75,17 +75,17 @@ template <class T>
 struct is_same<T, T> : true_type {};
 template <class T, class U>
 using is_base_of = integral_constant<bool, __is_base_of(T, U)>;
-#if __has_extension(is_constructible) // __pph__
+#if __has_extension(is_constructible)  // __pph__
 template <class T, class... TArgs>
 using is_constructible = integral_constant<bool, __is_constructible(T, TArgs...)>;
-#else // __pph__
+#else   // __pph__
 template <class T, class... TArgs>
 decltype(void(T(declval<TArgs>()...)), true_type{}) test_is_constructible(int);
 template <class, class...>
 false_type test_is_constructible(...);
 template <class T, class... TArgs>
 using is_constructible = decltype(test_is_constructible<T, TArgs...>(0));
-#endif // __pph__
+#endif  // __pph__
 
 template <class T>
 struct remove_reference {

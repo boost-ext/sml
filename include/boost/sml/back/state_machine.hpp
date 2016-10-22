@@ -9,14 +9,14 @@
 
 #include "boost/sml/aux_/type_traits.hpp"
 #include "boost/sml/aux_/utility.hpp"
-#include "boost/sml/concepts/callable.hpp"
-#include "boost/sml/concepts/configurable.hpp"
-#include "boost/sml/concepts/stringable.hpp"
-#include "boost/sml/concepts/transitional.hpp"
 #include "boost/sml/back/internal.hpp"
 #include "boost/sml/back/mappings.hpp"
 #include "boost/sml/back/policies.hpp"
 #include "boost/sml/back/transitions.hpp"
+#include "boost/sml/concepts/callable.hpp"
+#include "boost/sml/concepts/configurable.hpp"
+#include "boost/sml/concepts/stringable.hpp"
+#include "boost/sml/concepts/transitional.hpp"
 
 namespace detail {
 

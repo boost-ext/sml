@@ -15,7 +15,7 @@ template <int...>
 struct index_sequence {
   using type = index_sequence;
 };
-#if __has_builtin(__make_integer_seq) // __pph__
+#if __has_builtin(__make_integer_seq)  // __pph__
 template <class T, T...>
 struct integer_sequence;
 template <int... Ns>
@@ -26,7 +26,7 @@ template <int N>
 struct make_index_sequence_impl {
   using type = typename __make_integer_seq<integer_sequence, int, N>::type;
 };
-#else // __pph__
+#else   // __pph__
 template <class, class>
 struct concat;
 template <int... I1, int... I2>
@@ -38,7 +38,7 @@ template <>
 struct make_index_sequence_impl<0> : index_sequence<> {};
 template <>
 struct make_index_sequence_impl<1> : index_sequence<0> {};
-#endif // __pph__
+#endif  // __pph__
 
 template <int N>
 using make_index_sequence = typename make_index_sequence_impl<N>::type;
@@ -119,10 +119,10 @@ struct init {};
 
 template <class T>
 struct pool_type {
-  explicit pool_type(const T& object) : value(object) { }
+  explicit pool_type(const T &object) : value(object) {}
 
-  template<class U>
-  pool_type(const init& i, const U& object) : value(i, object) { }
+  template <class U>
+  pool_type(const init &i, const U &object) : value(i, object) {}
 
   T value;
 };

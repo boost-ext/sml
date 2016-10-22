@@ -5,10 +5,10 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <boost/sml.hpp>
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
-#include <boost/sml.hpp>
 
 namespace sml = boost::sml;
 

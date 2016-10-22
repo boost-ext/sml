@@ -39,7 +39,7 @@ struct state_impl<T, aux::enable_if_t<concepts::configurable<T>::value>> {
 template <class T>
 typename state_impl<T>::type state __BOOST_SML_VT_INIT;
 
-#if !defined(_MSC_VER) // __pph__
+#if !defined(_MSC_VER)  // __pph__
 template <class T, T... Chrs>
 auto operator""_s() {
   return detail::state<aux::string<Chrs...>>{};
@@ -48,7 +48,7 @@ template <class T, T... Chrs>
 auto operator""_e() {
   return event<aux::string<Chrs...>>;
 }
-#endif // __pph__
+#endif  // __pph__
 template <class T>
 struct thread_safe : aux::pair<detail::thread_safety_policy__, thread_safe<T>> {
   using type = T;

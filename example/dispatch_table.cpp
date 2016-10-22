@@ -6,8 +6,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "boost/sml/utility/dispatch_table.hpp"
-#include <cassert>
 #include <boost/sml.hpp>
+#include <cassert>
 
 namespace sml = boost::sml;
 

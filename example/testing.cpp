@@ -5,8 +5,8 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <cassert>
 #include <boost/sml.hpp>
+#include <cassert>
 #include "boost/sml/testing/state_machine.hpp"
 
 namespace sml = boost::sml;

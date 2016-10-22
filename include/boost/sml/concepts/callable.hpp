@@ -28,8 +28,7 @@ template <class R>
 struct callable_impl<R, aux::true_type> : aux::true_type {};
 
 template <class R, class T>
-struct callable : callable_impl<R, decltype(test_callable<aux::inherit<T, callable_fallback>>(0))>
-{ };
+struct callable : callable_impl<R, decltype(test_callable<aux::inherit<T, callable_fallback>>(0))> {};
 
 }  // concepts
 
