@@ -74,7 +74,7 @@ int main() {
 }
 ```
 
-> On MSVC-2015 instead of `"state_name"_s` `state<class state_name>` has to be used.
+> In MSVC-2015 use `state<class state_name>` instead of `"state_name"_s` -> [example](http://boost-experimental.github.io/sml/examples/index.html#hello-world)
 
 <p align="center">
 <table>
