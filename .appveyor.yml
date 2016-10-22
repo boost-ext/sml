@@ -14,7 +14,12 @@ environment:
   matrix:
   - platform: x64
     os: Visual Studio 2015 Update 2
-    CXX: clang.exe
+    CXX: cl.exe
+    MEMCHECK: DRMEMORY
+
+  - platform: x64
+    os: Visual Studio 2015 Update 3
+    CXX: cl.exe
     MEMCHECK: DRMEMORY
 
 install:
@@ -25,5 +30,6 @@ install:
   - set PATH=mingw64\bin;%PATH%
 
 build_script:
-  - mingw32-make test example
+#  - mingw32-make test example
+  - mingw32-make example/hello_world.out
 
