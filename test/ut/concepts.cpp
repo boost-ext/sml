@@ -5,10 +5,10 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "boost/sml/back/concepts/callable.hpp"
-#include "boost/sml/back/concepts/configurable.hpp"
-#include "boost/sml/back/concepts/stringable.hpp"
-#include "boost/sml/back/concepts/transitional.hpp"
+#include "boost/sml/concepts/callable.hpp"
+#include "boost/sml/concepts/configurable.hpp"
+#include "boost/sml/concepts/stringable.hpp"
+#include "boost/sml/concepts/transitional.hpp"
 
 namespace concepts {
 
