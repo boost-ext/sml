@@ -39,6 +39,7 @@
 #define __BOOST_SML_VT_INIT
 #define __BOOST_SML_ZERO_SIZE(T)
 #pragma warning(push)
+#pragma warning(disable : 4503)
 #pragma warning(disable : 4200)
 #endif
 BOOST_SML_NAMESPACE_BEGIN
