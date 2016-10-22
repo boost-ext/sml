@@ -45,8 +45,8 @@ test history = [] {
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = state<sub>
-        , state<sub> + event<e3> = "s1"_s
-        , "s1"_s + event<e4> = state<sub>
+        , state<sub> + event<e3> = s1
+        , s1 + event<e4> = state<sub>
         , state<sub> + event<e5> = X
       );
       // clang-format on
@@ -75,7 +75,7 @@ test history = [] {
   expect(sm.is<sub>(s2));
 
   sm.process_event(e3());
-  expect(sm.is("s1"_s));
+  expect(sm.is(s1));
   expect(sm.is<sub>(s2));
 
   sm.process_event(e4());
@@ -112,9 +112,10 @@ test no_history_reenter_sub = [] {
       using namespace sml;
       const auto s = state<sub>;
       const auto x = state<class X>;
+
       // clang-format off
       return make_transition_table(
-        *"init1"_s = s,
+        *idle = s,
          s + event<e3> = x,
          x + event<e4> = s,
          s + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_entry); },
@@ -170,8 +171,8 @@ test history_region = [] {
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = state<sub>
-        , state<sub> + event<e3> = "s1"_s
-        , "s1"_s + event<e4> = state<sub>
+        , state<sub> + event<e3> = s1
+        , s1 + event<e4> = state<sub>
         , state<sub> + event<e5> = X
       );
       // clang-format on
@@ -198,7 +199,7 @@ test history_region = [] {
   expect(sm.is<sub>(s2, s3));
 
   sm.process_event(e3());
-  expect(sm.is("s1"_s));
+  expect(sm.is(s1));
   expect(sm.is<sub>(s2, s3));
 
   sm.process_event(e4());

@@ -21,6 +21,7 @@ struct e6 {};
 
 const auto idle = sml::state<class idle>;
 const auto idle2 = sml::state<class idle2>;
+const auto idle3 = sml::state<class idle3>;
 const auto s1 = sml::state<class s1>;
 const auto s2 = sml::state<class s2>;
 const auto s3 = sml::state<class s3>;
@@ -116,9 +117,9 @@ test orthogonal_regions_entry_exit_multiple = [] {
 
       // clang-format off
       return make_transition_table(
-        *"init1"_s = a,
-        *"init2"_s = b,
-        *"init3"_s = c,
+        *idle = a,
+        *idle2 = b,
+        *idle3 = c,
         a + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
         a + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
         b + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
@@ -270,11 +271,11 @@ test orthogonal_regions_reentries = [] {
       const auto z = state<class Y>;
       // clang-format off
       return make_transition_table(
-        *"init1"_s = a,
+        *idle = a,
           a + event<e1> = x,
-          *"init2"_s = b,
+         *idle2 = b,
           b + event<e2> = y,
-          *"init3"_s = c,
+         *idle3 = c,
           c + event<e3> = z,
           a + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
           a + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },

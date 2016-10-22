@@ -11,6 +11,7 @@
 
 namespace sml = boost::sml;
 
+#if !defined(_MSC_VER)
 std::vector<std::string> messages_out;
 
 struct my_logger {
@@ -111,3 +112,4 @@ test logging_entry_exit = [] {
   expect(messages_out.size() == messages_expected.size());
   expect(std::equal(messages_out.begin(), messages_out.end(), messages_expected.begin()));
 };
+#endif

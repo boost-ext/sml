@@ -16,6 +16,7 @@ namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
+
 const auto idle = sml::state<class idle>;
 const auto s1 = sml::state<class s1>;
 
@@ -23,7 +24,11 @@ test di_minimal = [] {
   struct c {
     auto operator()() const {
       using namespace sml;
-      return make_transition_table(*idle + event<e1> / [](int i) { expect(42 == i); });
+      // clang-format off
+      return make_transition_table(
+        *idle + event<e1> / [](int i) { expect(42 == i); }
+      );
+      // clang-format on
     }
   };
 

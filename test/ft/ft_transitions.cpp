@@ -361,10 +361,10 @@ test transitions_states = [] {
 
       // clang-format off
       return make_transition_table(
-         *"idle"_s + event<e1> = "s1"_s
-        , "s1"_s + event<e2> = "s2"_s
-        , "s2"_s + event<e3> [no] = "s3"_s
-        , "s2"_s + event<e3> [yes] = "s4"_s
+         *idle + event<e1> = s1
+        , s1 + event<e2> = s2
+        , s2 + event<e3> [no] = s3
+        , s2 + event<e3> [yes] = s4
       );
       // clang-format on
     }
@@ -375,7 +375,7 @@ test transitions_states = [] {
   sm.process_event(e2{});
   sm.process_event(e3{});
   using namespace sml;
-  expect(sm.is("s4"_s));
+  expect(sm.is(s4));
 };
 
 test transition_overload = [] {

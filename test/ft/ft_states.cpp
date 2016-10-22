@@ -70,25 +70,6 @@ test is_state = [] {
   expect(sm.is(s2));
 };
 
-test state_names = [] {
-  struct c {
-    auto operator()() noexcept {
-      using namespace sml;
-
-      // clang-format off
-      return make_transition_table(
-          *"idle"_s + event<e1> = "s1"_s
-      );
-      // clang-format on
-    }
-  };
-
-  sml::sm<c> sm;
-  sm.visit_current_states([](auto state) { expect(std::string{"idle"} == std::string{state.c_str()}); });
-  sm.process_event(e1{});
-  sm.visit_current_states([](auto state) { expect(std::string{"s1"} == std::string{state.c_str()}); });
-};
-
 test states_entry_exit_actions = [] {
   struct c {
     auto operator()() noexcept {
@@ -123,3 +104,24 @@ test states_entry_exit_actions = [] {
   expect(1 == c_.a_exit_action);
   expect(sm.is(s2));
 };
+
+#if !defined(_MSC_VER)
+test state_names = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+
+      // clang-format off
+      return make_transition_table(
+          *"idle"_s + event<e1> = "s1"_s
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c> sm;
+  sm.visit_current_states([](auto state) { expect(std::string{"idle"} == std::string{state.c_str()}); });
+  sm.process_event(e1{});
+  sm.visit_current_states([](auto state) { expect(std::string{"s1"} == std::string{state.c_str()}); });
+};
+#endif

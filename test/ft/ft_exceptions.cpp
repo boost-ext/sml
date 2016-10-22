@@ -30,8 +30,8 @@ test exception_minimal = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-       *idle + event<e1> / [] { throw exception1{}; } = s1
-      , s1 + exception<exception1> = X
+         *idle + event<e1> / [] { throw exception1{}; } = s1
+        , s1 + exception<exception1> = X
       );
       // clang-format on
     }
@@ -48,8 +48,8 @@ test exception_no_transition = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-       *idle + event<e1> / [] { throw exception1{}; }
-      , idle + exception<exception1> = X
+         *idle + event<e1> / [] { throw exception1{}; }
+        , idle + exception<exception1> = X
       );
       // clang-format on
     }
@@ -68,8 +68,8 @@ test exception_data_minimal = [] {
 
       // clang-format off
       return make_transition_table(
-       *idle + event<e1> / [] { throw exception_data{42}; } = s1
-      , s1 + exception<exception_data> [ guard ] = X
+         *idle + event<e1> / [] { throw exception_data{42}; } = s1
+        , s1 + exception<exception_data> [ guard ] = X
       );
       // clang-format on
     }
@@ -86,9 +86,9 @@ test exception_many = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-       *idle + event<e1> / [] { throw exception2{}; } = s1
-      , s1 + exception<exception1> = s2
-      , s1 + exception<exception2> = X
+         *idle + event<e1> / [] { throw exception2{}; } = s1
+        , s1 + exception<exception1> = s2
+        , s1 + exception<exception2> = X
       );
       // clang-format on
     }
@@ -105,9 +105,9 @@ test generic_exception_handler = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-       *idle + event<e1> / [] { throw int{}; } = s1
-      , s1 + exception<exception1> = s2
-      , s1 + exception<> = X // generic handler
+         *idle + event<e1> / [] { throw int{}; } = s1
+        , s1 + exception<exception1> = s2
+        , s1 + exception<> = X // generic handler
       );
       // clang-format on
     }
@@ -124,9 +124,9 @@ test generic_exception_handler_priority = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-       *idle + event<e1> / [] { throw exception1{}; } = s1
-      , s1 + exception<exception1> = s2
-      , s1 + exception<> = X // generic handler
+         *idle + event<e1> / [] { throw exception1{}; } = s1
+        , s1 + exception<exception1> = s2
+        , s1 + exception<> = X // generic handler
       );
       // clang-format on
     }
@@ -143,8 +143,8 @@ test exception_not_handled = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-        *idle + event<e1> / [] { throw exception1{}; } = s1
-      , *error + exception<> / [] {}
+         *idle + event<e1> / [] { throw exception1{}; } = s1
+       , *error + exception<> / [] {}
       );
       // clang-format on
     }
@@ -161,9 +161,9 @@ test exception_orthogonal_handler = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-        *idle + event<e1> / [] { throw exception1{}; } = s1
-      , *error + exception<exception1> = X
-      , *error + exception<exception2> = X
+          *idle + event<e1> / [] { throw exception1{}; } = s1
+        , *error + exception<exception1> = X
+        , *error + exception<exception2> = X
       );
       // clang-format on
     }
@@ -180,8 +180,8 @@ test exception_orthogonal_handler_generic_handler = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-        *idle + event<e1> / [] { throw exception1{}; } = s1
-      , *error + exception<> = X
+         *idle + event<e1> / [] { throw exception1{}; } = s1
+       , *error + exception<> = X
       );
       // clang-format on
     }
@@ -198,9 +198,9 @@ test exception_orthogonal_handler_generic_handler_with_exception = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-        *idle + event<e1> / [] { throw exception1{}; } = s1
-      , *error + exception<exception1> / [] { throw exception2{}; }
-      , *error + exception<> = X
+          *idle + event<e1> / [] { throw exception1{}; } = s1
+        , *error + exception<exception1> / [] { throw exception2{}; }
+        , *error + exception<> = X
       );
       // clang-format on
     }
@@ -217,8 +217,8 @@ test exception_and_unexpected_event = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-        *idle + unexpected_event<e1> / [] { throw exception1{}; } = s1
-      , *error + exception<> / [] {}
+         *idle + unexpected_event<e1> / [] { throw exception1{}; } = s1
+       , *error + exception<> / [] {}
       );
       // clang-format on
     }

@@ -11,13 +11,14 @@
 
 namespace sml = boost::sml;
 
+#if !defined(_MSC_VER)
 test events = [] {
   struct c {
     auto operator()() noexcept {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-          *"idle"_s + "e1"_e = "s1"_s
+         *"idle"_s + "e1"_e = "s1"_s
         , "s1"_s + "e2"_e = "s2"_s
         , "s2"_s + "e3"_e / [](auto) { } = X
       );
@@ -34,3 +35,4 @@ test events = [] {
   sm.process_event("e3"_e);
   expect(sm.is(X));
 };
+#endif

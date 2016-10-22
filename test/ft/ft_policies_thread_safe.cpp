@@ -14,14 +14,18 @@ namespace sml = boost::sml;
 struct e1 {};
 struct e2 {};
 
+const auto idle = sml::state<class idle>;
+const auto s1 = sml::state<class s1>;
+const auto s2 = sml::state<class s2>;
+
 test process_the_same_event = [] {
   struct actions_guards {
     auto operator()() {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-         *"idle"_s + event<e1> [([this]{ guard1_calls++; return true; })] / [this] { action1_calls++; } = "s1"_s
-        , "idle"_s + event<e2> [([this]{ guard2_calls++; return true; })] / [this] { action2_calls++; } = "s2"_s
+         *idle + event<e1> [([this]{ guard1_calls++; return true; })] / [this] { action1_calls++; } = s1
+        , idle + event<e2> [([this]{ guard2_calls++; return true; })] / [this] { action2_calls++; } = s2
       );
       // clang-format on
     }
@@ -41,7 +45,7 @@ test process_the_same_event = [] {
   using namespace sml;
   expect(1 == ag.guard1_calls + ag.guard2_calls);
   expect(1 == ag.action1_calls + ag.action2_calls);
-  expect(sm.is("s1"_s) || sm.is("s2"_s));
+  expect(sm.is(s1) || sm.is(s2));
 };
 
 test process_event_reentrant = [] {
@@ -50,8 +54,8 @@ test process_event_reentrant = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-         *"idle"_s + event<e1> / process(e2{})
-        , "idle"_s + event<e2> = "s2"_s
+         *idle + event<e1> / process(e2{})
+        , idle + event<e2> = s2
       );
       // clang-format on
     }

@@ -9,6 +9,7 @@
 
 namespace sml = boost::sml;
 
+#if !defined(_MSC_VER)
 test transition_sizeof = [] {
   using namespace sml;
   constexpr auto i = 0;
@@ -477,3 +478,4 @@ test sm_sizeof_more_than_256_transitions = [] {
   };
   static_expect(2 /*current_state=2*/ == sizeof(sml::sm<c>));
 };
+#endif

@@ -59,6 +59,7 @@ test sm_lambda_expr = [] {
   expect(sm.is(idle));
 };
 
+#if !defined(_MSC_VER)
 test sm_current_state = [] {
   struct c {
     auto operator()() noexcept {
@@ -337,3 +338,4 @@ test sm_current_state = [] {
   sm.process_event("event257"_e);
   sm.is("s1"_s);
 };
+#endif
