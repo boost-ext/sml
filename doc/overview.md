@@ -13,7 +13,7 @@ namespace sml = boost::sml;
 
 * Compile with C++14 support
 ```sh
-$CXX -std=c++14 ...
+$CXX -std=c++14 ... | cl /std:c++14 ...
 ```
 
 * To run tests
