@@ -359,62 +359,6 @@ struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
   zero_wrapper(...) {}
 };
 }
-namespace concepts {
-struct callable_fallback {
-  void operator()();
-};
-template <class T>
-aux::false_type test_callable(aux::non_type<void (callable_fallback::*)(), &T::operator()> *);
-template <class>
-aux::true_type test_callable(...);
-template <class, class>
-struct callable_impl : aux::false_type {};
-template <class R>
-struct callable_impl<R, aux::true_type> : aux::true_type {};
-template <class R, class T>
-struct callable : callable_impl<R, decltype(test_callable<aux::inherit<T, callable_fallback>>(0))> {};
-}
-namespace concepts {
-template <class T>
-decltype(aux::declval<T>()()) configurable_impl(int);
-template <class>
-void configurable_impl(...);
-template <class T>
-struct configurable : aux::is_pool<decltype(configurable_impl<T>(0))> {};
-}
-namespace concepts {
-template <class T, class = decltype(T::c_str())>
-aux::true_type test_stringable(const T &);
-aux::false_type test_stringable(...);
-template <class T, class = void>
-struct stringable : aux::false_type {};
-template <class T>
-struct stringable<T, decltype(void(sizeof(T)))> : decltype(test_stringable(aux::declval<T>())) {};
-}
-namespace detail {
-struct on_entry;
-struct on_exit;
-struct terminate_state;
-struct internal;
-}
-namespace concepts {
-template <class...>
-struct is_valid_transition : aux::true_type {};
-template <class S1, class S2, class... Ts>
-struct is_valid_transition<S1, S2, detail::on_entry, Ts...>
-    : aux::integral_constant<bool, aux::is_same<S1, detail::internal>::value || aux::is_same<S1, S2>::value> {};
-template <class S1, class S2, class... Ts>
-struct is_valid_transition<S1, S2, detail::on_exit, Ts...>
-    : aux::integral_constant<bool, aux::is_same<S1, detail::internal>::value || aux::is_same<S1, S2>::value> {};
-template <class... Ts>
-struct is_valid_transition<detail::terminate_state, Ts...> {};
-aux::false_type transitional_impl(...);
-template <class T>
-auto transitional_impl(T &&t) -> is_valid_transition<typename T::src_state, typename T::dst_state, typename T::event,
-                                                     typename T::deps, decltype(T::initial), decltype(T::history)>;
-template <class T>
-struct transitional : decltype(transitional_impl(aux::declval<T>())) {};
-}
 namespace detail {
 struct internal_event {
   static auto c_str() { return "internal_event"; }
@@ -638,6 +582,62 @@ struct transitions_sub<sm<TSM>> {
     return aux::try_get<sm_impl<TSM>>(&subs).process_event(event, deps, subs);
   }
 };
+}
+namespace concepts {
+struct callable_fallback {
+  void operator()();
+};
+template <class T>
+aux::false_type test_callable(aux::non_type<void (callable_fallback::*)(), &T::operator()> *);
+template <class>
+aux::true_type test_callable(...);
+template <class, class>
+struct callable_impl : aux::false_type {};
+template <class R>
+struct callable_impl<R, aux::true_type> : aux::true_type {};
+template <class R, class T>
+struct callable : callable_impl<R, decltype(test_callable<aux::inherit<T, callable_fallback>>(0))> {};
+}
+namespace concepts {
+template <class T>
+decltype(aux::declval<T>()()) configurable_impl(int);
+template <class>
+void configurable_impl(...);
+template <class T>
+struct configurable : aux::is_pool<decltype(configurable_impl<T>(0))> {};
+}
+namespace concepts {
+template <class T, class = decltype(T::c_str())>
+aux::true_type test_stringable(const T &);
+aux::false_type test_stringable(...);
+template <class T, class = void>
+struct stringable : aux::false_type {};
+template <class T>
+struct stringable<T, decltype(void(sizeof(T)))> : decltype(test_stringable(aux::declval<T>())) {};
+}
+namespace detail {
+struct on_entry;
+struct on_exit;
+struct terminate_state;
+struct internal;
+}
+namespace concepts {
+template <class...>
+struct is_valid_transition : aux::true_type {};
+template <class S1, class S2, class... Ts>
+struct is_valid_transition<S1, S2, detail::on_entry, Ts...>
+    : aux::integral_constant<bool, aux::is_same<S1, detail::internal>::value || aux::is_same<S1, S2>::value> {};
+template <class S1, class S2, class... Ts>
+struct is_valid_transition<S1, S2, detail::on_exit, Ts...>
+    : aux::integral_constant<bool, aux::is_same<S1, detail::internal>::value || aux::is_same<S1, S2>::value> {};
+template <class... Ts>
+struct is_valid_transition<detail::terminate_state, Ts...> {};
+aux::false_type transitional_impl(...);
+template <class T>
+auto transitional_impl(T &&t) -> is_valid_transition<typename T::src_state, typename T::dst_state, typename T::event,
+                                                     typename T::deps, decltype(T::initial), decltype(T::history)>;
+template <class T>
+struct transitional : decltype(transitional_impl(aux::declval<T>())) {};
 }
 namespace detail {
 template <class, class, class TEvent>
@@ -1043,9 +1043,9 @@ class sm {
   using deps_t = aux::apply_t<
       aux::pool, aux::apply_t<aux::unique_t, aux::join_t<deps, aux::type_list<logger_t>, aux::apply_t<merge_deps, sub_sms_t>>>>;
   template <class... TDeps>
-  using dependable = aux::is_same<aux::bool_list<aux::always<TDeps>::value...>,
-                                  aux::bool_list<aux::is_base_of<aux::remove_reference_t<TDeps>, sm_all_t>::value ||
-                                                 aux::is_base_of<aux::pool_type<TDeps>, deps_t>::value...>>;
+  struct dependable : aux::is_same<aux::bool_list<aux::always<TDeps>::value...>,
+                                   aux::bool_list<aux::is_base_of<aux::remove_reference_t<TDeps>, sm_all_t>::value ||
+                                                  aux::is_base_of<aux::pool_type<TDeps>, deps_t>::value...>> {};
 
  public:
   using states = typename sm_impl<TSM>::states_t;
