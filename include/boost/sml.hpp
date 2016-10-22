@@ -38,7 +38,6 @@
 #define __BOOST_SML_UNUSED
 #define __BOOST_SML_VT_INIT
 #define __BOOST_SML_ZERO_SIZE(T)
-#pragma warning(push)
 #pragma warning(disable : 4503)
 #pragma warning(disable : 4200)
 #endif
@@ -1793,6 +1792,5 @@ BOOST_SML_NAMESPACE_END
 #pragma GCC diagnostic pop
 #elif defined(_MSC_VER)
 #undef __has_builtin
-#pragma warning(pop)
 #endif
 #endif

@@ -39,7 +39,6 @@ pph() {
   echo "#define __BOOST_SML_UNUSED"
   echo "#define __BOOST_SML_VT_INIT"
   echo "#define __BOOST_SML_ZERO_SIZE(T)"
-  echo "#pragma warning(push)"
   echo "#pragma warning(disable:4503)"
   echo "#pragma warning(disable:4200)"
   echo "#endif"
@@ -68,7 +67,6 @@ pph() {
   echo "#pragma GCC diagnostic pop"
   echo "#elif defined(_MSC_VER)"
   echo "#undef __has_builtin"
-  echo "#pragma warning(pop)"
   echo "#endif"
   echo "#endif"
   echo
