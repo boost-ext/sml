@@ -1,7 +1,7 @@
 <a href="http://www.boost.org/LICENSE_1_0.txt" target="_blank">![Boost Licence](http://img.shields.io/badge/license-boost-blue.svg)</a>
 <a href="https://github.com/boost-experimental/sml/releases" target="_blank">![Version](https://badge.fury.io/gh/boost-experimental%2Fsml.svg)</a>
 <a href="https://travis-ci.org/boost-experimental/sml" target="_blank">![Build Status](https://img.shields.io/travis/boost-experimental/sml/master.svg?label=linux/osx)</a>
-<a href="https://ci.appveyor.com/project/boost-experimental/sml" target="_blank">![Build Status](https://img.shields.io/appveyor/ci/boost-experimental/di/master.svg?label=windows)</a>
+<a href="https://ci.appveyor.com/project/krzysztof-jusiak/sml" target="_blank">![Build Status](https://img.shields.io/appveyor/ci/krzysztof-jusiak/sml/master.svg?label=windows)</a>
 <a href="https://coveralls.io/r/boost-experimental/sml?branch=master" target="_blank">![Coveralls](http://img.shields.io/coveralls/boost-experimental/sml/master.svg)</a>
 <a href="http://github.com/boost-experimental/sml/issues" target="_blank">![Github Issues](https://img.shields.io/github/issues/boost-experimental/sml.svg)</a>
 
