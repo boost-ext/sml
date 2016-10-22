@@ -10,6 +10,7 @@
 #define __BOOST_SML_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0  // __pph__
 
 namespace aux {
+
 using byte = unsigned char;
 struct none_type {};
 template <char... Chrs>
@@ -74,17 +75,18 @@ template <class T>
 struct is_same<T, T> : true_type {};
 template <class T, class U>
 using is_base_of = integral_constant<bool, __is_base_of(T, U)>;
-#if __has_extension(is_constructible)
+#if __has_extension(is_constructible) // __pph__
 template <class T, class... TArgs>
 using is_constructible = integral_constant<bool, __is_constructible(T, TArgs...)>;
-#else
+#else // __pph__
 template <class T, class... TArgs>
 decltype(void(T(declval<TArgs>()...)), true_type{}) test_is_constructible(int);
 template <class, class...>
 false_type test_is_constructible(...);
 template <class T, class... TArgs>
 using is_constructible = decltype(test_is_constructible<T, TArgs...>(0));
-#endif
+#endif // __pph__
+
 template <class T>
 struct remove_reference {
   using type = T;
@@ -103,6 +105,7 @@ struct remove_reference<T &&> {
 };
 template <class T>
 using remove_reference_t = typename remove_reference<T>::type;
+
 template <class>
 struct function_traits;
 template <class R, class... TArgs>
@@ -123,6 +126,7 @@ struct function_traits<R (T::*)(TArgs...) const> {
 };
 template <class T>
 using function_traits_t = typename function_traits<T>::args;
+
 }  // aux
 
 #endif

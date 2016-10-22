@@ -10,11 +10,12 @@
 #include "boost/sml/aux_/type_traits.hpp"
 
 namespace aux {
+
 template <int...>
 struct index_sequence {
   using type = index_sequence;
 };
-#if __has_builtin(__make_integer_seq)
+#if __has_builtin(__make_integer_seq) // __pph__
 template <class T, T...>
 struct integer_sequence;
 template <int... Ns>
@@ -25,7 +26,7 @@ template <int N>
 struct make_index_sequence_impl {
   using type = typename __make_integer_seq<integer_sequence, int, N>::type;
 };
-#else
+#else // __pph__
 template <class, class>
 struct concat;
 template <int... I1, int... I2>
@@ -37,9 +38,11 @@ template <>
 struct make_index_sequence_impl<0> : index_sequence<> {};
 template <>
 struct make_index_sequence_impl<1> : index_sequence<0> {};
-#endif
+#endif // __pph__
+
 template <int N>
 using make_index_sequence = typename make_index_sequence_impl<N>::type;
+
 template <class... Ts>
 struct join {
   using type = type_list<>;
@@ -61,6 +64,7 @@ struct join<type_list<Ts...>, type_list<T1s...>, type_list<T2s...>, type_list<T3
            Us...> {};
 template <class... TArgs>
 using join_t = typename join<TArgs...>::type;
+
 template <class, class...>
 struct unique_impl;
 template <class T1, class T2, class... Rs, class... Ts>
@@ -75,6 +79,7 @@ template <class T>
 struct unique<T> : type_list<T> {};
 template <class... Ts>
 using unique_t = typename unique<Ts...>::type;
+
 template <template <class...> class, class>
 struct apply;
 template <template <class...> class T, template <class...> class U, class... Ts>
@@ -83,6 +88,7 @@ struct apply<T, U<Ts...>> {
 };
 template <template <class...> class T, class D>
 using apply_t = typename apply<T, D>::type;
+
 template <int, class T>
 struct tuple_type {
   T value;
@@ -100,6 +106,7 @@ struct tuple_impl<index_sequence<0>> {
 };
 template <class... Ts>
 using tuple = tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
+
 template <int N, class T>
 auto &get_by_id_impl(tuple_type<N, T> *object) {
   return static_cast<tuple_type<N, T> &>(*object).value;
@@ -108,11 +115,18 @@ template <int N, class Tuple>
 auto &get_by_id(Tuple &t) {
   return get_by_id_impl<N>(&t);
 }
+struct init {};
+
 template <class T>
 struct pool_type {
+  explicit pool_type(const T& object) : value(object) { }
+
+  template<class U>
+  pool_type(const init& i, const U& object) : value(i, object) { }
+
   T value;
 };
-struct init {};
+
 template <class T>
 aux::remove_reference_t<T> try_get(...) {
   return {};
@@ -129,25 +143,30 @@ template <class T, class TPool>
 decltype(auto) get(TPool &p) {
   return static_cast<pool_type<T> &>(p).value;
 }
+
 template <class... Ts>
 struct pool : pool_type<Ts>... {
   using boost_di_inject__ = aux::type_list<Ts...>;
-  explicit pool(Ts... ts) : pool_type<Ts>{ts}... {}
-  template <class... TArgs>
-  pool(init &&, pool<TArgs...> &&p) : pool_type<Ts>{aux::try_get<Ts>(&p)}... {}
+
+  explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
 
   template <class... TArgs>
-  pool(const pool<TArgs...> &p) : pool_type<Ts>{{init{}, &p}}... {}
+  pool(init &&, pool<TArgs...> &&p) : pool_type<Ts>(aux::try_get<Ts>(&p))... {}
+
+  template <class... TArgs>
+  pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, &p)... {}
 };
 template <>
 struct pool<> {
   explicit pool(...) {}
   aux::byte _[0];
 };
+
 template <class>
 struct is_pool : aux::false_type {};
 template <class... Ts>
 struct is_pool<pool<Ts...>> : aux::true_type {};
+
 template <int, class T>
 struct type_id_type {};
 template <class, class...>
@@ -156,6 +175,7 @@ template <int... Ns, class... Ts>
 struct type_id_impl<index_sequence<Ns...>, Ts...> : type_id_type<Ns, Ts>... {};
 template <class... Ts>
 struct type_id : type_id_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {};
+
 template <class T, int, int N>
 constexpr auto get_id_impl(type_id_type<N, T> *) {
   return N;
@@ -168,32 +188,36 @@ template <class TIds, int D, class T>
 constexpr auto get_id() {
   return get_id_impl<T, D>((TIds *)0);
 }
+
 template <class>
 struct size;
 template <template <class...> class T, class... Ts>
 struct size<T<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
+
 template <int... Ts>
-constexpr auto max() noexcept {
+constexpr auto max() {
   auto max = 0;
   int _[]{0, (Ts > max ? max = Ts : max)...};
   (void)_;
   return max;
 }
+
 template <class... Ts>
 struct variant {
   using ids_t = type_id<Ts...>;
   alignas(max<alignof(Ts)...>()) byte data[max<sizeof(Ts)...>()];
 
   template <class T>
-  variant(T object) noexcept {  // non explicit
+  variant(T object) {  // non explicit
     id = get_id<ids_t, -1, T>();
     new (&data) T(static_cast<T &&>(object));
   }
 
   int id = -1;
 };
+
 template <class TExpr, class = void>
 struct zero_wrapper : TExpr {
   explicit zero_wrapper(const TExpr &expr) : TExpr(expr) {}

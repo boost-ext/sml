@@ -15,27 +15,31 @@
 #include "boost/sml/front/transition.hpp"
 
 template <class TEvent>
-detail::event<TEvent> event{};
-__attribute__((unused)) static const auto on_entry = event<detail::on_entry>;
-__attribute__((unused)) static const auto on_exit = event<detail::on_exit>;
+detail::event<TEvent> event __BOOST_SML_VT_INIT;
+
+__BOOST_SML_UNUSED static detail::event<detail::on_entry> on_entry;
+__BOOST_SML_UNUSED static detail::event<detail::on_exit> on_exit;
 
 template <class T = detail::_>
-detail::event<detail::exception<T>> exception{};
+detail::event<detail::exception<T>> exception __BOOST_SML_VT_INIT;
 
 template <class T = detail::_>
-detail::event<detail::unexpected_event<T>> unexpected_event{};
+detail::event<detail::unexpected_event<T>> unexpected_event __BOOST_SML_VT_INIT;
 
 template <class T, class = void>
-struct state2 {
+struct state_impl {
   using type = detail::state<T>;
 };
+
 template <class T>
-struct state2<T, aux::enable_if_t<concepts::configurable<T>::value>> {
+struct state_impl<T, aux::enable_if_t<concepts::configurable<T>::value>> {
   using type = detail::state<detail::sm<detail::sm_policy<T>>>;
 };
+
 template <class T>
-typename state2<T>::type state{};
-#if !defined(_MSC_VER)
+typename state_impl<T>::type state __BOOST_SML_VT_INIT;
+
+#if !defined(_MSC_VER) // __pph__
 template <class T, T... Chrs>
 auto operator""_s() {
   return detail::state<aux::string<Chrs...>>{};
@@ -44,7 +48,7 @@ template <class T, T... Chrs>
 auto operator""_e() {
   return event<aux::string<Chrs...>>;
 }
-#endif
+#endif // __pph__
 template <class T>
 struct thread_safe : aux::pair<detail::thread_safety_policy__, thread_safe<T>> {
   using type = T;
@@ -58,10 +62,10 @@ template <class T>
 struct logger : aux::pair<detail::logger_policy__, logger<T>> {
   using type = T;
 };
-__attribute__((unused)) static detail::state<detail::terminate_state> X;
-__attribute__((unused)) static detail::history_state H;
-__attribute__((unused)) static detail::defer defer;
-__attribute__((unused)) static detail::process process;
+__BOOST_SML_UNUSED static detail::state<detail::terminate_state> X;
+__BOOST_SML_UNUSED static detail::history_state H;
+__BOOST_SML_UNUSED static detail::defer defer;
+__BOOST_SML_UNUSED static detail::process process;
 template <class... Ts, __BOOST_SML_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
                                                          aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 auto make_transition_table(Ts... ts) {

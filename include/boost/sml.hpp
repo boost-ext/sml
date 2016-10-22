@@ -5,8 +5,6 @@
 // (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 #pragma once
-#ifndef BOOST_SML_HPP
-#define BOOST_SML_HPP
 #if (__cplusplus < 201305L && _MSC_VER < 1900)
 #error "Boost.SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
@@ -19,19 +17,28 @@
   }                             \
   }                             \
   }
-#if !defined(__has_builtin)
-#define __has_builtin(...) 0
-#endif
-#if !defined(__has_extension)
-#define __has_extension(...) 0
-#endif
 #if defined(__clang__)
+#define __BOOST_SML_UNUSED __attribute__((unused))
+#define __BOOST_SML_VT_INIT \
+  {}
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
 #pragma clang diagnostic ignored "-Wzero-length-array"
 #elif defined(__GNUC__)
+#define __has_extension(...) 0
+#define __has_builtin(...) 0
+#define __BOOST_SML_UNUSED __attribute__((unused))
+#define __BOOST_SML_VT_INIT \
+  {}
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
+#elif defined(_MSC_VER)
+#define __has_extension(...) 0
+#define __has_builtin(...) 0
+#define __BOOST_SML_UNUSED
+#define __BOOST_SML_VT_INIT
+#pragma warning(push)
+#pragma warning(disable : 4200)
 #endif
 BOOST_SML_NAMESPACE_BEGIN
 #define __BOOST_SML_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0
@@ -100,12 +107,17 @@ template <class T>
 struct is_same<T, T> : true_type {};
 template <class T, class U>
 using is_base_of = integral_constant<bool, __is_base_of(T, U)>;
+#if __has_extension(is_constructible)
+template <class T, class... TArgs>
+using is_constructible = integral_constant<bool, __is_constructible(T, TArgs...)>;
+#else
 template <class T, class... TArgs>
 decltype(void(T(declval<TArgs>()...)), true_type{}) test_is_constructible(int);
 template <class, class...>
 false_type test_is_constructible(...);
 template <class T, class... TArgs>
 using is_constructible = decltype(test_is_constructible<T, TArgs...>(0));
+#endif
 template <class T>
 struct remove_reference {
   using type = T;
@@ -150,6 +162,18 @@ template <int...>
 struct index_sequence {
   using type = index_sequence;
 };
+#if __has_builtin(__make_integer_seq)
+template <class T, T...>
+struct integer_sequence;
+template <int... Ns>
+struct integer_sequence<int, Ns...> {
+  using type = index_sequence<Ns...>;
+};
+template <int N>
+struct make_index_sequence_impl {
+  using type = typename __make_integer_seq<integer_sequence, int, N>::type;
+};
+#else
 template <class, class>
 struct concat;
 template <int... I1, int... I2>
@@ -161,6 +185,7 @@ template <>
 struct make_index_sequence_impl<0> : index_sequence<> {};
 template <>
 struct make_index_sequence_impl<1> : index_sequence<0> {};
+#endif
 template <int N>
 using make_index_sequence = typename make_index_sequence_impl<N>::type;
 template <class... Ts>
@@ -231,11 +256,14 @@ template <int N, class Tuple>
 auto &get_by_id(Tuple &t) {
   return get_by_id_impl<N>(&t);
 }
+struct init {};
 template <class T>
 struct pool_type {
+  explicit pool_type(const T &object) : value(object) {}
+  template <class U>
+  pool_type(const init &i, const U &object) : value(i, object) {}
   T value;
 };
-struct init {};
 template <class T>
 aux::remove_reference_t<T> try_get(...) {
   return {};
@@ -255,11 +283,11 @@ decltype(auto) get(TPool &p) {
 template <class... Ts>
 struct pool : pool_type<Ts>... {
   using boost_di_inject__ = aux::type_list<Ts...>;
-  explicit pool(Ts... ts) : pool_type<Ts>{ts}... {}
+  explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
   template <class... TArgs>
-  pool(init &&, pool<TArgs...> &&p) : pool_type<Ts>{aux::try_get<Ts>(&p)}... {}
+  pool(init &&, pool<TArgs...> &&p) : pool_type<Ts>(aux::try_get<Ts>(&p))... {}
   template <class... TArgs>
-  pool(const pool<TArgs...> &p) : pool_type<Ts>{{init{}, &p}}... {}
+  pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, &p)... {}
 };
 template <>
 struct pool<> {
@@ -297,7 +325,7 @@ struct size<T<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
 template <int... Ts>
-constexpr auto max() noexcept {
+constexpr auto max() {
   auto max = 0;
   int _[]{0, (Ts > max ? max = Ts : max)...};
   (void)_;
@@ -308,7 +336,7 @@ struct variant {
   using ids_t = type_id<Ts...>;
   alignas(max<alignof(Ts)...>()) byte data[max<sizeof(Ts)...>()];
   template <class T>
-  variant(T object) noexcept {
+  variant(T object) {
     id = get_id<ids_t, -1, T>();
     new (&data) T(static_cast<T &&>(object));
   }
@@ -344,7 +372,7 @@ struct callable_impl : aux::false_type {};
 template <class R>
 struct callable_impl<R, aux::true_type> : aux::true_type {};
 template <class R, class T>
-using callable = callable_impl<R, decltype(test_callable<aux::inherit<T, callable_fallback>>(0))>;
+struct callable : callable_impl<R, decltype(test_callable<aux::inherit<T, callable_fallback>>(0))> {};
 }
 namespace concepts {
 template <class T>
@@ -1674,23 +1702,24 @@ struct transition<state<S1>, state<S2>, event<E>, always, none> {
 };
 }
 template <class TEvent>
-detail::event<TEvent> event{};
-__attribute__((unused)) static const auto on_entry = event<detail::on_entry>;
-__attribute__((unused)) static const auto on_exit = event<detail::on_exit>;
+detail::event<TEvent> event __BOOST_SML_VT_INIT;
+__BOOST_SML_UNUSED static detail::event<detail::on_entry> on_entry;
+__BOOST_SML_UNUSED static detail::event<detail::on_exit> on_exit;
 template <class T = detail::_>
-detail::event<detail::exception<T>> exception{};
+detail::event<detail::exception<T>> exception __BOOST_SML_VT_INIT;
 template <class T = detail::_>
-detail::event<detail::unexpected_event<T>> unexpected_event{};
+detail::event<detail::unexpected_event<T>> unexpected_event __BOOST_SML_VT_INIT;
 template <class T, class = void>
-struct state2 {
+struct state_impl {
   using type = detail::state<T>;
 };
 template <class T>
-struct state2<T, aux::enable_if_t<concepts::configurable<T>::value>> {
+struct state_impl<T, aux::enable_if_t<concepts::configurable<T>::value>> {
   using type = detail::state<detail::sm<detail::sm_policy<T>>>;
 };
 template <class T>
-typename state2<T>::type state{};
+typename state_impl<T>::type state __BOOST_SML_VT_INIT;
+#if !defined(_MSC_VER)
 template <class T, T... Chrs>
 auto operator""_s() {
   return detail::state<aux::string<Chrs...>>{};
@@ -1699,6 +1728,7 @@ template <class T, T... Chrs>
 auto operator""_e() {
   return event<aux::string<Chrs...>>;
 }
+#endif
 template <class T>
 struct thread_safe : aux::pair<detail::thread_safety_policy__, thread_safe<T>> {
   using type = T;
@@ -1712,10 +1742,10 @@ template <class T>
 struct logger : aux::pair<detail::logger_policy__, logger<T>> {
   using type = T;
 };
-__attribute__((unused)) static detail::state<detail::terminate_state> X;
-__attribute__((unused)) static detail::history_state H;
-__attribute__((unused)) static detail::defer defer;
-__attribute__((unused)) static detail::process process;
+__BOOST_SML_UNUSED static detail::state<detail::terminate_state> X;
+__BOOST_SML_UNUSED static detail::history_state H;
+__BOOST_SML_UNUSED static detail::defer defer;
+__BOOST_SML_UNUSED static detail::process process;
 template <class... Ts, __BOOST_SML_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
                                                          aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 auto make_transition_table(Ts... ts) {
@@ -1728,10 +1758,17 @@ auto make_sm(TExpr expr, TArgs &&... args) {
   return sml::sm<TExpr>{expr, args...};
 };
 BOOST_SML_NAMESPACE_END
-#endif
+#undef __BOOST_SML_UNUSED
+#undef __BOOST_SML_VT_INIT
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #elif defined(__GNUC__)
+#undef __has_extension
+#undef __has_builtin
 #pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#undef __has_extension
+#undef __has_builtin
+#pragma warning(pop)
 #endif
 #endif
