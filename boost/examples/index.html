@@ -137,6 +137,8 @@ struct ack {};
 struct fin {};
 struct timeout {};
 
+#if !defined(_MSC_VER)
+
 int main() {
   using namespace sml;
 
@@ -172,6 +174,48 @@ int main() {
   sm.process_event(timeout{});
   assert(sm.is(X));  // released
 }
+#else
+
+class established;
+class fin_wait_1;
+class fin_wait_2;
+class timed_wait;
+
+int main() {
+  using namespace sml;
+
+  // guards
+  const auto is_ack_valid = [](const ack&amp;) { return true; };
+  const auto is_fin_valid = [](const fin&amp;) { return true; };
+
+  // actions
+  const auto send_fin = [] {};
+  const auto send_ack = [] {};
+
+  auto sm = make_sm([&amp;] {
+    return make_transition_table(
+      *(state&lt;established&gt;) + event&lt;release&gt; / send_fin = state&lt;fin_wait_1&gt;,
+        state&lt;fin_wait_1&gt;   + event&lt;ack&gt; [ is_ack_valid ] = state&lt;fin_wait_2&gt;,
+        state&lt;fin_wait_2&gt;   + event&lt;fin&gt; [ is_fin_valid ] / send_ack = state&lt;timed_wait&gt;,
+        state&lt;timed_wait&gt;   + event&lt;timeout&gt; / send_ack = X
+    );
+  });
+
+  assert(sm.is(state&lt;established&gt;));
+
+  sm.process_event(release{});
+  assert(sm.is(state&lt;fin_wait_1&gt;));
+
+  sm.process_event(ack{});
+  assert(sm.is(state&lt;fin_wait_2&gt;));
+
+  sm.process_event(fin{});
+  assert(sm.is(state&lt;timed_wait&gt;));
+
+  sm.process_event(timeout{});
+  assert(sm.is(X));  // released
+}
+#endif
 </code></pre>
 
 <ul>
