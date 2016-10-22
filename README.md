@@ -21,7 +21,7 @@
 
 ```cpp
 // $CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-errors hello_world.cpp
-// cl /std:c++14 /Ox /W3 hello_world.cpp
+// cl /std:c++14 /Ox /W3 hello_world.cpp (***)
 
 #include <cassert>
 #include <boost/sml.hpp>
@@ -74,7 +74,7 @@ int main() {
 }
 ```
 
-> In MSVC-2015 use `state<class state_name>` instead of `"state_name"_s` -> [example](http://boost-experimental.github.io/sml/examples/index.html#hello-world)
+> (***) In MSVC-2015 use `state<class state_name>` instead of `"state_name"_s` -> [example](http://boost-experimental.github.io/sml/examples/index.html#hello-world)
 
 <p align="center">
 <table>

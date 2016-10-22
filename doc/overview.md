@@ -29,6 +29,9 @@ git clone https://github.com/boost-experimental/sml && cd sml && make test
 
 * [Clang-3.4+](https://travis-ci.org/boost-experimental/sml)
 * [GCC-5.2+](https://travis-ci.org/boost-experimental/sml)
+* [MSVC-2015](https://ci.appveyor.com/project/boost-experimental/sml)
+    * syntax `"state name"_s` is not supported, instead `state<class state_name>` has to be used
+    * It's still in an experimental phase
 
 ###Configuration
 | Macro                                                         | Description                                                  |
