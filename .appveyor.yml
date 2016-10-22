@@ -14,14 +14,14 @@ environment:
   matrix:
   - platform: x64
     os: Visual Studio 2015 Update 2
-    CXX: cl.exe
-    CXXFLAGS: /W3 /nologo /EHsc
+    CXX: cl
+    CXXFLAGS: "/W3 /nologo /EHsc"
     MEMCHECK: DRMEMORY
 
   - platform: x64
     os: Visual Studio 2015 Update 3
-    CXX: cl.exe
-    CXXFLAGS: /W3 /nologo /EHsc
+    CXX: cl
+    CXXFLAGS: "/W3 /nologo /EHsc"
     MEMCHECK: DRMEMORY
 
 install:
