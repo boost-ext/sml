@@ -1047,10 +1047,12 @@ class sm {
   using deps = aux::apply_t<merge_deps, transitions_t>;
   using deps_t = aux::apply_t<
       aux::pool, aux::apply_t<aux::unique_t, aux::join_t<deps, aux::type_list<logger_t>, aux::apply_t<merge_deps, sub_sms_t>>>>;
+  template <class T>
+  struct is_required : aux::integral_constant<bool, aux::is_base_of<aux::remove_reference_t<T>, sm_all_t>::value ||
+                                                        aux::is_base_of<aux::pool_type<T>, deps_t>::value> {};
   template <class... TDeps>
-  struct dependable : aux::is_same<aux::bool_list<aux::always<TDeps>::value...>,
-                                   aux::bool_list<aux::is_base_of<aux::remove_reference_t<TDeps>, sm_all_t>::value ||
-                                                  aux::is_base_of<aux::pool_type<TDeps>, deps_t>::value...>> {};
+  struct dependable : aux::is_same<aux::bool_list<aux::always<TDeps>::value...>, aux::bool_list<is_required<TDeps>::value...>> {
+  };
 
  public:
   using states = typename sm_impl<TSM>::states_t;
@@ -1440,8 +1442,12 @@ template <class, class>
 struct ignore;
 template <class E, class... Ts>
 struct ignore<E, aux::type_list<Ts...>> {
-  using type = aux::join_t<aux::conditional_t<aux::is_same<event_type_t<E>, aux::remove_reference_t<Ts>>::value,
-                                              aux::type_list<>, aux::type_list<Ts>>...>;
+  template <class T>
+  struct non_events {
+    using type = aux::conditional_t<aux::is_same<event_type_t<E>, aux::remove_reference_t<T>>::value, aux::type_list<>,
+                                    aux::type_list<T>>;
+  };
+  using type = aux::join_t<typename non_events<Ts>::type...>;
 };
 template <class T, class E, class = void>
 struct get_deps {
