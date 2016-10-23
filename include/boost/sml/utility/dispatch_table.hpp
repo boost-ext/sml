@@ -14,11 +14,11 @@ BOOST_SML_NAMESPACE_BEGIN
 namespace utility {
 namespace concepts {
 
-template <class>
-aux::false_type dispatchable_impl(...);
-
 template <class...>
 struct is_valid_event : aux::true_type {};
+
+template <class>
+aux::false_type dispatchable_impl(...);
 
 template <class, class TEvent>
 auto dispatchable_impl(TEvent &&) -> is_valid_event<decltype(TEvent::id), decltype(TEvent())>;
@@ -29,10 +29,13 @@ auto dispatchable_impl(TEvent &&) -> is_valid_event<decltype(TEvent::id), declty
 template <class, class>
 struct dispatchable;
 
+template<class T, class TEvent>
+struct is_dispatchable : decltype(dispatchable_impl<T>(aux::declval<TEvents>())) {};
+
 template <class T, class... TEvents>
 struct dispatchable<T, aux::type_list<TEvents...>>
     : aux::is_same<aux::bool_list<aux::always<TEvents>::value...>,
-                   aux::bool_list<decltype(dispatchable_impl<T>(aux::declval<TEvents>()))::value...>> {};
+                   aux::bool_list<is_dispatchable<T, TEvents>::value...>> {};
 }  // concepts
 
 namespace detail {

@@ -40,6 +40,7 @@ struct event3 {
 };
 struct event4 {};
 
+#if !defined(_MSC_VER)
 test dispatchable_concept = [] {
   using namespace sml;
   static_expect(!utility::concepts::dispatchable<runtime_event, aux::type_list<event4, event1>>::value);
@@ -160,3 +161,4 @@ test dispatch_runtime_event_sub_sm = [] {
     expect(1 == in_sub);
   }
 };
+#endif

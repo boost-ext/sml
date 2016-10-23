@@ -24,6 +24,7 @@ struct exception_data {
   int value = 0;
 };
 
+#if !defined(_MSC_VER)
 test exception_minimal = [] {
   struct c {
     auto operator()() const {
@@ -60,6 +61,7 @@ test exception_no_transition = [] {
   expect(sm.is(sml::X));
 };
 
+#if !defined(_MSC_VER)
 test exception_data_minimal = [] {
   struct c {
     auto operator()() const {
@@ -79,6 +81,7 @@ test exception_data_minimal = [] {
   sm.process_event(e1{});  // throws exception1
   expect(sm.is(sml::X));
 };
+#endif
 
 test exception_many = [] {
   struct c {
@@ -107,7 +110,7 @@ test generic_exception_handler = [] {
       return make_transition_table(
          *idle + event<e1> / [] { throw int{}; } = s1
         , s1 + exception<exception1> = s2
-        , s1 + exception<> = X // generic handler
+        , s1 + exception<_> = X // generic handler
       );
       // clang-format on
     }
@@ -126,7 +129,7 @@ test generic_exception_handler_priority = [] {
       return make_transition_table(
          *idle + event<e1> / [] { throw exception1{}; } = s1
         , s1 + exception<exception1> = s2
-        , s1 + exception<> = X // generic handler
+        , s1 + exception<_> = X // generic handler
       );
       // clang-format on
     }
@@ -144,7 +147,7 @@ test exception_not_handled = [] {
       // clang-format off
       return make_transition_table(
          *idle + event<e1> / [] { throw exception1{}; } = s1
-       , *error + exception<> / [] {}
+       , *error + exception<_> / [] {}
       );
       // clang-format on
     }
@@ -181,7 +184,7 @@ test exception_orthogonal_handler_generic_handler = [] {
       // clang-format off
       return make_transition_table(
          *idle + event<e1> / [] { throw exception1{}; } = s1
-       , *error + exception<> = X
+       , *error + exception<_> = X
       );
       // clang-format on
     }
@@ -200,7 +203,7 @@ test exception_orthogonal_handler_generic_handler_with_exception = [] {
       return make_transition_table(
           *idle + event<e1> / [] { throw exception1{}; } = s1
         , *error + exception<exception1> / [] { throw exception2{}; }
-        , *error + exception<> = X
+        , *error + exception<_> = X
       );
       // clang-format on
     }
@@ -218,7 +221,7 @@ test exception_and_unexpected_event = [] {
       // clang-format off
       return make_transition_table(
          *idle + unexpected_event<e1> / [] { throw exception1{}; } = s1
-       , *error + exception<> / [] {}
+       , *error + exception<_> / [] {}
       );
       // clang-format on
     }
@@ -228,3 +231,4 @@ test exception_and_unexpected_event = [] {
   sm.process_event(e1{});
   expect(sm.is(s1));
 };
+#endif

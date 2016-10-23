@@ -20,6 +20,7 @@ struct e6 {};
 
 const auto idle = sml::state<class idle>;
 
+#if !defined(_MSC_VER)
 test minimal_with_dependency = [] {
   struct c {
     auto operator()() noexcept {
@@ -69,3 +70,4 @@ test dependencies = [] {
     expect(sm.is(sml::X));
   }
 };
+#endif

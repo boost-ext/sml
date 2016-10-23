@@ -21,6 +21,7 @@ const auto state4 = sml::state<class state4>;
 const auto state5 = sml::state<class state5>;
 const auto state6 = sml::state<class state6>;
 
+#if !defined(_MSC_VER)
 test defer_minimal = [] {
   const auto c = [] {
     using namespace sml;
@@ -152,3 +153,4 @@ test defer_and_anonymous = [] {
   expect(3 == c_.entries[2]);
   expect(4 == c_.entries[3]);
 };
+#endif

@@ -8,10 +8,13 @@
 CXX?=clang++
 ifneq (, $(findstring clang++, $(CXX)))
 	CXXFLAGS?=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
+	INCLUDE_TEST=-include test/common/test.hpp
 else ifneq (, $(findstring g++, $(CXX)))
 	CXXFLAGS?=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
+	INCLUDE_TEST=-include test/common/test.hpp
 else
 	CXXFLAGS?=-EHsc -W3 -I include -I .
+	INCLUDE_TEST=-FI test/common/test.hpp
 endif
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
 DRMEMORY:=drmemory -light -batch -exit_code_if_errors 1 --
@@ -33,22 +36,22 @@ check: style
 test: $(patsubst %.cpp, %.out, $(wildcard test/ft/*.cpp test/ut/*.cpp))
 
 test/ft/%.out:
-	$(CXX) test/ft/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -include test/common/test.hpp -o test/ft/$*.out	&& $($(MEMCHECK)) test/ft/$*.out
+	$(CXX) test/ft/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/$*.out	&& $($(MEMCHECK)) test/ft/$*.out
 
 test/ut/%.out:
-	$(CXX) test/ut/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -include test/common/test.hpp -o test/ut/$*.out	&& $($(MEMCHECK)) test/ut/$*.out
+	$(CXX) test/ut/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ut/$*.out	&& $($(MEMCHECK)) test/ut/$*.out
 
 test/ft/ft_sizeof.out:
-	$(CXX) test/ft/ft_sizeof.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) -include test/common/test.hpp -o test/ft/ft_sizeof.out && $($(MEMCHECK)) test/ft/ft_sizeof.out
+	$(CXX) test/ft/ft_sizeof.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/ft_sizeof.out && $($(MEMCHECK)) test/ft/ft_sizeof.out
 
 test/ft/ft_state_machine.out:
-	$(CXX) test/ft/ft_state_machine.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) -include test/common/test.hpp -o test/ft/ft_state_machine.out && $($(MEMCHECK)) test/ft/ft_state_machine.out
+	$(CXX) test/ft/ft_state_machine.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/ft_state_machine.out && $($(MEMCHECK)) test/ft/ft_state_machine.out
 
 test/ft/ft_exceptions.out:
-	$(CXX) test/ft/ft_exceptions.cpp $(CXXFLAGS) $($(COVERAGE)) -include test/common/test.hpp -o test/ft/ft_exceptions.out && $($(MEMCHECK)) test/ft/ft_exceptions.out
+	$(CXX) test/ft/ft_exceptions.cpp $(CXXFLAGS) $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/ft_exceptions.out && $($(MEMCHECK)) test/ft/ft_exceptions.out
 
 test/ft/ft_policies_thread_safe.out: #-fsanitize=thread
-	$(CXX) test/ft/ft_policies_thread_safe.cpp $(CXXFLAGS) -fno-exceptions -lpthread $($(COVERAGE)) -include test/common/test.hpp -o test/ft/ft_policies_thread_safe.out && $($(MEMCHECK)) test/ft/ft_policies_thread_safe.out
+	$(CXX) test/ft/ft_policies_thread_safe.cpp $(CXXFLAGS) -fno-exceptions -lpthread $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/ft_policies_thread_safe.out && $($(MEMCHECK)) test/ft/ft_policies_thread_safe.out
 
 test/ft/ft_unit1.out:
 	$(CXX) test/ft/ft_unit1.cpp $(CXXFLAGS) $($(COVERAGE)) -c -o test/ft/ft_unit1.out
@@ -57,7 +60,7 @@ test/ft/ft_unit2.out:
 	$(CXX) test/ft/ft_unit2.cpp $(CXXFLAGS) $($(COVERAGE)) -c -o test/ft/ft_unit2.out
 
 test/ft/ft_units.out: test/ft/ft_unit1.out test/ft/ft_unit2.out
-	$(CXX) test/ft/ft_units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -include test/common/test.hpp test/ft/ft_unit1.out test/ft/ft_unit2.out -o test/ft/ft_units.out
+	$(CXX) test/ft/ft_units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) test/ft/ft_unit1.out test/ft/ft_unit2.out -o test/ft/ft_units.out
 
 example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp example/errors/*.cpp))
 
@@ -77,7 +80,7 @@ pph_check: pph
 	@git diff --quiet include/boost/sml.hpp
 
 static_analysis:
-	$(CLANG_TIDY) $(wildcard test/ft/*.cpp test/ut/*.cpp) -- -std=c++1y -I include -I test -include common/test.hpp
+	$(CLANG_TIDY) $(wildcard test/ft/*.cpp test/ut/*.cpp) -- -std=c++1y -I include -I test -FI common/test.hpp
 
 doc: readme doc_$(MKDOCS_THEME)
 
@@ -92,5 +95,5 @@ readme:
 	cd doc && $(PYTHON) scripts/update_readme_toc.py mkdocs.yml ../README.md http://boost-experimental.github.io/sml
 
 clean:
-	find example test -iname "*.out" | xargs rm -f
+	find example test -iname "*.out" -or -iname "*.obj" | xargs rm -f
 

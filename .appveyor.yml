@@ -30,6 +30,5 @@ install:
   - set PATH=mingw64\bin;"C:\Program Files (x86)\Dr. Memory\bin";%PATH%
 
 build_script:
-#  - mingw32-make test example
-  - mingw32-make example/hello_world.out
+  - mingw32-make test example/hello_world.out
 

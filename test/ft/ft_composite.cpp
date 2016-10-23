@@ -100,6 +100,7 @@ test composite = [] {
   expect(sm.is(s2));
 };
 
+#if !defined(_MSC_VER)
 test composite_def_ctor = [] {
   static auto in_sub = 0;
 
@@ -837,3 +838,4 @@ test composite_entry_exit_sub_sm = [] {
   sm.process_event(e4{});
   expect(std::vector<calls>{calls::ls2_1_exit, calls::sub2_exit, calls::sub1_entry, calls::ls1_1_entry} == c_);
 };
+#endif

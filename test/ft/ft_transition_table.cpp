@@ -109,6 +109,7 @@ struct c_action {
   void operator()(const T &) noexcept {}
 };
 
+#if !defined(_MSC_VER)
 test transition_table_types = [] {
   struct c {
     auto operator()() noexcept {
@@ -186,3 +187,4 @@ test transition_table_types = [] {
   float f = 12.0;
   sml::sm<c> sm{f, 42, 87.0, 0.0f};
 };
+#endif

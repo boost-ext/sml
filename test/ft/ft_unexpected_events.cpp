@@ -89,7 +89,7 @@ test unexpected_specific_event_with_data = [] {
       return make_transition_table(
          *(idle)   + event<e1> = handled,
            handled + unexpected_event<event_data>
-              / [](const auto& event) { expect(42 == event.i); } = X
+              / [](const event_data& event) { expect(42 == event.i); } = X
       );
       // clang-format on
     }
@@ -113,7 +113,7 @@ test unexpected_any_event = [] {
         *(idle)   + event<e1> = handled,
           handled + unexpected_event<e1> / [this] { ++ue_calls[calls::unexpected_event_e1]; },
           handled + unexpected_event<e2> / [this] { ++ue_calls[calls::unexpected_event_e2]; },
-          handled + unexpected_event<> / [this] { ++ue_calls[calls::unexpected_event_any]; } = X
+          handled + unexpected_event<_>  / [this] { ++ue_calls[calls::unexpected_event_any]; } = X
       );
       // clang-format on
     }
