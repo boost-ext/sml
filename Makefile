@@ -28,7 +28,7 @@ all: test example
 pph:
 	@tools/pph.sh
 
-check: style pph_check
+check: style
 
 test: $(patsubst %.cpp, %.out, $(wildcard test/ft/*.cpp test/ut/*.cpp))
 
