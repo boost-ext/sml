@@ -46,7 +46,8 @@ struct hello_world {
   auto operator()() const {
     using namespace sml;
     /**
-     * src_state + event [ guard ] / action = dst_state
+     * Initial state: *initial_state
+     * Transition DSL: src_state + event [ guard ] / action = dst_state
      */
     return make_transition_table(
       *"established"_s + event<release> / send_fin = "fin wait 1"_s,
