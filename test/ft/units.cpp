@@ -7,4 +7,4 @@
 //
 #include <boost/sml.hpp>
 
-test compile_clean = [] {};
+int main() {}
