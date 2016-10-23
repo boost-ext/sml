@@ -12,18 +12,13 @@ environment:
   fast_finish: true
 
   matrix:
-  - platform: x64
-    os: Visual Studio 2015 Update 1
+  - platform: x32
+    os: Visual Studio 2015
     CXX: cl
     MEMCHECK: DRMEMORY
 
   - platform: x64
-    os: Visual Studio 2015 Update 2
-    CXX: cl
-    MEMCHECK: DRMEMORY
-
-  - platform: x64
-    os: Visual Studio 2015 Update 3
+    os: Visual Studio 2015
     CXX: cl
     MEMCHECK: DRMEMORY
 
