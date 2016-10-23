@@ -29,13 +29,12 @@ auto dispatchable_impl(TEvent &&) -> is_valid_event<decltype(TEvent::id), declty
 template <class, class>
 struct dispatchable;
 
-template<class T, class TEvent>
-struct is_dispatchable : decltype(dispatchable_impl<T>(aux::declval<TEvents>())) {};
+template <class T, class TEvent>
+struct is_dispatchable : decltype(dispatchable_impl<T>(aux::declval<TEvent>())) {};
 
 template <class T, class... TEvents>
 struct dispatchable<T, aux::type_list<TEvents...>>
-    : aux::is_same<aux::bool_list<aux::always<TEvents>::value...>,
-                   aux::bool_list<is_dispatchable<T, TEvents>::value...>> {};
+    : aux::is_same<aux::bool_list<aux::always<TEvents>::value...>, aux::bool_list<is_dispatchable<T, TEvents>::value...>> {};
 }  // concepts
 
 namespace detail {

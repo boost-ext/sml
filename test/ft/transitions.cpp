@@ -196,7 +196,7 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
     auto operator()() noexcept {
       using namespace sml;
 
-      auto guard = [this](int i, const e1& e, double d) {
+      auto guard = [this](int i, const e1&, double d) {
         g_called = true;
         expect(i == 42);
         expect(d == 87.0);

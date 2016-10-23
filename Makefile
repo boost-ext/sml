@@ -41,26 +41,26 @@ test/ft/%.out:
 test/ut/%.out:
 	$(CXX) test/ut/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ut/$*.out	&& $($(MEMCHECK)) test/ut/$*.out
 
-test/ft/ft_sizeof.out:
-	$(CXX) test/ft/ft_sizeof.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/ft_sizeof.out && $($(MEMCHECK)) test/ft/ft_sizeof.out
+test/ft/sizeof.out:
+	$(CXX) test/ft/sizeof.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/sizeof.out && $($(MEMCHECK)) test/ft/sizeof.out
 
-test/ft/ft_state_machine.out:
-	$(CXX) test/ft/ft_state_machine.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/ft_state_machine.out && $($(MEMCHECK)) test/ft/ft_state_machine.out
+test/ft/state_machine.out:
+	$(CXX) test/ft/state_machine.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/state_machine.out && $($(MEMCHECK)) test/ft/state_machine.out
 
-test/ft/ft_exceptions.out:
-	$(CXX) test/ft/ft_exceptions.cpp $(CXXFLAGS) $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/ft_exceptions.out && $($(MEMCHECK)) test/ft/ft_exceptions.out
+test/ft/exceptions.out:
+	$(CXX) test/ft/exceptions.cpp $(CXXFLAGS) $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/exceptions.out && $($(MEMCHECK)) test/ft/exceptions.out
 
-test/ft/ft_policies_thread_safe.out: #-fsanitize=thread
-	$(CXX) test/ft/ft_policies_thread_safe.cpp $(CXXFLAGS) -fno-exceptions -lpthread $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/ft_policies_thread_safe.out && $($(MEMCHECK)) test/ft/ft_policies_thread_safe.out
+test/ft/policies_thread_safe.out: #-fsanitize=thread
+	$(CXX) test/ft/policies_thread_safe.cpp $(CXXFLAGS) -fno-exceptions -lpthread $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/policies_thread_safe.out && $($(MEMCHECK)) test/ft/policies_thread_safe.out
 
-test/ft/ft_unit1.out:
-	$(CXX) test/ft/ft_unit1.cpp $(CXXFLAGS) $($(COVERAGE)) -c -o test/ft/ft_unit1.out
+test/ft/unit1.out:
+	$(CXX) test/ft/unit1.cpp $(CXXFLAGS) $($(COVERAGE)) -c -o test/ft/unit1.out
 
-test/ft/ft_unit2.out:
-	$(CXX) test/ft/ft_unit2.cpp $(CXXFLAGS) $($(COVERAGE)) -c -o test/ft/ft_unit2.out
+test/ft/unit2.out:
+	$(CXX) test/ft/unit2.cpp $(CXXFLAGS) $($(COVERAGE)) -c -o test/ft/unit2.out
 
-test/ft/ft_units.out: test/ft/ft_unit1.out test/ft/ft_unit2.out
-	$(CXX) test/ft/ft_units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) test/ft/ft_unit1.out test/ft/ft_unit2.out -o test/ft/ft_units.out
+test/ft/units.out: test/ft/unit1.out test/ft/unit2.out
+	$(CXX) test/ft/units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) test/ft/unit1.out test/ft/unit2.out -o test/ft/units.out
 
 example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp example/errors/*.cpp))
 

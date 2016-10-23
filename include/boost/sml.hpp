@@ -603,7 +603,7 @@ struct callable : callable_impl<R, decltype(test_callable<aux::inherit<T, callab
 }
 namespace concepts {
 template <class T>
-decltype(aux::declval<T>()()) configurable_impl(int);
+decltype(aux::declval<T>().operator()()) configurable_impl(int);
 template <class>
 void configurable_impl(...);
 template <class T>
