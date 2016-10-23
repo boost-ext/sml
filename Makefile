@@ -11,7 +11,7 @@ ifneq (, $(findstring clang++, $(CXX)))
 else ifneq (, $(findstring g++, $(CXX)))
 	CXXFLAGS?=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
 else
-	CXXFLAGS?=/nologo /W3 /I include /I .
+	CXXFLAGS?=-EHsc -W3 -I include -I . -nologo
 endif
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
 GCOV:=-fprofile-arcs -ftest-coverage
