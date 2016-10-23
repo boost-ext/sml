@@ -14,7 +14,7 @@ else
 	CXXFLAGS?=-EHsc -W3 -I include -I .
 endif
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
-DRMEMORY:=drmemory -light -batch -exit_code_if_errors 1
+DRMEMORY:=drmemory -light -batch -exit_code_if_errors 1 --
 GCOV:=-fprofile-arcs -ftest-coverage
 CLANG_FORMAT?=clang-format
 CLANG_TIDY?=clang-tidy
