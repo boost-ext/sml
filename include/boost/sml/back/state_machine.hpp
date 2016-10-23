@@ -141,7 +141,7 @@ class sm_impl {
   using defer_queue_t = typename TSM::defer_queue_policy::template rebind<T>;
   using logger_t = typename TSM::logger_policy::type;
   using has_logger = aux::integral_constant<bool, !aux::is_same<logger_t, no_policy>::value>;
-  using transitions_t = decltype(aux::declval<sm_t>()());
+  using transitions_t = decltype(aux::declval<sm_t>().operator()());
   using mappings_t = detail::mappings_t<transitions_t>;
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
@@ -245,7 +245,7 @@ class sm_impl {
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
                           const aux::index_sequence<0> &) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
-    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {
+    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &get_state_mapping_t<TStates, TMappings>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
@@ -256,7 +256,7 @@ class sm_impl {
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
                           const aux::index_sequence<Ns...> &) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
-    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {
+    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &get_state_mapping_t<TStates, TMappings>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     auto handled = false;
     const auto lock = create_lock(aux::type<thread_safety_t>{});
@@ -270,7 +270,7 @@ class sm_impl {
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
                           state_t &current_state) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
-    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {
+    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &get_state_mapping_t<TStates, TMappings>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
@@ -353,7 +353,7 @@ class sm_impl {
                             const aux::type_list<TEvents...> &) {
     if (handled) {
       auto size = defer_.size();
-      static bool (sm_impl::*dispatch_event[sizeof...(TEvents)])(
+      static bool (sm_impl::*dispatch_event[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))])(
           TDeps &, TSubs &, const void *) = {&sm_impl::process_event_no_deffer<TDeps, TSubs, TEvents>...};
       while (size-- && (this->*dispatch_event[defer_.front().id])(deps, subs, defer_.front().data))
         ;
@@ -364,7 +364,7 @@ class sm_impl {
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<0> &) const {
     using dispatch_table_t = void (*)(const TVisitor &);
-    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {&sm_impl::visit_state<TVisitor, TStates>...};
+    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {&sm_impl::visit_state<TVisitor, TStates>...};
     dispatch_table[current_state_[0]](visitor);
   }
 
@@ -372,7 +372,7 @@ class sm_impl {
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<Ns...> &) const {
     using dispatch_table_t = void (*)(const TVisitor &);
-    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {&sm_impl::visit_state<TVisitor, TStates>...};
+    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {&sm_impl::visit_state<TVisitor, TStates>...};
     int _[]{0, (dispatch_table[current_state_[Ns]](visitor), 0)...};
     (void)_;
   }
@@ -480,7 +480,7 @@ class sm {
   template <class T>
   using defer_queue_t = typename TSM::defer_queue_policy::template rebind<T>;
   using logger_t = typename TSM::logger_policy::type;
-  using transitions_t = decltype(aux::declval<sm_t>()());
+  using transitions_t = decltype(aux::declval<sm_t>().operator()());
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   template <class>
   struct convert;

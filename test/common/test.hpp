@@ -18,8 +18,11 @@
 #define __BOOST_SML_VT_INIT \
   {}
 #endif
-#if !defined(__BOOST_SML_ZERO_SIZE)
-#define __BOOST_SML_ZERO_SIZE(T) T _[0]
+#if !defined(__BOOST_SML_ZERO_SIZE_ARRAY)
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
+#endif
+#if !defined(__BOOST_SML_ZERO_SIZE_ARRAY_CREATE)
+#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...)
 #endif
 #elif defined(__GNUC__)
 #pragma GCC diagnostic push
@@ -31,8 +34,11 @@
 #define __BOOST_SML_VT_INIT \
   {}
 #endif
-#if !defined(__BOOST_SML_ZERO_SIZE)
-#define __BOOST_SML_ZERO_SIZE(T) T _[0]
+#if !defined(__BOOST_SML_ZERO_SIZE_ARRAY)
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
+#endif
+#if !defined(__BOOST_SML_ZERO_SIZE_ARRAY_CREATE)
+#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...)
 #endif
 #elif defined(_MSC_VER)
 #pragma warning(push)
@@ -43,8 +49,11 @@
 #if !defined(__BOOST_SML_VT_INIT)
 #define __BOOST_SML_VT_INIT
 #endif
-#if !defined(__BOOST_SML_ZERO_SIZE)
-#define __BOOST_SML_ZERO_SIZE(T)
+#if !defined(__BOOST_SML_ZERO_SIZE_ARRAY)
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...)
+#endif
+#if !defined(__BOOST_SML_ZERO_SIZE_ARRAY_CREATE)
+#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
 #endif
 #endif
 

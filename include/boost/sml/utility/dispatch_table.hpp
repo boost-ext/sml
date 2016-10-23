@@ -92,7 +92,7 @@ auto make_dispatch_table(sm<SM> &fsm, const aux::index_sequence<Ns...> &) {
   using events_ids = aux::apply_t<event_id, typename sm<SM>::events>;
   return [&](const TEvent &event, int id) {
     using dispatch_table_t = void (*)(sm<SM> &, const TEvent &);
-    static dispatch_table_t dispatch_table[sizeof...(Ns)] = {
+    static dispatch_table_t dispatch_table[sizeof...(Ns) ? sizeof...(Ns) : 1] = {
         &get_event_t<Ns + EventRangeBegin, events_ids>::template execute<sm<SM>, TEvent>...};
     dispatch_table[id - EventRangeBegin](fsm, event);
   };

@@ -38,12 +38,12 @@ struct get_deps<T<Ts...>, E, aux::enable_if_t<aux::is_base_of<operator_base, T<T
 
 struct always {
   bool operator()() const { return true; }
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 
 struct none {
   void operator()() {}
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 
 template <class...>
@@ -340,7 +340,7 @@ struct transition<detail::state<S1>, detail::state<S2>, detail::event<E>, always
     return true;
   }
 
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 
 }  // detail

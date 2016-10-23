@@ -49,7 +49,7 @@ struct no_policy {
   using type = no_policy;
   template <class>
   using rebind = no_policy;
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 
 }  // detail

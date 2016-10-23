@@ -103,7 +103,7 @@ struct tuple_impl<index_sequence<Ns...>, Ts...> : tuple_type<Ns, Ts>... {
 };
 template <>
 struct tuple_impl<index_sequence<0>> {
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 template <class... Ts>
 using tuple = tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
@@ -161,7 +161,7 @@ struct pool : pool_type<Ts>... {
 template <>
 struct pool<> {
   explicit pool(...) {}
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 
 template <class>
@@ -234,7 +234,7 @@ struct zero_wrapper_impl;
 template <class TExpr, class... TArgs>
 struct zero_wrapper_impl<TExpr, aux::type_list<TArgs...>> {
   auto operator()(TArgs... args) const { return reinterpret_cast<const TExpr &>(*this)(args...); }
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 
 template <class TExpr>

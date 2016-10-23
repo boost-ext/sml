@@ -21,7 +21,8 @@
 #define __BOOST_SML_UNUSED __attribute__((unused))
 #define __BOOST_SML_VT_INIT \
   {}
-#define __BOOST_SML_ZERO_SIZE(T) T _[0]
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
+#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
 #pragma clang diagnostic ignored "-Wzero-length-array"
@@ -30,14 +31,16 @@
 #define __BOOST_SML_UNUSED __attribute__((unused))
 #define __BOOST_SML_VT_INIT \
   {}
-#define __BOOST_SML_ZERO_SIZE(T) T _[0]
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
+#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #elif defined(_MSC_VER)
 #define __has_builtin(...) 0
 #define __BOOST_SML_UNUSED
 #define __BOOST_SML_VT_INIT
-#define __BOOST_SML_ZERO_SIZE(T)
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...)
+#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
 #pragma warning(disable : 4503)
 #pragma warning(disable : 4200)
 #endif
@@ -240,7 +243,7 @@ struct tuple_impl<index_sequence<Ns...>, Ts...> : tuple_type<Ns, Ts>... {
 };
 template <>
 struct tuple_impl<index_sequence<0>> {
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 template <class... Ts>
 using tuple = tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
@@ -288,7 +291,7 @@ struct pool : pool_type<Ts>... {
 template <>
 struct pool<> {
   explicit pool(...) {}
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 template <class>
 struct is_pool : aux::false_type {};
@@ -351,7 +354,7 @@ struct zero_wrapper_impl;
 template <class TExpr, class... TArgs>
 struct zero_wrapper_impl<TExpr, aux::type_list<TArgs...>> {
   auto operator()(TArgs... args) const { return reinterpret_cast<const TExpr &>(*this)(args...); }
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 template <class TExpr>
 struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
@@ -503,7 +506,7 @@ struct no_policy {
   using type = no_policy;
   template <class>
   using rebind = no_policy;
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 }
 namespace detail {
@@ -737,7 +740,7 @@ class sm_impl {
   using defer_queue_t = typename TSM::defer_queue_policy::template rebind<T>;
   using logger_t = typename TSM::logger_policy::type;
   using has_logger = aux::integral_constant<bool, !aux::is_same<logger_t, no_policy>::value>;
-  using transitions_t = decltype(aux::declval<sm_t>()());
+  using transitions_t = decltype(aux::declval<sm_t>().operator()());
   using mappings_t = detail::mappings_t<transitions_t>;
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
@@ -828,7 +831,7 @@ class sm_impl {
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
                           const aux::index_sequence<0> &) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
-    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {
+    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &get_state_mapping_t<TStates, TMappings>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
@@ -838,7 +841,7 @@ class sm_impl {
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
                           const aux::index_sequence<Ns...> &) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
-    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {
+    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &get_state_mapping_t<TStates, TMappings>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     auto handled = false;
     const auto lock = create_lock(aux::type<thread_safety_t>{});
@@ -851,7 +854,7 @@ class sm_impl {
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
                           state_t &current_state) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
-    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {
+    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &get_state_mapping_t<TStates, TMappings>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
@@ -925,7 +928,7 @@ class sm_impl {
                             const aux::type_list<TEvents...> &) {
     if (handled) {
       auto size = defer_.size();
-      static bool (sm_impl::*dispatch_event[sizeof...(TEvents)])(
+      static bool (sm_impl::*dispatch_event[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))])(
           TDeps &, TSubs &, const void *) = {&sm_impl::process_event_no_deffer<TDeps, TSubs, TEvents>...};
       while (size-- && (this->*dispatch_event[defer_.front().id])(deps, subs, defer_.front().data))
         ;
@@ -935,14 +938,16 @@ class sm_impl {
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<0> &) const {
     using dispatch_table_t = void (*)(const TVisitor &);
-    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {&sm_impl::visit_state<TVisitor, TStates>...};
+    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
+        &sm_impl::visit_state<TVisitor, TStates>...};
     dispatch_table[current_state_[0]](visitor);
   }
   template <class TVisitor, class... TStates, int... Ns>
   void visit_current_states_impl(const TVisitor &visitor, const aux::type_list<TStates...> &,
                                  const aux::index_sequence<Ns...> &) const {
     using dispatch_table_t = void (*)(const TVisitor &);
-    static dispatch_table_t dispatch_table[sizeof...(TStates)] = {&sm_impl::visit_state<TVisitor, TStates>...};
+    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
+        &sm_impl::visit_state<TVisitor, TStates>...};
     int _[]{0, (dispatch_table[current_state_[Ns]](visitor), 0)...};
     (void)_;
   }
@@ -1032,7 +1037,7 @@ class sm {
   template <class T>
   using defer_queue_t = typename TSM::defer_queue_policy::template rebind<T>;
   using logger_t = typename TSM::logger_policy::type;
-  using transitions_t = decltype(aux::declval<sm_t>()());
+  using transitions_t = decltype(aux::declval<sm_t>().operator()());
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   template <class>
   struct convert;
@@ -1461,11 +1466,11 @@ struct get_deps<T<Ts...>, E, aux::enable_if_t<aux::is_base_of<operator_base, T<T
 };
 struct always {
   bool operator()() const { return true; }
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 struct none {
   void operator()() {}
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 template <class...>
 struct transition;
@@ -1722,7 +1727,7 @@ struct transition<detail::state<S1>, detail::state<S2>, detail::event<E>, always
         detail::state<dst_state>{}, is_internal{});
     return true;
   }
-  __BOOST_SML_ZERO_SIZE(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 }
 template <class TEvent>
@@ -1784,7 +1789,8 @@ auto make_sm(TExpr expr, TArgs &&... args) {
 BOOST_SML_NAMESPACE_END
 #undef __BOOST_SML_UNUSED
 #undef __BOOST_SML_VT_INIT
-#undef __BOOST_SML_ZERO_SIZE
+#undef __BOOST_SML_ZERO_SIZE_ARRAY
+#undef __BOOST_SML_ZERO_SIZE_ARRAY_CREATE
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #elif defined(__GNUC__)
