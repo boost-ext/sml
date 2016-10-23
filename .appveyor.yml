@@ -13,6 +13,11 @@ environment:
 
   matrix:
   - platform: x64
+    os: Visual Studio 2015 Update 1
+    CXX: cl
+    MEMCHECK: DRMEMORY
+
+  - platform: x64
     os: Visual Studio 2015 Update 2
     CXX: cl
     MEMCHECK: DRMEMORY
