@@ -353,9 +353,10 @@ class sm_impl {
                             const aux::type_list<TEvents...> &) {
     if (handled) {
       auto size = defer_.size();
-      static bool (sm_impl::*dispatch_event[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))])(
-          TDeps &, TSubs &, const void *) = {&sm_impl::process_event_no_deffer<TDeps, TSubs, TEvents>...};
-      while (size-- && (this->*dispatch_event[defer_.front().id])(deps, subs, defer_.front().data))
+      using dispatch_table_t = bool (sm_impl::*)(TDeps &, TSubs &, const void *);
+      static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
+          &sm_impl::process_event_no_deffer<TDeps, TSubs, TEvents>...};
+      while (size-- && (this->*dispatch_table[defer_.front().id])(deps, subs, defer_.front().data))
         ;
     }
   }

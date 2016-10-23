@@ -198,6 +198,18 @@ struct size<T<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
 
+#if defined(_MSC_VER)  // __pph__
+constexpr auto max_impl() { return 0; }
+constexpr auto max_impl(int r) { return r; }
+
+constexpr auto max_impl(int r, int i) { return r > i ? r : i; }
+
+constexpr auto max_impl(int r, int i, int ints...) { return i > r ? max_impl(i, ints) : max_impl(r, ints); }
+template <int... Ts>
+constexpr auto max() {
+  return max_impl(Ts...);
+}
+#else   // __pph__
 template <int... Ts>
 constexpr auto max() {
   auto max = 0;
@@ -205,6 +217,7 @@ constexpr auto max() {
   (void)_;
   return max;
 }
+#endif  // __pph__
 
 template <class... Ts>
 class variant {

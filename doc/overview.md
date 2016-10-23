@@ -30,8 +30,17 @@ git clone https://github.com/boost-experimental/sml && cd sml && make test
 * [Clang-3.4+](https://travis-ci.org/boost-experimental/sml)
 * [GCC-5.2+](https://travis-ci.org/boost-experimental/sml)
 * [MSVC-2015](https://ci.appveyor.com/project/krzysztof-jusiak/sml)
-    * syntax `"state name"_s` is not supported, instead `state<class state_name>` has to be used
-    * It's still in an experimental phase
+    * Known limitations
+
+```cpp
+  "src_state"_s + event<e> = "dst_state"_s                   // Error on MSVC-2015, Ok on GCC-5+, Clang-3.4+
+  state<class src_state> + event<e> = state<class dst_state> // Ok on all supported compilers
+```
+
+```cpp
+  state<class a> + event<e> / [](const auto& event) {}       // Error on MSVC-2015, Ok on GCC-5+, Clang-3.4+
+  state<class a> + event<e> / [](const e& event) {}          // Ok on all supported compilers
+```
 
 ###Configuration
 | Macro                                                         | Description                                                  |

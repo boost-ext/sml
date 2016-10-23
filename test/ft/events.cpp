@@ -11,6 +11,8 @@
 
 namespace sml = boost::sml;
 
+template <class...>
+struct q;
 #if !defined(_MSC_VER)
 test events = [] {
   struct c {
@@ -19,8 +21,11 @@ test events = [] {
       // clang-format off
       return make_transition_table(
          *"idle"_s + "e1"_e = "s1"_s
-        , "s1"_s + "e2"_e = "s2"_s
-        , "s2"_s + "e3"_e / [](auto) { } = X
+        , "s1"_s   + "e2"_e = "s2"_s
+        , "s2"_s   + "e3"_e / [](const auto& event) {
+            auto e = event;
+            static_assert(aux::is_same<aux::string<'e', '3'>, decltype(e)>::value, "");
+          } = X
       );
       // clang-format on
     }

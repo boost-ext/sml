@@ -44,9 +44,7 @@ test dependencies = [] {
         return true;
       };
 
-      auto action = [](double d, e1 event) {
-        expect(d == 87.0);
-      };
+      auto action = [](double d, e1) { expect(d == 87.0); };
 
       // clang-format off
       return make_transition_table(

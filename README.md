@@ -34,29 +34,33 @@ struct ack {};
 struct fin {};
 struct timeout {};
 
-int main() {
-  using namespace sml;
+// guards
+const auto is_ack_valid = [](const ack&) { return true; };
+const auto is_fin_valid = [](const fin&) { return true; };
 
-  // guards
-  const auto is_ack_valid = [](const ack&) { return true; };
-  const auto is_fin_valid = [](const fin&) { return true; };
+// actions
+const auto send_fin = [] {};
+const auto send_ack = [] {};
 
-  // actions
-  const auto send_fin = [] {};
-  const auto send_ack = [] {};
-
-  auto sm = make_sm([&] {
+struct hello_world {
+  auto operator()() const {
+    using namespace sml;
     /**
      * src_state + event [ guard ] / action = dst_state
      */
     return make_transition_table(
-      *("established"_s) + event<release> / send_fin = "fin wait 1"_s,
-        "fin wait 1"_s   + event<ack> [ is_ack_valid ] = "fin wait 2"_s,
-        "fin wait 2"_s   + event<fin> [ is_fin_valid ] / send_ack = "timed wait"_s,
-        "timed wait"_s   + event<timeout> = X
+      *"established"_s + event<release> / send_fin = "fin wait 1"_s,
+       "fin wait 1"_s + event<ack> [ is_ack_valid ] = "fin wait 2"_s,
+       "fin wait 2"_s + event<fin> [ is_fin_valid ] / send_ack = "timed wait"_s,
+       "timed wait"_s + event<timeout> / send_ack = X
     );
-  });
+  }
+};
 
+int main() {
+  using namespace sml;
+
+  sm<hello_world> sm;
   static_assert(1 == sizeof(sm), "sizeof(sm) != 1b");
   assert(sm.is("established"_s));
 
