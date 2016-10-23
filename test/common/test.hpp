@@ -38,7 +38,7 @@
 #define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
 #endif
 #if !defined(__BOOST_SML_ZERO_SIZE_ARRAY_CREATE)
-#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...)
+#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
 #endif
 #elif defined(_MSC_VER)
 #pragma warning(push)

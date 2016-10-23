@@ -33,7 +33,7 @@ pph() {
   echo "#define __BOOST_SML_UNUSED __attribute__((unused))"
   echo "#define __BOOST_SML_VT_INIT {}"
   echo "#define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]"
-  echo "#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...)"
+  echo "#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1"
   echo "#pragma GCC diagnostic push"
   echo "#pragma GCC diagnostic ignored \"-Wpedantic\""
   echo "#elif defined(_MSC_VER)"

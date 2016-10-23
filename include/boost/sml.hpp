@@ -32,7 +32,7 @@
 #define __BOOST_SML_VT_INIT \
   {}
 #define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
-#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...)
+#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #elif defined(_MSC_VER)
