@@ -6,7 +6,13 @@
 #
 .PHONY: all doc clean test example
 CXX?=clang++
-CXXFLAGS?=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors
+ifneq (, $(findstring clang++, $(CXX)))
+	CXXFLAGS?=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
+else ifneq (, $(findstring g++, $(CXX)))
+	CXXFLAGS?=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
+else
+	CXXFLAGS?=/nologo /W3 /I include /I .
+endif
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
 GCOV:=-fprofile-arcs -ftest-coverage
 CLANG_FORMAT?=clang-format
@@ -26,31 +32,31 @@ check: style pph_check
 test: $(patsubst %.cpp, %.out, $(wildcard test/ft/*.cpp test/ut/*.cpp))
 
 test/ft/%.out:
-	$(CXX) test/ft/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ft/$*.out	&& $($(MEMCHECK)) test/ft/$*.out
+	$(CXX) test/ft/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -include test/common/test.hpp -o test/ft/$*.out	&& $($(MEMCHECK)) test/ft/$*.out
 
 test/ut/%.out:
-	$(CXX) test/ut/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ut/$*.out	&& $($(MEMCHECK)) test/ut/$*.out
+	$(CXX) test/ut/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -include test/common/test.hpp -o test/ut/$*.out	&& $($(MEMCHECK)) test/ut/$*.out
 
 test/ft/ft_sizeof.out:
-	$(CXX) test/ft/ft_sizeof.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ft/ft_sizeof.out && $($(MEMCHECK)) test/ft/ft_sizeof.out
+	$(CXX) test/ft/ft_sizeof.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) -include test/common/test.hpp -o test/ft/ft_sizeof.out && $($(MEMCHECK)) test/ft/ft_sizeof.out
 
 test/ft/ft_state_machine.out:
-	$(CXX) test/ft/ft_state_machine.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ft/ft_state_machine.out && $($(MEMCHECK)) test/ft/ft_state_machine.out
+	$(CXX) test/ft/ft_state_machine.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) -include test/common/test.hpp -o test/ft/ft_state_machine.out && $($(MEMCHECK)) test/ft/ft_state_machine.out
 
 test/ft/ft_exceptions.out:
-	$(CXX) test/ft/ft_exceptions.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ft/ft_exceptions.out && $($(MEMCHECK)) test/ft/ft_exceptions.out
+	$(CXX) test/ft/ft_exceptions.cpp $(CXXFLAGS) $($(COVERAGE)) -include test/common/test.hpp -o test/ft/ft_exceptions.out && $($(MEMCHECK)) test/ft/ft_exceptions.out
 
 test/ft/ft_policies_thread_safe.out: #-fsanitize=thread
-	$(CXX) test/ft/ft_policies_thread_safe.cpp $(CXXFLAGS) -fno-exceptions -lpthread $($(COVERAGE)) -I include -I. -include test/common/test.hpp -o test/ft/ft_policies_thread_safe.out && $($(MEMCHECK)) test/ft/ft_policies_thread_safe.out
+	$(CXX) test/ft/ft_policies_thread_safe.cpp $(CXXFLAGS) -fno-exceptions -lpthread $($(COVERAGE)) -include test/common/test.hpp -o test/ft/ft_policies_thread_safe.out && $($(MEMCHECK)) test/ft/ft_policies_thread_safe.out
 
 test/ft/ft_unit1.out:
-	$(CXX) test/ft/ft_unit1.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -c -o test/ft/ft_unit1.out
+	$(CXX) test/ft/ft_unit1.cpp $(CXXFLAGS) $($(COVERAGE)) -c -o test/ft/ft_unit1.out
 
 test/ft/ft_unit2.out:
-	$(CXX) test/ft/ft_unit2.cpp $(CXXFLAGS) $($(COVERAGE)) -I include -c -o test/ft/ft_unit2.out
+	$(CXX) test/ft/ft_unit2.cpp $(CXXFLAGS) $($(COVERAGE)) -c -o test/ft/ft_unit2.out
 
 test/ft/ft_units.out: test/ft/ft_unit1.out test/ft/ft_unit2.out
-	$(CXX) test/ft/ft_units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -I include -I. -include test/common/test.hpp test/ft/ft_unit1.out test/ft/ft_unit2.out -o test/ft/ft_units.out
+	$(CXX) test/ft/ft_units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -include test/common/test.hpp test/ft/ft_unit1.out test/ft/ft_unit2.out -o test/ft/ft_units.out
 
 example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp example/errors/*.cpp))
 
@@ -58,7 +64,7 @@ example/errors/%.out:
 	$(CXX) example/errors/$*.cpp $(CXXFLAGS) -I include 2> /dev/null || [ $$? -ne 0 ]
 
 example/%.out:
-	$(CXX) example/$*.cpp $(CXXFLAGS) -I include -o example/$*.out && $($(MEMCHECK)) example/$*.out
+	$(CXX) example/$*.cpp $(CXXFLAGS) -o example/$*.out && $($(MEMCHECK)) example/$*.out
 
 style:
 	@find include example test -iname "*.hpp" -or -iname "*.cpp" | xargs $(CLANG_FORMAT) -i
