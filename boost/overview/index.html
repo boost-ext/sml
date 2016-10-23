@@ -100,11 +100,18 @@ namespace sml = boost::sml;
 <li><a href="https://travis-ci.org/boost-experimental/sml">Clang-3.4+</a></li>
 <li><a href="https://travis-ci.org/boost-experimental/sml">GCC-5.2+</a></li>
 <li><a href="https://ci.appveyor.com/project/krzysztof-jusiak/sml">MSVC-2015</a><ul>
-<li>syntax <code>"state name"_s</code> is not supported, instead <code>state&lt;class state_name&gt;</code> has to be used</li>
-<li>It's still in an experimental phase</li>
+<li>Known limitations</li>
 </ul>
 </li>
 </ul>
+<pre><code class="cpp">  &quot;src_state&quot;_s + event&lt;e&gt; = &quot;dst_state&quot;_s                   // Error on MSVC-2015, Ok on GCC-5+, Clang-3.4+
+  state&lt;class src_state&gt; + event&lt;e&gt; = state&lt;class dst_state&gt; // Ok on all supported compilers
+</code></pre>
+
+<pre><code class="cpp">  state&lt;class a&gt; + event&lt;e&gt; / [](const auto&amp; event) {}       // Error on MSVC-2015, Ok on GCC-5+, Clang-3.4+
+  state&lt;class a&gt; + event&lt;e&gt; / [](const e&amp; event) {}          // Ok on all supported compilers
+</code></pre>
+
 <h3 id="configuration">Configuration</h3>
 <table>
 <thead>
