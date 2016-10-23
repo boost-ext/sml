@@ -11,8 +11,6 @@
 
 namespace sml = boost::sml;
 
-template <class...>
-struct q;
 #if !defined(_MSC_VER)
 test events = [] {
   struct c {

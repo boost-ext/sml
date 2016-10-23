@@ -25,6 +25,7 @@ const auto s1 = sml::state<class s1>;
 const auto s2 = sml::state<class s2>;
 
 struct runtime_event {
+  explicit runtime_event(const int& id) : id(id) {}
   int id = 0;
 };
 struct event1 {
@@ -40,7 +41,6 @@ struct event3 {
 };
 struct event4 {};
 
-#if !defined(_MSC_VER)
 test dispatchable_concept = [] {
   using namespace sml;
   static_expect(!utility::concepts::dispatchable<runtime_event, aux::type_list<event4, event1>>::value);
@@ -161,4 +161,3 @@ test dispatch_runtime_event_sub_sm = [] {
     expect(1 == in_sub);
   }
 };
-#endif
