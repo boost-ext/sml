@@ -1730,13 +1730,14 @@ struct transition<detail::state<S1>, detail::state<S2>, detail::event<E>, always
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 }
+using _ = detail::_;
 template <class TEvent>
 detail::event<TEvent> event __BOOST_SML_VT_INIT;
 __BOOST_SML_UNUSED static detail::event<detail::on_entry> on_entry;
 __BOOST_SML_UNUSED static detail::event<detail::on_exit> on_exit;
-template <class T = detail::_>
+template <class T = _>
 detail::event<detail::exception<T>> exception __BOOST_SML_VT_INIT;
-template <class T = detail::_>
+template <class T = _>
 detail::event<detail::unexpected_event<T>> unexpected_event __BOOST_SML_VT_INIT;
 template <class T, class = void>
 struct state_impl {
