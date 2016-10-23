@@ -24,7 +24,6 @@ const auto s1 = sml::state<class s1>;
 const auto s2 = sml::state<class s2>;
 const auto s3 = sml::state<class s3>;
 
-#if !defined(_MSC_VER)
 test history = [] {
   struct sub {
     auto operator()() noexcept {
@@ -207,4 +206,3 @@ test history_region = [] {
   expect(sm.is(state<sub>));
   expect(sm.is<sub>(s2, idle2));  // history for region 1
 };
-#endif

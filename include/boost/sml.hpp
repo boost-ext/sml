@@ -323,6 +323,25 @@ template <template <class...> class T, class... Ts>
 struct size<T<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
+
+#if defined(_MSC_VER)
+constexpr auto max_impl() {
+    return 0;
+}
+constexpr auto max_impl(int r) {
+    return r;
+}
+
+constexpr auto max_impl(int r, int i) {
+    return r > i ? r : i;
+}
+
+constexpr auto max_impl(int r, int i, int ints...) {
+    return i > r ? max_impl(i, ints) : max_impl(r, ints);
+}
+template <int... Ts>
+constexpr auto max() { return max_impl(Ts...); }
+#else
 template <int... Ts>
 constexpr auto max() {
   auto max = 0;
@@ -330,6 +349,7 @@ constexpr auto max() {
   (void)_;
   return max;
 }
+#endif
 template <class... Ts>
 class variant {
   using ids_t = type_id<Ts...>;
@@ -928,9 +948,9 @@ class sm_impl {
                             const aux::type_list<TEvents...> &) {
     if (handled) {
       auto size = defer_.size();
-      static bool (sm_impl::*dispatch_event[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))])(
-          TDeps &, TSubs &, const void *) = {&sm_impl::process_event_no_deffer<TDeps, TSubs, TEvents>...};
-      while (size-- && (this->*dispatch_event[defer_.front().id])(deps, subs, defer_.front().data))
+      using dispatch_table_t = bool (sm_impl::*)(TDeps &, TSubs &, const void *);
+      static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {&sm_impl::process_event_no_deffer<TDeps, TSubs, TEvents>...};
+      while (size-- && (this->*dispatch_table[defer_.front().id])(deps, subs, defer_.front().data))
         ;
     }
   }

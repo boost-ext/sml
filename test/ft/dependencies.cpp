@@ -20,7 +20,6 @@ struct e6 {};
 
 const auto idle = sml::state<class idle>;
 
-#if !defined(_MSC_VER)
 test minimal_with_dependency = [] {
   struct c {
     auto operator()() noexcept {
@@ -45,9 +44,8 @@ test dependencies = [] {
         return true;
       };
 
-      auto action = [](double d, auto event) {
+      auto action = [](double d, e1 event) {
         expect(d == 87.0);
-        expect(sml::aux::is_same<e1, decltype(event)>::value);
       };
 
       // clang-format off
@@ -70,4 +68,3 @@ test dependencies = [] {
     expect(sm.is(sml::X));
   }
 };
-#endif
