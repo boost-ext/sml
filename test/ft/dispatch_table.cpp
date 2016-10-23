@@ -25,7 +25,7 @@ const auto s1 = sml::state<class s1>;
 const auto s2 = sml::state<class s2>;
 
 struct runtime_event {
-  explicit runtime_event(const int& id) : id(id) {}
+  explicit runtime_event(const int &id) : id(id) {}
   int id = 0;
 };
 struct event1 {
