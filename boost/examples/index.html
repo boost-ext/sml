@@ -616,10 +616,10 @@ struct error_handling {
       ,   &quot;idle&quot;_s  + &quot;event2&quot;_e / [] { throw 0; }
 
       , *(&quot;exceptions handling&quot;_s) + exception&lt;std::runtime_error&gt; / [] { std::cout &lt;&lt; &quot;exception caught&quot; &lt;&lt; std::endl; }
-      ,   &quot;exceptions handling&quot;_s  + exception&lt;&gt; / [] { std::cout &lt;&lt; &quot;generic exception caught&quot; &lt;&lt; std::endl; } = X
+      ,   &quot;exceptions handling&quot;_s  + exception&lt;_&gt; / [] { std::cout &lt;&lt; &quot;generic exception caught&quot; &lt;&lt; std::endl; } = X
 
       , *(&quot;unexpected events handling&quot;_s) + unexpected_event&lt;some_event&gt; / [] { std::cout &lt;&lt; &quot;unexpected event 'some_event'&quot; &lt;&lt; std::endl; }
-      ,   &quot;unexpected events handling&quot;_s  + unexpected_event&lt;&gt; / [] { std::cout &lt;&lt; &quot;generic unexpected event&quot; &lt;&lt; std::endl; } = X
+      ,   &quot;unexpected events handling&quot;_s  + unexpected_event&lt;_&gt; / [] { std::cout &lt;&lt; &quot;generic unexpected event&quot; &lt;&lt; std::endl; } = X
     );
   }
 };
