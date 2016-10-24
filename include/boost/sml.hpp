@@ -1747,9 +1747,9 @@ template <class TEvent>
 detail::event<TEvent> event __BOOST_SML_VT_INIT;
 __BOOST_SML_UNUSED static detail::event<detail::on_entry> on_entry;
 __BOOST_SML_UNUSED static detail::event<detail::on_exit> on_exit;
-template <class T = _>
+template <class T>
 detail::event<detail::exception<T>> exception __BOOST_SML_VT_INIT;
-template <class T = _>
+template <class T>
 detail::event<detail::unexpected_event<T>> unexpected_event __BOOST_SML_VT_INIT;
 template <class T, class = void>
 struct state_impl {

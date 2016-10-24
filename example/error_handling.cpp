@@ -23,10 +23,10 @@ struct error_handling {
       ,   "idle"_s  + "event2"_e / [] { throw 0; }
 
       , *("exceptions handling"_s) + exception<std::runtime_error> / [] { std::cout << "exception caught" << std::endl; }
-      ,   "exceptions handling"_s  + exception<> / [] { std::cout << "generic exception caught" << std::endl; } = X
+      ,   "exceptions handling"_s  + exception<_> / [] { std::cout << "generic exception caught" << std::endl; } = X
 
       , *("unexpected events handling"_s) + unexpected_event<some_event> / [] { std::cout << "unexpected event 'some_event'" << std::endl; }
-      ,   "unexpected events handling"_s  + unexpected_event<> / [] { std::cout << "generic unexpected event" << std::endl; } = X
+      ,   "unexpected events handling"_s  + unexpected_event<_> / [] { std::cout << "generic unexpected event" << std::endl; } = X
     );
     // clang-format on
   }
