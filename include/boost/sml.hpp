@@ -771,7 +771,10 @@ class sm_impl {
   static_assert(regions > 0, "At least one initial state is required");
   template <class... TStates>
   using get_ids = aux::index_sequence<aux::get_id<states_ids_t, -1, TStates>()...>;
-
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
+  using exceptions = aux::apply_t<aux::unique_t, aux::apply_t<get_exceptions, events_t>>;
+  using has_exceptions = aux::integral_constant<bool, (aux::size<exceptions>::value > 0)>;
+#endif
  public:
   sm_impl(const aux::init &, const aux::pool_type<sm_t &> *t) : transitions_((t->value)()) {
     initialize(typename sm_impl<TSM>::initial_states_t{});
@@ -780,10 +783,6 @@ class sm_impl {
   sm_impl(sm_impl &&) = default;
   sm_impl(const sm_impl &) = delete;
   sm_impl &operator=(const sm_impl &) = delete;
-#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-  using exceptions = aux::apply_t<aux::unique_t, aux::apply_t<get_exceptions, events_t>>;
-  using has_exceptions = aux::integral_constant<bool, (aux::size<exceptions>::value > 0)>;
-#endif
   template <class TEvent, class TDeps, class TSubs>
   bool process_event(const TEvent &event, TDeps &deps, TSubs &subs) {
     log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
@@ -797,12 +796,6 @@ class sm_impl {
     process_defer_events(deps, subs, handled, aux::type<defer_queue_t<TEvent>>{}, events_t{});
     return handled;
   }
-  template <class TDeps, class TSubs>
-  void start(TDeps &deps, TSubs &subs) {
-    if (!process_internal_event(deps, subs, anonymous{})) {
-      process_internal_event(deps, subs, on_entry{});
-    }
-  }
 
  private:
   void initialize(const aux::type_list<> &) {}
@@ -811,6 +804,12 @@ class sm_impl {
     auto region = 0, i = region;
     int _[]{0, (region = i, current_state_[region] = aux::get_id<states_ids_t, 0, TStates>(), ++i, 0)...};
     (void)_;
+  }
+  template <class TDeps, class TSubs>
+  void start(TDeps &deps, TSubs &subs) {
+    if (!process_internal_event(deps, subs, anonymous{})) {
+      process_internal_event(deps, subs, on_entry{});
+    }
   }
   template <class TDeps, class TSubs, class TEvent,
             __BOOST_SML_REQUIRES(!aux::is_base_of<aux::pool_type<TEvent>, events_ids_t>::value)>

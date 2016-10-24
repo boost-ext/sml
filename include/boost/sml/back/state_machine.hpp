@@ -159,6 +159,10 @@ class sm_impl {
   using state_t = aux::conditional_t<(aux::size<states_t>::value > 0xFF), unsigned short, aux::byte>;
   static constexpr auto regions = aux::size<initial_states_t>::value > 0 ? aux::size<initial_states_t>::value : 1;
   static_assert(regions > 0, "At least one initial state is required");
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
+  using exceptions = aux::apply_t<aux::unique_t, aux::apply_t<get_exceptions, events_t>>;
+  using has_exceptions = aux::integral_constant<bool, (aux::size<exceptions>::value > 0)>;
+#endif  // __pph__
 
   template <class... TStates>
   using get_ids = aux::index_sequence<aux::get_id<states_ids_t, -1, TStates>()...>;
@@ -167,17 +171,10 @@ class sm_impl {
   sm_impl(const aux::init &, const aux::pool_type<sm_t &> *t) : transitions_((t->value)()) {
     initialize(typename sm_impl<TSM>::initial_states_t{});
   }
-
   sm_impl(const aux::init &, ...) : transitions_(sm_t{}()) { initialize(typename sm_impl<TSM>::initial_states_t{}); }
-
   sm_impl(sm_impl &&) = default;
   sm_impl(const sm_impl &) = delete;
   sm_impl &operator=(const sm_impl &) = delete;
-
-#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
-  using exceptions = aux::apply_t<aux::unique_t, aux::apply_t<get_exceptions, events_t>>;
-  using has_exceptions = aux::integral_constant<bool, (aux::size<exceptions>::value > 0)>;
-#endif  // __pph__
 
   template <class TEvent, class TDeps, class TSubs>
   bool process_event(const TEvent &event, TDeps &deps, TSubs &subs) {
@@ -195,13 +192,6 @@ class sm_impl {
     return handled;
   }
 
-  template <class TDeps, class TSubs>
-  void start(TDeps &deps, TSubs &subs) {
-    if (!process_internal_event(deps, subs, anonymous{})) {
-      process_internal_event(deps, subs, on_entry{});
-    }
-  }
-
  private:
   void initialize(const aux::type_list<> &) {}
 
@@ -210,6 +200,13 @@ class sm_impl {
     auto region = 0, i = region;
     int _[]{0, (region = i, current_state_[region] = aux::get_id<states_ids_t, 0, TStates>(), ++i, 0)...};
     (void)_;
+  }
+
+  template <class TDeps, class TSubs>
+  void start(TDeps &deps, TSubs &subs) {
+    if (!process_internal_event(deps, subs, anonymous{})) {
+      process_internal_event(deps, subs, on_entry{});
+    }
   }
 
   template <class TDeps, class TSubs, class TEvent,
