@@ -108,8 +108,9 @@ test unexpected_specific_event_with_data = [] {
 template <class TCalls, class T>
 struct handle_unexpected_events {
   template <class TEvent>
-  void operator()(const TEvent&) {
+  void operator()(const TEvent&, int& i) {
     expect(std::is_same<TEvent, T>::value);
+    expect(42 == i);
     ++ue_calls[TCalls::unexpected_event_any];
   }
   std::map<TCalls, int>& ue_calls;
@@ -124,7 +125,7 @@ test unexpected_any_event = [] {
       return make_transition_table(
         *(idle)   + event<e1> = handled,
           handled + unexpected_event<e1> / [this] { ++ue_calls[calls::unexpected_event_e1]; },
-          handled + unexpected_event<e2> / [this] { ++ue_calls[calls::unexpected_event_e2]; },
+          handled + unexpected_event<e2> / [this](int& i) { i = 42; ++ue_calls[calls::unexpected_event_e2]; },
 #if defined(_MSC_VER)
           handled + unexpected_event<_>  / [this]  { ++ue_calls[calls::unexpected_event_any]; } = X
 #else
@@ -137,8 +138,9 @@ test unexpected_any_event = [] {
     std::map<calls, int> ue_calls;
   };
 
+  int i = 0;
   c c_;
-  sml::sm<c> sm{c_};
+  sml::sm<c> sm{c_, i};
   using namespace sml;
   sm.process_event(e1{});
   expect(sm.is(handled));

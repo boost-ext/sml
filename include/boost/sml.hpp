@@ -1162,11 +1162,7 @@ decltype(auto) get_arg(const aux::type<const TEvent &> &, const TEvent &event, T
   return event;
 }
 template <class T, class TEvent, class TDeps>
-decltype(auto) get_arg(const aux::type<T> &, const exception<TEvent> &event, TDeps &) {
-  return event.exception_;
-}
-template <class T, class T_, class TEvent, class TDeps>
-decltype(auto) get_arg(const aux::type<T> &, const unexpected_event<T_, TEvent> &event, TDeps &) {
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const unexpected_event<T, TEvent> &event, TDeps &) {
   return event.event_;
 }
 template <class T, class TEvent, class TDeps>
@@ -1176,6 +1172,10 @@ decltype(auto) get_arg(const aux::type<const TEvent &> &, const on_entry<T, TEve
 template <class T, class TEvent, class TDeps>
 decltype(auto) get_arg(const aux::type<const TEvent &> &, const on_exit<T, TEvent> &event, TDeps &) {
   return event.event_;
+}
+template <class T, class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<T> &, const exception<TEvent> &event, TDeps &) {
+  return event.exception_;
 }
 template <class... Ts, class T, class TEvent, class TSM, class TDeps>
 auto call_impl_with_logger(const aux::type<void> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TSM &,
