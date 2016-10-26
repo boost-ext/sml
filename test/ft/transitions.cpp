@@ -25,13 +25,13 @@ const auto s4 = sml::state<class s4>;
 test transition = [] {
   using namespace sml;
   struct c {
-    // clang-format on
+    // clang-format off
     auto operator()() noexcept {
       return make_transition_table(
         *idle + event<e1> = s1
       );
     }
-    // clang-format off
+    // clang-format on
   };
 
   sml::sm<c> sm;

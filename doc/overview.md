@@ -33,13 +33,16 @@ git clone https://github.com/boost-experimental/sml && cd sml && make test
     * Known limitations
 
 ```cpp
-  "src_state"_s + event<e> = "dst_state"_s                   // Error on MSVC-2015, Ok on GCC-5+, Clang-3.4+
-  state<class src_state> + event<e> = state<class dst_state> // Ok on all supported compilers
+  "src_state"_s + event<e> = "dst_state"_s                                // Error on MSVC-2015, Ok on GCC-5+, Clang-3.4+
+  state<class src_state> + event<e> = state<class dst_state>              // Ok on all supported compilers
 ```
 
 ```cpp
-  state<class a> + event<e> / [](const auto& event) {}       // Error on MSVC-2015, Ok on GCC-5+, Clang-3.4+
-  state<class a> + event<e> / [](const e& event) {}          // Ok on all supported compilers
+  const auto guard1 = [] { return true; }
+  state<class a> + event<e> [ guard1 ] / [](const auto& event) {}          // Error on MSVC-2015, Ok on GCC-5+, Clang-3.4+
+
+  const auto guard2 = [] -> bool { return true; }
+  state<class a> + event<e> [ gurad2 ] / [](const auto& event) -> void {}  // Ok on all supported compilers
 ```
 
 ###Configuration
