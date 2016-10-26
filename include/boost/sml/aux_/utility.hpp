@@ -11,6 +11,14 @@
 
 namespace aux {
 
+template <char... Chrs>
+struct string {
+  static auto c_str() {
+    static constexpr char str[] = {Chrs..., 0};
+    return str;
+  }
+};
+
 template <int...>
 struct index_sequence {
   using type = index_sequence;
@@ -80,6 +88,19 @@ struct unique<T> : type_list<T> {};
 template <class... Ts>
 using unique_t = typename unique<Ts...>::type;
 
+template <class, class...>
+struct is_unique;
+
+template <class T>
+struct is_unique<T> : aux::true_type {};
+
+template <class T1, class T2, class... Ts>
+struct is_unique<T1, T2, Ts...>
+    : conditional_t<is_base_of<type<T2>, T1>::value, aux::false_type, is_unique<inherit<T1, type<T2>>, Ts...>> {};
+
+template <class... Ts>
+using is_unique_t = is_unique<none_type, Ts...>;
+
 template <template <class...> class, class>
 struct apply;
 template <template <class...> class T, template <class...> class U, class... Ts>
@@ -98,7 +119,6 @@ template <class, class...>
 struct tuple_impl;
 template <int... Ns, class... Ts>
 struct tuple_impl<index_sequence<Ns...>, Ts...> : tuple_type<Ns, Ts>... {
-  using boost_di_inject__ = aux::type_list<Ts...>;
   explicit tuple_impl(Ts... ts) : tuple_type<Ns, Ts>(ts)... {}
 };
 template <>
@@ -123,33 +143,34 @@ template <class T>
 struct pool_type {
   explicit pool_type(const T &object) : value(object) {}
 
-  template <class U>
-  pool_type(const init &i, const U &object) : value(i, object) {}
+  template <class TObject>
+  pool_type(const init &i, const TObject &object) : value(i, object) {}
 
   T value;
 };
 
 template <class T>
-aux::remove_reference_t<T> try_get(...) {
-  return {};
+T &try_get(...) {
+  static_assert(never<T>::value, "Type T has to be passed via constructor!");
 }
+
 template <class T>
-T &try_get(pool_type<T> *object) {
+static T &try_get(pool_type<T> *object) {
   return static_cast<pool_type<T> &>(*object).value;
 }
-template <class T>
-T &try_get(pool_type<T &> *object) {
-  return static_cast<pool_type<T &> &>(*object).value;
-}
+
 template <class T, class TPool>
-decltype(auto) get(TPool &p) {
+T &get(TPool &p) {
   return static_cast<pool_type<T> &>(p).value;
+}
+
+template <class T, class TPool>
+const T &cget(TPool &p) {
+  return static_cast<const pool_type<T> &>(p).value;
 }
 
 template <class... Ts>
 struct pool : pool_type<Ts>... {
-  using boost_di_inject__ = aux::type_list<Ts...>;
-
   explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
 
   template <class... TArgs>
@@ -218,23 +239,6 @@ constexpr auto max() {
   return max;
 }
 #endif  // __pph__
-
-template <class... Ts>
-class variant {
-  using ids_t = type_id<Ts...>;
-  static constexpr auto alignment = max<alignof(Ts)...>();
-  static constexpr auto size = max<sizeof(Ts)...>();
-
- public:
-  template <class T>
-  variant(T object) {  // non explicit
-    id = get_id<ids_t, -1, T>();
-    new (&data) T(static_cast<T &&>(object));
-  }
-
-  alignas(alignment) byte data[size];
-  int id = -1;
-};
 
 template <class TExpr, class = void>
 struct zero_wrapper : TExpr {

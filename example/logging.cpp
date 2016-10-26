@@ -59,7 +59,8 @@ struct logging {
 };
 
 int main() {
-  sml::sm<logging, sml::logger<my_logger>> sm;
+  my_logger logger;
+  sml::sm<logging, sml::logger<my_logger>> sm{logger};
   sm.process_event(e1{});
   sm.process_event(e2{});
 }

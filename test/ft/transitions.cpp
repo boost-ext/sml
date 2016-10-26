@@ -95,13 +95,12 @@ test self_transition = [] {
   };
 
   std::vector<calls> c_;
-  ;
   sml::sm<c> sm{c_};
   expect(std::vector<calls>{calls::s1_entry} == c_);
 
   c_.clear();
   sm.process_event(e1{});
-  expect(std::vector<calls>{calls::s1_exit, calls::s1_entry, calls::s1_action} == c_);
+  expect(std::vector<calls>{calls::s1_exit, calls::s1_action, calls::s1_entry} == c_);
 };
 
 test no_transition = [] {
@@ -176,7 +175,11 @@ test transition_with_action_and_guad_with_parameter = [] {
         expect(i == 42);
       };
 
-      return make_transition_table(*idle + event<e1>[guard] / action = s1);
+      // clang-format off
+      return make_transition_table(
+        *idle + event<e1> [guard] / action = s1
+      );
+      // clang-format on
     }
 
     bool a_called = false;
@@ -209,7 +212,11 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
         expect(f == 12.f);
       };
 
-      return make_transition_table(*idle + event<e1>[guard] / action = s1);
+      // clang-format off
+      return make_transition_table(
+        *idle + event<e1> [guard] / action = s1
+      );
+      // clang-format on
     }
 
     bool a_called = false;

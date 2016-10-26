@@ -8,11 +8,13 @@
 #include <boost/sml.hpp>
 #include <map>
 #include <string>
+#include <type_traits>
 
 namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
+struct e3 {};
 
 const auto idle = sml::state<class idle>;
 const auto s1 = sml::state<class s1>;
@@ -103,6 +105,16 @@ test unexpected_specific_event_with_data = [] {
   expect(sm.is(X));
 };
 
+template <class TCalls, class T>
+struct handle_unexpected_events {
+  template <class TEvent>
+  void operator()(const TEvent&) {
+    expect(std::is_same<TEvent, T>::value);
+    ++ue_calls[TCalls::unexpected_event_any];
+  }
+  std::map<TCalls, int>& ue_calls;
+};
+
 test unexpected_any_event = [] {
   enum class calls { unexpected_event_e1, unexpected_event_e2, unexpected_event_any };
   struct c {
@@ -113,7 +125,11 @@ test unexpected_any_event = [] {
         *(idle)   + event<e1> = handled,
           handled + unexpected_event<e1> / [this] { ++ue_calls[calls::unexpected_event_e1]; },
           handled + unexpected_event<e2> / [this] { ++ue_calls[calls::unexpected_event_e2]; },
-          handled + unexpected_event<_>  / [this] { ++ue_calls[calls::unexpected_event_any]; } = X
+#if defined(_MSC_VER)
+          handled + unexpected_event<_>  / [this]  { ++ue_calls[calls::unexpected_event_any]; } = X
+#else
+          handled + unexpected_event<_>  / handle_unexpected_events<calls, e3>{ue_calls} = X
+#endif
       );
       // clang-format on
     }
@@ -151,7 +167,7 @@ test unexpected_any_event = [] {
   expect(0 == c_.ue_calls[calls::unexpected_event_any]);
   expect(sm.is(handled));
 
-  sm.process_event(int{});
+  sm.process_event(e3{});
   expect(3 == c_.ue_calls[calls::unexpected_event_e1]);
   expect(1 == c_.ue_calls[calls::unexpected_event_e2]);
   expect(1 == c_.ue_calls[calls::unexpected_event_any]);

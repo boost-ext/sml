@@ -12,14 +12,8 @@
 namespace aux {
 
 using byte = unsigned char;
+
 struct none_type {};
-template <char... Chrs>
-struct string {
-  static auto c_str() {
-    static constexpr char str[] = {Chrs..., 0};
-    return str;
-  }
-};
 template <class...>
 struct type {};
 template <class T, T>
@@ -38,8 +32,10 @@ template <class... Ts>
 struct inherit : Ts... {
   using type = inherit;
 };
+
 template <class T>
 T &&declval();
+
 template <class T, T V>
 struct integral_constant {
   using type = integral_constant;
@@ -47,10 +43,16 @@ struct integral_constant {
 };
 using true_type = integral_constant<bool, true>;
 using false_type = integral_constant<bool, false>;
+
 template <class...>
 using void_t = void;
+
 template <class>
 struct always : aux::true_type {};
+
+template <class>
+struct never : aux::false_type {};
+
 template <bool B, class T, class F>
 struct conditional {
   using type = T;
@@ -61,6 +63,7 @@ struct conditional<false, T, F> {
 };
 template <bool B, class T, class F>
 using conditional_t = typename conditional<B, T, F>::type;
+
 template <bool B, class T = void>
 struct enable_if {};
 template <class T>
@@ -69,10 +72,12 @@ struct enable_if<true, T> {
 };
 template <bool B, class T = void>
 using enable_if_t = typename enable_if<B, T>::type;
+
 template <class, class>
 struct is_same : false_type {};
 template <class T>
 struct is_same<T, T> : true_type {};
+
 template <class T, class U>
 #if defined(_MSC_VER)  // __pph__
 struct is_base_of : integral_constant<bool, __is_base_of(T, U)> {
@@ -80,6 +85,7 @@ struct is_base_of : integral_constant<bool, __is_base_of(T, U)> {
 #else   // __pph__
 using is_base_of = integral_constant<bool, __is_base_of(T, U)>;
 #endif  // __pph__
+
 template <class T>
 struct remove_reference {
   using type = T;

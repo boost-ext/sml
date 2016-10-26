@@ -16,30 +16,24 @@
 
 using _ = detail::_;
 
+/// events
+
 template <class TEvent>
 detail::event<TEvent> event __BOOST_SML_VT_INIT;
 
-__BOOST_SML_UNUSED static detail::event<detail::on_entry> on_entry;
-__BOOST_SML_UNUSED static detail::event<detail::on_exit> on_exit;
+__BOOST_SML_UNUSED static detail::event<detail::on_entry<_>> on_entry;
+__BOOST_SML_UNUSED static detail::event<detail::on_exit<_>> on_exit;
+
+template <class T>
+detail::event<detail::unexpected_event<T, T>> unexpected_event __BOOST_SML_VT_INIT;
 
 template <class T>
 detail::event<detail::exception<T>> exception __BOOST_SML_VT_INIT;
 
-template <class T>
-detail::event<detail::unexpected_event<T>> unexpected_event __BOOST_SML_VT_INIT;
-
-template <class T, class = void>
-struct state_impl {
-  using type = detail::state<T>;
-};
+/// states
 
 template <class T>
-struct state_impl<T, aux::enable_if_t<concepts::configurable<T>::value>> {
-  using type = detail::state<detail::sm<detail::sm_policy<T>>>;
-};
-
-template <class T>
-typename state_impl<T>::type state __BOOST_SML_VT_INIT;
+typename detail::state_sm<T>::type state __BOOST_SML_VT_INIT;
 
 #if !defined(_MSC_VER)  // __pph__
 template <class T, T... Chrs>
@@ -51,29 +45,42 @@ auto operator""_e() {
   return event<aux::string<Chrs...>>;
 }
 #endif  // __pph__
-template <class T>
-struct thread_safe : aux::pair<detail::thread_safety_policy__, thread_safe<T>> {
-  using type = T;
-};
-template <template <class...> class T>
-struct defer_queue : aux::pair<detail::defer_queue_policy__, defer_queue<T>> {
-  template <class U>
-  using rebind = T<U>;
-};
-template <class T>
-struct logger : aux::pair<detail::logger_policy__, logger<T>> {
-  using type = T;
-};
+
 __BOOST_SML_UNUSED static detail::state<detail::terminate_state> X;
 __BOOST_SML_UNUSED static detail::history_state H;
+
+/// actions
+
 __BOOST_SML_UNUSED static detail::defer defer;
 __BOOST_SML_UNUSED static detail::process process;
+
+/// transition table
+
 template <class... Ts, __BOOST_SML_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
                                                          aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 auto make_transition_table(Ts... ts) {
   return aux::pool<Ts...>{ts...};
 }
-template <class T, class... TPolicies> /*, __BOOST_SML_REQUIRES(concepts::configurable<T>::value)*/
-using sm = detail::sm<detail::sm_policy<T, TPolicies...>>;
+
+/// policies
+
+template <class T>
+struct thread_safe : aux::pair<detail::thread_safety_policy__, thread_safe<T>> {
+  using type = T;
+};
+
+template <template <class...> class T>
+struct defer_queue : aux::pair<detail::defer_queue_policy__, defer_queue<T>> {
+  template <class U>
+  using rebind = T<U>;
+
+  template <class... Ts>
+  using defer = detail::defer_event<Ts...>;
+};
+
+template <class T>
+struct logger : aux::pair<detail::logger_policy__, logger<T>> {
+  using type = T;
+};
 
 #endif

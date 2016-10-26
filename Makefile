@@ -33,13 +33,16 @@ pph:
 
 check: style
 
-test: $(patsubst %.cpp, %.out, $(wildcard test/ft/*.cpp test/ut/*.cpp))
-
-test/ft/%.out:
-	$(CXX) test/ft/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/$*.out	&& $($(MEMCHECK)) test/ft/$*.out
+test: $(patsubst %.cpp, %.out, $(wildcard test/ft/*.cpp test/ft/errors/*.cpp test/ut/*.cpp))
 
 test/ut/%.out:
 	$(CXX) test/ut/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ut/$*.out	&& $($(MEMCHECK)) test/ut/$*.out
+
+test/ft/errors/%.out:
+	$(CXX) test/ft/errors/$*.cpp $(CXXFLAGS) -I include 2> /dev/null || [ $$? -ne 0 ]
+
+test/ft/%.out:
+	$(CXX) test/ft/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/$*.out	&& $($(MEMCHECK)) test/ft/$*.out
 
 test/ft/sizeof.out:
 	$(CXX) test/ft/sizeof.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/sizeof.out && $($(MEMCHECK)) test/ft/sizeof.out
@@ -56,10 +59,7 @@ test/ft/policies_thread_safe.out: #-fsanitize=thread
 test/ft/units.out:
 	$(CXX) test/ft/unit1.cpp test/ft/unit2.cpp  test/ft/units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -o test/ft/units.out
 
-example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp example/errors/*.cpp))
-
-example/errors/%.out:
-	$(CXX) example/errors/$*.cpp $(CXXFLAGS) -I include 2> /dev/null || [ $$? -ne 0 ]
+example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp))
 
 example/%.out:
 	$(CXX) example/$*.cpp $(CXXFLAGS) -o example/$*.out && $($(MEMCHECK)) example/$*.out

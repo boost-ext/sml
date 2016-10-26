@@ -7,70 +7,64 @@
 #ifndef BOOST_SML_FRONT_OPERATORS_HPP
 #define BOOST_SML_FRONT_OPERATORS_HPP
 
+#include "boost/sml/back/internals.hpp"
+
 namespace detail {
 
 struct operator_base {};
 struct action_base {};
-
-template <class TEvent>
-struct event_type {
-  using type = TEvent;
-};
-
-template <class TEvent>
-struct event_type<exception<TEvent>> {
-  using type = TEvent;
-};
-
-template <class TEvent>
-struct event_type<unexpected_event<TEvent>> {
-  using type = TEvent;
-};
-
-template <class TEvent>
-using event_type_t = typename event_type<TEvent>::type;
 
 template <class, class>
 aux::type_list<> args__(...);
 template <class T, class>
 auto args__(int) -> aux::function_traits_t<T>;
 template <class T, class E>
-auto args__(int) -> aux::function_traits_t<decltype(&T::template operator() < event_type_t<E>>)>;
+auto args__(int) -> aux::function_traits_t<decltype(&T::template operator() < get_event_t<E>>)>;
 template <class T, class>
 auto args__(int) -> aux::function_traits_t<decltype(&T::operator())>;
 template <class T, class E>
 using args_t = decltype(args__<T, E>(0));
 
-template <class T, class TEvent, class TDeps,
-          aux::enable_if_t<!aux::is_same<TEvent, aux::remove_reference_t<T>>::value, int> = 0>
-decltype(auto) get_arg(const TEvent &, TDeps &deps) {
+template <class T, class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<T> &, const TEvent &, TDeps &deps) {
   return aux::get<T>(deps);
 }
-template <class, class TEvent, class TDeps>
-decltype(auto) get_arg(const exception<TEvent> &event, TDeps &) {
+template <class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<TEvent> &, const TEvent &event, TDeps &) {
+  return event;
+}
+template <class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const TEvent &event, TDeps &) {
+  return event;
+}
+template <class T, class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<T> &, const exception<TEvent> &event, TDeps &) {
   return event.exception_;
 }
-template <class, class TEvent, class TDeps>
-decltype(auto) get_arg(const unexpected_event<TEvent> &event, TDeps &) {
+template <class T, class T_, class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<T> &, const unexpected_event<T_, TEvent> &event, TDeps &) {
   return event.event_;
 }
-template <class T, class TEvent, class TDeps,
-          aux::enable_if_t<aux::is_same<TEvent, aux::remove_reference_t<T>>::value, int> = 0>
-decltype(auto) get_arg(const TEvent &event, TDeps &) {
-  return event;
+template <class T, class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const on_entry<T, TEvent> &event, TDeps &) {
+  return event.event_;
+}
+template <class T, class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const on_exit<T, TEvent> &event, TDeps &) {
+  return event.event_;
 }
 
 template <class... Ts, class T, class TEvent, class TSM, class TDeps>
 auto call_impl_with_logger(const aux::type<void> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TSM &,
                            TDeps &deps) {
-  object(get_arg<Ts>(event, deps)...);
+  object(get_arg(aux::type<Ts>{}, event, deps)...);
   log_action<typename TSM::logger_t, typename TSM::sm_t>(typename TSM::has_logger{}, deps, object, event);
 }
 
 template <class... Ts, class T, class TEvent, class TSM, class TDeps>
 auto call_impl_with_logger(const aux::type<bool> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TSM &,
                            TDeps &deps) {
-  const auto result = object(get_arg<Ts>(event, deps)...);
+  const auto result = object(get_arg(aux::type<Ts>{}, event, deps)...);
   log_guard<typename TSM::logger_t, typename TSM::sm_t>(typename TSM::has_logger{}, deps, object, event, result);
   return result;
 }
@@ -78,7 +72,7 @@ auto call_impl_with_logger(const aux::type<bool> &, const aux::type_list<Ts...> 
 template <class... Ts, class T, class TEvent, class TSM, class TDeps, class TSubs>
 auto call_impl(const aux::type_list<Ts...> &args, T object, const TEvent &event, TSM &sm, TDeps &deps, TSubs &,
                const aux::false_type &, const aux::true_type &) {
-  using result_type = decltype(object(get_arg<Ts>(event, deps)...));
+  using result_type = decltype(object(get_arg(aux::type<Ts>{}, event, deps)...));
   using type = aux::type<result_type>;
   return call_impl_with_logger(type{}, args, object, event, sm, deps);
 }
@@ -86,7 +80,7 @@ auto call_impl(const aux::type_list<Ts...> &args, T object, const TEvent &event,
 template <class... Ts, class T, class TEvent, class TSM, class TDeps, class TSubs>
 auto call_impl(const aux::type_list<Ts...> &, T object, const TEvent &event, TSM &, TDeps &deps, TSubs &,
                const aux::false_type &, const aux::false_type &) {
-  return object(get_arg<Ts>(event, deps)...);
+  return object(get_arg(aux::type<Ts>{}, event, deps)...);
 }
 
 template <class... Ts, class T, class TEvent, class TSM, class TDeps, class TSubs, class TLogger>

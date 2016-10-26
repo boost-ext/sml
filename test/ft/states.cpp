@@ -17,6 +17,9 @@ struct e3 {};
 struct e4 {};
 struct e5 {};
 struct e6 {};
+struct e7 {
+  int i = 0;
+};
 
 const auto idle = sml::state<class idle>;
 const auto s1 = sml::state<class s1>;
@@ -106,6 +109,36 @@ test states_entry_exit_actions = [] {
 };
 
 #if !defined(_MSC_VER)
+template <int N>
+struct generic_on_entry {
+  void operator()(const e7& event) { expect(N == event.i); }
+
+  template <class TEvent>
+  void operator()(const TEvent&) {}
+};
+
+test states_entry_exit_actions_with_events = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *idle + event<e7> = s1
+        , s1 + sml::on_entry / generic_on_entry<42>{}
+        , s1 + sml::on_exit / generic_on_entry<42>{}
+        , s1 + event<e1> = X
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c> sm;
+  sm.process_event(e7{42});
+  expect(sm.is(s1));
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
 test state_names = [] {
   struct c {
     auto operator()() noexcept {
@@ -113,7 +146,7 @@ test state_names = [] {
 
       // clang-format off
       return make_transition_table(
-          *"idle"_s + event<e1> = "s1"_s
+        *"idle"_s + event<e1> = "s1"_s
       );
       // clang-format on
     }

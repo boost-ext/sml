@@ -54,7 +54,6 @@ struct state_str<state<aux::string<Chrs...>(T)>, false> : state_str<state<aux::s
 template <class TState>
 
 struct state_impl : state_str<TState> {
-  using explicit_states = aux::type_list<>;
   template <class T>
   auto operator<=(const T &t) const {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
@@ -119,18 +118,14 @@ struct state<TState(history_state)> : state_impl<state<TState(history_state)>> {
   }
 };
 
-template <class TState, class... TExplicitStates>
-struct state<TState(TExplicitStates...)> : state_impl<state<TState(TExplicitStates...)>> {
-  using type = TState;
-  using explicit_states = aux::type_list<TExplicitStates...>;
+template <class T, class = void>
+struct state_sm {
+  using type = state<T>;
+};
 
-  static constexpr auto initial = false;
-  static constexpr auto history = false;
-
-  template <class T>
-  auto operator=(const T &t) const {
-    return transition<T, state>{t, *this};
-  }
+template <class T>
+struct state_sm<T, aux::enable_if_t<concepts::configurable<T>::value>> {
+  using type = state<sm<detail::sm_policy<T>>>;
 };
 
 }  // detail

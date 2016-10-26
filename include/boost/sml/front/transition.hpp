@@ -7,6 +7,8 @@
 #ifndef BOOST_SML_FRONT_TRANSITION_HPP
 #define BOOST_SML_FRONT_TRANSITION_HPP
 
+#include "boost/sml/front/state.hpp"
+
 namespace detail {
 
 template <class, class>
@@ -16,7 +18,7 @@ template <class E, class... Ts>
 struct ignore<E, aux::type_list<Ts...>> {
   template <class T>
   struct non_events {
-    using type = aux::conditional_t<aux::is_same<event_type_t<E>, aux::remove_reference_t<T>>::value, aux::type_list<>,
+    using type = aux::conditional_t<aux::is_same<get_event_t<E>, aux::remove_reference_t<T>>::value, aux::type_list<>,
                                     aux::type_list<T>>;
   };
 
@@ -226,15 +228,43 @@ struct transition<detail::state<S1>, transition<detail::state<S2>, transition<de
       : transition<detail::state<S1>, detail::state<S2>, detail::event<E>, G, A>{t.g, t.a} {}
 };
 
+template <class T, class TSubs, class... Ts, class... THs>
+void update_composite_states(TSubs &subs, const aux::true_type &, const aux::type_list<THs...> &) {
+  auto &sm = aux::get<T>(subs);
+  int _[]{0, (sm.current_state_[aux::get_id<typename T::initial_states_ids_t, -1, THs>()] =
+                  aux::get_id<typename T::states_ids_t, -1, THs>(),
+              0)...};
+  (void)_;
+}
+
+template <class T, class TSubs>
+void update_composite_states(TSubs &subs, const aux::false_type &, ...) {
+  aux::get<T>(subs).initialize(typename T::initial_states_t{});
+}
+
+template <class SM, class TDeps, class TSubs, class TSrcState, class TDstState>
+void update_current_state(SM &, TDeps &deps, TSubs &, typename SM::state_t &current_state,
+                          const typename SM::state_t &new_state, const TSrcState &src_state, const TDstState &dst_state) {
+  log_state_change<typename SM::logger_t, typename SM::sm_t>(typename SM::has_logger{}, deps, src_state, dst_state);
+  current_state = new_state;
+}
+
+template <class SM, class TDeps, class TSubs, class TSrcState, class T>
+void update_current_state(SM &, TDeps &deps, TSubs &subs, typename SM::state_t &current_state,
+                          const typename SM::state_t &new_state, const TSrcState &src_state,
+                          const detail::state<detail::sm<T>> &dst_state) {
+  log_state_change<typename SM::logger_t, typename SM::sm_t>(typename SM::has_logger{}, deps, src_state, dst_state);
+  current_state = new_state;
+  update_composite_states<sm_impl<T>>(subs, typename sm_impl<T>::has_history_states{}, typename sm_impl<T>::history_states_t{});
+}
+
 template <class S1, class S2, class E, class G, class A>
 struct transition<detail::state<S1>, detail::state<S2>, detail::event<E>, G, A> {
   static constexpr auto initial = detail::state<S2>::initial;
   static constexpr auto history = detail::state<S2>::history;
 
-  using is_internal = aux::is_same<S1, internal>;
-  using dst = aux::conditional_t<is_internal::value, S2, S1>;
   using src_state = typename detail::state<S2>::type;
-  using dst_state = typename detail::state<dst>::type;
+  using dst_state = typename detail::state<S1>::type;
   using event = E;
   using guard = G;
   using action = A;
@@ -245,9 +275,37 @@ struct transition<detail::state<S1>, detail::state<S2>, detail::event<E>, G, A> 
   template <class TEvent, class SM, class TDeps, class TSubs>
   bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
     if (call(g, event, sm, deps, subs)) {
-      sm.template update_current_state<typename detail::state<S1>::explicit_states>(
-          deps, subs, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), detail::state<src_state>{},
-          detail::state<dst_state>{}, is_internal{});
+      sm.process_internal_event(detail::on_exit<detail::_, TEvent>{event}, deps, subs, current_state);
+      update_current_state(sm, deps, subs, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(),
+                           detail::state<src_state>{}, detail::state<dst_state>{});
+      call(a, event, sm, deps, subs);
+      sm.process_internal_event(detail::on_entry<detail::_, TEvent>{event}, deps, subs, current_state);
+      return true;
+    }
+    return false;
+  }
+
+  G g;
+  A a;
+};
+
+template <class S2, class E, class G, class A>
+struct transition<detail::state<internal>, detail::state<S2>, detail::event<E>, G, A> {
+  static constexpr auto initial = detail::state<S2>::initial;
+  static constexpr auto history = detail::state<S2>::history;
+
+  using src_state = typename detail::state<S2>::type;
+  using dst_state = internal;
+  using event = E;
+  using guard = G;
+  using action = A;
+  using deps = aux::apply_t<aux::unique_t, aux::join_t<get_deps_t<G, E>, get_deps_t<A, E>>>;
+
+  transition(const G &g, const A &a) : g(g), a(a) {}
+
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &) {
+    if (call(g, event, sm, deps, subs)) {
       call(a, event, sm, deps, subs);
       return true;
     }
@@ -263,10 +321,8 @@ struct transition<detail::state<S1>, detail::state<S2>, detail::event<E>, always
   static constexpr auto initial = detail::state<S2>::initial;
   static constexpr auto history = detail::state<S2>::history;
 
-  using is_internal = aux::is_same<S1, internal>;
-  using dst = aux::conditional_t<is_internal::value, S2, S1>;
   using src_state = typename detail::state<S2>::type;
-  using dst_state = typename detail::state<dst>::type;
+  using dst_state = typename detail::state<S1>::type;
   using event = E;
   using guard = always;
   using action = A;
@@ -276,9 +332,33 @@ struct transition<detail::state<S1>, detail::state<S2>, detail::event<E>, always
 
   template <class TEvent, class SM, class TDeps, class TSubs>
   bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
-    sm.template update_current_state<typename detail::state<S1>::explicit_states>(
-        deps, subs, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), detail::state<src_state>{},
-        detail::state<dst_state>{}, is_internal{});
+    sm.process_internal_event(detail::on_exit<detail::_, TEvent>{event}, deps, subs, current_state);
+    update_current_state(sm, deps, subs, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(),
+                         detail::state<src_state>{}, detail::state<dst_state>{});
+    call(a, event, sm, deps, subs);
+    sm.process_internal_event(detail::on_entry<detail::_, TEvent>{event}, deps, subs, current_state);
+    return true;
+  }
+
+  A a;
+};
+
+template <class S2, class E, class A>
+struct transition<detail::state<internal>, detail::state<S2>, detail::event<E>, always, A> {
+  static constexpr auto initial = detail::state<S2>::initial;
+  static constexpr auto history = detail::state<S2>::history;
+
+  using src_state = typename detail::state<S2>::type;
+  using dst_state = internal;
+  using event = E;
+  using guard = always;
+  using action = A;
+  using deps = aux::apply_t<aux::unique_t, get_deps_t<A, E>>;
+
+  transition(const always &, const A &a) : a(a) {}
+
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &) {
     call(a, event, sm, deps, subs);
     return true;
   }
@@ -291,10 +371,8 @@ struct transition<detail::state<S1>, detail::state<S2>, detail::event<E>, G, non
   static constexpr auto initial = detail::state<S2>::initial;
   static constexpr auto history = detail::state<S2>::history;
 
-  using is_internal = aux::is_same<S1, internal>;
-  using dst = aux::conditional_t<is_internal::value, S2, S1>;
   using src_state = typename detail::state<S2>::type;
-  using dst_state = typename detail::state<dst>::type;
+  using dst_state = typename detail::state<S1>::type;
   using event = E;
   using guard = G;
   using action = none;
@@ -305,12 +383,35 @@ struct transition<detail::state<S1>, detail::state<S2>, detail::event<E>, G, non
   template <class TEvent, class SM, class TDeps, class TSubs>
   bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
     if (call(g, event, sm, deps, subs)) {
-      sm.template update_current_state<typename detail::state<S1>::explicit_states>(
-          deps, subs, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), detail::state<src_state>{},
-          detail::state<dst_state>{}, is_internal{});
+      sm.process_internal_event(detail::on_exit<detail::_, TEvent>{event}, deps, subs, current_state);
+      update_current_state(sm, deps, subs, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(),
+                           detail::state<src_state>{}, detail::state<dst_state>{});
+      sm.process_internal_event(detail::on_entry<detail::_, TEvent>{event}, deps, subs, current_state);
       return true;
     }
     return false;
+  }
+
+  G g;
+};
+
+template <class S2, class E, class G>
+struct transition<detail::state<internal>, detail::state<S2>, detail::event<E>, G, none> {
+  static constexpr auto initial = detail::state<S2>::initial;
+  static constexpr auto history = detail::state<S2>::history;
+
+  using src_state = typename detail::state<S2>::type;
+  using dst_state = internal;
+  using event = E;
+  using guard = G;
+  using action = none;
+  using deps = aux::apply_t<aux::unique_t, get_deps_t<G, E>>;
+
+  transition(const G &g, const none &) : g(g) {}
+
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &) {
+    return call(g, event, sm, deps, subs);
   }
 
   G g;
@@ -321,10 +422,8 @@ struct transition<detail::state<S1>, detail::state<S2>, detail::event<E>, always
   static constexpr auto initial = detail::state<S2>::initial;
   static constexpr auto history = detail::state<S2>::history;
 
-  using is_internal = aux::is_same<S1, internal>;
-  using dst = aux::conditional_t<is_internal::value, S2, S1>;
   using src_state = typename detail::state<S2>::type;
-  using dst_state = typename detail::state<dst>::type;
+  using dst_state = typename detail::state<S1>::type;
   using event = E;
   using guard = always;
   using action = none;
@@ -333,10 +432,33 @@ struct transition<detail::state<S1>, detail::state<S2>, detail::event<E>, always
   transition(const always &, const none &) {}
 
   template <class TEvent, class SM, class TDeps, class TSubs>
-  bool execute(const TEvent &, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
-    sm.template update_current_state<typename detail::state<S1>::explicit_states>(
-        deps, subs, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(), detail::state<src_state>{},
-        detail::state<dst_state>{}, is_internal{});
+  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
+    sm.process_internal_event(detail::on_exit<detail::_, TEvent>{event}, deps, subs, current_state);
+    update_current_state(sm, deps, subs, current_state, aux::get_id<typename SM::states_ids_t, -1, dst_state>(),
+                         detail::state<src_state>{}, detail::state<dst_state>{});
+    sm.process_internal_event(detail::on_entry<detail::_, TEvent>{event}, deps, subs, current_state);
+    return true;
+  }
+
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
+};
+
+template <class S2, class E>
+struct transition<detail::state<internal>, detail::state<S2>, detail::event<E>, always, none> {
+  static constexpr auto initial = detail::state<S2>::initial;
+  static constexpr auto history = detail::state<S2>::history;
+
+  using src_state = typename detail::state<S2>::type;
+  using dst_state = internal;
+  using event = E;
+  using guard = always;
+  using action = none;
+  using deps = aux::type_list<>;
+
+  transition(const always &, const none &) {}
+
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &) {
     return true;
   }
 

@@ -67,7 +67,8 @@ test logging = [] {
     }
   };
 
-  sml::sm<c, sml::logger<my_logger>> sm;
+  my_logger logger;
+  sml::sm<c, sml::logger<my_logger>> sm{logger};
   using namespace sml;
   sm.process_event("e1"_e);
   sm.process_event(e2{});
@@ -105,7 +106,8 @@ test logging_entry_exit = [] {
     }
   };
 
-  sml::sm<c, sml::logger<my_logger>> sm;
+  my_logger logger;
+  sml::sm<c, sml::logger<my_logger>> sm{logger};
   using namespace sml;
   sm.process_event("e1"_e);
   sm.process_event(e2{});
