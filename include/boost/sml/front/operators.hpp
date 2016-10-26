@@ -14,16 +14,27 @@ namespace detail {
 struct operator_base {};
 struct action_base {};
 
+#if defined(_MSC_VER)  // __pph__
+template <class, class>
+aux::type_list<> args1__(...);
+template <class T, class E>
+auto args1__(int) -> aux::function_traits_t<decltype(&T::operator())>;
+template <class T, class E>
+auto args__(...) -> decltype(args1__<T, E>(0));
+template <class T, class E>
+auto args__(int) -> aux::function_traits_t<decltype(&T::operator() < get_event_t<E>>)>;
+template <class T, class E>
+using args_t = decltype(args__<T, E>(0));
+#else   // __pph__
 template <class, class>
 aux::type_list<> args__(...);
-template <class T, class>
-auto args__(int) -> aux::function_traits_t<T>;
 template <class T, class E>
 auto args__(int) -> aux::function_traits_t<decltype(&T::template operator() < get_event_t<E>>)>;
 template <class T, class>
 auto args__(int) -> aux::function_traits_t<decltype(&T::operator())>;
 template <class T, class E>
 using args_t = decltype(args__<T, E>(0));
+#endif  // __pph__
 
 template <class T, class TEvent, class TDeps>
 decltype(auto) get_arg(const aux::type<T> &, const TEvent &, TDeps &deps) {
