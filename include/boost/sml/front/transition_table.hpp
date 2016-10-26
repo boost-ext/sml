@@ -21,10 +21,10 @@ using _ = detail::_;
 template <class TEvent>
 detail::event<TEvent> event __BOOST_SML_VT_INIT;
 
-template<class TEvent>
+template <class TEvent>
 __BOOST_SML_UNUSED detail::event<detail::on_entry<_, TEvent>> on_entry __BOOST_SML_VT_INIT;
 
-template<class TEvent>
+template <class TEvent>
 __BOOST_SML_UNUSED detail::event<detail::on_exit<_, TEvent>> on_exit __BOOST_SML_VT_INIT;
 
 template <class TEvent>
