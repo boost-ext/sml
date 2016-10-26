@@ -274,8 +274,8 @@ struct states {
     const auto idle = state&lt;class idle&gt;;
     return make_transition_table(
        *idle + event&lt;e1&gt; = &quot;s1&quot;_s
-      , &quot;s1&quot;_s + sml::on_entry / [] { std::cout &lt;&lt; &quot;s1 on entry&quot; &lt;&lt; std::endl; }
-      , &quot;s1&quot;_s + sml::on_exit / [] { std::cout &lt;&lt; &quot;s1 on exit&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + sml::on_entry&lt;_&gt; / [] { std::cout &lt;&lt; &quot;s1 on entry&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + sml::on_exit&lt;_&gt; / [] { std::cout &lt;&lt; &quot;s1 on exit&quot; &lt;&lt; std::endl; }
       , &quot;s1&quot;_s + event&lt;e2&gt; = state&lt;class s2&gt;
       , state&lt;class s2&gt; + event&lt;e3&gt; = X
     );
@@ -385,12 +385,12 @@ struct transitions {
   auto operator()() const noexcept {
     using namespace sml;
     return make_transition_table(
-       *&quot;idle&quot;_s                / [] { std::cout &lt;&lt; &quot;anonymous transition&quot; &lt;&lt; std::endl; } = &quot;s1&quot;_s
-      , &quot;s1&quot;_s + event&lt;e1&gt;      / [] { std::cout &lt;&lt; &quot;internal transition&quot; &lt;&lt; std::endl; }
-      , &quot;s1&quot;_s + event&lt;e2&gt;      / [] { std::cout &lt;&lt; &quot;self transition&quot; &lt;&lt; std::endl; } = &quot;s1&quot;_s
-      , &quot;s1&quot;_s + sml::on_entry  / [] { std::cout &lt;&lt; &quot;s1 entry&quot; &lt;&lt; std::endl; }
-      , &quot;s1&quot;_s + sml::on_exit   / [] { std::cout &lt;&lt; &quot;s1 exit&quot; &lt;&lt; std::endl; }
-      , &quot;s1&quot;_s + event&lt;e3&gt;      / [] { std::cout &lt;&lt; &quot;external transition&quot; &lt;&lt; std::endl; } = X
+       *&quot;idle&quot;_s                  / [] { std::cout &lt;&lt; &quot;anonymous transition&quot; &lt;&lt; std::endl; } = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + event&lt;e1&gt;        / [] { std::cout &lt;&lt; &quot;internal transition&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + event&lt;e2&gt;        / [] { std::cout &lt;&lt; &quot;self transition&quot; &lt;&lt; std::endl; } = &quot;s1&quot;_s
+      , &quot;s1&quot;_s + sml::on_entry&lt;_&gt; / [] { std::cout &lt;&lt; &quot;s1 entry&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + sml::on_exit&lt;_&gt;  / [] { std::cout &lt;&lt; &quot;s1 exit&quot; &lt;&lt; std::endl; }
+      , &quot;s1&quot;_s + event&lt;e3&gt;        / [] { std::cout &lt;&lt; &quot;external transition&quot; &lt;&lt; std::endl; } = X
     );
   }
 };
