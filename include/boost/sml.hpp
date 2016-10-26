@@ -1376,7 +1376,7 @@ template <class TState>
 struct stringable<state<TState>> {
   static constexpr bool value = concepts::stringable<TState>::value;
 };
-template <class S, bool is_stringable = stringable<S>::value>
+template <class S, bool = stringable<S>::value>
 struct state_str {
   static auto c_str() { return S::type::c_str(); }
 };
