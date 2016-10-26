@@ -104,12 +104,15 @@ namespace sml = boost::sml;
 </ul>
 </li>
 </ul>
-<pre><code class="cpp">  &quot;src_state&quot;_s + event&lt;e&gt; = &quot;dst_state&quot;_s                   // Error on MSVC-2015, Ok on GCC-5+, Clang-3.4+
-  state&lt;class src_state&gt; + event&lt;e&gt; = state&lt;class dst_state&gt; // Ok on all supported compilers
+<pre><code class="cpp">  &quot;src_state&quot;_s + event&lt;e&gt; = &quot;dst_state&quot;_s                                // Error on MSVC-2015, Ok on GCC-5+, Clang-3.4+
+  state&lt;class src_state&gt; + event&lt;e&gt; = state&lt;class dst_state&gt;              // Ok on all supported compilers
 </code></pre>
 
-<pre><code class="cpp">  state&lt;class a&gt; + event&lt;e&gt; / [](const auto&amp; event) {}       // Error on MSVC-2015, Ok on GCC-5+, Clang-3.4+
-  state&lt;class a&gt; + event&lt;e&gt; / [](const e&amp; event) {}          // Ok on all supported compilers
+<pre><code class="cpp">  const auto guard1 = [] { return true; }
+  state&lt;class a&gt; + event&lt;e&gt; [ guard1 ] / [](const auto&amp; event) {}          // Error on MSVC-2015, Ok on GCC-5+, Clang-3.4+
+
+  const auto guard2 = [] -&gt; bool { return true; }
+  state&lt;class a&gt; + event&lt;e&gt; [ gurad2 ] / [](const auto&amp; event) -&gt; void {}  // Ok on all supported compilers
 </code></pre>
 
 <h3 id="configuration">Configuration</h3>
