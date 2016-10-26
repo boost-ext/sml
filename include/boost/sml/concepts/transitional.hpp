@@ -29,9 +29,6 @@ struct is_valid_transition<S1, S2, detail::on_entry<T, TEvent>, Ts...> : aux::is
 template <class S1, class S2, class T, class TEvent, class... Ts>
 struct is_valid_transition<S1, S2, detail::on_exit<T, TEvent>, Ts...> : aux::is_same<S1, detail::internal> {};
 
-template <class... Ts>
-struct is_valid_transition<detail::terminate_state, Ts...> : aux::true_type {};
-
 aux::false_type transitional_impl(...);
 
 template <class T>

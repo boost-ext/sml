@@ -21,11 +21,14 @@ using _ = detail::_;
 template <class TEvent>
 detail::event<TEvent> event __BOOST_SML_VT_INIT;
 
-__BOOST_SML_UNUSED static detail::event<detail::on_entry<_>> on_entry;
-__BOOST_SML_UNUSED static detail::event<detail::on_exit<_>> on_exit;
+template<class TEvent>
+__BOOST_SML_UNUSED detail::event<detail::on_entry<_, TEvent>> on_entry __BOOST_SML_VT_INIT;
 
-template <class T>
-detail::event<detail::unexpected_event<T, T>> unexpected_event __BOOST_SML_VT_INIT;
+template<class TEvent>
+__BOOST_SML_UNUSED detail::event<detail::on_exit<_, TEvent>> on_exit __BOOST_SML_VT_INIT;
+
+template <class TEvent>
+detail::event<detail::unexpected_event<TEvent>> unexpected_event __BOOST_SML_VT_INIT;
 
 template <class T>
 detail::event<detail::exception<T>> exception __BOOST_SML_VT_INIT;

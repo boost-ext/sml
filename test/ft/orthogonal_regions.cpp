@@ -90,8 +90,8 @@ test orthogonal_regions_initial_entry = [] {
       // clang-format off
 
       return make_transition_table(
-          *idle + sml::on_entry / [this] { ++entry_1; }
-        , *idle2 + sml::on_entry / [this] { ++entry_2; }
+          *idle + sml::on_entry<_> / [this] { ++entry_1; }
+        , *idle2 + sml::on_entry<_> / [this] { ++entry_2; }
       );
       // clang-format on
     }
@@ -120,12 +120,12 @@ test orthogonal_regions_entry_exit_multiple = [] {
         *idle = a,
         *idle2 = b,
         *idle3 = c,
-        a + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
-        a + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
-        b + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
-        b + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b_exit); },
-        c + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::c_entry); },
-        c + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::c_exit); },
+        a + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
+        a + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
+        b + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
+        b + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::b_exit); },
+        c + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::c_entry); },
+        c + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::c_exit); },
         a + event<e1> = X,
         b + event<e1> = X,
         c + event<e1> = X
@@ -154,8 +154,8 @@ test orthogonal_regions_entry_exit = [] {
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
-        , s1 + sml::on_entry / entry_action
-        , s1 + sml::on_exit / exit_action
+        , s1 + sml::on_entry<_> / entry_action
+        , s1 + sml::on_exit<_> / exit_action
         , s1 + event<e2> = s2
 
         ,*idle2 + event<e3> = s3
@@ -217,10 +217,10 @@ test orthogonal_regions_reentries = [] {
       // clang-format off
       return make_transition_table(
         *a1 + event<e4> = a2,
-         a1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
-         a1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); },
-         a2 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a2_entry); },
-         a2 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a2_exit); }
+         a1 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
+         a1 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); },
+         a2 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::a2_entry); },
+         a2 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::a2_exit); }
       );
       // clang-format on
     }
@@ -234,10 +234,10 @@ test orthogonal_regions_reentries = [] {
       // clang-format off
       return make_transition_table(
         *b1 + event<e4> = b2,
-         b1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
-         b1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); },
-         b2 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b2_entry); },
-         b2 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b2_exit); }
+         b1 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
+         b1 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); },
+         b2 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::b2_entry); },
+         b2 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::b2_exit); }
       );
       // clang-format on
     }
@@ -251,10 +251,10 @@ test orthogonal_regions_reentries = [] {
       // clang-format off
       return make_transition_table(
         *c1 + event<e4> = c2,
-         c1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::c1_entry); },
-         c1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::c1_exit); },
-         c2 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::c2_entry); },
-         c2 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::c2_exit); }
+         c1 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::c1_entry); },
+         c1 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::c1_exit); },
+         c2 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::c2_entry); },
+         c2 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::c2_exit); }
       );
       // clang-format on
     }
@@ -277,18 +277,18 @@ test orthogonal_regions_reentries = [] {
           b + event<e2> = y,
          *idle3 = c,
           c + event<e3> = z,
-          a + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
-          a + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
-          x + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
-          x + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); },
-          b + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
-          b + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b_exit); },
-          y + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::y_entry); },
-          y + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::y_exit); },
-          c + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::c_entry); },
-          c + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::c_exit); },
-          z + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::z_entry); },
-          z + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::z_exit); }
+          a + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
+          a + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
+          x + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
+          x + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); },
+          b + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
+          b + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::b_exit); },
+          y + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::y_entry); },
+          y + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::y_exit); },
+          c + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::c_entry); },
+          c + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::c_exit); },
+          z + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::z_entry); },
+          z + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::z_exit); }
       );
       // clang-format on
     }

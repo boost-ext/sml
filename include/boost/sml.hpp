@@ -402,30 +402,37 @@ struct unexpected_event : internal_event {
 template <class TEvent>
 struct event_type {
   using event_t = TEvent;
-  using mapped_t = TEvent;
+  using generic_t = TEvent;
+  using mapped_t = void;
 };
 template <class TEvent>
 struct event_type<exception<TEvent>> {
   using event_t = TEvent;
-  using mapped_t = exception<TEvent>;
+  using generic_t = exception<TEvent>;
+  using mapped_t = void;
 };
 template <class TEvent, class T>
 struct event_type<unexpected_event<T, TEvent>> {
   using event_t = TEvent;
-  using mapped_t = unexpected_event<T>;
+  using generic_t = unexpected_event<T>;
+  using mapped_t = void;
 };
 template <class TEvent, class T>
 struct event_type<on_entry<T, TEvent>> {
   using event_t = TEvent;
-  using mapped_t = on_entry<T>;
+  using generic_t = on_entry<T>;
+  using mapped_t = on_entry<T, TEvent>;
 };
 template <class TEvent, class T>
 struct event_type<on_exit<T, TEvent>> {
   using event_t = TEvent;
-  using mapped_t = on_exit<T>;
+  using generic_t = on_exit<T>;
+  using mapped_t = on_exit<T, TEvent>;
 };
 template <class TEvent>
 using get_event_t = typename event_type<TEvent>::event_t;
+template <class TEvent>
+using get_generic_t = typename event_type<TEvent>::generic_t;
 template <class TEvent>
 using get_mapped_t = typename event_type<TEvent>::mapped_t;
 }
@@ -689,8 +696,6 @@ template <class S1, class S2, class T, class TEvent, class... Ts>
 struct is_valid_transition<S1, S2, detail::on_entry<T, TEvent>, Ts...> : aux::is_same<S1, detail::internal> {};
 template <class S1, class S2, class T, class TEvent, class... Ts>
 struct is_valid_transition<S1, S2, detail::on_exit<T, TEvent>, Ts...> : aux::is_same<S1, detail::internal> {};
-template <class... Ts>
-struct is_valid_transition<detail::terminate_state, Ts...> : aux::true_type {};
 aux::false_type transitional_impl(...);
 template <class T>
 auto transitional_impl(T &&t) -> is_valid_transition<typename T::dst_state, typename T::src_state, typename T::event,
@@ -835,9 +840,9 @@ class sm_impl {
     log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
     const auto handled =
-        process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings_t>>(event, deps, subs, has_exceptions{});
+        process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(event, deps, subs, has_exceptions{});
 #else
-    const auto handled = process_event_impl<get_event_mapping_t<get_mapped_t<TEvent>, mappings_t>>(
+    const auto handled = process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(
         event, deps, subs, states_t{}, aux::make_index_sequence<regions>{});
 #endif
     process_internal_event(anonymous{}, deps, subs);
@@ -860,19 +865,32 @@ class sm_impl {
     }
   }
   template <class TEvent, class TDeps, class TSubs,
-            __BOOST_SML_REQUIRES(!aux::is_base_of<aux::pool_type<get_mapped_t<TEvent>>, events_ids_t>::value)>
+            __BOOST_SML_REQUIRES(!aux::is_base_of<aux::pool_type<get_generic_t<TEvent>>, events_ids_t>::value &&
+                                 !aux::is_base_of<aux::pool_type<get_mapped_t<TEvent>>, events_ids_t>::value)>
   bool process_internal_event(const TEvent &, TDeps &, TSubs &, ...) {
     return false;
   }
   template <class TEvent, class TDeps, class TSubs,
-            __BOOST_SML_REQUIRES(aux::is_base_of<aux::pool_type<get_mapped_t<TEvent>>, events_ids_t>::value)>
+            __BOOST_SML_REQUIRES(aux::is_base_of<aux::pool_type<get_generic_t<TEvent>>, events_ids_t>::value)>
   bool process_internal_event(const TEvent &event, TDeps &deps, TSubs &subs) {
     log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-    return process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings_t>>(event, deps, subs, has_exceptions{});
+    return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(event, deps, subs, has_exceptions{});
 #else
-    return process_event_impl<get_event_mapping_t<get_mapped_t<TEvent>, mappings_t>>(event, deps, subs, states_t{},
-                                                                                     aux::make_index_sequence<regions>{});
+    return process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(event, deps, subs, states_t{},
+                                                                                      aux::make_index_sequence<regions>{});
+#endif
+  }
+  template <class TEvent, class TDeps, class TSubs,
+            __BOOST_SML_REQUIRES(aux::is_base_of<aux::pool_type<get_generic_t<TEvent>>, events_ids_t>::value)>
+  bool process_internal_event(const TEvent &event, TDeps &deps, TSubs &subs, state_t &current_state) {
+    log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
+    return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(event, deps, subs, current_state,
+                                                                                          has_exceptions{});
+#else
+    return process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(event, deps, subs, states_t{},
+                                                                                      current_state);
 #endif
   }
   template <class TEvent, class TDeps, class TSubs,
@@ -1844,10 +1862,12 @@ struct transition<detail::state<internal>, detail::state<S2>, detail::event<E>, 
 using _ = detail::_;
 template <class TEvent>
 detail::event<TEvent> event __BOOST_SML_VT_INIT;
-__BOOST_SML_UNUSED static detail::event<detail::on_entry<_>> on_entry;
-__BOOST_SML_UNUSED static detail::event<detail::on_exit<_>> on_exit;
-template <class T>
-detail::event<detail::unexpected_event<T, T>> unexpected_event __BOOST_SML_VT_INIT;
+template <class TEvent>
+__BOOST_SML_UNUSED detail::event<detail::on_entry<_, TEvent>> on_entry __BOOST_SML_VT_INIT;
+template <class TEvent>
+__BOOST_SML_UNUSED detail::event<detail::on_exit<_, TEvent>> on_exit __BOOST_SML_VT_INIT;
+template <class TEvent>
+detail::event<detail::unexpected_event<TEvent>> unexpected_event __BOOST_SML_VT_INIT;
 template <class T>
 detail::event<detail::exception<T>> exception __BOOST_SML_VT_INIT;
 template <class T>

@@ -98,8 +98,8 @@ test logging_entry_exit = [] {
       // clang-format off
       return make_transition_table(
           *"idle"_s + "e1"_e = s1
-        , s1 + sml::on_entry / [](){}
-        , s1 + sml::on_exit / [](){}
+        , s1 + sml::on_entry<_> / [](){}
+        , s1 + sml::on_exit<_> / [](){}
         , s1 + event<e2> = X
       );
       // clang-format on

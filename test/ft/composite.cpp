@@ -60,8 +60,8 @@ test composite = [] {
       return make_transition_table(
          *idle + event<e1> [guard2{}] / [this] { a_initial = true; } = s1
         , s1 + event<e2> [guard]  / [this]{ a_enter_sub_sm = true; } = state<sub>
-        , state<sub> + sml::on_entry / [this] { a_on_entry_sub_sm = true; }
-        , state<sub> + sml::on_exit / [this] { a_on_exit_sub_sm = true; }
+        , state<sub> + sml::on_entry<_> / [this] { a_on_entry_sub_sm = true; }
+        , state<sub> + sml::on_exit<_> / [this] { a_on_exit_sub_sm = true; }
         , state<sub> + event<e5> [guard2{}] / [this] { a_exit_sub_sm = true; } = s2
       );
       // clang-format on
@@ -290,8 +290,8 @@ test composite_entry_exit_initial = [] {
 
       // clang-format off
       return make_transition_table(
-       *idle + sml::on_entry / [this] { ++entry_calls; },
-        idle + sml::on_exit / [this] { ++exit_calls; }
+       *idle + sml::on_entry<_> / [this] { ++entry_calls; },
+        idle + sml::on_exit<_> / [this] { ++exit_calls; }
       );
       // clang-format on
     }
@@ -306,8 +306,8 @@ test composite_entry_exit_initial = [] {
 
       // clang-format off
       return make_transition_table(
-       *state<sub> + sml::on_entry / [this] { ++entry_calls; },
-        state<sub> + sml::on_exit / [this] { ++exit_calls; }
+       *state<sub> + sml::on_entry<_> / [this] { ++entry_calls; },
+        state<sub> + sml::on_exit<_> / [this] { ++exit_calls; }
       );
       // clang-format on
     }
@@ -353,10 +353,10 @@ test composite_entry_exit_initial_complex = [] {
       // clang-format off
       return make_transition_table(
         *ss1_1 + event<e1> = ss1_2,
-         ss1_1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS1_1_entry); },
-         ss1_2 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS1_2_entry); },
-         ss1_1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS1_1_exit); },
-         ss1_2 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS1_2_exit); }
+         ss1_1 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::SS1_1_entry); },
+         ss1_2 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::SS1_2_entry); },
+         ss1_1 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::SS1_1_exit); },
+         ss1_2 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::SS1_2_exit); }
       );
       // clang-format on
     }
@@ -369,10 +369,10 @@ test composite_entry_exit_initial_complex = [] {
       // clang-format off
       return make_transition_table(
         *ss2_1 + event<e1> = ss2_1,
-         ss2_1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS2_1_entry); },
-         ss2_2 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS2_2_entry); },
-         ss2_1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS2_1_exit); },
-         ss2_2 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS2_2_exit); }
+         ss2_1 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::SS2_1_entry); },
+         ss2_2 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::SS2_2_entry); },
+         ss2_1 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::SS2_1_exit); },
+         ss2_2 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::SS2_2_exit); }
       );
       // clang-format on
     }
@@ -387,10 +387,10 @@ test composite_entry_exit_initial_complex = [] {
       // clang-format off
       return make_transition_table(
         *ss1 + event<e2> = ss2,
-         ss1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS1_entry); },
-         ss2 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::SS2_entry); },
-         ss1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS1_exit); },
-         ss2 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::SS2_exit); }
+         ss1 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::SS1_entry); },
+         ss2 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::SS2_entry); },
+         ss1 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::SS1_exit); },
+         ss2 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::SS2_exit); }
       );
       // clang-format on
     }
@@ -522,8 +522,8 @@ test composite_sub_entry_exit = [] {
       // clang-format off
       return make_transition_table(
         *a1 + event<e2> = a2,
-         a1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
-         a1 + sml::on_exit / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); }
+         a1 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
+         a1 + sml::on_exit<_> / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); }
       );
       // clang-format on
     }
@@ -537,8 +537,8 @@ test composite_sub_entry_exit = [] {
       // clang-format off
       return make_transition_table(
         *b1 + event<e2> = b2,
-         b1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
-         b1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); }
+         b1 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
+         b1 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); }
       );
       // clang-format on
     }
@@ -575,8 +575,8 @@ test composite_anonymous_entry_transitions = [] {
       // clang-format off
       return make_transition_table(
          *idle = a1,
-          a1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
-          a1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); }
+          a1 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
+          a1 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); }
       );
       // clang-format on
     }
@@ -590,8 +590,8 @@ test composite_anonymous_entry_transitions = [] {
       // clang-format off
       return make_transition_table(
          *idle = b1,
-          b1 + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
-          b1 + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); }
+          b1 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
+          b1 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); }
       );
       // clang-format on
     }
@@ -606,12 +606,12 @@ test composite_anonymous_entry_transitions = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-        *x + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
-         x + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); },
-         a + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
-         a + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
-         b + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
-         b + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::b_exit); }
+        *x + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
+         x + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); },
+         a + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::a_entry); },
+         a + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::a_exit); },
+         b + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::b_entry); },
+         b + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::b_exit); }
       );
       // clang-format on
     }
@@ -646,10 +646,10 @@ test composite_entry_exit_sub_sm = [] {
       return make_transition_table(
         *state<class ls1_1> + event<e1> = state<class ls1_2>
        , state<class ls1_2> + event<e2> = state<class ls1_1>
-       , state<class ls1_1> + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::ls1_1_entry); }
-       , state<class ls1_1> + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::ls1_1_exit); }
-       , state<class ls1_2> + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::ls1_2_entry); }
-       , state<class ls1_2> + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::ls1_2_exit); }
+       , state<class ls1_1> + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::ls1_1_entry); }
+       , state<class ls1_1> + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::ls1_1_exit); }
+       , state<class ls1_2> + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::ls1_2_entry); }
+       , state<class ls1_2> + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::ls1_2_exit); }
       );
       // clang-format on
     }
@@ -662,10 +662,10 @@ test composite_entry_exit_sub_sm = [] {
       return make_transition_table(
         *state<class ls2_1> + event<e1> = state<class ls2_2>
        , state<class ls2_2> + event<e2> = state<class ls2_1>
-       , state<class ls2_1> + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::ls2_1_entry); }
-       , state<class ls2_1> + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::ls2_1_exit); }
-       , state<class ls2_2> + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::ls2_2_entry); }
-       , state<class ls2_2> + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::ls2_2_exit); }
+       , state<class ls2_1> + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::ls2_1_entry); }
+       , state<class ls2_1> + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::ls2_1_exit); }
+       , state<class ls2_2> + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::ls2_2_entry); }
+       , state<class ls2_2> + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::ls2_2_exit); }
       );
       // clang-format on
     }
@@ -678,10 +678,10 @@ test composite_entry_exit_sub_sm = [] {
       return make_transition_table(
         *state<sub_1> + event<e3> = state<sub_2>
        , state<sub_2> + event<e4> = state<sub_1>
-       , state<sub_1> + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::sub1_entry); }
-       , state<sub_1> + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::sub1_exit); }
-       , state<sub_2> + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::sub2_entry); }
-       , state<sub_2> + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::sub2_exit); }
+       , state<sub_1> + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::sub1_entry); }
+       , state<sub_1> + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::sub1_exit); }
+       , state<sub_2> + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::sub2_entry); }
+       , state<sub_2> + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::sub2_exit); }
       );
       // clang-format on
     }

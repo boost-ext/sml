@@ -96,12 +96,12 @@ test no_history_reenter_sub = [] {
       return make_transition_table(
         *a + event<e1> = b,
          b + event<e2> = c,
-         a + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_a_entry); },
-         b + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_b_entry); },
-         c + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_c_entry); },
-         a + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_a_exit); },
-         b + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_b_exit); },
-         c + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_c_exit); }
+         a + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::s_a_entry); },
+         b + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::s_b_entry); },
+         c + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::s_c_entry); },
+         a + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::s_a_exit); },
+         b + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::s_b_exit); },
+         c + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::s_c_exit); }
       );
       // clang-format on
     }
@@ -118,10 +118,10 @@ test no_history_reenter_sub = [] {
         *idle = s,
          s + event<e3> = x,
          x + event<e4> = s,
-         s + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::s_entry); },
-         x + sml::on_entry / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
-         s + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::s_exit); },
-         x + sml::on_exit  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); }
+         s + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::s_entry); },
+         x + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::x_entry); },
+         s + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::s_exit); },
+         x + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::x_exit); }
       );
       // clang-format on
     }

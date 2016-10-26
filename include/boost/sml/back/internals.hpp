@@ -50,35 +50,43 @@ struct unexpected_event : internal_event {
 template <class TEvent>
 struct event_type {
   using event_t = TEvent;
-  using mapped_t = TEvent;
+  using generic_t = TEvent;
+  using mapped_t = void;
 };
 
 template <class TEvent>
 struct event_type<exception<TEvent>> {
   using event_t = TEvent;
-  using mapped_t = exception<TEvent>;
+  using generic_t = exception<TEvent>;
+  using mapped_t = void;
 };
 
 template <class TEvent, class T>
 struct event_type<unexpected_event<T, TEvent>> {
   using event_t = TEvent;
-  using mapped_t = unexpected_event<T>;
+  using generic_t = unexpected_event<T>;
+  using mapped_t = void;
 };
 
 template <class TEvent, class T>
 struct event_type<on_entry<T, TEvent>> {
   using event_t = TEvent;
-  using mapped_t = on_entry<T>;
+  using generic_t = on_entry<T>;
+  using mapped_t = on_entry<T, TEvent>;
 };
 
 template <class TEvent, class T>
 struct event_type<on_exit<T, TEvent>> {
   using event_t = TEvent;
-  using mapped_t = on_exit<T>;
+  using generic_t = on_exit<T>;
+  using mapped_t = on_exit<T, TEvent>;
 };
 
 template <class TEvent>
 using get_event_t = typename event_type<TEvent>::event_t;
+
+template <class TEvent>
+using get_generic_t = typename event_type<TEvent>::generic_t;
 
 template <class TEvent>
 using get_mapped_t = typename event_type<TEvent>::mapped_t;

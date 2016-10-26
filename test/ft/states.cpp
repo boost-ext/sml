@@ -83,8 +83,8 @@ test states_entry_exit_actions = [] {
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
-        , s1 + sml::on_entry / entry_action
-        , s1 + sml::on_exit / exit_action
+        , s1 + sml::on_entry<_> / entry_action
+        , s1 + sml::on_exit<_> / exit_action
         , s1 + event<e2> = s2
       );
       // clang-format on
@@ -124,8 +124,8 @@ test states_entry_exit_actions_with_events = [] {
       // clang-format off
       return make_transition_table(
          *idle + event<e7> = s1
-        , s1 + sml::on_entry / generic_on_entry<42>{}
-        , s1 + sml::on_exit / generic_on_entry<42>{}
+        , s1 + sml::on_entry<e7> / [](const auto& event) { expect(42 == event.i); }
+        , s1 + sml::on_exit<_> / generic_on_entry<42>{}
         , s1 + event<e1> = X
       );
       // clang-format on

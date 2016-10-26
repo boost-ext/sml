@@ -84,18 +84,18 @@ test defer_and_transitions = [] {
       // clang-format off
       return make_transition_table(
        *state1 + event<event1> / defer,
-        state1 + on_entry / [this] { entries.emplace_back(1); },
+        state1 + on_entry<_> / [this] { entries.emplace_back(1); },
         state2 + event<event1> / defer,
-        state2 + on_entry / [this] { entries.emplace_back(2); },
+        state2 + on_entry<_> / [this] { entries.emplace_back(2); },
         state1 + event<event2> = state2,
         state2 + event<event2> = state3,
         state3 + event<event1> = state4,
-        state3 + on_entry / [this] { entries.emplace_back(3); },
+        state3 + on_entry<_> / [this] { entries.emplace_back(3); },
         state4 + event<event1> = state5,
-        state4 + on_entry / [this] { entries.emplace_back(4); },
+        state4 + on_entry<_> / [this] { entries.emplace_back(4); },
         state5 + event<event1> = state6,
-        state5 + on_entry / [this] { entries.emplace_back(5); },
-        state6 + on_entry / [this] { entries.emplace_back(6); }
+        state5 + on_entry<_> / [this] { entries.emplace_back(5); },
+        state6 + on_entry<_> / [this] { entries.emplace_back(6); }
       );
       // clang-format on
     }
@@ -125,15 +125,15 @@ test defer_and_anonymous = [] {
       // clang-format off
       return make_transition_table(
        *state1 + event<event1> / defer,
-        state1 + on_entry / [this] { entries.emplace_back(1); },
+        state1 + on_entry<_> / [this] { entries.emplace_back(1); },
         state1 + event<event2> = state2,
         state2 = state3,
-        state2 + on_entry / [this] { entries.emplace_back(2); },
+        state2 + on_entry<_> / [this] { entries.emplace_back(2); },
         state3 + event<event1> = state4,
-        state4 + on_entry / [this] { entries.emplace_back(4); },
-        state3 + on_entry / [this] { entries.emplace_back(3); },
+        state4 + on_entry<_> / [this] { entries.emplace_back(4); },
+        state3 + on_entry<_> / [this] { entries.emplace_back(3); },
         state2 + event<event1> = state5,
-        state5 + on_entry / [this] { entries.emplace_back(5); }
+        state5 + on_entry<_> / [this] { entries.emplace_back(5); }
       );
       // clang-format on
     }

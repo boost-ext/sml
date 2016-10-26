@@ -87,8 +87,8 @@ test self_transition = [] {
       return make_transition_table(
         *idle = s1 // anonymous-transition
        , s1 + event<e1> / [] (std::vector<calls>& c) { c.push_back(calls::s1_action); } = s1 // self-transition
-       , s1 + sml::on_entry / [] (std::vector<calls>& c) { c.push_back(calls::s1_entry); } // internal-transition
-       , s1 + sml::on_exit  / [] (std::vector<calls>& c) { c.push_back(calls::s1_exit); } // internal-transition
+       , s1 + sml::on_entry<_> / [] (std::vector<calls>& c) { c.push_back(calls::s1_entry); } // internal-transition
+       , s1 + sml::on_exit<_>  / [] (std::vector<calls>& c) { c.push_back(calls::s1_exit); } // internal-transition
       );
       // clang-format on
     }
@@ -447,7 +447,7 @@ test initial_entry = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-         *idle + sml::on_entry / [this] { ++entry_calls; }
+         *idle + sml::on_entry<_> / [this] { ++entry_calls; }
       );
       // clang-format on
     }

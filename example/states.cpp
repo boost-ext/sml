@@ -22,8 +22,8 @@ struct states {
     // clang-format off
     return make_transition_table(
        *idle + event<e1> = "s1"_s
-      , "s1"_s + sml::on_entry / [] { std::cout << "s1 on entry" << std::endl; }
-      , "s1"_s + sml::on_exit / [] { std::cout << "s1 on exit" << std::endl; }
+      , "s1"_s + sml::on_entry<_> / [] { std::cout << "s1 on entry" << std::endl; }
+      , "s1"_s + sml::on_exit<_> / [] { std::cout << "s1 on exit" << std::endl; }
       , "s1"_s + event<e2> = state<class s2>
       , state<class s2> + event<e3> = X
     );
