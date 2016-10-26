@@ -79,16 +79,16 @@ sm.process_event(event{}); // thread safe call
 ###Error messages
 
 ***Not configurable***
-![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/example/errors/not_configurable.cpp)
+![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/test/ft/errors/not_configurable.cpp)
 
 ***Not callable***
-![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/example/errors/not_callable.cpp)
+![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/test/ft/errors/not_callable.cpp)
 
 ***Not transitional***
-![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/example/errors/not_transitional.cpp)
+![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/test/ft/errors/not_transitional.cpp)
 
 ***Not dispatchable***
-![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/example/errors/not_dispatchable.cpp)
+![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/test/ft/errors/not_dispatchable.cpp)
 
 [Boost.MSM-eUML]: http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html
 [Boost.MSM3-eUML2]: https://htmlpreview.github.io/?https://raw.githubusercontent.com/boostorg/msm/msm3/doc/HTML/ch03s05.html
