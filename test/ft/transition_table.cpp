@@ -109,16 +109,15 @@ struct c_action {
   void operator()(const T &) noexcept {}
 };
 
-#if !defined(_MSC_VER)
 test transition_table_types = [] {
   struct c {
     auto operator()() noexcept {
       using namespace sml;
       auto guard1 = [] { return true; };
-      auto guard2 = [](auto) { return false; };
+      auto guard2 = [](auto) -> bool { return false; };
       auto guard3 = [=](int v) { return [=] { return guard2(v); }; };
       auto action1 = [] {};
-      auto action2 = [](int, auto, float &) {};
+      auto action2 = [](int, auto, float &) -> void {};
 
       struct sub {
         auto operator()() noexcept {
@@ -152,10 +151,10 @@ test transition_table_types = [] {
         , idle + event<e1> / (action1, c_action{1}) = s1
         , idle + event<e1> [guard1 && guard2] / (action1, action2) = s1
         , idle + event<e1> [guard1 && guard2] / (action1, action2, []{}) = s1
-        , idle + event<e1> [guard1 || !guard2] / (action1, action2, []{}, [](auto){}) = s1
-        , idle + event<e2> [guard1 || guard2] / (action1, action2, []{}, [](int, auto, float){}) = s1
-        , idle + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float){}) = X
-        , idle + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto) { return false; } ] / (action1, action2, []{}, [](int, auto, double){}) = X
+        , idle + event<e1> [guard1 || !guard2] / (action1, action2, []{}, [](auto) -> void {}) = s1
+        , idle + event<e2> [guard1 || guard2] / (action1, action2, []{}, [](int, const auto&, float) -> void{}) = s1
+        , idle + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float) -> void{}) = X
+        , idle + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto)  -> void{ return false; } ] / (action1, action2, []{}, [](int, auto, double) -> void{}) = X
         , state<sub> + event<e1> / []{}
         , state<sub>(s1) + event<e1> / []{}
         , state<sub>(s1) = s2
@@ -175,10 +174,10 @@ test transition_table_types = [] {
         , s1 <= idle + event<e1> / (action1, c_action{1}, c_action{2})
         , s1 <= idle + event<e1> [guard1 && guard2] / (action1, action2)
         , s1 <= idle + event<e1> [guard1 && guard2] / (action1, action2, []{})
-        , s1 <= idle + event<e1> [guard1 || !guard2] / (action1, action2, []{}, [](auto){})
-        , s1 <= idle + event<e2> [guard1 || guard2] / (action1, action2, []{}, [](int, auto, float){})
-        , X <= idle + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float){})
-        , X <= idle + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto) { return false; } ] / (action1, action2, []{}, [](int, auto, double){})
+        , s1 <= idle + event<e1> [guard1 || !guard2] / (action1, action2, []{}, [](auto) -> void{})
+        , s1 <= idle + event<e2> [guard1 || guard2] / (action1, action2, []{}, [](int, auto, float) -> void{})
+        , X <= idle + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float) -> void {})
+        , X <= idle + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto) -> bool { return false; } ] / (action1, action2, []{}, [](int, auto, double) -> void{})
       );
       // clang-format on
     }
@@ -187,4 +186,3 @@ test transition_table_types = [] {
   float f = 12.0;
   sml::sm<c> sm{f, 42, 87.0, 0.0f};
 };
-#endif

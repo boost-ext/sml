@@ -40,7 +40,7 @@ test dependencies = [] {
       using namespace sml;
 
       auto guard = [](int i) {
-        expect(i == 42);
+        expect(42 == i);
         return true;
       };
 
@@ -48,7 +48,7 @@ test dependencies = [] {
 
       // clang-format off
       return make_transition_table(
-         *idle + event<e1> [ guard ] / action = X
+         *idle + event<e1> [ guard ] / (action, [](const auto& e, int i) -> void { expect(42 == i); }) = X
       );
       // clang-format on
     }

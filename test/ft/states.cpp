@@ -18,6 +18,7 @@ struct e4 {};
 struct e5 {};
 struct e6 {};
 struct e7 {
+  explicit e7(int i) : i(i) {}
   int i = 0;
 };
 
@@ -108,10 +109,11 @@ test states_entry_exit_actions = [] {
   expect(sm.is(s2));
 };
 
-#if !defined(_MSC_VER)
 template <int N>
 struct generic_on_entry {
+#if !defined(_MSC_VER)
   void operator()(const e7& event) { expect(N == event.i); }
+#endif
 
   template <class TEvent>
   void operator()(const TEvent&) {}
@@ -124,7 +126,7 @@ test states_entry_exit_actions_with_events = [] {
       // clang-format off
       return make_transition_table(
          *idle + event<e7> = s1
-        , s1 + sml::on_entry<e7> / [](const auto& event) { expect(42 == event.i); }
+        , s1 + sml::on_entry<e7> / [](const auto& event) -> void { expect(42 == event.i); }
         , s1 + sml::on_exit<_> / generic_on_entry<42>{}
         , s1 + event<e1> = X
       );
@@ -139,6 +141,7 @@ test states_entry_exit_actions_with_events = [] {
   expect(sm.is(sml::X));
 };
 
+#if !defined(_MSC_VER)
 test state_names = [] {
   struct c {
     auto operator()() noexcept {

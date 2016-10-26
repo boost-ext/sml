@@ -126,11 +126,7 @@ test unexpected_any_event = [] {
         *(idle)   + event<e1> = handled,
           handled + unexpected_event<e1> / [this] { ++ue_calls[calls::unexpected_event_e1]; },
           handled + unexpected_event<e2> / [this](int& i) { i = 42; ++ue_calls[calls::unexpected_event_e2]; },
-#if defined(_MSC_VER)
-          handled + unexpected_event<_>  / [this]  { ++ue_calls[calls::unexpected_event_any]; } = X
-#else
           handled + unexpected_event<_>  / handle_unexpected_events<calls, e3>{ue_calls} = X
-#endif
       );
       // clang-format on
     }
