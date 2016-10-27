@@ -6,6 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <boost/sml.hpp>
+#include <type_traits>
 #include <string>
 #include <utility>
 
@@ -48,7 +49,10 @@ test dependencies = [] {
 
       // clang-format off
       return make_transition_table(
-         *idle + event<e1> [ guard ] / (action, [](const auto& e, int i) -> void { expect(42 == i); }) = X
+         *idle + event<e1> [ guard ] / (action, [](const auto& e, int i) -> void {
+            expect(std::is_same<decltype(e), const e1&>::value);
+            expect(42 == i);
+          }) = X
       );
       // clang-format on
     }
