@@ -28,19 +28,24 @@
 
 namespace sml = boost::sml;
 
+//dependencies
+struct sender {
+  template<class T>
+  void send(const T&) {}
+};
+
 // events
+struct ack { bool valid = true; };
+struct fin { bool valid = true;};
 struct release {};
-struct ack {};
-struct fin {};
 struct timeout {};
 
 // guards
-const auto is_ack_valid = [](const ack&) { return true; };
-const auto is_fin_valid = [](const fin&) { return true; };
+const auto is_valid = [](const auto& event) { return event.valid; };
 
 // actions
-const auto send_fin = [] {};
-const auto send_ack = [] {};
+const auto send_fin = [](sender& s) { s.send(fin{}); };
+const auto send_ack = [](const auto& event, sender& s) { s.send(event); };
 
 struct hello_world {
   auto operator()() const {
@@ -50,10 +55,10 @@ struct hello_world {
      * Transition DSL: src_state + event [ guard ] / action = dst_state
      */
     return make_transition_table(
-      *"established"_s + event<release> / send_fin = "fin wait 1"_s,
-       "fin wait 1"_s + event<ack> [ is_ack_valid ] = "fin wait 2"_s,
-       "fin wait 2"_s + event<fin> [ is_fin_valid ] / send_ack = "timed wait"_s,
-       "timed wait"_s + event<timeout> / send_ack = X
+      *"established"_s + event<release> / send_fin          = "fin wait 1"_s,
+       "fin wait 1"_s  + event<ack> [ is_valid ]            = "fin wait 2"_s,
+       "fin wait 2"_s  + event<fin> [ is_valid ] / send_ack = "timed wait"_s,
+       "timed wait"_s  + event<timeout> / send_ack          = X
     );
   }
 };
@@ -61,8 +66,8 @@ struct hello_world {
 int main() {
   using namespace sml;
 
-  sm<hello_world> sm;
-  static_assert(1 == sizeof(sm), "sizeof(sm) != 1b");
+  sender s;
+  sm<hello_world> sm{s}; // pass dependencies via ctor...
   assert(sm.is("established"_s));
 
   sm.process_event(release{}); // complexity O(1) -> jump table
@@ -79,7 +84,11 @@ int main() {
 }
 ```
 
-> (***) In MSVC-2015 use `state<class state_name>` instead of `"state_name"_s` ([Example](http://boost-experimental.github.io/sml/examples/index.html#hello-world))
+> (***) MSVC-2015
+
+  * use `state<class state_name>` instead of `"state_name"_s` 
+  * expliclty state a lambda's result type `auto action = [] -> void {}`
+  * ([Example](http://boost-experimental.github.io/sml/examples/index.html#hello-world))
 
 <p align="center">
 <table>
