@@ -7,11 +7,13 @@
 //
 #include <boost/sml.hpp>
 #include <string>
+#include <type_traits>
 #include <utility>
 
 namespace sml = boost::sml;
 
 struct e1 {};
+struct e2 {};
 
 const auto idle = sml::state<class idle>;
 
@@ -45,6 +47,40 @@ test sm_minimal = [] {
   expect(sm.is(idle));
   sm.process_event(e1{});
   expect(sm.is(idle));
+};
+
+test sm_events = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      return make_transition_table(*idle + event<e1> / [] {});
+    }
+  };
+
+  static_expect(std::is_same<sml::aux::type_list<e1>, typename sml::sm<c>::events>::value);
+};
+
+test sm_events_sub = [] {
+  struct sub {
+    auto operator()() noexcept {
+      using namespace sml;
+      return make_transition_table(*idle + event<e2> / [] {});
+    }
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        *idle + event<e1> / [] {} = state<sub>,
+         state<sub> = idle
+      );
+      // clang-format on
+    }
+  };
+
+  static_expect(std::is_same<sml::aux::type_list<e1, e2>, typename sml::sm<c>::events>::value);
 };
 
 test sm_lambda_expr = [] {

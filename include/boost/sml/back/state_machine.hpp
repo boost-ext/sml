@@ -20,9 +20,12 @@
 
 namespace detail {
 
+template <class TEvent>
+using get_event = aux::conditional_t<aux::is_base_of<internal_event, TEvent>::value, aux::type_list<>, aux::type_list<TEvent>>;
+
 template <class, class, class TEvent>
 struct get_all_events_impl {
-  using type = aux::conditional_t<aux::is_base_of<internal_event, TEvent>::value, aux::type_list<>, aux::type_list<TEvent>>;
+  using type = get_event<TEvent>;
 };
 
 template <class TSrc, class TDst, class TEvent>
@@ -32,17 +35,17 @@ struct get_all_events_impl<TSrc, TDst, unexpected_event<TEvent>> {
 
 template <class TSrc, class TDst, class TEvent>
 struct get_all_events_impl<sm<TSrc>, TDst, TEvent> {
-  using type = aux::join_t<aux::type_list<TEvent>, typename sm<TSrc>::events>;
+  using type = aux::join_t<get_event<TEvent>, typename sm<TSrc>::events>;
 };
 
 template <class TSrc, class TDst, class TEvent>
 struct get_all_events_impl<TSrc, sm<TDst>, TEvent> {
-  using type = aux::join_t<aux::type_list<TEvent>, typename sm<TDst>::events>;
+  using type = aux::join_t<get_event<TEvent>, typename sm<TDst>::events>;
 };
 
 template <class TSrc, class TDst, class TEvent>
 struct get_all_events_impl<sm<TSrc>, sm<TDst>, TEvent> {
-  using type = aux::join_t<aux::type_list<TEvent>, typename sm<TSrc>::events, typename sm<TDst>::events>;
+  using type = aux::join_t<get_event<TEvent>, typename sm<TSrc>::events, typename sm<TDst>::events>;
 };
 
 template <class, class TEvent>
