@@ -19,11 +19,9 @@
 
 <p align="center"><img src="doc/images/tcp_release.png" alt="tcp release"/></p>
 
-##Hello World
-
 ```cpp
-// $CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-errors hello_world.cpp
-// cl /std:c++14 /Ox /W3 hello_world.cpp (***)
+// $CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-errors tcp_release.cpp
+// cl /std:c++14 /Ox /W3 tcp_release.cpp (***)
 
 #include <cassert>
 #include <boost/sml.hpp>
@@ -49,7 +47,7 @@ const auto is_valid = [](const auto& event) { return event.valid; };
 const auto send_fin = [](sender& s) { s.send(fin{}); };
 const auto send_ack = [](const auto& event, sender& s) { s.send(event); };
 
-struct hello_world {
+struct tcp_release {
   auto operator()() const {
     using namespace sml;
     /**
@@ -69,7 +67,7 @@ int main() {
   using namespace sml;
 
   sender s;
-  sm<hello_world> sm{s}; // pass dependencies via ctor...
+  sm<tcp_release> sm{s}; // pass dependencies via ctor...
   assert(sm.is("established"_s));
 
   sm.process_event(release{}); // complexity O(1) -> jump table
