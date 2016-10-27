@@ -154,7 +154,7 @@ test transition_table_types = [] {
         , idle + event<e1> [guard1 || !guard2] / (action1, action2, []{}, [](auto) -> void {}) = s1
         , idle + event<e2> [guard1 || guard2] / (action1, action2, []{}, [](int, const auto&, float) -> void{}) = s1
         , idle + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float) -> void{}) = X
-        , idle + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto)  -> void{ return false; } ] / (action1, action2, []{}, [](int, auto, double) -> void{}) = X
+        , idle + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto)  -> bool{ return false; } ] / (action1, action2, []{}, [](int, auto, double) -> void{}) = X
         , state<sub> + event<e1> / []{}
         , state<sub>(s1) + event<e1> / []{}
         , state<sub>(s1) = s2
