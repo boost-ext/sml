@@ -291,6 +291,7 @@ const T &cget(TPool &p) {
 }
 template <class... Ts>
 struct pool : pool_type<Ts>... {
+  using boost_di_inject__ = type_list<Ts...>;
   explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
   template <class... TArgs>
   pool(init &&, pool<TArgs...> &&p) : pool_type<Ts>(aux::try_get<Ts>(&p))... {}
@@ -299,6 +300,7 @@ struct pool : pool_type<Ts>... {
 };
 template <>
 struct pool<> {
+  using boost_di_inject__ = type_list<>;
   explicit pool(...) {}
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
