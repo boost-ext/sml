@@ -886,7 +886,8 @@ class sm_impl {
 #endif
   }
   template <class TEvent, class TDeps, class TSubs,
-            __BOOST_SML_REQUIRES(aux::is_base_of<aux::pool_type<get_generic_t<TEvent>>, events_ids_t>::value)>
+            __BOOST_SML_REQUIRES(aux::is_base_of<aux::pool_type<get_generic_t<TEvent>>, events_ids_t>::value &&
+                                 !aux::is_base_of<aux::pool_type<get_mapped_t<TEvent>>, events_ids_t>::value)>
   bool process_internal_event(const TEvent &event, TDeps &deps, TSubs &subs, state_t &current_state) {
     log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
@@ -1885,6 +1886,8 @@ template <class TEvent>
 detail::event<detail::unexpected_event<TEvent>> unexpected_event __BOOST_SML_VT_INIT;
 template <class T>
 detail::event<detail::exception<T>> exception __BOOST_SML_VT_INIT;
+using anonymous = detail::anonymous;
+using initial = detail::initial;
 template <class T>
 typename detail::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #if !defined(_MSC_VER)

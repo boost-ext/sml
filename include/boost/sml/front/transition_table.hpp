@@ -33,6 +33,9 @@ detail::event<detail::unexpected_event<TEvent>> unexpected_event __BOOST_SML_VT_
 template <class T>
 detail::event<detail::exception<T>> exception __BOOST_SML_VT_INIT;
 
+using anonymous = detail::anonymous;
+using initial = detail::initial;
+
 /// states
 
 template <class T>

@@ -7,7 +7,10 @@
 //
 #include <boost/sml.hpp>
 #include <string>
+#include <typeindex>
+#include <typeinfo>
 #include <utility>
+#include <vector>
 
 namespace sml = boost::sml;
 
@@ -139,6 +142,52 @@ test states_entry_exit_actions_with_events = [] {
   expect(sm.is(s1));
   sm.process_event(e1{});
   expect(sm.is(sml::X));
+};
+
+test states_generic_entry_actions_with_events = [] {
+  struct c {
+    auto operator()() {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *idle = s1
+        , s1 + event<e1> = s1
+        , s1 + event<e2> = s1
+        , s1 + event<e3> = s1
+        , s1 + sml::on_entry<anonymous> / [this](auto const&) -> void { entries.push_back(std::type_index(typeid(anonymous))); }
+        , s1 + sml::on_entry<e1>        / [this](e1 const&) { entries.push_back(std::type_index(typeid(e1))); }
+        , s1 + sml::on_entry<e2>        / [this](e2 const&) { entries.push_back(std::type_index(typeid(e2))); }
+        , s1 + sml::on_entry<_>         / [this](auto const& e) -> void { entries.push_back(std::type_index(typeid(e))); }
+      );
+      // clang-format on
+    }
+
+    std::vector<std::type_index> entries;
+  };
+
+  c c_;
+  sml::sm<c> sm{c_};
+  expect(1 == c_.entries.size());
+  expect(std::type_index(typeid(sml::anonymous)) == c_.entries[0]);
+  c_.entries.clear();
+
+  sm.process_event(e1{});
+  expect(1 == c_.entries.size());
+  expect(std::type_index(typeid(e1)) == c_.entries[0]);
+  c_.entries.clear();
+
+  sm.process_event(e2{});
+  expect(1 == c_.entries.size());
+  expect(std::type_index(typeid(e2)) == c_.entries[0]);
+  c_.entries.clear();
+
+  sm.process_event(e3{});
+  expect(1 == c_.entries.size());
+  expect(std::type_index(typeid(e3)) == c_.entries[0]);
+  c_.entries.clear();
+
+  sm.process_event(e4{});  // no on_entry should be called
+  expect(0 == c_.entries.size());
 };
 
 #if !defined(_MSC_VER)
