@@ -126,3 +126,4 @@ to avoid it `Boost.SML` may suit you!
 * Thanks to Vicente J. Botet Escriba for useful suggestions how to improve Boost.SML
 * Thanks to [Ulenspiegel](https://github.com/Ulenspiegel) for insuring the quality of the library!
 * Thanks to [feltech](https://github.com/feltech) for improvements and bug fixes
+* Thanks to [Takatoshi Kondo](https://github.com/redboltz) for testing, improving the library and for a great [Boost.MSM guide](http://redboltz.wikidot.com)!
