@@ -12,6 +12,7 @@ namespace detail {
 struct thread_safety_policy__ {};
 struct defer_queue_policy__ {};
 struct logger_policy__ {};
+struct testing_policy__ {};
 
 template <class, class, class TDeps, class TEvent>
 void log_process_event(const aux::false_type&, TDeps&, const TEvent&) {}

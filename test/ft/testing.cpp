@@ -8,7 +8,6 @@
 #include <boost/sml.hpp>
 #include <string>
 #include <utility>
-#include "boost/sml/testing/state_machine.hpp"
 
 namespace sml = boost::sml;
 
@@ -54,7 +53,7 @@ test sm_testing = [] {
   {
     data fake_data;
     const data &c_fake_data = fake_data;
-    sml::testing::sm<c> sm{c_fake_data, fake_data, true};
+    sml::sm<c, sml::testing> sm{c_fake_data, fake_data, true};
     expect(sm.is(idle));
 
     sm.process_event(e1{});
@@ -70,10 +69,10 @@ test sm_testing = [] {
   {
     data fake_data;
     const data &c_fake_data = fake_data;
-    sml::testing::sm<c> sm{fake_data, c_fake_data, true};
+    sml::sm<c, sml::testing> sm{fake_data, c_fake_data, true};
     expect(sm.is(idle));
 
-    sm.set_current_states(s2);
+    sm.__set_current_states(s2);
     fake_data.value = 42;
     sm.process_event(e3{});
     expect(sm.is(sml::X));
@@ -83,10 +82,10 @@ test sm_testing = [] {
   {
     data fake_data;
     const data &c_fake_data = fake_data;
-    sml::testing::sm<c> sm{c_fake_data, fake_data, true};
+    sml::sm<c, sml::testing> sm{c_fake_data, fake_data, true};
     expect(sm.is(idle));
 
-    sm.set_current_states(s2);
+    sm.__set_current_states(s2);
     fake_data.value = 42;
     sm.process_event(e3{});
     expect(sm.is(sml::X));
@@ -96,10 +95,10 @@ test sm_testing = [] {
   {
     data fake_data;
     const data &c_fake_data = fake_data;
-    sml::testing::sm<c> sm{fake_data, c_fake_data, true};
+    sml::sm<c, sml::testing> sm{fake_data, c_fake_data, true};
     expect(sm.is(idle));
 
-    sm.set_current_states(s1);
+    sm.__set_current_states(s1);
     fake_data.value = 42;
     sm.process_event(e2{});
     expect(sm.is(s2));
@@ -123,8 +122,8 @@ test sm_testing_orthogonal_regions = [] {
     }
   };
 
-  sml::testing::sm<c> sm;
+  sml::sm<c, sml::testing> sm;
   expect(sm.is(idle, idle2));
-  sm.set_current_states(s1, s3);
+  sm.__set_current_states(s1, s3);
   expect(sm.is(s1, s3));
 };

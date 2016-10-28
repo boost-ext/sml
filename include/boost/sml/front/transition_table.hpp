@@ -89,4 +89,6 @@ struct logger : aux::pair<detail::logger_policy__, logger<T>> {
   using type = T;
 };
 
+struct testing : aux::pair<detail::testing_policy__, testing> {};
+
 #endif

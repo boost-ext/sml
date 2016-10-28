@@ -10,7 +10,7 @@
 namespace detail {
 
 template <class>
-class sm_impl;
+struct sm_impl;
 
 template <class...>
 struct transitions;

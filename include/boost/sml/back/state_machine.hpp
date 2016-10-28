@@ -121,21 +121,7 @@ template <class... Ts>
 using merge_deps = aux::join_t<typename Ts::deps...>;
 
 template <class TSM>
-class sm_impl {
-  template <class>
-  friend class sm_impl;
-  template <class>
-  friend class sm;
-  template <class>
-  friend struct state;
-  template <class...>
-  friend struct transition;
-  template <class...>
-  friend struct transitions;
-  template <class...>
-  friend struct transitions_sub;
-
- public:
+struct sm_impl {
   template <class T>
   using rebind = sm<sm_policy<T>>;
   using sm_t = typename TSM::sm;
@@ -173,7 +159,6 @@ class sm_impl {
   using has_exceptions = aux::integral_constant<bool, (aux::size<exceptions>::value > 0)>;
 #endif  // __pph__
 
- public:
   sm_impl(const aux::init &, const aux::pool_type<sm_t &> *t) : transitions_((t->value)()) {
     initialize(typename sm_impl<TSM>::initial_states_t{});
   }
@@ -208,7 +193,6 @@ class sm_impl {
     (void)_;
   }
 
- private:
   template <class TDeps, class TSubs>
   void start(TDeps &deps, TSubs &subs) {
     process_internal_events(on_entry<_, initial>{}, deps, subs);
@@ -434,8 +418,6 @@ class sm_impl {
   }
 
   transitions_t transitions_;
-
- public:
   state_t current_state_[regions];
   thread_safety_t thread_safety_;
   defer_t defer_;
@@ -443,7 +425,6 @@ class sm_impl {
 
 template <class TSM>
 class sm {
- public:
   using sm_t = typename TSM::sm;
   using logger_t = typename TSM::logger_policy::type;
   using logger_dep_t =
@@ -457,6 +438,8 @@ class sm {
   struct convert<aux::type_list<Ts...>> {
     using type = aux::type_list<sm_impl<Ts>...>;
   };
+
+ public:
   using sub_sms = aux::apply_t<get_sub_sms, states_t>;
   using sm_all_t = aux::apply_t<aux::inherit, aux::join_t<aux::type_list<sm_t>, aux::apply_t<get_sm_t, sub_sms>>>;
   using sub_sms_t =
@@ -505,10 +488,10 @@ class sm {
 
   template <class T = sm_t, class TVisitor, __BOOST_SML_REQUIRES(concepts::callable<void, TVisitor>::value)>
   void visit_current_states(const TVisitor &visitor) const {
-    using sm = sm_impl<typename TSM::template rebind<T>>;
-    using states_t = typename sm::states_t;
-    constexpr auto regions = sm::regions;
-    aux::cget<sm>(sub_sms_).visit_current_states(visitor, states_t{}, aux::make_index_sequence<regions>{});
+    using type = sm_impl<typename TSM::template rebind<T>>;
+    using states_t = typename type::states_t;
+    constexpr auto regions = type::regions;
+    aux::cget<type>(sub_sms_).visit_current_states(visitor, states_t{}, aux::make_index_sequence<regions>{});
   }
 
   template <class T = sm_t, class TState>
@@ -523,14 +506,25 @@ class sm {
   bool is(const state<TStates> &...) const {
     auto result = true;
     auto i = 0;
-    using states_ids_t = typename sm_impl<TSM>::states_ids_t;
+    using type = sm_impl<typename TSM::template rebind<T>>;
+    using states_ids_t = typename type::states_ids_t;
     int state_ids[] = {aux::get_id<states_ids_t, 0, TStates>()...};
     visit_current_states<T>(
         [&](auto state) { result &= (aux::get_id<states_ids_t, 0, typename decltype(state)::type>() == state_ids[i++]); });
     return result;
   }
 
- protected:
+  template <class T = sm_t, class... TStates>  // TODO when testing policy enabled
+  void __set_current_states(const detail::state<TStates> &...) {
+    using type = sm_impl<typename TSM::template rebind<T>>;
+    using states_ids_t = typename type::states_ids_t;
+    auto &sm = aux::get<sm_impl<TSM>>(sub_sms_);
+    auto region = 0;
+    int _[]{0, (sm.current_state_[region++] = aux::get_id<states_ids_t, 0, TStates>(), 0)...};
+    (void)_;
+  }
+
+ private:
   deps_t deps_;
   sub_sms_t sub_sms_;
 };

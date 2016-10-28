@@ -7,7 +7,6 @@
 //
 #include <boost/sml.hpp>
 #include <cassert>
-#include "boost/sml/testing/state_machine.hpp"
 
 namespace sml = boost::sml;
 
@@ -39,8 +38,8 @@ struct testing {
 int main() {
   using namespace sml;
   data fake_data{0};
-  sml::testing::sm<::testing> sm{fake_data};
-  sm.set_current_states("s2"_s);
+  sml::sm<::testing, sml::testing> sm{fake_data};
+  sm.__set_current_states("s2"_s);
   sm.process_event(e3{});
   assert(sm.is(X));
   assert(fake_data.value = 42);
