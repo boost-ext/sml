@@ -1155,9 +1155,9 @@ void dump_transition() noexcept {
 
   std::cout &lt;&lt; src_state &lt;&lt; &quot; --&gt; &quot; &lt;&lt; dst_state;
 
-  const auto has_event = !sml::aux::is_same&lt;typename T::event, sml::detail::anonymous&gt;::value;
-  const auto has_guard = !sml::aux::is_same&lt;typename T::guard, sml::detail::always&gt;::value;
-  const auto has_action = !sml::aux::is_same&lt;typename T::action, sml::detail::none&gt;::value;
+  const auto has_event = !sml::aux::is_same&lt;typename T::event, sml::anonymous&gt;::value;
+  const auto has_guard = !sml::aux::is_same&lt;typename T::guard, sml::front::always&gt;::value;
+  const auto has_action = !sml::aux::is_same&lt;typename T::action, sml::front::none&gt;::value;
 
   if (has_event || has_guard || has_action) {
     std::cout &lt;&lt; &quot; :&quot;;
