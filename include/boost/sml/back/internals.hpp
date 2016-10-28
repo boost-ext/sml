@@ -41,8 +41,10 @@ struct exception : internal_event {
   const TException& exception_;
 };
 
+struct unexpected {};
+
 template <class T, class TEvent = T>
-struct unexpected_event : internal_event {
+struct unexpected_event : internal_event, unexpected {
   explicit unexpected_event(const TEvent& event = {}) : event_(event) {}
   const TEvent& event_;
 };

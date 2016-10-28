@@ -396,8 +396,9 @@ struct exception : internal_event {
   explicit exception(const TException &exception = {}) : exception_(exception) {}
   const TException &exception_;
 };
+struct unexpected {};
 template <class T, class TEvent = T>
-struct unexpected_event : internal_event {
+struct unexpected_event : internal_event, unexpected {
   explicit unexpected_event(const TEvent &event = {}) : event_(event) {}
   const TEvent &event_;
 };
@@ -511,30 +512,30 @@ struct mappings<aux::pool<Ts...>>
           event_mappings<typename Ts::event, aux::inherit<state_mappings<typename Ts::src_state, aux::type_list<Ts>>>>...> {};
 template <class T>
 using mappings_t = typename mappings<T>::type;
-template <class>
-transitions<> get_state_mapping_impl(...);
-template <class T, class... Ts>
+template <class, class TUnexpected>
+transitions<TUnexpected> get_state_mapping_impl(...);
+template <class T, class, class... Ts>
 transitions<Ts...> get_state_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
-template <class T, class U>
+template <class T, class TMappings, class TUnexpected>
 struct get_state_mapping {
-  using type = decltype(get_state_mapping_impl<T>((U *)0));
+  using type = decltype(get_state_mapping_impl<T, TUnexpected>((TMappings *)0));
 };
 template <class S>
 transitions_sub<S> get_sub_state_mapping_impl(...);
 template <class T, class... Ts>
 transitions_sub<T, Ts...> get_sub_state_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
-template <class T, class U>
-struct get_state_mapping<sm<T>, U> {
-  using type = decltype(get_sub_state_mapping_impl<sm<T>>((U *)0));
+template <class T, class TMappings, class TUnexpected>
+struct get_state_mapping<sm<T>, TMappings, TUnexpected> {
+  using type = decltype(get_sub_state_mapping_impl<sm<T>>((TMappings *)0));
 };
-template <class T, class U>
-using get_state_mapping_t = typename get_state_mapping<T, U>::type;
+template <class T, class TMappings, class TUnexpected>
+using get_state_mapping_t = typename get_state_mapping<T, TMappings, TUnexpected>::type;
 template <class>
-transitions<> get_event_mapping_impl(...);
+transitions<aux::true_type> get_event_mapping_impl(...);
 template <class T, class TMappings>
 TMappings get_event_mapping_impl(event_mappings<T, TMappings> *);
-template <class T, class U>
-using get_event_mapping_t = decltype(get_event_mapping_impl<T>((U *)0));
+template <class T, class TMappings>
+using get_event_mapping_t = decltype(get_event_mapping_impl<T>((TMappings *)0));
 }
 namespace detail {
 struct thread_safety_policy__ {};
@@ -608,10 +609,17 @@ struct transitions<T> {
   }
 };
 template <>
-struct transitions<> {
+struct transitions<aux::true_type> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
     sm.process_internal_event(unexpected_event<TEvent>{event}, deps, subs, current_state);
+    return false;
+  }
+};
+template <>
+struct transitions<aux::false_type> {
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &) {
     return false;
   }
 };
@@ -820,6 +828,7 @@ class sm_impl {
   using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
   using sub_internal_events = aux::apply_t<get_sub_internal_events, transitions_t>;
   using events_ids_t = aux::apply_t<aux::pool, aux::apply_t<aux::unique_t, aux::join_t<sub_internal_events, events_t>>>;
+  using has_unexpected_events = typename aux::is_base_of<unexpected, aux::apply_t<aux::inherit, events_t>>::type;
   using defer_t = defer_queue_t<aux::apply_t<defer_event_t, events_t>>;
   using deps = aux::apply_t<merge_deps, transitions_t>;
   using state_t = aux::conditional_t<(aux::size<states_t>::value > 0xFF), unsigned short, aux::byte>;
@@ -932,7 +941,7 @@ class sm_impl {
                           const aux::index_sequence<0> &) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
     static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
-        &get_state_mapping_t<TStates, TMappings>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
+        &get_state_mapping_t<TStates, TMappings, has_unexpected_events>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
     return dispatch_table[current_state_[0]](event, *this, deps, subs, current_state_[0]);
@@ -942,7 +951,7 @@ class sm_impl {
                           const aux::index_sequence<Ns...> &) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
     static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
-        &get_state_mapping_t<TStates, TMappings>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
+        &get_state_mapping_t<TStates, TMappings, has_unexpected_events>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     auto handled = false;
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
@@ -955,7 +964,7 @@ class sm_impl {
                           state_t &current_state) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
     static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
-        &get_state_mapping_t<TStates, TMappings>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
+        &get_state_mapping_t<TStates, TMappings, has_unexpected_events>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
     return dispatch_table[current_state](event, *this, deps, subs, current_state);

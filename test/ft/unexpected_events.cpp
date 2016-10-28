@@ -27,7 +27,7 @@ test unexpected_event_empty = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-        *idle  + unexpected_event<e1> = X
+        *idle + unexpected_event<e1> = X
       );
       // clang-format on
     }
@@ -44,7 +44,7 @@ test unexpected_specific_initial_state = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-         *(idle) + event<e1> / []{},
+         (*idle) + event<e1> / []{},
            idle  + unexpected_event<e2> = X
       );
       // clang-format on

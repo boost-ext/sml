@@ -121,7 +121,7 @@ test no_transition = [] {
   expect(sm.is(idle));
   sm.process_event(e2{});
   expect(sm.is(idle));
-  sm.process_event(int{});
+  sm.process_event(e3{});
   expect(sm.is(idle));
 };
 
@@ -398,8 +398,8 @@ test transition_overload = [] {
       // clang-format off
       return make_transition_table(
          *idle + event<e1> = s1
-        , s1 + event<int> = s2
-        , s1 + event<float> = s3
+        , s1   + event<e2> = s2
+        , s1   + event<e3> = s3
       );
       // clang-format on
     }
@@ -408,14 +408,14 @@ test transition_overload = [] {
   {
     sml::sm<c> sm;
     sm.process_event(e1{});
-    sm.process_event(42);
+    sm.process_event(e2{});
     expect(sm.is(s2));
   }
 
   {
     sml::sm<c> sm;
     sm.process_event(e1{});
-    sm.process_event(42.f);
+    sm.process_event(e3{});
     expect(sm.is(s3));
   }
 };

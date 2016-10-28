@@ -50,10 +50,18 @@ struct transitions<T> {
 };
 
 template <>
-struct transitions<> {
+struct transitions<aux::true_type> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent& event, SM& sm, TDeps& deps, TSubs& subs, typename SM::state_t& current_state) {
     sm.process_internal_event(unexpected_event<TEvent>{event}, deps, subs, current_state);
+    return false;
+  }
+};
+
+template <>
+struct transitions<aux::false_type> {
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute(const TEvent&, SM&, TDeps&, TSubs&, typename SM::state_t&) {
     return false;
   }
 };

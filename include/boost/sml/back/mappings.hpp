@@ -108,15 +108,15 @@ struct mappings<aux::pool<Ts...>>
 template <class T>
 using mappings_t = typename mappings<T>::type;
 
-template <class>
-transitions<> get_state_mapping_impl(...);
+template <class, class TUnexpected>
+transitions<TUnexpected> get_state_mapping_impl(...);
 
-template <class T, class... Ts>
+template <class T, class, class... Ts>
 transitions<Ts...> get_state_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
 
-template <class T, class U>
+template <class T, class TMappings, class TUnexpected>
 struct get_state_mapping {
-  using type = decltype(get_state_mapping_impl<T>((U *)0));
+  using type = decltype(get_state_mapping_impl<T, TUnexpected>((TMappings *)0));
 };
 
 template <class S>
@@ -125,22 +125,22 @@ transitions_sub<S> get_sub_state_mapping_impl(...);
 template <class T, class... Ts>
 transitions_sub<T, Ts...> get_sub_state_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
 
-template <class T, class U>
-struct get_state_mapping<sm<T>, U> {
-  using type = decltype(get_sub_state_mapping_impl<sm<T>>((U *)0));
+template <class T, class TMappings, class TUnexpected>
+struct get_state_mapping<sm<T>, TMappings, TUnexpected> {
+  using type = decltype(get_sub_state_mapping_impl<sm<T>>((TMappings *)0));
 };
 
-template <class T, class U>
-using get_state_mapping_t = typename get_state_mapping<T, U>::type;
+template <class T, class TMappings, class TUnexpected>
+using get_state_mapping_t = typename get_state_mapping<T, TMappings, TUnexpected>::type;
 
 template <class>
-transitions<> get_event_mapping_impl(...);
+transitions<aux::true_type> get_event_mapping_impl(...);
 
 template <class T, class TMappings>
 TMappings get_event_mapping_impl(event_mappings<T, TMappings> *);
 
-template <class T, class U>
-using get_event_mapping_t = decltype(get_event_mapping_impl<T>((U *)0));
+template <class T, class TMappings>
+using get_event_mapping_t = decltype(get_event_mapping_impl<T>((TMappings *)0));
 
 }  // detail
 
