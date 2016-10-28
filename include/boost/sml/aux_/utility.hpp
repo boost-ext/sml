@@ -51,7 +51,7 @@ struct make_index_sequence_impl<1> : index_sequence<0> {};
 template <int N>
 using make_index_sequence = typename make_index_sequence_impl<N>::type;
 
-template <class... Ts>
+template <class...>
 struct join {
   using type = type_list<>;
 };
