@@ -196,6 +196,12 @@ template <class T>
 struct join<T> {
   using type = T;
 };
+template <class... Ts>
+struct join<type_list<Ts...>> : type_list<Ts...> {};
+template <class... T1s, class... T2s>
+struct join<type_list<T1s...>, type_list<T2s...>> : type_list<T1s..., T2s...> {};
+template <class... T1s, class... T2s, class... T3s>
+struct join<type_list<T1s...>, type_list<T2s...>, type_list<T3s...>> : type_list<T1s..., T2s..., T3s...> {};
 template <class... T1s, class... T2s, class... Ts>
 struct join<type_list<T1s...>, type_list<T2s...>, Ts...> : join<type_list<T1s..., T2s...>, Ts...> {};
 template <class... Ts, class... T1s, class... T2s, class... T3s, class... T4s, class... T5s, class... T6s, class... T7s,
@@ -300,10 +306,6 @@ struct pool<> {
   explicit pool(...) {}
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
-template <class>
-struct is_pool : aux::false_type {};
-template <class... Ts>
-struct is_pool<pool<Ts...>> : aux::true_type {};
 template <int, class>
 struct type_id_type {};
 template <class, class...>
@@ -324,6 +326,10 @@ template <class TIds, int D, class T>
 constexpr auto get_id() {
   return get_id_impl<T, D>((TIds *)0);
 }
+template <template <class...> class, class T>
+struct is : aux::false_type {};
+template <template <class...> class T, class... Ts>
+struct is<T, T<Ts...>> : aux::true_type {};
 template <class>
 struct size;
 template <template <class...> class T, class... Ts>
@@ -677,7 +683,7 @@ decltype(aux::declval<T>().operator()()) configurable_impl(int);
 template <class>
 void configurable_impl(...);
 template <class T>
-struct configurable : aux::is_pool<decltype(configurable_impl<T>(0))> {};
+struct configurable : aux::is<aux::pool, decltype(configurable_impl<T>(0))> {};
 }
 namespace concepts {
 template <class T, class = decltype(T::c_str())>

@@ -85,12 +85,12 @@ test pool_init_from_other_pool = [] {
   expect(87.0 == get<double>(p));
 };
 
-test pool_is_pool = [] {
-  static_expect(!is_pool<int>::value);
-  static_expect(!is_pool<tuple<>>::value);
-  static_expect(!is_pool<tuple<int>>::value);
-  static_expect(is_pool<pool<>>::value);
-  static_expect(is_pool<pool<int, double>>::value);
+test is_specialization = [] {
+  static_expect(!is<pool, int>::value);
+  static_expect(!is<pool, tuple<>>::value);
+  static_expect(!is<pool, tuple<int>>::value);
+  static_expect(is<pool, pool<>>::value);
+  static_expect(is<pool, pool<int, double>>::value);
 };
 
 test type_id_empty = [] {
