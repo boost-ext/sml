@@ -232,10 +232,10 @@ using unique_t = typename unique<Ts...>::type;
 template <class, class...>
 struct is_unique;
 template <class T>
-struct is_unique<T> : aux::true_type {};
+struct is_unique<T> : true_type {};
 template <class T1, class T2, class... Ts>
 struct is_unique<T1, T2, Ts...>
-    : conditional_t<is_base_of<type<T2>, T1>::value, aux::false_type, is_unique<inherit<T1, type<T2>>, Ts...>> {};
+    : conditional_t<is_base_of<type<T2>, T1>::value, false_type, is_unique<inherit<T1, type<T2>>, Ts...>> {};
 template <class... Ts>
 using is_unique_t = is_unique<none_type, Ts...>;
 template <template <class...> class, class>
@@ -259,7 +259,7 @@ struct tuple_impl<index_sequence<Ns...>, Ts...> : tuple_type<Ns, Ts>... {
 };
 template <>
 struct tuple_impl<index_sequence<0>> {
-  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(byte);
 };
 template <class... Ts>
 using tuple = tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
@@ -296,7 +296,7 @@ struct pool : pool_type<Ts>... {
   using boost_di_inject__ = type_list<Ts...>;
   explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
   template <class... TArgs>
-  pool(init &&, pool<TArgs...> &&p) : pool_type<Ts>(aux::try_get<Ts>(&p))... {}
+  pool(init &&, pool<TArgs...> &&p) : pool_type<Ts>(try_get<Ts>(&p))... {}
   template <class... TArgs>
   pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, &p)... {}
 };
@@ -304,7 +304,7 @@ template <>
 struct pool<> {
   using boost_di_inject__ = type_list<>;
   explicit pool(...) {}
-  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(byte);
 };
 template <int, class>
 struct type_id_type {};
@@ -327,9 +327,9 @@ constexpr auto get_id() {
   return get_id_impl<T, D>((TIds *)0);
 }
 template <template <class...> class, class T>
-struct is : aux::false_type {};
+struct is : false_type {};
 template <template <class...> class T, class... Ts>
-struct is<T, T<Ts...>> : aux::true_type {};
+struct is<T, T<Ts...>> : true_type {};
 template <class>
 struct size;
 template <template <class...> class T, class... Ts>
@@ -361,13 +361,13 @@ struct zero_wrapper : TExpr {
 template <class, class>
 struct zero_wrapper_impl;
 template <class TExpr, class... TArgs>
-struct zero_wrapper_impl<TExpr, aux::type_list<TArgs...>> {
+struct zero_wrapper_impl<TExpr, type_list<TArgs...>> {
   auto operator()(TArgs... args) const { return reinterpret_cast<const TExpr &>(*this)(args...); }
-  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
+  __BOOST_SML_ZERO_SIZE_ARRAY(byte);
 };
 template <class TExpr>
 struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
-    : zero_wrapper_impl<TExpr, aux::function_traits_t<decltype(&TExpr::operator())>> {
+    : zero_wrapper_impl<TExpr, function_traits_t<decltype(&TExpr::operator())>> {
   zero_wrapper(...) {}
 };
 }
@@ -1362,6 +1362,9 @@ class defer_event {
   }
 
  public:
+  defer_event(defer_event &&) = default;
+  defer_event(const defer_event &) = delete;
+  defer_event &operator=(const defer_event &) = delete;
   template <class T>
   defer_event(T object) {
     id = aux::get_id<ids_t, -1, T>();
