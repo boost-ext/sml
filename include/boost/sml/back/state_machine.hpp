@@ -191,7 +191,7 @@ class sm_impl {
     const auto handled = process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(
         event, deps, subs, states_t{}, aux::make_index_sequence<regions>{});
 #endif  // __pph__
-    process_internal_event(anonymous{}, deps, subs);
+    process_internal_events(anonymous{}, deps, subs);
     process_defer_events(deps, subs, handled, aux::type<defer_queue_t<TEvent>>{}, events_t{});
 
     return handled;
@@ -209,21 +209,21 @@ class sm_impl {
  private:
   template <class TDeps, class TSubs>
   void start(TDeps &deps, TSubs &subs) {
-    if (!process_internal_event(anonymous{}, deps, subs)) {
-      process_internal_event(on_entry<_, initial>{}, deps, subs);
-    }
+    process_internal_events(on_entry<_, initial>{}, deps, subs);
+    process_internal_events(anonymous{}, deps, subs);
   }
 
   template <class TEvent, class TDeps, class TSubs,
             __BOOST_SML_REQUIRES(!aux::is_base_of<aux::pool_type<get_generic_t<TEvent>>, events_ids_t>::value &&
                                  !aux::is_base_of<aux::pool_type<get_mapped_t<TEvent>>, events_ids_t>::value)>
-  bool process_internal_event(const TEvent &, TDeps &, TSubs &, ...) {
+  bool process_internal_events(const TEvent &, TDeps &, TSubs &, ...) {
     return false;
   }
 
   template <class TEvent, class TDeps, class TSubs,
-            __BOOST_SML_REQUIRES(aux::is_base_of<aux::pool_type<get_generic_t<TEvent>>, events_ids_t>::value)>
-  bool process_internal_event(const TEvent &event, TDeps &deps, TSubs &subs) {
+            __BOOST_SML_REQUIRES(aux::is_base_of<aux::pool_type<get_generic_t<TEvent>>, events_ids_t>::value &&
+                                 !aux::is_base_of<aux::pool_type<get_mapped_t<TEvent>>, events_ids_t>::value)>
+  bool process_internal_events(const TEvent &event, TDeps &deps, TSubs &subs) {
     log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
     return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(event, deps, subs, has_exceptions{});
@@ -231,6 +231,25 @@ class sm_impl {
     return process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(event, deps, subs, states_t{},
                                                                                       aux::make_index_sequence<regions>{});
 #endif  // __pph__
+  }
+
+  template <class TEvent, class TDeps, class TSubs,
+            __BOOST_SML_REQUIRES(aux::is_base_of<aux::pool_type<get_mapped_t<TEvent>>, events_ids_t>::value)>
+  bool process_internal_events(const TEvent &event, TDeps &deps, TSubs &subs) {
+    log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
+    return process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings_t>>(event, deps, subs, has_exceptions{});
+#else   // __pph__
+    return process_event_impl<get_event_mapping_t<get_mapped_t<TEvent>, mappings_t>>(event, deps, subs, states_t{},
+                                                                                     aux::make_index_sequence<regions>{});
+#endif  // __pph__
+  }
+
+  template <class TEvent, class TDeps, class TSubs,
+            __BOOST_SML_REQUIRES(!aux::is_base_of<aux::pool_type<get_generic_t<TEvent>>, events_ids_t>::value &&
+                                 !aux::is_base_of<aux::pool_type<get_mapped_t<TEvent>>, events_ids_t>::value)>
+  bool process_internal_event(const TEvent &, TDeps &, TSubs &, ...) {
+    return false;
   }
 
   template <class TEvent, class TDeps, class TSubs,
@@ -329,7 +348,7 @@ class sm_impl {
 
   template <class TDeps, class TSubs>
   bool process_exception(TDeps &deps, TSubs &subs, const aux::type_list<> &) {
-    return process_internal_event(exception<_>{}, deps, subs);
+    return process_internal_events(exception<_>{}, deps, subs);
   }
 
   template <class TDeps, class TSubs, class E, class... Es>
@@ -337,7 +356,7 @@ class sm_impl {
     try {
       throw;
     } catch (const typename E::type &e) {
-      return process_internal_event(E{e}, deps, subs);
+      return process_internal_events(E{e}, deps, subs);
     } catch (...) {
       return process_exception(deps, subs, aux::type_list<Es...>{});
     }

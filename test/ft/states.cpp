@@ -190,6 +190,31 @@ test states_generic_entry_actions_with_events = [] {
   expect(0 == c_.entries.size());
 };
 
+test states_initial_entry_actions_with_events = [] {
+  struct c {
+    auto operator()() {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        (*idle) = s1,
+          idle + sml::on_entry<initial> / [this](auto const&) -> void { entries.push_back(std::type_index(typeid(initial))); },
+          idle + sml::on_exit<_>        / [this](auto const& e) -> void { entries.push_back(std::type_index(typeid(e))); },
+          s1   + sml::on_entry<_>       / [this](auto const& e) -> void { entries.push_back(std::type_index(typeid(e))); },
+          s1   + sml::on_exit<_>        / [this](auto const& e) -> void { entries.push_back(std::type_index(typeid(e))); }
+      );
+      // clang-format on
+    }
+
+    std::vector<std::type_index> entries;
+  };
+
+  c c_;
+  sml::sm<c> sm{c_};
+  expect(3 == c_.entries.size());
+  expect(std::vector<std::type_index>{std::type_index(typeid(sml::initial)), std::type_index(typeid(sml::anonymous)),
+                                      std::type_index(typeid(sml::anonymous))} == c_.entries);
+};
+
 #if !defined(_MSC_VER)
 test state_names = [] {
   struct c {
