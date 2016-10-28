@@ -258,12 +258,8 @@ struct tuple_impl<index_sequence<0>> {
 template <class... Ts>
 using tuple = tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
 template <int N, class T>
-auto &get_by_id_impl(tuple_type<N, T> *object) {
+auto &get_by_id(tuple_type<N, T> *object) {
   return static_cast<tuple_type<N, T> &>(*object).value;
-}
-template <int N, class Tuple>
-auto &get_by_id(Tuple &t) {
-  return get_by_id_impl<N>(&t);
 }
 struct init {};
 template <class T>
@@ -308,7 +304,7 @@ template <class>
 struct is_pool : aux::false_type {};
 template <class... Ts>
 struct is_pool<pool<Ts...>> : aux::true_type {};
-template <int, class T>
+template <int, class>
 struct type_id_type {};
 template <class, class...>
 struct type_id_impl;
@@ -1276,7 +1272,7 @@ class seq_ : operator_base {
  private:
   template <int... Ns, class TEvent, class TSM, class TDeps, class TSubs>
   void for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
-    int _[]{0, (call(aux::get_by_id<Ns>(a), event, sm, deps, subs), 0)...};
+    int _[]{0, (call(aux::get_by_id<Ns>(&a), event, sm, deps, subs), 0)...};
     (void)_;
   }
   aux::tuple<Ts...> a;
@@ -1294,7 +1290,7 @@ class and_ : operator_base {
   template <int... Ns, class TEvent, class TSM, class TDeps, class TSubs>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
     auto result = true;
-    int _[]{0, (call(aux::get_by_id<Ns>(g), event, sm, deps, subs) ? result : result = false)...};
+    int _[]{0, (call(aux::get_by_id<Ns>(&g), event, sm, deps, subs) ? result : result = false)...};
     (void)_;
     return result;
   }
@@ -1313,7 +1309,7 @@ class or_ : operator_base {
   template <int... Ns, class TEvent, class TSM, class TDeps, class TSubs>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
     auto result = false;
-    int _[]{0, (call(aux::get_by_id<Ns>(g), event, sm, deps, subs) ? result = true : result)...};
+    int _[]{0, (call(aux::get_by_id<Ns>(&g), event, sm, deps, subs) ? result = true : result)...};
     (void)_;
     return result;
   }

@@ -129,7 +129,7 @@ class seq_ : operator_base {
  private:
   template <int... Ns, class TEvent, class TSM, class TDeps, class TSubs>
   void for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
-    int _[]{0, (call(aux::get_by_id<Ns>(a), event, sm, deps, subs), 0)...};
+    int _[]{0, (call(aux::get_by_id<Ns>(&a), event, sm, deps, subs), 0)...};
     (void)_;
   }
 
@@ -150,7 +150,7 @@ class and_ : operator_base {
   template <int... Ns, class TEvent, class TSM, class TDeps, class TSubs>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
     auto result = true;
-    int _[]{0, (call(aux::get_by_id<Ns>(g), event, sm, deps, subs) ? result : result = false)...};
+    int _[]{0, (call(aux::get_by_id<Ns>(&g), event, sm, deps, subs) ? result : result = false)...};
     (void)_;
     return result;
   }
@@ -172,7 +172,7 @@ class or_ : operator_base {
   template <int... Ns, class TEvent, class TSM, class TDeps, class TSubs>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
     auto result = false;
-    int _[]{0, (call(aux::get_by_id<Ns>(g), event, sm, deps, subs) ? result = true : result)...};
+    int _[]{0, (call(aux::get_by_id<Ns>(&g), event, sm, deps, subs) ? result = true : result)...};
     (void)_;
     return result;
   }

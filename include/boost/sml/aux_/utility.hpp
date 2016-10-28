@@ -129,12 +129,8 @@ template <class... Ts>
 using tuple = tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
 
 template <int N, class T>
-auto &get_by_id_impl(tuple_type<N, T> *object) {
+auto &get_by_id(tuple_type<N, T> *object) {
   return static_cast<tuple_type<N, T> &>(*object).value;
-}
-template <int N, class Tuple>
-auto &get_by_id(Tuple &t) {
-  return get_by_id_impl<N>(&t);
 }
 
 struct init {};
@@ -193,7 +189,7 @@ struct is_pool : aux::false_type {};
 template <class... Ts>
 struct is_pool<pool<Ts...>> : aux::true_type {};
 
-template <int, class T>
+template <int, class>
 struct type_id_type {};
 template <class, class...>
 struct type_id_impl;
@@ -225,9 +221,7 @@ struct size<T<Ts...>> {
 #if defined(_MSC_VER)  // __pph__
 constexpr auto max_impl() { return 0; }
 constexpr auto max_impl(int r) { return r; }
-
 constexpr auto max_impl(int r, int i) { return r > i ? r : i; }
-
 constexpr auto max_impl(int r, int i, int ints...) { return i > r ? max_impl(i, ints) : max_impl(r, ints); }
 template <int... Ts>
 constexpr auto max() {

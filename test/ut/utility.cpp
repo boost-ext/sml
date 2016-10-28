@@ -56,14 +56,14 @@ test tuple_empty = [] {
 
 test tuple_basic = [] {
   tuple<int, double> t{42, 87.0};
-  expect(42 == get_by_id<0>(t));
-  expect(87.0 == get_by_id<1>(t));
+  expect(42 == get_by_id<0>(&t));
+  expect(87.0 == get_by_id<1>(&t));
 };
 
 test tuple_same_types = [] {
   tuple<int, int> t{42, 87};
-  expect(42 == get_by_id<0>(t));
-  expect(87 == get_by_id<1>(t));
+  expect(42 == get_by_id<0>(&t));
+  expect(87 == get_by_id<1>(&t));
 };
 
 test pool_empty = [] {
