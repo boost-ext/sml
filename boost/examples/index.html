@@ -228,6 +228,9 @@ struct e2 {
   bool value = true;
 };
 auto event2 = sml::event&lt;e2&gt;;
+struct e4 {
+  int value = 0;
+};
 
 struct events {
   auto operator()() const noexcept {
@@ -238,7 +241,7 @@ struct events {
        *&quot;idle&quot;_s + event&lt;e1&gt; = &quot;s1&quot;_s
       , &quot;s1&quot;_s + event2 [guard] = &quot;s2&quot;_s
       , &quot;s2&quot;_s + &quot;e3&quot;_e = &quot;s3&quot;_s
-      , &quot;s3&quot;_s + event&lt;int&gt; / [] (int i) { assert(42 == i); } = X
+      , &quot;s3&quot;_s + event&lt;e4&gt; / [] (const auto&amp; e) { assert(42 == e.value); } = X
     );
   }
 };
@@ -249,7 +252,7 @@ int main() {
   sm.process_event(e1{});
   sm.process_event(e2{});
   sm.process_event(&quot;e3&quot;_e);
-  sm.process_event(42);
+  sm.process_event(e4{42});
   assert(sm.is(X));
 }
 </code></pre>
