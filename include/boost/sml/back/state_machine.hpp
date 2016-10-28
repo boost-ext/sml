@@ -459,7 +459,7 @@ class sm {
   using transitions = aux::apply_t<aux::type_list, transitions_t>;
 
  private:
-  using events_ids_t = aux::apply_t<aux::inherit, events>;
+  struct events_ids : aux::apply_t<aux::inherit, events> {};
 
  public:
   sm(sm &&) = default;
@@ -475,12 +475,12 @@ class sm {
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
   }
 
-  template <class TEvent, __BOOST_SML_REQUIRES(aux::is_base_of<TEvent, events_ids_t>::value)>
+  template <class TEvent, __BOOST_SML_REQUIRES(aux::is_base_of<TEvent, events_ids>::value)>
   void process_event(const TEvent &event) {
     aux::get<sm_impl<TSM>>(sub_sms_).process_event(event, deps_, sub_sms_);
   }
 
-  template <class TEvent, __BOOST_SML_REQUIRES(!aux::is_base_of<TEvent, events_ids_t>::value)>
+  template <class TEvent, __BOOST_SML_REQUIRES(!aux::is_base_of<TEvent, events_ids>::value)>
   void process_event(const TEvent &event) {
     aux::get<sm_impl<TSM>>(sub_sms_).process_event(unexpected_event<_, TEvent>{event}, deps_, sub_sms_);
   }
@@ -490,8 +490,6 @@ class sm {
     process_event(TEvent{});
   }
 
-  template <class...>
-  struct q;
   template <class T = sm_t, class TVisitor, __BOOST_SML_REQUIRES(concepts::callable<void, TVisitor>::value)>
   void visit_current_states(const TVisitor &visitor) const {
     using type = sm_impl<typename TSM::template rebind<T>>;
