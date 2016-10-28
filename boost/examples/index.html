@@ -714,7 +714,6 @@ int main() {
 <h3 id="testing">Testing</h3>
 <pre><code class="cpp">#include &lt;boost/sml.hpp&gt;
 #include &lt;cassert&gt;
-#include &quot;boost/sml/testing/state_machine.hpp&quot;
 
 namespace sml = boost::sml;
 
@@ -744,8 +743,8 @@ struct testing {
 int main() {
   using namespace sml;
   data fake_data{0};
-  sml::testing::sm&lt;::testing&gt; sm{fake_data};
-  sm.set_current_states(&quot;s2&quot;_s);
+  sml::sm&lt;::testing, sml::testing&gt; sm{fake_data};
+  sm.__set_current_states(&quot;s2&quot;_s);
   sm.process_event(e3{});
   assert(sm.is(X));
   assert(fake_data.value = 42);
