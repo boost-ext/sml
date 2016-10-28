@@ -7,7 +7,7 @@
 #ifndef BOOST_SML_FRONT_EVENT_HPP
 #define BOOST_SML_FRONT_EVENT_HPP
 
-namespace detail {
+namespace front {
 
 template <class, class>
 struct transition_eg;
@@ -28,6 +28,6 @@ struct event {
   }
 };
 
-}  // detail
+}  // front
 
 #endif

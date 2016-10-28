@@ -7,7 +7,7 @@
 #ifndef BOOST_SML_BACK_POLICIES_HPP
 #define BOOST_SML_BACK_POLICIES_HPP
 
-namespace detail {
+namespace back {
 
 struct thread_safety_policy__ {};
 struct defer_queue_policy__ {};
@@ -55,6 +55,6 @@ struct no_policy {
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 
-}  // detail
+}  // back
 
 #endif

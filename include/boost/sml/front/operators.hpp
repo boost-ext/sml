@@ -9,7 +9,7 @@
 
 #include "boost/sml/back/internals.hpp"
 
-namespace detail {
+namespace front {
 
 struct operator_base {};
 struct action_base {};
@@ -22,14 +22,14 @@ auto args1__(int) -> aux::function_traits_t<decltype(&T::operator())>;
 template <class T, class E>
 auto args__(...) -> decltype(args1__<T, E>(0));
 template <class T, class E>
-auto args__(int) -> aux::function_traits_t<decltype(&T::operator() < get_event_t<E>>)>;
+auto args__(int) -> aux::function_traits_t<decltype(&T::operator() < back::get_event_t<E>>)>;
 template <class T, class E>
 using args_t = decltype(args__<T, E>(0));
 #else   // __pph__
 template <class, class>
 aux::type_list<> args__(...);
 template <class T, class E>
-auto args__(int) -> aux::function_traits_t<decltype(&T::template operator() < get_event_t<E>>)>;
+auto args__(int) -> aux::function_traits_t<decltype(&T::template operator() < back::get_event_t<E>>)>;
 template <class T, class>
 auto args__(int) -> aux::function_traits_t<decltype(&T::operator())>;
 template <class T, class E>
@@ -49,19 +49,19 @@ decltype(auto) get_arg(const aux::type<const TEvent &> &, const TEvent &event, T
   return event;
 }
 template <class T, class TEvent, class TDeps>
-decltype(auto) get_arg(const aux::type<const TEvent &> &, const unexpected_event<T, TEvent> &event, TDeps &) {
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::unexpected_event<T, TEvent> &event, TDeps &) {
   return event.event_;
 }
 template <class T, class TEvent, class TDeps>
-decltype(auto) get_arg(const aux::type<const TEvent &> &, const on_entry<T, TEvent> &event, TDeps &) {
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::on_entry<T, TEvent> &event, TDeps &) {
   return event.event_;
 }
 template <class T, class TEvent, class TDeps>
-decltype(auto) get_arg(const aux::type<const TEvent &> &, const on_exit<T, TEvent> &event, TDeps &) {
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::on_exit<T, TEvent> &event, TDeps &) {
   return event.event_;
 }
 template <class T, class TEvent, class TDeps>
-decltype(auto) get_arg(const aux::type<T> &, const exception<TEvent> &event, TDeps &) {
+decltype(auto) get_arg(const aux::type<T> &, const back::exception<TEvent> &event, TDeps &) {
   return event.exception_;
 }
 
@@ -69,14 +69,14 @@ template <class... Ts, class T, class TEvent, class TSM, class TDeps>
 auto call_impl_with_logger(const aux::type<void> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TSM &,
                            TDeps &deps) {
   object(get_arg(aux::type<Ts>{}, event, deps)...);
-  log_action<typename TSM::logger_t, typename TSM::sm_t>(typename TSM::has_logger{}, deps, object, event);
+  back::log_action<typename TSM::logger_t, typename TSM::sm_t>(typename TSM::has_logger{}, deps, object, event);
 }
 
 template <class... Ts, class T, class TEvent, class TSM, class TDeps>
 auto call_impl_with_logger(const aux::type<bool> &, const aux::type_list<Ts...> &, T object, const TEvent &event, TSM &,
                            TDeps &deps) {
   const auto result = object(get_arg(aux::type<Ts>{}, event, deps)...);
-  log_guard<typename TSM::logger_t, typename TSM::sm_t>(typename TSM::has_logger{}, deps, object, event, result);
+  back::log_guard<typename TSM::logger_t, typename TSM::sm_t>(typename TSM::has_logger{}, deps, object, event, result);
   return result;
 }
 
@@ -194,26 +194,26 @@ class not_ : operator_base {
   T g;
 };
 
-}  // detail
+}  // front
 
 template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
 auto operator!(const T &t) {
-  return detail::not_<aux::zero_wrapper<T>>(aux::zero_wrapper<T>{t});
+  return front::not_<aux::zero_wrapper<T>>(aux::zero_wrapper<T>{t});
 }
 
 template <class T1, class T2, __BOOST_SML_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
 auto operator&&(const T1 &t1, const T2 &t2) {
-  return detail::and_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
+  return front::and_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
 
 template <class T1, class T2, __BOOST_SML_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
 auto operator||(const T1 &t1, const T2 &t2) {
-  return detail::or_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
+  return front::or_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
 
 template <class T1, class T2, __BOOST_SML_REQUIRES(concepts::callable<void, T1>::value &&concepts::callable<void, T2>::value)>
 auto operator,(const T1 &t1, const T2 &t2) {
-  return detail::seq_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
+  return front::seq_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
 
 #endif

@@ -7,11 +7,12 @@
 #ifndef BOOST_SML_BACK_INTERNALS_HPP
 #define BOOST_SML_BACK_INTERNALS_HPP
 
-namespace detail {
+namespace back {
 
 struct _ {};
 
 struct initial {};
+struct internal {};
 
 struct internal_event {
   static auto c_str() { return "internal_event"; }
@@ -96,4 +97,6 @@ using get_generic_t = typename event_type<TEvent>::generic_t;
 template <class TEvent>
 using get_mapped_t = typename event_type<TEvent>::mapped_t;
 
-}  // detail
+}  // back
+
+#endif

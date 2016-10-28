@@ -7,7 +7,7 @@
 #ifndef BOOST_SML_BACK_MAPPINGS_HPP
 #define BOOST_SML_BACK_MAPPINGS_HPP
 
-namespace detail {
+namespace back {
 
 template <class>
 class sm;
@@ -142,6 +142,6 @@ TMappings get_event_mapping_impl(event_mappings<T, TMappings> *);
 template <class T, class TMappings>
 using get_event_mapping_t = decltype(get_event_mapping_impl<T>((TMappings *)0));
 
-}  // detail
+}  // back
 
 #endif

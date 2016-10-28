@@ -7,15 +7,15 @@
 #define BOOST_SML_CONCEPTS_TRANSITIONAL_HPP
 
 #include "boost/sml/aux_/type_traits.hpp"
+#include "boost/sml/back/internals.hpp"
 
-namespace detail {
+namespace back {
+struct internal;
 template <class, class>
 struct on_entry;
 template <class, class>
 struct on_exit;
-struct terminate_state;
-struct internal;
-}  // detail
+}  // back
 
 namespace concepts {
 
@@ -23,10 +23,10 @@ template <class...>
 struct is_valid_transition : aux::true_type {};
 
 template <class S1, class S2, class T, class TEvent, class... Ts>
-struct is_valid_transition<S1, S2, detail::on_entry<T, TEvent>, Ts...> : aux::is_same<S1, detail::internal> {};
+struct is_valid_transition<S1, S2, back::on_entry<T, TEvent>, Ts...> : aux::is_same<S1, back::internal> {};
 
 template <class S1, class S2, class T, class TEvent, class... Ts>
-struct is_valid_transition<S1, S2, detail::on_exit<T, TEvent>, Ts...> : aux::is_same<S1, detail::internal> {};
+struct is_valid_transition<S1, S2, back::on_exit<T, TEvent>, Ts...> : aux::is_same<S1, back::internal> {};
 
 aux::false_type transitional_impl(...);
 

@@ -18,7 +18,14 @@
 #include "boost/sml/concepts/stringable.hpp"
 #include "boost/sml/concepts/transitional.hpp"
 
-namespace detail {
+namespace front {
+template <class>
+struct state;
+template <class>
+struct event;
+}  // front
+
+namespace back {
 
 template <class TEvent>
 using get_event = aux::conditional_t<aux::is_base_of<internal_event, TEvent>::value, aux::type_list<>, aux::type_list<TEvent>>;
@@ -98,7 +105,7 @@ TPolicy get_policy(aux::pair<T, TPolicy> *);
 template <class SM, class... TPolicies>
 struct sm_policy {
   using sm = SM;
-  using thread_safety_policy = decltype(get_policy<detail::thread_safety_policy__>((aux::inherit<TPolicies...> *)0));
+  using thread_safety_policy = decltype(get_policy<thread_safety_policy__>((aux::inherit<TPolicies...> *)0));
   using defer_queue_policy = decltype(get_policy<defer_queue_policy__>((aux::inherit<TPolicies...> *)0));
   using logger_policy = decltype(get_policy<logger_policy__>((aux::inherit<TPolicies...> *)0));
   template <class T>
@@ -134,7 +141,7 @@ struct sm_impl {
   using logger_t = typename TSM::logger_policy::type;
   using has_logger = aux::integral_constant<bool, !aux::is_same<logger_t, no_policy>::value>;
   using transitions_t = decltype(aux::declval<sm_t>().operator()());
-  using mappings_t = detail::mappings_t<transitions_t>;
+  using mappings_t = mappings_t<transitions_t>;
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
   using initial_states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_initial_states, transitions_t>>;
@@ -150,8 +157,6 @@ struct sm_impl {
   using defer_t = defer_queue_t<aux::apply_t<defer_event_t, events_t>>;
   using deps = aux::apply_t<merge_deps, transitions_t>;
   using state_t = aux::conditional_t<(aux::size<states_t>::value > 0xFF), unsigned short, aux::byte>;
-  template <class... TStates>
-  using get_ids = aux::index_sequence<aux::get_id<states_ids_t, -1, TStates>()...>;
   static constexpr auto regions = aux::size<initial_states_t>::value > 0 ? aux::size<initial_states_t>::value : 1;
   static_assert(regions > 0, "At least one initial state is required");
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
@@ -350,8 +355,7 @@ struct sm_impl {
 #endif  // __pph__
 
   template <class TDeps, class TSubs, class... TEvents>
-  void process_defer_events(TDeps &, TSubs &, const bool, const aux::type<detail::no_policy> &,
-                            const aux::type_list<TEvents...> &) {}
+  void process_defer_events(TDeps &, TSubs &, const bool, const aux::type<no_policy> &, const aux::type_list<TEvents...> &) {}
 
   template <class TDeps, class TSubs, class TEvent>
   bool process_event_no_deffer(TDeps &deps, TSubs &subs, const void *data) {
@@ -402,10 +406,10 @@ struct sm_impl {
 
   template <class TVisitor, class TState>
   static void visit_state(const TVisitor &visitor) {
-    visitor(state<TState>{});
+    visitor(front::state<TState>{});
   }
 
-  detail::no_policy create_lock(const aux::type<detail::no_policy> &) { return {}; }
+  no_policy create_lock(const aux::type<no_policy> &) { return {}; }
 
   template <class TLockPolicy>
   auto create_lock(const aux::type<TLockPolicy> &) {
@@ -482,10 +486,12 @@ class sm {
   }
 
   template <class TEvent>
-  void process_event(const event<TEvent> &) {
+  void process_event(const front::event<TEvent> &) {
     process_event(TEvent{});
   }
 
+  template <class...>
+  struct q;
   template <class T = sm_t, class TVisitor, __BOOST_SML_REQUIRES(concepts::callable<void, TVisitor>::value)>
   void visit_current_states(const TVisitor &visitor) const {
     using type = sm_impl<typename TSM::template rebind<T>>;
@@ -495,32 +501,33 @@ class sm {
   }
 
   template <class T = sm_t, class TState>
-  bool is(const state<TState> &) const {
+  bool is(const TState &) const {
     auto result = false;
-    visit_current_states<T>([&](auto state) { result |= aux::is_same<TState, typename decltype(state)::type>::value; });
+    visit_current_states<T>(
+        [&](auto state) { result |= aux::is_same<typename TState::type, typename decltype(state)::type>::value; });
     return result;
   }
 
   template <class T = sm_t, class... TStates,
             __BOOST_SML_REQUIRES(sizeof...(TStates) == sm_impl<typename TSM::template rebind<T>>::regions)>
-  bool is(const state<TStates> &...) const {
+  bool is(const TStates &...) const {
     auto result = true;
     auto i = 0;
     using type = sm_impl<typename TSM::template rebind<T>>;
     using states_ids_t = typename type::states_ids_t;
-    int state_ids[] = {aux::get_id<states_ids_t, 0, TStates>()...};
+    int state_ids[] = {aux::get_id<states_ids_t, 0, typename TStates::type>()...};
     visit_current_states<T>(
         [&](auto state) { result &= (aux::get_id<states_ids_t, 0, typename decltype(state)::type>() == state_ids[i++]); });
     return result;
   }
 
-  template <class T = sm_t, class... TStates>  // TODO when testing policy enabled
-  void __set_current_states(const detail::state<TStates> &...) {
+  template <class T = sm_t, class... TStates>
+  void __set_current_states(const TStates &...) {
     using type = sm_impl<typename TSM::template rebind<T>>;
     using states_ids_t = typename type::states_ids_t;
     auto &sm = aux::get<sm_impl<TSM>>(sub_sms_);
     auto region = 0;
-    int _[]{0, (sm.current_state_[region++] = aux::get_id<states_ids_t, 0, TStates>(), 0)...};
+    int _[]{0, (sm.current_state_[region++] = aux::get_id<states_ids_t, 0, typename TStates::type>(), 0)...};
     (void)_;
   }
 
@@ -529,12 +536,12 @@ class sm {
   sub_sms_t sub_sms_;
 };
 
-}  // detail
+}  // back
 
 template <class T, __BOOST_SML_REQUIRES(concepts::configurable<typename T::sm>::value)>
-using sm_impl = detail::sm<T>;
+using sm__ = back::sm<T>;
 
 template <class T, class... TPolicies>
-using sm = sm_impl<detail::sm_policy<T, TPolicies...>>;
+using sm = sm__<back::sm_policy<T, TPolicies...>>;
 
 #endif

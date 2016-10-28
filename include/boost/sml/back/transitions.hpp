@@ -7,7 +7,7 @@
 #ifndef BOOST_SML_BACK_STATE_TRANSITIONS_HPP
 #define BOOST_SML_BACK_STATE_TRANSITIONS_HPP
 
-namespace detail {
+namespace back {
 
 template <class>
 struct sm_impl;
@@ -80,7 +80,7 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
   }
 
   template <class _, class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute_impl(const detail::on_entry<_, TEvent>& event, SM& sm, TDeps& deps, TSubs& subs,
+  static bool execute_impl(const back::on_entry<_, TEvent>& event, SM& sm, TDeps& deps, TSubs& subs,
                            typename SM::state_t& current_state) {
     transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
     aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
@@ -107,5 +107,5 @@ struct transitions_sub<sm<TSM>> {
   }
 };
 
-}  // detail
+}  // back
 #endif
