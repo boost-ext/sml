@@ -55,7 +55,7 @@ struct get_sub_internal_events_impl {
 
 template <class T, class TEvent>
 struct get_sub_internal_events_impl<sm<T>, TEvent> {
-  using type = aux::join_t<aux::type_list<TEvent>, typename sm_impl<T>::sub_internal_events>;
+  using type = aux::join_t<aux::type_list<TEvent>, typename sm_impl<T>::sub_internal_events_t>;
 };
 
 template <class... Ts>
@@ -156,10 +156,11 @@ class sm_impl {
   using history_states_t = aux::apply_t<get_history_states, transitions_t>;
   using has_history_states =
       aux::integral_constant<bool, aux::size<initial_states_t>::value != aux::size<history_states_t>::value>;
-  using events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_events, transitions_t>>;
-  using sub_internal_events = aux::apply_t<get_sub_internal_events, transitions_t>;
-  using events_ids_t = aux::apply_t<aux::pool, aux::apply_t<aux::unique_t, aux::join_t<sub_internal_events, events_t>>>;
+  using sub_internal_events_t = aux::apply_t<get_sub_internal_events, transitions_t>;
+  using events_t = aux::apply_t<aux::unique_t, aux::join_t<sub_internal_events_t, aux::apply_t<get_events, transitions_t>>>;
+  using events_ids_t = aux::apply_t<aux::pool, events_t>;
   using has_unexpected_events = typename aux::is_base_of<unexpected, aux::apply_t<aux::inherit, events_t>>::type;
+  using has_entry_exits = typename aux::is_base_of<entry_exit, aux::apply_t<aux::inherit, events_t>>::type;
   using defer_t = defer_queue_t<aux::apply_t<defer_event_t, events_t>>;
   using deps = aux::apply_t<merge_deps, transitions_t>;
   using state_t = aux::conditional_t<(aux::size<states_t>::value > 0xFF), unsigned short, aux::byte>;

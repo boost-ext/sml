@@ -16,19 +16,22 @@ struct initial {};
 struct internal_event {
   static auto c_str() { return "internal_event"; }
 };
+
 struct anonymous : internal_event {
   static auto c_str() { return "anonymous"; }
 };
 
+struct entry_exit {};
+
 template <class T, class TEvent = T>
-struct on_entry : internal_event {
+struct on_entry : internal_event, entry_exit {
   static auto c_str() { return "on_entry"; }
   explicit on_entry(const TEvent& event = {}) : event_(event) {}
   const TEvent& event_;
 };
 
 template <class T, class TEvent = T>
-struct on_exit : internal_event {
+struct on_exit : internal_event, entry_exit {
   static auto c_str() { return "on_exit"; }
   explicit on_exit(const TEvent& event = {}) : event_(event) {}
   const TEvent& event_;
