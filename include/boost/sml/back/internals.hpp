@@ -10,9 +10,10 @@
 namespace back {
 
 struct _ {};
-
 struct initial {};
 struct internal {};
+struct unexpected {};
+struct entry_exit {};
 
 struct internal_event {
   static auto c_str() { return "internal_event"; }
@@ -21,8 +22,6 @@ struct internal_event {
 struct anonymous : internal_event {
   static auto c_str() { return "anonymous"; }
 };
-
-struct entry_exit {};
 
 template <class T, class TEvent = T>
 struct on_entry : internal_event, entry_exit {
@@ -44,8 +43,6 @@ struct exception : internal_event {
   explicit exception(const TException& exception = {}) : exception_(exception) {}
   const TException& exception_;
 };
-
-struct unexpected {};
 
 template <class T, class TEvent = T>
 struct unexpected_event : internal_event, unexpected {

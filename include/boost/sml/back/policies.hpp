@@ -7,6 +7,8 @@
 #ifndef BOOST_SML_BACK_POLICIES_HPP
 #define BOOST_SML_BACK_POLICIES_HPP
 
+#include "boost/sml/aux_/utility.hpp"
+
 namespace back {
 
 struct thread_safety_policy__ {};

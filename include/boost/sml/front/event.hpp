@@ -7,6 +7,9 @@
 #ifndef BOOST_SML_FRONT_EVENT_HPP
 #define BOOST_SML_FRONT_EVENT_HPP
 
+#include "boost/sml/aux_/utility.hpp"
+#include "boost/sml/concepts/callable.hpp"
+
 namespace front {
 
 template <class, class>

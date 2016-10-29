@@ -10,6 +10,7 @@
 #include "boost/sml/front/operators.hpp"
 
 namespace front {
+namespace actions {
 
 template <class... Ts>
 class defer_event {
@@ -50,6 +51,6 @@ struct defer : action_base {
   }
 };
 
-}  // front
+}}  // front::actions
 
 #endif

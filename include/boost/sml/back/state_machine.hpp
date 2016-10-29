@@ -12,11 +12,7 @@
 #include "boost/sml/back/internals.hpp"
 #include "boost/sml/back/mappings.hpp"
 #include "boost/sml/back/policies.hpp"
-#include "boost/sml/back/transitions.hpp"
 #include "boost/sml/concepts/callable.hpp"
-#include "boost/sml/concepts/configurable.hpp"
-#include "boost/sml/concepts/stringable.hpp"
-#include "boost/sml/concepts/transitional.hpp"
 
 namespace front {
 template <class>
@@ -535,11 +531,5 @@ class sm {
 };
 
 }  // back
-
-template <class T, __BOOST_SML_REQUIRES(concepts::configurable<typename T::sm>::value)>
-using sm__ = back::sm<T>;
-
-template <class T, class... TPolicies>
-using sm = sm__<back::sm_policy<T, TPolicies...>>;
 
 #endif

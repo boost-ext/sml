@@ -4,8 +4,8 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-#ifndef BOOST_SML_CONCEPTS_CONFIGURABLE_HPP
-#define BOOST_SML_CONCEPTS_CONFIGURABLE_HPP
+#ifndef BOOST_SML_CONCEPTS_COMPOSABLE_HPP
+#define BOOST_SML_CONCEPTS_COMPOSABLE_HPP
 
 #include "boost/sml/aux_/type_traits.hpp"
 #include "boost/sml/aux_/utility.hpp"
@@ -13,13 +13,13 @@
 namespace concepts {
 
 template <class T>
-decltype(aux::declval<T>().operator()()) configurable_impl(int);
+decltype(aux::declval<T>().operator()()) composable_impl(int);
 
 template <class>
-void configurable_impl(...);
+void composable_impl(...);
 
 template <class T>
-struct configurable : aux::is<aux::pool, decltype(configurable_impl<T>(0))> {};
+struct composable : aux::is<aux::pool, decltype(composable_impl<T>(0))> {};
 
 }  // concepts
 

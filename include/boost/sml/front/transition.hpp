@@ -7,6 +7,8 @@
 #ifndef BOOST_SML_FRONT_TRANSITION_HPP
 #define BOOST_SML_FRONT_TRANSITION_HPP
 
+#include "boost/sml/aux_/type_traits.hpp"
+#include "boost/sml/aux_/utility.hpp"
 #include "boost/sml/back/internals.hpp"
 #include "boost/sml/front/state.hpp"
 

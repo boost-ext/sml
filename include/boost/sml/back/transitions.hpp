@@ -7,7 +7,12 @@
 #ifndef BOOST_SML_BACK_STATE_TRANSITIONS_HPP
 #define BOOST_SML_BACK_STATE_TRANSITIONS_HPP
 
+#include "boost/sml/aux_/utility.hpp"
+
 namespace back {
+
+template <class>
+class sm;
 
 template <class>
 struct sm_impl;

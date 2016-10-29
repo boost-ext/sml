@@ -4,9 +4,11 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-#ifndef BOOST_SML_FRONT_TRANSITION_TABLE_HPP
-#define BOOST_SML_FRONT_TRANSITION_TABLE_HPP
+#ifndef BOOST_SML_TRANSITION_TABLE_HPP
+#define BOOST_SML_TRANSITION_TABLE_HPP
 
+#include "boost/sml/aux_/type_traits.hpp"
+#include "boost/sml/concepts/transitional.hpp"
 #include "boost/sml/back/internals.hpp"
 #include "boost/sml/front/actions/defer.hpp"
 #include "boost/sml/front/actions/process.hpp"
@@ -58,8 +60,8 @@ __BOOST_SML_UNUSED static front::history_state H;
 
 /// actions
 
-__BOOST_SML_UNUSED static front::defer defer;
-__BOOST_SML_UNUSED static front::process process;
+__BOOST_SML_UNUSED static front::actions::defer defer;
+__BOOST_SML_UNUSED static front::actions::process process;
 
 /// transition table
 
@@ -68,28 +70,5 @@ template <class... Ts, __BOOST_SML_REQUIRES(aux::is_same<aux::bool_list<aux::alw
 auto make_transition_table(Ts... ts) {
   return aux::pool<Ts...>{ts...};
 }
-
-/// policies
-
-template <class T>
-struct thread_safe : aux::pair<back::thread_safety_policy__, thread_safe<T>> {
-  using type = T;
-};
-
-template <template <class...> class T>
-struct defer_queue : aux::pair<back::defer_queue_policy__, defer_queue<T>> {
-  template <class U>
-  using rebind = T<U>;
-
-  template <class... Ts>
-  using defer = front::defer_event<Ts...>;
-};
-
-template <class T>
-struct logger : aux::pair<back::logger_policy__, logger<T>> {
-  using type = T;
-};
-
-struct testing : aux::pair<back::testing_policy__, testing> {};
 
 #endif

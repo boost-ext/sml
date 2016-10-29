@@ -6,13 +6,13 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "boost/sml/concepts/callable.hpp"
-#include "boost/sml/concepts/configurable.hpp"
+#include "boost/sml/concepts/composable.hpp"
 #include "boost/sml/concepts/stringable.hpp"
 #include "boost/sml/concepts/transitional.hpp"
 
 namespace concepts {
 
-test configurable_concept = [] {
+test composable_concept = [] {
   struct c0 {};
   struct c1 {
     auto operator()() const noexcept { return aux::pool<>{}; }
@@ -30,12 +30,12 @@ test configurable_concept = [] {
     auto setup() { return aux::pool<>{}; }
   };
 
-  static_expect(configurable<c1>::value);
-  static_expect(configurable<c2>::value);
-  static_expect(configurable<c3>::value);
-  static_expect(!configurable<c0>::value);
-  static_expect(!configurable<c4>::value);
-  static_expect(!configurable<c5>::value);
+  static_expect(composable<c1>::value);
+  static_expect(composable<c2>::value);
+  static_expect(composable<c3>::value);
+  static_expect(!composable<c0>::value);
+  static_expect(!composable<c4>::value);
+  static_expect(!composable<c5>::value);
 };
 
 struct call5 {

@@ -7,7 +7,9 @@
 #ifndef BOOST_SML_FRONT_OPERATORS_HPP
 #define BOOST_SML_FRONT_OPERATORS_HPP
 
+#include "boost/sml/aux_/utility.hpp"
 #include "boost/sml/back/internals.hpp"
+#include "boost/sml/concepts/callable.hpp"
 
 namespace front {
 

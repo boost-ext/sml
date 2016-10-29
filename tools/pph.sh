@@ -50,8 +50,8 @@ pph() {
   find . -iname "*.hpp" | xargs sed -i "s/.*\(clang-format.*\)/\/\/\/\/\1/g"
   echo '
     BOOST_SML_NAMESPACE_BEGIN
-    #include "boost/sml/back/state_machine.hpp"
-    #include "boost/sml/front/transition_table.hpp"' > tmp.hpp
+    #include "boost/sml/state_machine.hpp"
+    #include "boost/sml/transition_table.hpp"' > tmp.hpp
   cpp -C -P -nostdinc -I. tmp.hpp 2>/dev/null | \
     sed "s/\/\/\/\///" | \
     sed "s/[ $]*#define/##define/g" | \

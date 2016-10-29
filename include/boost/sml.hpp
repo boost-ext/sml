@@ -371,17 +371,26 @@ struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
   zero_wrapper(...) {}
 };
 }
+namespace concepts {
+template <class T>
+decltype(aux::declval<T>().operator()()) composable_impl(int);
+template <class>
+void composable_impl(...);
+template <class T>
+struct composable : aux::is<aux::pool, decltype(composable_impl<T>(0))> {};
+}
 namespace back {
 struct _ {};
 struct initial {};
 struct internal {};
+struct unexpected {};
+struct entry_exit {};
 struct internal_event {
   static auto c_str() { return "internal_event"; }
 };
 struct anonymous : internal_event {
   static auto c_str() { return "anonymous"; }
 };
-struct entry_exit {};
 template <class T, class TEvent = T>
 struct on_entry : internal_event, entry_exit {
   static auto c_str() { return "on_entry"; }
@@ -400,7 +409,6 @@ struct exception : internal_event {
   explicit exception(const TException &exception = {}) : exception_(exception) {}
   const TException &exception_;
 };
-struct unexpected {};
 template <class T, class TEvent = T>
 struct unexpected_event : internal_event, unexpected {
   explicit unexpected_event(const TEvent &event = {}) : event_(event) {}
@@ -442,6 +450,93 @@ template <class TEvent>
 using get_generic_t = typename event_type<TEvent>::generic_t;
 template <class TEvent>
 using get_mapped_t = typename event_type<TEvent>::mapped_t;
+}
+namespace back {
+template <class>
+class sm;
+template <class>
+struct sm_impl;
+template <class...>
+struct transitions;
+template <class...>
+struct transitions_sub;
+template <class T, class... Ts>
+struct transitions<T, Ts...> {
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
+    if (aux::get<T>(sm.transitions_).execute(event, sm, deps, subs, current_state, typename SM::has_entry_exits{})) {
+      return true;
+    }
+    return transitions<Ts...>::execute(event, sm, deps, subs, current_state);
+  }
+};
+template <class T>
+struct transitions<T> {
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
+    return execute_impl(event, sm, deps, subs, current_state);
+  }
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute_impl(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
+    return aux::get<T>(sm.transitions_).execute(event, sm, deps, subs, current_state, typename SM::has_entry_exits{});
+  }
+  template <class _, class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute_impl(const on_exit<_, TEvent> &event, SM &sm, TDeps &deps, TSubs &subs,
+                           typename SM::state_t &current_state) {
+    aux::get<T>(sm.transitions_).execute(event, sm, deps, subs, current_state, typename SM::has_entry_exits{});
+    return false;
+  }
+};
+template <>
+struct transitions<aux::true_type> {
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
+    sm.process_internal_event(unexpected_event<TEvent>{event}, deps, subs, current_state);
+    return false;
+  }
+};
+template <>
+struct transitions<aux::false_type> {
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &) {
+    return false;
+  }
+};
+template <class TSM, class T, class... Ts>
+struct transitions_sub<sm<TSM>, T, Ts...> {
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
+    return execute_impl(event, sm, deps, subs, current_state);
+  }
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute_impl(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
+    const auto handled = aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
+    return handled ? handled : transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
+  }
+  template <class _, class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute_impl(const back::on_entry<_, TEvent> &event, SM &sm, TDeps &deps, TSubs &subs,
+                           typename SM::state_t &current_state) {
+    transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
+    aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
+    return true;
+  }
+};
+template <class TSM>
+struct transitions_sub<sm<TSM>> {
+  template <class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute(const TEvent &event, SM &, TDeps &deps, TSubs &subs, typename SM::state_t &) {
+    return execute_impl(event, deps, subs);
+  }
+  template <class TEvent, class TDeps, class TSubs>
+  static bool execute_impl(const TEvent &event, TDeps &deps, TSubs &subs) {
+    aux::get<sm_impl<TSM>>(subs).template process_event<TEvent>(event, deps, subs);
+    return true;
+  }
+  template <class _, class TEvent, class TDeps, class TSubs>
+  static bool execute_impl(const on_entry<_, TEvent> &event, TDeps &deps, TSubs &subs) {
+    return aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
+  }
+};
 }
 namespace back {
 template <class>
@@ -579,91 +674,6 @@ struct no_policy {
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 }
-namespace back {
-template <class>
-struct sm_impl;
-template <class...>
-struct transitions;
-template <class...>
-struct transitions_sub;
-template <class T, class... Ts>
-struct transitions<T, Ts...> {
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
-    if (aux::get<T>(sm.transitions_).execute(event, sm, deps, subs, current_state, typename SM::has_entry_exits{})) {
-      return true;
-    }
-    return transitions<Ts...>::execute(event, sm, deps, subs, current_state);
-  }
-};
-template <class T>
-struct transitions<T> {
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
-    return execute_impl(event, sm, deps, subs, current_state);
-  }
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute_impl(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
-    return aux::get<T>(sm.transitions_).execute(event, sm, deps, subs, current_state, typename SM::has_entry_exits{});
-  }
-  template <class _, class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute_impl(const on_exit<_, TEvent> &event, SM &sm, TDeps &deps, TSubs &subs,
-                           typename SM::state_t &current_state) {
-    aux::get<T>(sm.transitions_).execute(event, sm, deps, subs, current_state, typename SM::has_entry_exits{});
-    return false;
-  }
-};
-template <>
-struct transitions<aux::true_type> {
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
-    sm.process_internal_event(unexpected_event<TEvent>{event}, deps, subs, current_state);
-    return false;
-  }
-};
-template <>
-struct transitions<aux::false_type> {
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &) {
-    return false;
-  }
-};
-template <class TSM, class T, class... Ts>
-struct transitions_sub<sm<TSM>, T, Ts...> {
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
-    return execute_impl(event, sm, deps, subs, current_state);
-  }
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute_impl(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
-    const auto handled = aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
-    return handled ? handled : transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
-  }
-  template <class _, class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute_impl(const back::on_entry<_, TEvent> &event, SM &sm, TDeps &deps, TSubs &subs,
-                           typename SM::state_t &current_state) {
-    transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
-    aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
-    return true;
-  }
-};
-template <class TSM>
-struct transitions_sub<sm<TSM>> {
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute(const TEvent &event, SM &, TDeps &deps, TSubs &subs, typename SM::state_t &) {
-    return execute_impl(event, deps, subs);
-  }
-  template <class TEvent, class TDeps, class TSubs>
-  static bool execute_impl(const TEvent &event, TDeps &deps, TSubs &subs) {
-    aux::get<sm_impl<TSM>>(subs).template process_event<TEvent>(event, deps, subs);
-    return true;
-  }
-  template <class _, class TEvent, class TDeps, class TSubs>
-  static bool execute_impl(const on_entry<_, TEvent> &event, TDeps &deps, TSubs &subs) {
-    return aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
-  }
-};
-}
 namespace concepts {
 struct callable_fallback {
   void operator()();
@@ -678,44 +688,6 @@ template <class R>
 struct callable_impl<R, aux::true_type> : aux::true_type {};
 template <class R, class T>
 struct callable : callable_impl<R, decltype(test_callable<aux::inherit<T, callable_fallback>>(0))> {};
-}
-namespace concepts {
-template <class T>
-decltype(aux::declval<T>().operator()()) configurable_impl(int);
-template <class>
-void configurable_impl(...);
-template <class T>
-struct configurable : aux::is<aux::pool, decltype(configurable_impl<T>(0))> {};
-}
-namespace concepts {
-template <class T, class = decltype(T::c_str())>
-aux::true_type test_stringable(const T &);
-aux::false_type test_stringable(...);
-template <class T, class = void>
-struct stringable : aux::false_type {};
-template <class T>
-struct stringable<T, decltype(void(sizeof(T)))> : decltype(test_stringable(aux::declval<T>())) {};
-}
-namespace back {
-struct internal;
-template <class, class>
-struct on_entry;
-template <class, class>
-struct on_exit;
-}
-namespace concepts {
-template <class...>
-struct is_valid_transition : aux::true_type {};
-template <class S1, class S2, class T, class TEvent, class... Ts>
-struct is_valid_transition<S1, S2, back::on_entry<T, TEvent>, Ts...> : aux::is_same<S1, back::internal> {};
-template <class S1, class S2, class T, class TEvent, class... Ts>
-struct is_valid_transition<S1, S2, back::on_exit<T, TEvent>, Ts...> : aux::is_same<S1, back::internal> {};
-aux::false_type transitional_impl(...);
-template <class T>
-auto transitional_impl(T &&t) -> is_valid_transition<typename T::dst_state, typename T::src_state, typename T::event,
-                                                     typename T::deps, decltype(T::initial), decltype(T::history)>;
-template <class T>
-struct transitional : decltype(transitional_impl(aux::declval<T>())) {};
 }
 namespace front {
 template <class>
@@ -1164,10 +1136,6 @@ class sm {
   sub_sms_t sub_sms_;
 };
 }
-template <class T, __BOOST_SML_REQUIRES(concepts::configurable<typename T::sm>::value)>
-using sm__ = back::sm<T>;
-template <class T, class... TPolicies>
-using sm = sm__<back::sm_policy<T, TPolicies...>>;
 namespace front {
 struct operator_base {};
 struct action_base {};
@@ -1348,6 +1316,7 @@ auto operator,(const T1 &t1, const T2 &t2) {
   return front::seq_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
 namespace front {
+namespace actions {
 template <class... Ts>
 class defer_event {
   using ids_t = aux::type_id<Ts...>;
@@ -1382,7 +1351,52 @@ struct defer : action_base {
   }
 };
 }
+}
+namespace detail {
+template <class T, __BOOST_SML_REQUIRES(concepts::composable<typename T::sm>::value)>
+using state_machine = back::sm<T>;
+}
+template <class T>
+struct thread_safe : aux::pair<back::thread_safety_policy__, thread_safe<T>> {
+  using type = T;
+};
+template <template <class...> class T>
+struct defer_queue : aux::pair<back::defer_queue_policy__, defer_queue<T>> {
+  template <class U>
+  using rebind = T<U>;
+  template <class... Ts>
+  using defer = front::actions::defer_event<Ts...>;
+};
+template <class T>
+struct logger : aux::pair<back::logger_policy__, logger<T>> {
+  using type = T;
+};
+struct testing : aux::pair<back::testing_policy__, testing> {};
+template <class T, class... TPolicies>
+using sm = detail::state_machine<back::sm_policy<T, TPolicies...>>;
+namespace back {
+struct internal;
+template <class, class>
+struct on_entry;
+template <class, class>
+struct on_exit;
+}
+namespace concepts {
+template <class...>
+struct is_valid_transition : aux::true_type {};
+template <class S1, class S2, class T, class TEvent, class... Ts>
+struct is_valid_transition<S1, S2, back::on_entry<T, TEvent>, Ts...> : aux::is_same<S1, back::internal> {};
+template <class S1, class S2, class T, class TEvent, class... Ts>
+struct is_valid_transition<S1, S2, back::on_exit<T, TEvent>, Ts...> : aux::is_same<S1, back::internal> {};
+aux::false_type transitional_impl(...);
+template <class T>
+auto transitional_impl(T &&t) -> is_valid_transition<typename T::dst_state, typename T::src_state, typename T::event,
+                                                     typename T::deps, decltype(T::initial), decltype(T::history)>;
+template <class T>
+struct transitional : decltype(transitional_impl(aux::declval<T>())) {};
+}
 namespace front {
+namespace actions {
 struct process {
   template <class TEvent>
   class process_impl : public action_base {
@@ -1402,6 +1416,7 @@ struct process {
   }
 };
 }
+}
 namespace front {
 template <class, class>
 struct transition_eg;
@@ -1418,6 +1433,15 @@ struct event {
     return transition_ea<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
   }
 };
+}
+namespace concepts {
+template <class T, class = decltype(T::c_str())>
+aux::true_type test_stringable(const T &);
+aux::false_type test_stringable(...);
+template <class T, class = void>
+struct stringable : aux::false_type {};
+template <class T>
+struct stringable<T, decltype(void(sizeof(T)))> : decltype(test_stringable(aux::declval<T>())) {};
 }
 namespace front {
 struct initial_state {};
@@ -1516,7 +1540,7 @@ struct state_sm {
   using type = state<T>;
 };
 template <class T>
-struct state_sm<T, aux::enable_if_t<concepts::configurable<T>::value>> {
+struct state_sm<T, aux::enable_if_t<concepts::composable<T>::value>> {
   using type = state<back::sm<back::sm_policy<T>>>;
 };
 }
@@ -1967,29 +1991,13 @@ auto operator""_e() {
 #endif
 __BOOST_SML_UNUSED static front::state<front::terminate_state> X;
 __BOOST_SML_UNUSED static front::history_state H;
-__BOOST_SML_UNUSED static front::defer defer;
-__BOOST_SML_UNUSED static front::process process;
+__BOOST_SML_UNUSED static front::actions::defer defer;
+__BOOST_SML_UNUSED static front::actions::process process;
 template <class... Ts, __BOOST_SML_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
                                                          aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 auto make_transition_table(Ts... ts) {
   return aux::pool<Ts...>{ts...};
 }
-template <class T>
-struct thread_safe : aux::pair<back::thread_safety_policy__, thread_safe<T>> {
-  using type = T;
-};
-template <template <class...> class T>
-struct defer_queue : aux::pair<back::defer_queue_policy__, defer_queue<T>> {
-  template <class U>
-  using rebind = T<U>;
-  template <class... Ts>
-  using defer = front::defer_event<Ts...>;
-};
-template <class T>
-struct logger : aux::pair<back::logger_policy__, logger<T>> {
-  using type = T;
-};
-struct testing : aux::pair<back::testing_policy__, testing> {};
 BOOST_SML_NAMESPACE_END
 #undef __BOOST_SML_UNUSED
 #undef __BOOST_SML_VT_INIT

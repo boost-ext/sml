@@ -7,6 +7,8 @@
 #ifndef BOOST_SML_BACK_MAPPINGS_HPP
 #define BOOST_SML_BACK_MAPPINGS_HPP
 
+#include "boost/sml/back/transitions.hpp"
+
 namespace back {
 
 template <class>
