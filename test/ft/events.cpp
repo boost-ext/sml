@@ -32,11 +32,11 @@ test events = [] {
   sml::sm<c> sm;
   using namespace sml;
   expect(sm.is("idle"_s));
-  sm.process_event("e1"_e);
+  sm.process_event("e1"_e());
   expect(sm.is("s1"_s));
-  sm.process_event("e2"_e);
+  sm.process_event("e2"_e());
   expect(sm.is("s2"_s));
-  sm.process_event("e3"_e);
+  sm.process_event("e3"_e());
   expect(sm.is(X));
 };
 #endif

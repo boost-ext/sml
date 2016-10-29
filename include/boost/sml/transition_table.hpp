@@ -8,8 +8,8 @@
 #define BOOST_SML_TRANSITION_TABLE_HPP
 
 #include "boost/sml/aux_/type_traits.hpp"
-#include "boost/sml/concepts/transitional.hpp"
 #include "boost/sml/back/internals.hpp"
+#include "boost/sml/concepts/transitional.hpp"
 #include "boost/sml/front/actions/defer.hpp"
 #include "boost/sml/front/actions/process.hpp"
 #include "boost/sml/front/event.hpp"

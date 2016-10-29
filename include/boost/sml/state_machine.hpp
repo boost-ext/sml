@@ -7,15 +7,15 @@
 #ifndef BOOST_SML_STATE_MACHINE_HPP
 #define BOOST_SML_STATE_MACHINE_HPP
 
-#include "boost/sml/concepts/composable.hpp"
-#include "boost/sml/back/state_machine.hpp"
 #include "boost/sml/back/policies.hpp"
+#include "boost/sml/back/state_machine.hpp"
+#include "boost/sml/concepts/composable.hpp"
 #include "boost/sml/front/actions/defer.hpp"
 
 namespace detail {
 template <class T, __BOOST_SML_REQUIRES(concepts::composable<typename T::sm>::value)>
 using state_machine = back::sm<T>;
-} // detail
+}  // detail
 
 /// policies
 

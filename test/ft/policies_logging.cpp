@@ -70,7 +70,7 @@ test logging = [] {
   my_logger logger;
   sml::sm<c, sml::logger<my_logger>> sm{logger};
   using namespace sml;
-  sm.process_event("e1"_e);
+  sm.process_event("e1"_e());
   sm.process_event(e2{});
   expect(messages_out.size() == messages_expected.size());
   expect(std::equal(messages_out.begin(), messages_out.end(), messages_expected.begin()));
@@ -109,7 +109,7 @@ test logging_entry_exit = [] {
   my_logger logger;
   sml::sm<c, sml::logger<my_logger>> sm{logger};
   using namespace sml;
-  sm.process_event("e1"_e);
+  sm.process_event("e1"_e());
   sm.process_event(e2{});
   expect(messages_out.size() == messages_expected.size());
   expect(std::equal(messages_out.begin(), messages_out.end(), messages_expected.begin()));

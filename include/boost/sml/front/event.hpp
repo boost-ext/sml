@@ -18,7 +18,7 @@ struct transition_eg;
 template <class, class>
 struct transition_ea;
 
-template <class>
+template <class TEvent>
 struct event {
   template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
   auto operator[](const T &t) const {
@@ -29,6 +29,8 @@ struct event {
   auto operator/(const T &t) const {
     return transition_ea<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
   }
+
+  auto operator()() const { return TEvent{}; }
 };
 
 }  // front

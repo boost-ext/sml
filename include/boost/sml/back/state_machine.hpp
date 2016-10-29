@@ -17,8 +17,6 @@
 namespace front {
 template <class>
 struct state;
-template <class>
-struct event;
 }  // front
 
 namespace back {
@@ -479,11 +477,6 @@ class sm {
   template <class TEvent, __BOOST_SML_REQUIRES(!aux::is_base_of<TEvent, events_ids>::value)>
   void process_event(const TEvent &event) {
     aux::get<sm_impl<TSM>>(sub_sms_).process_event(unexpected_event<_, TEvent>{event}, deps_, sub_sms_);
-  }
-
-  template <class TEvent>
-  void process_event(const front::event<TEvent> &) {
-    process_event(TEvent{});
   }
 
   template <class T = sm_t, class TVisitor, __BOOST_SML_REQUIRES(concepts::callable<void, TVisitor>::value)>

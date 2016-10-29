@@ -9,7 +9,8 @@
 
 #include "boost/sml/front/operators.hpp"
 
-namespace front { namespace actions {
+namespace front {
+namespace actions {
 
 struct process {
   template <class TEvent>
@@ -31,7 +32,7 @@ struct process {
     return process_impl<TEvent>{event};
   }
 };
-
-}}  // front::actions
+}
+}  // front::actions
 
 #endif

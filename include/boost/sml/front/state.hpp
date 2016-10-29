@@ -7,9 +7,9 @@
 #ifndef BOOST_SML_FRONT_STATE_HPP
 #define BOOST_SML_FRONT_STATE_HPP
 
-#include "boost/sml/concepts/stringable.hpp"
 #include "boost/sml/concepts/callable.hpp"
 #include "boost/sml/concepts/composable.hpp"
+#include "boost/sml/concepts/stringable.hpp"
 
 namespace front {
 

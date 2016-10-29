@@ -50,7 +50,7 @@ struct defer : action_base {
     sm.defer_.push(event);
   }
 };
-
-}}  // front::actions
+}
+}  // front::actions
 
 #endif

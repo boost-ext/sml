@@ -692,8 +692,6 @@ struct callable : callable_impl<R, decltype(test_callable<aux::inherit<T, callab
 namespace front {
 template <class>
 struct state;
-template <class>
-struct event;
 }
 namespace back {
 template <class TEvent>
@@ -1091,10 +1089,6 @@ class sm {
   void process_event(const TEvent &event) {
     aux::get<sm_impl<TSM>>(sub_sms_).process_event(unexpected_event<_, TEvent>{event}, deps_, sub_sms_);
   }
-  template <class TEvent>
-  void process_event(const front::event<TEvent> &) {
-    process_event(TEvent{});
-  }
   template <class T = sm_t, class TVisitor, __BOOST_SML_REQUIRES(concepts::callable<void, TVisitor>::value)>
   void visit_current_states(const TVisitor &visitor) const {
     using type = sm_impl<typename TSM::template rebind<T>>;
@@ -1422,7 +1416,7 @@ template <class, class>
 struct transition_eg;
 template <class, class>
 struct transition_ea;
-template <class>
+template <class TEvent>
 struct event {
   template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
   auto operator[](const T &t) const {
@@ -1432,6 +1426,7 @@ struct event {
   auto operator/(const T &t) const {
     return transition_ea<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
   }
+  auto operator()() const { return TEvent{}; }
 };
 }
 namespace concepts {
