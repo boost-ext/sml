@@ -251,7 +251,7 @@ int main() {
   using namespace sml;
   sm.process_event(e1{});
   sm.process_event(e2{});
-  sm.process_event(&quot;e3&quot;_e);
+  sm.process_event(&quot;e3&quot;_e());
   sm.process_event(e4{42});
   assert(sm.is(X));
 }
@@ -631,10 +631,10 @@ int main() {
   using namespace sml;
   sm&lt;error_handling&gt; sm;
 
-  sm.process_event(&quot;event1&quot;_e);  // throws runtime_error
+  sm.process_event(&quot;event1&quot;_e());  // throws runtime_error
   assert(sm.is(&quot;idle&quot;_s, &quot;exceptions handling&quot;_s, &quot;unexpected events handling&quot;_s));
 
-  sm.process_event(&quot;event2&quot;_e);  // throws 0
+  sm.process_event(&quot;event2&quot;_e());  // throws 0
   assert(sm.is(&quot;idle&quot;_s, X, &quot;unexpected events handling&quot;_s));
 
   sm.process_event(some_event{});  // unexpected event
