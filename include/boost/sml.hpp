@@ -776,7 +776,6 @@ struct sm_impl {
   using logger_t = typename TSM::logger_policy::type;
   using has_logger = aux::integral_constant<bool, !aux::is_same<logger_t, no_policy>::value>;
   using transitions_t = decltype(aux::declval<sm_t>().operator()());
-  using mappings_t = back::mappings_t<transitions_t>;
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
   using initial_states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_initial_states, transitions_t>>;
@@ -798,6 +797,7 @@ struct sm_impl {
   using exceptions = aux::apply_t<aux::unique_t, aux::apply_t<get_exceptions, events_t>>;
   using has_exceptions = aux::integral_constant<bool, (aux::size<exceptions>::value > 0)>;
 #endif
+  struct mappings : mappings_t<transitions_t> {};
   sm_impl(const aux::init &, const aux::pool_type<sm_t &> *t) : transitions_((t->value)()) {
     initialize(typename sm_impl<TSM>::initial_states_t{});
   }
@@ -810,9 +810,9 @@ struct sm_impl {
     log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
     const auto handled =
-        process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(event, deps, subs, has_exceptions{});
+        process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
 #else
-    const auto handled = process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(
+    const auto handled = process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(
         event, deps, subs, states_t{}, aux::make_index_sequence<regions>{});
 #endif
     process_internal_events(anonymous{}, deps, subs);
@@ -842,10 +842,10 @@ struct sm_impl {
   bool process_internal_events(const TEvent &event, TDeps &deps, TSubs &subs) {
     log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-    return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(event, deps, subs, has_exceptions{});
+    return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
 #else
-    return process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(event, deps, subs, states_t{},
-                                                                                      aux::make_index_sequence<regions>{});
+    return process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, states_t{},
+                                                                                    aux::make_index_sequence<regions>{});
 #endif
   }
   template <class TEvent, class TDeps, class TSubs,
@@ -853,10 +853,10 @@ struct sm_impl {
   bool process_internal_events(const TEvent &event, TDeps &deps, TSubs &subs) {
     log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-    return process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings_t>>(event, deps, subs, has_exceptions{});
+    return process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
 #else
-    return process_event_impl<get_event_mapping_t<get_mapped_t<TEvent>, mappings_t>>(event, deps, subs, states_t{},
-                                                                                     aux::make_index_sequence<regions>{});
+    return process_event_impl<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, deps, subs, states_t{},
+                                                                                   aux::make_index_sequence<regions>{});
 #endif
   }
   template <class TEvent, class TDeps, class TSubs,
@@ -871,11 +871,11 @@ struct sm_impl {
   bool process_internal_event(const TEvent &event, TDeps &deps, TSubs &subs, state_t &current_state) {
     log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-    return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(event, deps, subs, current_state,
-                                                                                          has_exceptions{});
+    return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, current_state,
+                                                                                        has_exceptions{});
 #else
-    return process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings_t>>(event, deps, subs, states_t{},
-                                                                                      current_state);
+    return process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, states_t{},
+                                                                                    current_state);
 #endif
   }
   template <class TEvent, class TDeps, class TSubs,
@@ -883,18 +883,18 @@ struct sm_impl {
   bool process_internal_event(const TEvent &event, TDeps &deps, TSubs &subs, state_t &current_state) {
     log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-    return process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings_t>>(event, deps, subs, current_state,
-                                                                                         has_exceptions{});
+    return process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, deps, subs, current_state,
+                                                                                       has_exceptions{});
 #else
-    return process_event_impl<get_event_mapping_t<get_mapped_t<TEvent>, mappings_t>>(event, deps, subs, states_t{},
-                                                                                     current_state);
+    return process_event_impl<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, deps, subs, states_t{},
+                                                                                   current_state);
 #endif
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
                           const aux::index_sequence<0> &) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
-    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
+    const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &get_state_mapping_t<TStates, TMappings, has_unexpected_events>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
@@ -904,7 +904,7 @@ struct sm_impl {
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
                           const aux::index_sequence<Ns...> &) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
-    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
+    const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &get_state_mapping_t<TStates, TMappings, has_unexpected_events>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     auto handled = false;
     const auto lock = create_lock(aux::type<thread_safety_t>{});
@@ -916,7 +916,7 @@ struct sm_impl {
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
                           state_t &current_state) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
-    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
+    const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &get_state_mapping_t<TStates, TMappings, has_unexpected_events>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
@@ -971,10 +971,10 @@ struct sm_impl {
     const auto &event = *static_cast<const TEvent *>(data);
     log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
-    const auto handled = process_event_noexcept<get_event_mapping_t<TEvent, mappings_t>>(event, deps, subs, has_exceptions{});
+    const auto handled = process_event_noexcept<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, has_exceptions{});
 #else
-    const auto handled = process_event_impl<get_event_mapping_t<TEvent, mappings_t>>(event, deps, subs, states_t{},
-                                                                                     aux::make_index_sequence<regions>{});
+    const auto handled = process_event_impl<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, states_t{},
+                                                                                   aux::make_index_sequence<regions>{});
 #endif
     if (handled) {
       defer_.pop();
@@ -987,7 +987,7 @@ struct sm_impl {
     if (handled) {
       auto size = defer_.size();
       using dispatch_table_t = bool (sm_impl::*)(TDeps &, TSubs &, const void *);
-      static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
+      const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
           &sm_impl::process_event_no_deffer<TDeps, TSubs, TEvents>...};
       while (size-- && (this->*dispatch_table[defer_.front().id])(deps, subs, defer_.front().data))
         ;
@@ -996,7 +996,7 @@ struct sm_impl {
   template <class TVisitor, class... TStates>
   void visit_current_states(const TVisitor &visitor, const aux::type_list<TStates...> &, const aux::index_sequence<0> &) const {
     using dispatch_table_t = void (*)(const TVisitor &);
-    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
+    const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &sm_impl::visit_state<TVisitor, TStates>...};
     dispatch_table[current_state_[0]](visitor);
   }
@@ -1004,7 +1004,7 @@ struct sm_impl {
   void visit_current_states(const TVisitor &visitor, const aux::type_list<TStates...> &,
                             const aux::index_sequence<Ns...> &) const {
     using dispatch_table_t = void (*)(const TVisitor &);
-    static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
+    const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &sm_impl::visit_state<TVisitor, TStates>...};
     int _[]{0, (dispatch_table[current_state_[Ns]](visitor), 0)...};
     (void)_;
