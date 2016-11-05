@@ -11,6 +11,8 @@
 
 namespace aux {
 
+using swallow = int[];
+
 template <char... Chrs>
 struct string {
   static auto c_str() {

@@ -188,8 +188,7 @@ struct sm_impl {
   template <class... TStates>
   void initialize(const aux::type_list<TStates...> &) {
     auto region = 0, i = region;
-    int _[]{0, (region = i, current_state_[region] = aux::get_id<states_ids_t, 0, TStates>(), ++i, 0)...};
-    (void)_;
+    (void)aux::swallow{0, (region = i, current_state_[region] = aux::get_id<states_ids_t, 0, TStates>(), ++i, 0)...};
   }
 
   template <class TDeps, class TSubs>
@@ -284,8 +283,7 @@ struct sm_impl {
     auto handled = false;
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
-    int _[]{0, (handled |= dispatch_table[current_state_[Ns]](event, *this, deps, subs, current_state_[Ns]), 0)...};
-    (void)_;
+    (void)aux::swallow{0, (handled |= dispatch_table[current_state_[Ns]](event, *this, deps, subs, current_state_[Ns]), 0)...};
     return handled;
   }
 

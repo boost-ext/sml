@@ -151,6 +151,7 @@ template <class T>
 using function_traits_t = typename function_traits<T>::args;
 }
 namespace aux {
+using swallow = int[];
 template <char... Chrs>
 struct string {
   static auto c_str() {
@@ -371,13 +372,43 @@ struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
   zero_wrapper(...) {}
 };
 }
-namespace concepts {
-template <class T>
-decltype(aux::declval<T>().operator()()) composable_impl(int);
-template <class>
-void composable_impl(...);
-template <class T>
-struct composable : aux::is<aux::pool, decltype(composable_impl<T>(0))> {};
+namespace back {
+struct thread_safety_policy__ {};
+struct defer_queue_policy__ {};
+struct logger_policy__ {};
+struct testing_policy__ {};
+template <class, class, class TDeps, class TEvent>
+void log_process_event(const aux::false_type &, TDeps &, const TEvent &) {}
+template <class TLogger, class SM, class TDeps, class TEvent>
+void log_process_event(const aux::true_type &, TDeps &deps, const TEvent &event) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_process_event<SM>(event);
+}
+template <class, class, class TDeps, class TSrcState, class TDstState>
+void log_state_change(const aux::false_type &, TDeps &, const TSrcState &, const TDstState &) {}
+template <class TLogger, class SM, class TDeps, class TSrcState, class TDstState>
+void log_state_change(const aux::true_type &, TDeps &deps, const TSrcState &src, const TDstState &dst) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_state_change<SM>(src, dst);
+}
+template <class, class, class TDeps, class TAction, class TEvent>
+void log_action(const aux::false_type &, TDeps &, const TAction &, const TEvent &) {}
+template <class TLogger, class SM, class TDeps, class TAction, class TEvent>
+void log_action(const aux::true_type &, TDeps &deps, const TAction &action, const TEvent &event) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_action<SM>(action, event);
+}
+template <class, class, class TDeps, class TGuard, class TEvent>
+void log_guard(const aux::false_type &, TDeps &, const TGuard &, const TEvent &, bool) {}
+template <class TLogger, class SM, class TDeps, class TGuard, class TEvent>
+void log_guard(const aux::true_type &, TDeps &deps, const TGuard &guard, const TEvent &event, bool result) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_guard<SM>(guard, event, result);
+}
+struct no_policy {
+  using type = no_policy;
+  template <class>
+  using rebind = no_policy;
+  template <class...>
+  using defer = no_policy;
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
+};
 }
 namespace back {
 struct _ {};
@@ -636,44 +667,6 @@ TMappings get_event_mapping_impl(event_mappings<T, TMappings> *);
 template <class T, class TMappings>
 using get_event_mapping_t = decltype(get_event_mapping_impl<T>((TMappings *)0));
 }
-namespace back {
-struct thread_safety_policy__ {};
-struct defer_queue_policy__ {};
-struct logger_policy__ {};
-struct testing_policy__ {};
-template <class, class, class TDeps, class TEvent>
-void log_process_event(const aux::false_type &, TDeps &, const TEvent &) {}
-template <class TLogger, class SM, class TDeps, class TEvent>
-void log_process_event(const aux::true_type &, TDeps &deps, const TEvent &event) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_process_event<SM>(event);
-}
-template <class, class, class TDeps, class TSrcState, class TDstState>
-void log_state_change(const aux::false_type &, TDeps &, const TSrcState &, const TDstState &) {}
-template <class TLogger, class SM, class TDeps, class TSrcState, class TDstState>
-void log_state_change(const aux::true_type &, TDeps &deps, const TSrcState &src, const TDstState &dst) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_state_change<SM>(src, dst);
-}
-template <class, class, class TDeps, class TAction, class TEvent>
-void log_action(const aux::false_type &, TDeps &, const TAction &, const TEvent &) {}
-template <class TLogger, class SM, class TDeps, class TAction, class TEvent>
-void log_action(const aux::true_type &, TDeps &deps, const TAction &action, const TEvent &event) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_action<SM>(action, event);
-}
-template <class, class, class TDeps, class TGuard, class TEvent>
-void log_guard(const aux::false_type &, TDeps &, const TGuard &, const TEvent &, bool) {}
-template <class TLogger, class SM, class TDeps, class TGuard, class TEvent>
-void log_guard(const aux::true_type &, TDeps &deps, const TGuard &guard, const TEvent &event, bool result) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_guard<SM>(guard, event, result);
-}
-struct no_policy {
-  using type = no_policy;
-  template <class>
-  using rebind = no_policy;
-  template <class...>
-  using defer = no_policy;
-  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
-};
-}
 namespace concepts {
 struct callable_fallback {
   void operator()();
@@ -830,8 +823,7 @@ struct sm_impl {
   template <class... TStates>
   void initialize(const aux::type_list<TStates...> &) {
     auto region = 0, i = region;
-    int _[]{0, (region = i, current_state_[region] = aux::get_id<states_ids_t, 0, TStates>(), ++i, 0)...};
-    (void)_;
+    (void)aux::swallow{0, (region = i, current_state_[region] = aux::get_id<states_ids_t, 0, TStates>(), ++i, 0)...};
   }
   template <class TDeps, class TSubs>
   void start(TDeps &deps, TSubs &subs) {
@@ -917,8 +909,7 @@ struct sm_impl {
     auto handled = false;
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
-    int _[]{0, (handled |= dispatch_table[current_state_[Ns]](event, *this, deps, subs, current_state_[Ns]), 0)...};
-    (void)_;
+    (void)aux::swallow{0, (handled |= dispatch_table[current_state_[Ns]](event, *this, deps, subs, current_state_[Ns]), 0)...};
     return handled;
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
@@ -1129,6 +1120,14 @@ class sm {
   deps_t deps_;
   sub_sms_t sub_sms_;
 };
+}
+namespace concepts {
+template <class T>
+decltype(aux::declval<T>().operator()()) composable_impl(int);
+template <class>
+void composable_impl(...);
+template <class T>
+struct composable : aux::is<aux::pool, decltype(composable_impl<T>(0))> {};
 }
 namespace front {
 struct operator_base {};
