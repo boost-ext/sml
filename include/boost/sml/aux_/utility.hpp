@@ -280,6 +280,7 @@ struct string<T> {
   }
   static auto c_str_impl(...) { return __PRETTY_FUNCTION__; }
 };
+
 }  // aux
 
 #endif

@@ -302,19 +302,17 @@ struct sm_impl {
 
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
   template <class TMappings, class TEvent, class TDeps, class TSubs>
-  bool process_event_noexcept(const TEvent &event, TDeps &deps, TSubs &subs, const aux::false_type &) noexcept {
+  bool process_event_noexcept(const TEvent &event, TDeps &deps, TSubs &subs, aux::false_type) noexcept {
     return process_event_impl<TMappings>(event, deps, subs, states_t{}, aux::make_index_sequence<regions>{});
   }
 
   template <class TMappings, class TEvent, class TDeps, class TSubs>
-  bool process_event_noexcept(const TEvent &event, TDeps &deps, TSubs &subs, state_t &current_state,
-                              const aux::false_type &) noexcept {
+  bool process_event_noexcept(const TEvent &event, TDeps &deps, TSubs &subs, state_t &current_state, aux::false_type) noexcept {
     return process_event_impl<TMappings>(event, deps, subs, states_t{}, current_state);
   }
 
   template <class TMappings, class TEvent, class TDeps, class TSubs>
-  bool process_event_noexcept(const TEvent &event, TDeps &deps, TSubs &subs, state_t &current_state,
-                              const aux::true_type &) noexcept {
+  bool process_event_noexcept(const TEvent &event, TDeps &deps, TSubs &subs, state_t &current_state, aux::true_type) noexcept {
     try {
       return process_event_impl<TMappings>(event, deps, subs, states_t{}, current_state);
     } catch (...) {
@@ -323,7 +321,7 @@ struct sm_impl {
   }
 
   template <class TMappings, class TEvent, class TDeps, class TSubs>
-  bool process_event_noexcept(const TEvent &event, TDeps &deps, TSubs &subs, const aux::true_type &) {
+  bool process_event_noexcept(const TEvent &event, TDeps &deps, TSubs &subs, aux::true_type) {
     try {
       return process_event_impl<TMappings>(event, deps, subs, states_t{}, aux::make_index_sequence<regions>{});
     } catch (...) {

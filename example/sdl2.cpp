@@ -76,37 +76,37 @@ struct sdl2 {
 };
 
 int main() {
-  sml::sm<sdl2> sm;
-  auto dispatch_event = sml::utility::make_dispatch_table<SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT>(sm);
+  // sml::sm<sdl2> sm;
+  // auto dispatch_event = sml::utility::make_dispatch_table<SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT>(sm);
 
-  SDL_Event event;
+  // SDL_Event event;
 
-  // while (SDL_PollEvent(&event)) {
-  //   dispatch_event(event, event.type)
-  // };
+  //// while (SDL_PollEvent(&event)) {
+  ////   dispatch_event(event, event.type)
+  //// };
 
-  {
-    SDL_KeyboardEvent keyboard_event;
-    keyboard_event.type = SDL_KEYUP;
-    keyboard_event.keysym.sym = SDLK_SPACE;
-    event.key = keyboard_event;
-    dispatch_event(event, event.type);
-  }
+  //{
+  // SDL_KeyboardEvent keyboard_event;
+  // keyboard_event.type = SDL_KEYUP;
+  // keyboard_event.keysym.sym = SDLK_SPACE;
+  // event.key = keyboard_event;
+  // dispatch_event(event, event.type);
+  //}
 
-  {
-    SDL_MouseButtonEvent mousebutton_event;
-    mousebutton_event.type = SDL_MOUSEBUTTONUP;
-    mousebutton_event.button = 1;
-    event.button = mousebutton_event;
-    dispatch_event(event, event.type);
-  }
+  //{
+  // SDL_MouseButtonEvent mousebutton_event;
+  // mousebutton_event.type = SDL_MOUSEBUTTONUP;
+  // mousebutton_event.button = 1;
+  // event.button = mousebutton_event;
+  // dispatch_event(event, event.type);
+  //}
 
-  {
-    SDL_QuitEvent quit_event;
-    quit_event.type = SDL_QUIT;
-    event.quit = quit_event;
-    dispatch_event(event, event.type);
-  }
+  //{
+  // SDL_QuitEvent quit_event;
+  // quit_event.type = SDL_QUIT;
+  // event.quit = quit_event;
+  // dispatch_event(event, event.type);
+  //}
 
-  assert(sm.is(sml::X, sml::X));
+  // assert(sm.is(sml::X, sml::X));
 }
