@@ -63,7 +63,12 @@ class controller {
 };
 
 int main() {
-  auto injector = di::make_injector(di::bind<>.to(42), di::bind<>.to(87.0));
+  // clang-format off
+  const auto injector = di::make_injector(
+    di::bind<>.to(42)
+  , di::bind<>.to(87.0)
+  );
+  // clang-format off
   injector.create<controller>().start();
 }
 #else
