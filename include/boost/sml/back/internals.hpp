@@ -11,7 +11,6 @@ namespace back {
 
 struct _ {};
 struct initial {};
-struct internal {};
 struct unexpected {};
 struct entry_exit {};
 

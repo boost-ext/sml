@@ -14,6 +14,8 @@
 
 namespace front {
 
+struct internal {};
+
 template <class, class>
 struct ignore;
 
@@ -73,11 +75,10 @@ struct transition<front::event<E>, G, A> {
 };
 
 template <class S2, class G, class A>
-struct transition<state<S2>, G, A> : transition<state<back::internal>, state<S2>, front::event<back::anonymous>, G, A> {
-  using transition<state<back::internal>, state<S2>, front::event<back::anonymous>, G, A>::g;
-  using transition<state<back::internal>, state<S2>, front::event<back::anonymous>, G, A>::a;
-  transition(const G &g, const A &a)
-      : transition<state<back::internal>, state<S2>, front::event<back::anonymous>, G, A>{g, a} {}
+struct transition<state<S2>, G, A> : transition<state<internal>, state<S2>, front::event<back::anonymous>, G, A> {
+  using transition<state<internal>, state<S2>, front::event<back::anonymous>, G, A>::g;
+  using transition<state<internal>, state<S2>, front::event<back::anonymous>, G, A>::a;
+  transition(const G &g, const A &a) : transition<state<internal>, state<S2>, front::event<back::anonymous>, G, A>{g, a} {}
   template <class T>
   auto operator=(const T &) const {
     return transition<T, state<S2>, front::event<back::anonymous>, G, A>{g, a};
@@ -91,10 +92,10 @@ struct transition<state<S1>, state<S2>> : transition<state<S1>, state<S2>, front
 };
 
 template <class S2, class G>
-struct transition_sg<state<S2>, G> : transition<state<back::internal>, state<S2>, front::event<back::anonymous>, G, none> {
-  using transition<state<back::internal>, state<S2>, front::event<back::anonymous>, G, none>::g;
+struct transition_sg<state<S2>, G> : transition<state<internal>, state<S2>, front::event<back::anonymous>, G, none> {
+  using transition<state<internal>, state<S2>, front::event<back::anonymous>, G, none>::g;
   transition_sg(const state<S2> &, const G &g)
-      : transition<state<back::internal>, state<S2>, front::event<back::anonymous>, G, none>{g, none{}} {}
+      : transition<state<internal>, state<S2>, front::event<back::anonymous>, G, none>{g, none{}} {}
   template <class T>
   auto operator/(const T &t) const {
     return transition<state<S2>, G, aux::zero_wrapper<T>>{g, aux::zero_wrapper<T>{t}};
@@ -106,10 +107,10 @@ struct transition_sg<state<S2>, G> : transition<state<back::internal>, state<S2>
 };
 
 template <class S2, class A>
-struct transition_sa<state<S2>, A> : transition<state<back::internal>, state<S2>, front::event<back::anonymous>, always, A> {
-  using transition<state<back::internal>, state<S2>, front::event<back::anonymous>, always, A>::a;
+struct transition_sa<state<S2>, A> : transition<state<internal>, state<S2>, front::event<back::anonymous>, always, A> {
+  using transition<state<internal>, state<S2>, front::event<back::anonymous>, always, A>::a;
   transition_sa(const state<S2> &, const A &a)
-      : transition<state<back::internal>, state<S2>, front::event<back::anonymous>, always, A>{always{}, a} {}
+      : transition<state<internal>, state<S2>, front::event<back::anonymous>, always, A>{always{}, a} {}
   template <class T>
   auto operator=(const T &) const {
     return transition<T, state<S2>, front::event<back::anonymous>, always, A>{always{}, a};
@@ -151,11 +152,11 @@ struct transition<state<S1>, transition<state<S2>, G, A>>
 
 template <class S1, class E, class G, class A>
 struct transition<state<S1>, transition<front::event<E>, G, A>>
-    : transition<state<back::internal>, state<S1>, front::event<E>, G, A> {
-  using transition<state<back::internal>, state<S1>, front::event<E>, G, A>::g;
-  using transition<state<back::internal>, state<S1>, front::event<E>, G, A>::a;
+    : transition<state<internal>, state<S1>, front::event<E>, G, A> {
+  using transition<state<internal>, state<S1>, front::event<E>, G, A>::g;
+  using transition<state<internal>, state<S1>, front::event<E>, G, A>::a;
   transition(const state<S1> &, const transition<front::event<E>, G, A> &t)
-      : transition<state<back::internal>, state<S1>, front::event<E>, G, A>{t.g, t.a} {}
+      : transition<state<internal>, state<S1>, front::event<E>, G, A>{t.g, t.a} {}
   template <class T>
   auto operator=(const T &) const {
     return transition<T, state<S1>, front::event<E>, G, A>{g, a};
@@ -185,10 +186,10 @@ struct transition<state<S1>, transition_sa<state<S2>, A>>
 
 template <class S2, class E, class G>
 struct transition<state<S2>, transition_eg<front::event<E>, G>>
-    : transition<state<back::internal>, state<S2>, front::event<E>, G, none> {
-  using transition<state<back::internal>, state<S2>, front::event<E>, G, none>::g;
+    : transition<state<internal>, state<S2>, front::event<E>, G, none> {
+  using transition<state<internal>, state<S2>, front::event<E>, G, none>::g;
   transition(const state<S2> &, const transition_eg<front::event<E>, G> &t)
-      : transition<state<back::internal>, state<S2>, front::event<E>, G, none>{t.g, none{}} {}
+      : transition<state<internal>, state<S2>, front::event<E>, G, none>{t.g, none{}} {}
   template <class T>
   auto operator=(const T &) const {
     return transition<T, state<S2>, front::event<E>, G, none>{g, none{}};
@@ -204,10 +205,10 @@ struct transition<state<S1>, transition<state<S2>, transition_eg<front::event<E>
 
 template <class S2, class E, class A>
 struct transition<state<S2>, transition_ea<front::event<E>, A>>
-    : transition<state<back::internal>, state<S2>, front::event<E>, always, A> {
-  using transition<state<back::internal>, state<S2>, front::event<E>, always, A>::a;
+    : transition<state<internal>, state<S2>, front::event<E>, always, A> {
+  using transition<state<internal>, state<S2>, front::event<E>, always, A>::a;
   transition(const state<S2> &, const transition_ea<front::event<E>, A> &t)
-      : transition<state<back::internal>, state<S2>, front::event<E>, always, A>{always{}, t.a} {}
+      : transition<state<internal>, state<S2>, front::event<E>, always, A>{always{}, t.a} {}
   template <class T>
   auto operator=(const T &) const {
     return transition<T, state<S2>, front::event<E>, always, A>{always{}, a};
@@ -303,12 +304,12 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, A> {
 };
 
 template <class S2, class E, class G, class A>
-struct transition<state<back::internal>, state<S2>, front::event<E>, G, A> {
+struct transition<state<internal>, state<S2>, front::event<E>, G, A> {
   static constexpr auto initial = state<S2>::initial;
   static constexpr auto history = state<S2>::history;
 
   using src_state = typename state<S2>::type;
-  using dst_state = back::internal;
+  using dst_state = internal;
   using event = E;
   using guard = G;
   using action = A;
@@ -367,12 +368,12 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, A> {
 };
 
 template <class S2, class E, class A>
-struct transition<state<back::internal>, state<S2>, front::event<E>, always, A> {
+struct transition<state<internal>, state<S2>, front::event<E>, always, A> {
   static constexpr auto initial = state<S2>::initial;
   static constexpr auto history = state<S2>::history;
 
   using src_state = typename state<S2>::type;
-  using dst_state = back::internal;
+  using dst_state = internal;
   using event = E;
   using guard = always;
   using action = A;
@@ -431,12 +432,12 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, none> {
 };
 
 template <class S2, class E, class G>
-struct transition<state<back::internal>, state<S2>, front::event<E>, G, none> {
+struct transition<state<internal>, state<S2>, front::event<E>, G, none> {
   static constexpr auto initial = state<S2>::initial;
   static constexpr auto history = state<S2>::history;
 
   using src_state = typename state<S2>::type;
-  using dst_state = back::internal;
+  using dst_state = internal;
   using event = E;
   using guard = G;
   using action = none;
@@ -487,12 +488,12 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, none> {
 };
 
 template <class S2, class E>
-struct transition<state<back::internal>, state<S2>, front::event<E>, always, none> {
+struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
   static constexpr auto initial = state<S2>::initial;
   static constexpr auto history = state<S2>::history;
 
   using src_state = typename state<S2>::type;
-  using dst_state = back::internal;
+  using dst_state = internal;
   using event = E;
   using guard = always;
   using action = none;
