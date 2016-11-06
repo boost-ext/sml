@@ -75,7 +75,7 @@ struct call<TEvent, aux::type_list<>, TLogger> {
     return execute_impl<typename TSM::sm_t>(aux::type<result_type>{}, object, event, deps);
   }
 
-  template <class TSM, class T, class TDeps, class TSubs>
+  template <class TSM, class T, class TDeps>
   static auto execute_impl(const aux::type<bool> &, T object, const TEvent &event, TDeps &deps) {
     const auto result = object();
     back::log_guard<TSM>(aux::type<TLogger>{}, deps, object, event, result);
@@ -127,8 +127,24 @@ struct call<TEvent, aux::type_list<action_base>, back::no_policy> {
   }
 };
 
+template <class TEvent, class TLogger>
+struct call<TEvent, aux::type_list<action_base>, TLogger> {
+  template <class T, class TSM, class TDeps, class TSubs>
+  static auto execute(T object, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
+    return object(event, sm, deps, subs);
+  }
+};
+
 template <class TEvent, class... Ts>
 struct call<TEvent, aux::type_list<Ts...>, back::no_policy> {
+  template <class T, class TSM, class TDeps, class TSubs>
+  static auto execute(T object, const TEvent &event, TSM &, TDeps &deps, TSubs &) {
+    return object(get_arg(aux::type<Ts>{}, event, deps)...);
+  }
+};
+
+template <class TEvent, class... Ts, class TLogger>
+struct call<TEvent, aux::type_list<Ts...>, TLogger> {
   template <class T, class TSM, class TDeps, class TSubs>
   static auto execute(T object, const TEvent &event, TSM &, TDeps &deps, TSubs &) {
     return object(get_arg(aux::type<Ts>{}, event, deps)...);
