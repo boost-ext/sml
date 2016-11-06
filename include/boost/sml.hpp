@@ -766,13 +766,19 @@ struct sm_policy {
 template <class>
 struct get_sub_sm : aux::type_list<> {};
 template <class T>
-struct get_sub_sm<sm<T>> : aux::join_t<aux::type_list<T>, typename sm<T>::sub_sms> {};
+struct get_sub_sm<sm<T>> : aux::join_t<aux::type_list<T>, typename sm<T>::state_machines> {};
 template <class... Ts>
 using get_sub_sms = aux::join_t<typename get_sub_sm<Ts>::type...>;
 template <class... Ts>
 using get_sm_t = aux::type_list<typename Ts::sm...>;
 template <class... Ts>
 using merge_deps = aux::join_t<typename Ts::deps...>;
+template <class>
+struct convert_to_sm;
+template <class... Ts>
+struct convert_to_sm<aux::type_list<Ts...>> {
+  using type = aux::type_list<sm_impl<Ts>...>;
+};
 template <class TSM>
 struct sm_impl {
   template <class T>
@@ -1045,39 +1051,29 @@ class sm {
   using logger_dep_t =
       aux::conditional_t<aux::is_same<no_policy, logger_t>::value, aux::type_list<>, aux::type_list<logger_t &>>;
   using transitions_t = decltype(aux::declval<sm_t>().operator()());
-  using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
-  template <class>
-  struct convert;
-  template <class... Ts>
-  struct convert<aux::type_list<Ts...>> {
-    using type = aux::type_list<sm_impl<Ts>...>;
-  };
 
  public:
-  using sub_sms = aux::apply_t<get_sub_sms, states_t>;
-  using sm_all_t = aux::apply_t<aux::inherit, aux::join_t<aux::type_list<sm_t>, aux::apply_t<get_sm_t, sub_sms>>>;
-  using sub_sms_t =
-      aux::apply_t<aux::pool, typename convert<aux::join_t<aux::type_list<TSM>, aux::apply_t<get_sub_sms, states_t>>>::type>;
-  using deps = aux::apply_t<merge_deps, transitions_t>;
-  using deps_t =
-      aux::apply_t<aux::pool,
-                   aux::apply_t<aux::unique_t, aux::join_t<deps, logger_dep_t, aux::apply_t<merge_deps, sub_sms_t>>>>;
-
- public:
-  using states = typename sm_impl<TSM>::states_t;
+  using states = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
+  using state_machines = aux::apply_t<get_sub_sms, states>;
   using events = aux::apply_t<aux::unique_t, aux::apply_t<get_all_events, transitions_t>>;
   using transitions = aux::apply_t<aux::type_list, transitions_t>;
 
  private:
+  using sm_all_t = aux::apply_t<aux::inherit, aux::join_t<aux::type_list<sm_t>, aux::apply_t<get_sm_t, state_machines>>>;
+  using sub_sms_t =
+      aux::apply_t<aux::pool,
+                   typename convert_to_sm<aux::join_t<aux::type_list<TSM>, aux::apply_t<get_sub_sms, states>>>::type>;
+  using deps = aux::apply_t<merge_deps, transitions_t>;
+  using deps_t =
+      aux::apply_t<aux::pool,
+                   aux::apply_t<aux::unique_t, aux::join_t<deps, logger_dep_t, aux::apply_t<merge_deps, sub_sms_t>>>>;
   struct events_ids : aux::apply_t<aux::inherit, events> {};
 
  public:
   sm(sm &&) = default;
   sm(const sm &) = delete;
   sm &operator=(const sm &) = delete;
-  explicit sm(aux::init, deps_t &deps) : deps_(deps), sub_sms_{deps} {
-    aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
-  }
+  sm(aux::init, deps_t &deps) : deps_(deps), sub_sms_{deps} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
   template <class... TDeps, __BOOST_SML_REQUIRES(aux::is_unique_t<TDeps...>::value)>
   explicit sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
