@@ -21,14 +21,8 @@ aux::false_type test_callable(aux::non_type<void (callable_fallback::*)(), &T::o
 template <class>
 aux::true_type test_callable(...);
 
-template <class, class>
-struct callable_impl : aux::false_type {};
-
-template <class R>
-struct callable_impl<R, aux::true_type> : aux::true_type {};
-
-template <class R, class T>
-struct callable : callable_impl<R, decltype(test_callable<aux::inherit<T, callable_fallback>>(0))> {};
+template <class, class T>
+struct callable : decltype(test_callable<aux::inherit<T, callable_fallback>>(0)) {};
 
 }  // concepts
 

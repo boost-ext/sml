@@ -372,7 +372,10 @@ struct string;
 template <char... Chrs>
 struct string<char, Chrs...> {
   using type = string;
-  static auto c_str() { return "zz"; }
+  static auto c_str() {
+    static constexpr char str[] = {Chrs..., 0};
+    return str;
+  }
 };
 template <class T>
 struct string<T> {
@@ -380,12 +383,10 @@ struct string<T> {
   static auto c_str() { return c_str_impl((T *)0); }
   template <class U>
   static decltype(U::c_str()) c_str_impl(U *) {
-    return "dupa";
+    return U::c_str();
   }
-  static auto c_str_impl(...) { return "xx"; }
+  static auto c_str_impl(...) { return __PRETTY_FUNCTION__; }
 };
-template <class T, class X>
-struct string<zero_wrapper<T, X>>;
 }
 namespace back {
 struct no_policy {
@@ -689,12 +690,8 @@ template <class T>
 aux::false_type test_callable(aux::non_type<void (callable_fallback::*)(), &T::operator()> *);
 template <class>
 aux::true_type test_callable(...);
-template <class, class>
-struct callable_impl : aux::false_type {};
-template <class R>
-struct callable_impl<R, aux::true_type> : aux::true_type {};
-template <class R, class T>
-struct callable : callable_impl<R, decltype(test_callable<aux::inherit<T, callable_fallback>>(0))> {};
+template <class, class T>
+struct callable : decltype(test_callable<aux::inherit<T, callable_fallback>>(0)) {};
 }
 namespace back {
 template <class TEvent>
