@@ -7,7 +7,6 @@
 //
 #include "boost/sml/concepts/callable.hpp"
 #include "boost/sml/concepts/composable.hpp"
-#include "boost/sml/concepts/stringable.hpp"
 #include "boost/sml/concepts/transitional.hpp"
 
 namespace concepts {

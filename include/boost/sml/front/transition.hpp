@@ -244,16 +244,17 @@ void update_composite_states(TSubs &subs, const aux::false_type &, ...) {
 
 template <class SM, class TDeps, class TSubs, class TSrcState, class TDstState>
 void update_current_state(SM &, TDeps &deps, TSubs &, typename SM::state_t &current_state,
-                          const typename SM::state_t &new_state, const TSrcState &src_state, const TDstState &dst_state) {
-  back::log_state_change<typename SM::sm_t>(aux::type<typename SM::logger_t>{}, deps, src_state, dst_state);
+                          const typename SM::state_t &new_state, const TSrcState &, const TDstState &) {
+  back::log_state_change<typename SM::sm_t>(aux::type<typename SM::logger_t>{}, deps, aux::string<typename TSrcState::type>{},
+                                            aux::string<typename TDstState::type>{});
   current_state = new_state;
 }
 
 template <class SM, class TDeps, class TSubs, class TSrcState, class T>
 void update_current_state(SM &, TDeps &deps, TSubs &subs, typename SM::state_t &current_state,
-                          const typename SM::state_t &new_state, const TSrcState &src_state,
-                          const state<back::sm<T>> &dst_state) {
-  back::log_state_change<typename SM::sm_t>(aux::type<typename SM::logger_t>{}, deps, src_state, dst_state);
+                          const typename SM::state_t &new_state, const TSrcState &, const state<back::sm<T>> &) {
+  back::log_state_change<typename SM::sm_t>(aux::type<typename SM::logger_t>{}, deps, aux::string<typename TSrcState::type>{},
+                                            aux::string<T>{});
   current_state = new_state;
   update_composite_states<back::sm_impl<T>>(subs, typename back::sm_impl<T>::has_history_states{},
                                             typename back::sm_impl<T>::history_states_t{});

@@ -7,15 +7,17 @@
 #ifndef BOOST_SML_FRONT_STATE_HPP
 #define BOOST_SML_FRONT_STATE_HPP
 
+#include "boost/sml/aux_/utility.hpp"
 #include "boost/sml/concepts/callable.hpp"
 #include "boost/sml/concepts/composable.hpp"
-#include "boost/sml/concepts/stringable.hpp"
 
 namespace front {
 
 struct initial_state {};
-struct terminate_state {};
 struct history_state {};
+struct terminate_state {
+  static auto c_str() { return "terminate"; }
+};
 
 template <class...>
 struct transition;
@@ -31,32 +33,9 @@ struct transition_eg;
 
 template <class>
 struct state;
-template <class>
-class stringable {};
-template <class TState>
-struct stringable<state<TState>> {
-  static constexpr bool value = concepts::stringable<TState>::value;
-};
 
-template <class S, bool = stringable<S>::value>
-struct state_str {
-  static auto c_str() { return S::type::c_str(); }
-};
-template <class S>
-struct state_str<S, false> {
-  static auto c_str() { return __PRETTY_FUNCTION__; }
-};
-template <>
-struct state_str<state<terminate_state>> {
-  static auto c_str() { return "terminate"; }
-};
-template <char... Chrs>
-struct state_str<state<aux::string<Chrs...>>, false> : aux::string<Chrs...> {};
-template <char... Chrs, class T>
-struct state_str<state<aux::string<Chrs...>(T)>, false> : state_str<state<aux::string<Chrs...>>> {};
 template <class TState>
-
-struct state_impl : state_str<TState> {
+struct state_impl {
   template <class T>
   auto operator<=(const T &t) const {
     return transition<TState, T>{static_cast<const TState &>(*this), t};

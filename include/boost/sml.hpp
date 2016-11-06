@@ -155,13 +155,6 @@ using function_traits_t = typename function_traits<T>::args;
 }
 namespace aux {
 using swallow = int[];
-template <char... Chrs>
-struct string {
-  static auto c_str() {
-    static constexpr char str[] = {Chrs..., 0};
-    return str;
-  }
-};
 template <int...>
 struct index_sequence {
   using type = index_sequence;
@@ -373,6 +366,26 @@ template <class TExpr>
 struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
     : zero_wrapper_impl<TExpr, function_traits_t<decltype(&TExpr::operator())>> {
   zero_wrapper(...) {}
+};
+template <class T, T...>
+struct string;
+template <char... Chrs>
+struct string<char, Chrs...> {
+  using type = string;
+  static auto c_str() {
+    static constexpr char str[] = {Chrs..., 0};
+    return str;
+  }
+};
+template <class T>
+struct string<T> {
+  using type = T;
+  static auto c_str() { return c_str_impl((T *)0); }
+  template <class U>
+  static decltype(U::c_str()) c_str_impl(U *) {
+    return U::c_str();
+  }
+  static auto c_str_impl(...) { return __PRETTY_FUNCTION__; }
 };
 }
 namespace back {
@@ -683,10 +696,6 @@ template <class R>
 struct callable_impl<R, aux::true_type> : aux::true_type {};
 template <class R, class T>
 struct callable : callable_impl<R, decltype(test_callable<aux::inherit<T, callable_fallback>>(0))> {};
-}
-namespace front {
-template <class>
-struct state;
 }
 namespace back {
 template <class TEvent>
@@ -1012,7 +1021,7 @@ struct sm_impl {
   }
   template <class TVisitor, class TState>
   static void visit_state(const TVisitor &visitor) {
-    visitor(front::state<TState>{});
+    visitor(aux::string<TState>{});
   }
   no_policy create_lock(const aux::type<no_policy> &) { return {}; }
   template <class TLockPolicy>
@@ -1449,19 +1458,12 @@ struct event {
   auto operator()() const { return TEvent{}; }
 };
 }
-namespace concepts {
-template <class T, class = decltype(T::c_str())>
-aux::true_type test_stringable(const T &);
-aux::false_type test_stringable(...);
-template <class T, class = void>
-struct stringable : aux::false_type {};
-template <class T>
-struct stringable<T, decltype(void(sizeof(T)))> : decltype(test_stringable(aux::declval<T>())) {};
-}
 namespace front {
 struct initial_state {};
-struct terminate_state {};
 struct history_state {};
+struct terminate_state {
+  static auto c_str() { return "terminate"; }
+};
 template <class...>
 struct transition;
 template <class, class>
@@ -1472,30 +1474,8 @@ template <class, class>
 struct transition_eg;
 template <class>
 struct state;
-template <class>
-class stringable {};
 template <class TState>
-struct stringable<state<TState>> {
-  static constexpr bool value = concepts::stringable<TState>::value;
-};
-template <class S, bool = stringable<S>::value>
-struct state_str {
-  static auto c_str() { return S::type::c_str(); }
-};
-template <class S>
-struct state_str<S, false> {
-  static auto c_str() { return __PRETTY_FUNCTION__; }
-};
-template <>
-struct state_str<state<terminate_state>> {
-  static auto c_str() { return "terminate"; }
-};
-template <char... Chrs>
-struct state_str<state<aux::string<Chrs...>>, false> : aux::string<Chrs...> {};
-template <char... Chrs, class T>
-struct state_str<state<aux::string<Chrs...>(T)>, false> : state_str<state<aux::string<Chrs...>>> {};
-template <class TState>
-struct state_impl : state_str<TState> {
+struct state_impl {
   template <class T>
   auto operator<=(const T &t) const {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
@@ -1759,15 +1739,16 @@ void update_composite_states(TSubs &subs, const aux::false_type &, ...) {
 }
 template <class SM, class TDeps, class TSubs, class TSrcState, class TDstState>
 void update_current_state(SM &, TDeps &deps, TSubs &, typename SM::state_t &current_state,
-                          const typename SM::state_t &new_state, const TSrcState &src_state, const TDstState &dst_state) {
-  back::log_state_change<typename SM::sm_t>(aux::type<typename SM::logger_t>{}, deps, src_state, dst_state);
+                          const typename SM::state_t &new_state, const TSrcState &, const TDstState &) {
+  back::log_state_change<typename SM::sm_t>(aux::type<typename SM::logger_t>{}, deps, aux::string<typename TSrcState::type>{},
+                                            aux::string<typename TDstState::type>{});
   current_state = new_state;
 }
 template <class SM, class TDeps, class TSubs, class TSrcState, class T>
 void update_current_state(SM &, TDeps &deps, TSubs &subs, typename SM::state_t &current_state,
-                          const typename SM::state_t &new_state, const TSrcState &src_state,
-                          const state<back::sm<T>> &dst_state) {
-  back::log_state_change<typename SM::sm_t>(aux::type<typename SM::logger_t>{}, deps, src_state, dst_state);
+                          const typename SM::state_t &new_state, const TSrcState &, const state<back::sm<T>> &) {
+  back::log_state_change<typename SM::sm_t>(aux::type<typename SM::logger_t>{}, deps, aux::string<typename TSrcState::type>{},
+                                            aux::string<T>{});
   current_state = new_state;
   update_composite_states<back::sm_impl<T>>(subs, typename back::sm_impl<T>::has_history_states{},
                                             typename back::sm_impl<T>::history_states_t{});
@@ -1997,11 +1978,11 @@ typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #if !defined(_MSC_VER)
 template <class T, T... Chrs>
 auto operator""_s() {
-  return front::state<aux::string<Chrs...>>{};
+  return front::state<aux::string<T, Chrs...>>{};
 }
 template <class T, T... Chrs>
 auto operator""_e() {
-  return event<aux::string<Chrs...>>;
+  return event<aux::string<T, Chrs...>>;
 }
 #endif
 __BOOST_SML_UNUSED static front::state<front::terminate_state> X;

@@ -14,11 +14,6 @@
 #include "boost/sml/back/policies.hpp"
 #include "boost/sml/concepts/callable.hpp"
 
-namespace front {
-template <class>
-struct state;
-}  // front
-
 namespace back {
 
 template <class TEvent>
@@ -397,7 +392,7 @@ struct sm_impl {
 
   template <class TVisitor, class TState>
   static void visit_state(const TVisitor &visitor) {
-    visitor(front::state<TState>{});
+    visitor(aux::string<TState>{});
   }
 
   no_policy create_lock(const aux::type<no_policy> &) { return {}; }

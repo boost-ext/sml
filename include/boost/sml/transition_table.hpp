@@ -47,11 +47,11 @@ typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #if !defined(_MSC_VER)  // __pph__
 template <class T, T... Chrs>
 auto operator""_s() {
-  return front::state<aux::string<Chrs...>>{};
+  return front::state<aux::string<T, Chrs...>>{};
 }
 template <class T, T... Chrs>
 auto operator""_e() {
-  return event<aux::string<Chrs...>>;
+  return event<aux::string<T, Chrs...>>;
 }
 #endif  // __pph__
 

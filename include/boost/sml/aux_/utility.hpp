@@ -13,14 +13,6 @@ namespace aux {
 
 using swallow = int[];
 
-template <char... Chrs>
-struct string {
-  static auto c_str() {
-    static constexpr char str[] = {Chrs..., 0};
-    return str;
-  }
-};
-
 template <int...>
 struct index_sequence {
   using type = index_sequence;
@@ -264,6 +256,29 @@ template <class TExpr>
 struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
     : zero_wrapper_impl<TExpr, function_traits_t<decltype(&TExpr::operator())>> {
   zero_wrapper(...) {}
+};
+
+template <class T, T...>
+struct string;
+
+template <char... Chrs>
+struct string<char, Chrs...> {
+  using type = string;
+  static auto c_str() {
+    static constexpr char str[] = {Chrs..., 0};
+    return str;
+  }
+};
+
+template <class T>
+struct string<T> {
+  using type = T;
+  static auto c_str() { return c_str_impl((T *)0); }
+  template <class U>
+  static decltype(U::c_str()) c_str_impl(U *) {
+    return U::c_str();
+  }
+  static auto c_str_impl(...) { return __PRETTY_FUNCTION__; }
 };
 }  // aux
 
