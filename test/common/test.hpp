@@ -24,6 +24,9 @@
 #if !defined(__BOOST_SML_ZERO_SIZE_ARRAY_CREATE)
 #define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...)
 #endif
+#if !defined(__BOOST_SML_TEMPLATE_KEYWORD)
+#define __BOOST_SML_TEMPLATE_KEYWORD template
+#endif
 #elif defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
@@ -40,6 +43,9 @@
 #if !defined(__BOOST_SML_ZERO_SIZE_ARRAY_CREATE)
 #define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
 #endif
+#if !defined(__BOOST_SML_TEMPLATE_KEYWORD)
+#define __BOOST_SML_TEMPLATE_KEYWORD template
+#endif
 #elif defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable : 4200)
@@ -54,6 +60,9 @@
 #endif
 #if !defined(__BOOST_SML_ZERO_SIZE_ARRAY_CREATE)
 #define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
+#endif
+#if !defined(__BOOST_SML_TEMPLATE_KEYWORD)
+#define __BOOST_SML_TEMPLATE_KEYWORD
 #endif
 #endif
 

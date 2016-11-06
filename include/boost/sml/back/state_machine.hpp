@@ -133,7 +133,6 @@ struct sm_impl {
   template <class... Ts>
   using defer_event_t = typename defer_policy_t::template defer<Ts...>;
   using logger_t = typename TSM::logger_policy::type;
-  using has_logger = aux::integral_constant<bool, !aux::is_same<logger_t, no_policy>::value>;
   using transitions_t = decltype(aux::declval<sm_t>().operator()());
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
@@ -168,7 +167,7 @@ struct sm_impl {
 
   template <class TEvent, class TDeps, class TSubs>
   bool process_event(const TEvent &event, TDeps &deps, TSubs &subs) {
-    log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
+    log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
 
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
     const auto handled =
@@ -208,7 +207,7 @@ struct sm_impl {
             __BOOST_SML_REQUIRES(aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
                                  !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
   bool process_internal_events(const TEvent &event, TDeps &deps, TSubs &subs) {
-    log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
+    log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
     return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
 #else   // __pph__
@@ -220,7 +219,7 @@ struct sm_impl {
   template <class TEvent, class TDeps, class TSubs,
             __BOOST_SML_REQUIRES(aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
   bool process_internal_events(const TEvent &event, TDeps &deps, TSubs &subs) {
-    log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
+    log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
     return process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
 #else   // __pph__
@@ -240,7 +239,7 @@ struct sm_impl {
             __BOOST_SML_REQUIRES(aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
                                  !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
   bool process_internal_event(const TEvent &event, TDeps &deps, TSubs &subs, state_t &current_state) {
-    log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
+    log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
     return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, current_state,
                                                                                         has_exceptions{});
@@ -253,7 +252,7 @@ struct sm_impl {
   template <class TEvent, class TDeps, class TSubs,
             __BOOST_SML_REQUIRES(aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
   bool process_internal_event(const TEvent &event, TDeps &deps, TSubs &subs, state_t &current_state) {
-    log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
+    log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
     return process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, deps, subs, current_state,
                                                                                        has_exceptions{});
@@ -352,7 +351,7 @@ struct sm_impl {
   template <class TDeps, class TSubs, class TEvent>
   bool process_event_no_deffer(TDeps &deps, TSubs &subs, const void *data) {
     const auto &event = *static_cast<const TEvent *>(data);
-    log_process_event<logger_t, sm_t>(has_logger{}, deps, event);
+    log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
     const auto handled = process_event_noexcept<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, has_exceptions{});
 #else   // __pph__

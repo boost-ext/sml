@@ -47,10 +47,10 @@ using false_type = integral_constant<bool, false>;
 template <class...>
 using void_t = void;
 
-template <class>
+template <class...>
 struct always : aux::true_type {};
 
-template <class>
+template <class...>
 struct never : aux::false_type {};
 
 template <bool B, class T, class F>
