@@ -1143,8 +1143,8 @@ struct plant_uml {
 
 template &lt;class T&gt;
 void dump_transition() noexcept {
-  auto src_state = std::string{sml::state&lt;typename T::src_state&gt;.c_str()};
-  auto dst_state = std::string{sml::state&lt;typename T::dst_state&gt;.c_str()};
+  auto src_state = std::string{sml::aux::string&lt;typename T::src_state&gt;{}.c_str()};
+  auto dst_state = std::string{sml::aux::string&lt;typename T::dst_state&gt;{}.c_str()};
   if (dst_state == &quot;X&quot;) {
     dst_state = &quot;[*]&quot;;
   }
