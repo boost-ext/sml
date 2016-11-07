@@ -151,7 +151,7 @@ test composite_def_ctor_passed = [] {
   struct sub {
     auto operator()() const {
       using namespace sml;
-      return make_transition_table();
+      return make_transition_table(*idle = X);
     }
   };
 

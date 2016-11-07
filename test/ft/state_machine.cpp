@@ -17,24 +17,6 @@ struct e2 {};
 
 const auto idle = sml::state<class idle>;
 
-test sm_empty = [] {
-  struct c {
-    auto operator()() noexcept { return sml::make_transition_table(); }
-  };
-
-  sml::sm<c> sm;
-};
-
-test sm_ctor = [] {
-  struct c {
-    auto operator()() noexcept { return sml::make_transition_table(); }
-  };
-
-  sml::sm<c> sm;
-  sml::sm<c> sm_{std::move(sm)};
-  (void)sm_;
-};
-
 test sm_minimal = [] {
   struct c {
     auto operator()() noexcept {
@@ -47,6 +29,19 @@ test sm_minimal = [] {
   expect(sm.is(idle));
   sm.process_event(e1{});
   expect(sm.is(idle));
+};
+
+test sm_minimal_ctor = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      return make_transition_table(*idle + event<e1> / [] {});
+    }
+  };
+
+  sml::sm<c> sm;
+  sml::sm<c> sm_{std::move(sm)};
+  (void)sm_;
 };
 
 test sm_events = [] {

@@ -65,15 +65,15 @@ test transition_sizeof = [] {
   }
 };
 
-test sm_sizeof_empty = [] {
-  struct empty {
+test sm_sizeof_minimal = [] {
+  struct minimal {
     auto operator()() noexcept {
       using namespace sml;
-      return make_transition_table();
+      return make_transition_table(*"idle"_s + "event1"_e = X);
     }
   };
 
-  static_expect(1 /*current_state=1*/ == sizeof(sml::sm<empty>{}));
+  static_expect(1 /*current_state=1*/ == sizeof(sml::sm<minimal>{}));
 };
 
 test sm_sizeof_default_guard_action = [] {

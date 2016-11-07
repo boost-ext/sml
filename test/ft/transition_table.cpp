@@ -122,7 +122,7 @@ test transition_table_types = [] {
       struct sub {
         auto operator()() noexcept {
           using namespace sml;
-          return make_transition_table();
+          return make_transition_table(*idle + event<e1> = X);
         }
       };
 
