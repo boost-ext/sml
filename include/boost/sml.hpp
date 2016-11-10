@@ -907,7 +907,7 @@ struct sm_impl {
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
-                          const aux::index_sequence<0> &) {
+                          aux::index_sequence<0>) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
     const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &get_state_mapping_t<TStates, TMappings, has_unexpected_events>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
@@ -917,7 +917,7 @@ struct sm_impl {
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates, int... Ns>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
-                          const aux::index_sequence<Ns...> &) {
+                          aux::index_sequence<Ns...>) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
     const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &get_state_mapping_t<TStates, TMappings, has_unexpected_events>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
@@ -1007,15 +1007,14 @@ struct sm_impl {
     }
   }
   template <class TVisitor, class... TStates>
-  void visit_current_states(const TVisitor &visitor, const aux::type_list<TStates...> &, const aux::index_sequence<0> &) const {
+  void visit_current_states(const TVisitor &visitor, const aux::type_list<TStates...> &, aux::index_sequence<0>) const {
     using dispatch_table_t = void (*)(const TVisitor &);
     const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &sm_impl::visit_state<TVisitor, TStates>...};
     dispatch_table[current_state_[0]](visitor);
   }
   template <class TVisitor, class... TStates, int... Ns>
-  void visit_current_states(const TVisitor &visitor, const aux::type_list<TStates...> &,
-                            const aux::index_sequence<Ns...> &) const {
+  void visit_current_states(const TVisitor &visitor, const aux::type_list<TStates...> &, aux::index_sequence<Ns...>) const {
     using dispatch_table_t = void (*)(const TVisitor &);
     const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &sm_impl::visit_state<TVisitor, TStates>...};
@@ -1036,13 +1035,16 @@ struct sm_impl {
     };
     return lock_guard{thread_safety_};
   }
-  bool is_terminated() const {
-    for (const auto &state : current_state_) {
-      if (state == aux::get_id<states_ids_t, -1, terminate_state>()) {
-        return true;
-      }
-    }
-    return false;
+  bool is_terminated() const { return is_terminated_impl(aux::make_index_sequence<regions>{}); }
+  bool is_terminated_impl(aux::index_sequence<0>) const {
+    return current_state_[0] == aux::get_id<states_ids_t, -1, terminate_state>();
+  }
+  template <int... Ns>
+  bool is_terminated_impl(aux::index_sequence<Ns...>) const {
+    const auto terminate_state_id = aux::get_id<states_ids_t, -1, terminate_state>();
+    auto result = false;
+    (void)aux::swallow{0, (current_state_[Ns] == terminate_state_id ? result = true : result)...};
+    return result;
   }
   transitions_t transitions_;
   state_t current_state_[regions];
