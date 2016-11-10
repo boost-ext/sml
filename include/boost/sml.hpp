@@ -807,7 +807,6 @@ struct sm_impl {
   using deps = aux::apply_t<merge_deps, transitions_t>;
   using state_t = aux::conditional_t<(aux::size<states_t>::value > 0xFF), unsigned short, aux::byte>;
   static constexpr auto regions = aux::size<initial_states_t>::value;
-  static constexpr auto terminate_state_id = aux::get_id<states_ids_t, -1, terminate_state>();
   static_assert(regions > 0, "At least one initial state is required");
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
   using exceptions = aux::apply_t<aux::unique_t, aux::apply_t<get_exceptions, events_t>>;
@@ -1039,7 +1038,7 @@ struct sm_impl {
   }
   bool is_terminated() const {
     for (const auto &state : current_state_) {
-      if (state == terminate_state_id) {
+      if (state == aux::get_id<states_ids_t, -1, terminate_state>()) {
         return true;
       }
     }
