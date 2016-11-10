@@ -130,7 +130,7 @@ template <class... Ts>
 using tuple = tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
 
 template <int N, class T>
-auto &get_by_id(tuple_type<N, T> *object) {
+T &get_by_id(tuple_type<N, T> *object) {
   return static_cast<tuple_type<N, T> &>(*object).value;
 }
 
@@ -195,15 +195,15 @@ template <class... Ts>
 struct type_id : type_id_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {};
 
 template <class T, int, int N>
-constexpr auto get_id_impl(type_id_type<N, T> *) {
+constexpr int get_id_impl(type_id_type<N, T> *) {
   return N;
 }
 template <class T, int D>
-constexpr auto get_id_impl(...) {
+constexpr int get_id_impl(...) {
   return D;
 }
 template <class TIds, int D, class T>
-constexpr auto get_id() {
+constexpr int get_id() {
   return get_id_impl<T, D>((TIds *)0);
 }
 
@@ -220,18 +220,18 @@ struct size<T<Ts...>> {
 };
 
 #if defined(_MSC_VER)  // __pph__
-constexpr auto max_impl() { return 0; }
-constexpr auto max_impl(int r) { return r; }
-constexpr auto max_impl(int r, int i) { return r > i ? r : i; }
-constexpr auto max_impl(int r, int i, int ints...) { return i > r ? max_impl(i, ints) : max_impl(r, ints); }
+constexpr int max_impl() { return 0; }
+constexpr int max_impl(int r) { return r; }
+constexpr int max_impl(int r, int i) { return r > i ? r : i; }
+constexpr int max_impl(int r, int i, int ints...) { return i > r ? max_impl(i, ints) : max_impl(r, ints); }
 template <int... Ts>
-constexpr auto max() {
+constexpr int max() {
   return max_impl(Ts...);
 }
 #else   // __pph__
 template <int... Ts>
-constexpr auto max() {
-  auto max = 0;
+constexpr int max() {
+  int max = 0;
   int _[]{0, (Ts > max ? max = Ts : max)...};
   (void)_;
   return max;
