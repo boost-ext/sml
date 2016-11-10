@@ -14,6 +14,10 @@ struct initial {};
 struct unexpected {};
 struct entry_exit {};
 
+struct terminate_state {
+  static auto c_str() { return "terminate"; }
+};
+
 struct internal_event {
   static auto c_str() { return "internal_event"; }
 };

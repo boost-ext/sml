@@ -15,9 +15,6 @@ namespace front {
 
 struct initial_state {};
 struct history_state {};
-struct terminate_state {
-  static auto c_str() { return "terminate"; }
-};
 
 template <class...>
 struct transition;

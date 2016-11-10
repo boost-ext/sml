@@ -78,6 +78,15 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
     return execute_impl(event, sm, deps, subs, current_state);
   }
 
+  template <class, class SM, class TDeps, class TSubs>
+  static bool execute(const anonymous& event, SM& sm, TDeps& deps, TSubs& subs, typename SM::state_t& current_state) {
+    if (aux::cget<sm_impl<TSM>>(subs).is_terminated()) {
+      const auto handled = aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
+      return handled ? handled : transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
+    }
+    return false;
+  }
+
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute_impl(const TEvent& event, SM& sm, TDeps& deps, TSubs& subs, typename SM::state_t& current_state) {
     const auto handled = aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
@@ -102,7 +111,7 @@ struct transitions_sub<sm<TSM>> {
 
   template <class TEvent, class TDeps, class TSubs>
   static bool execute_impl(const TEvent& event, TDeps& deps, TSubs& subs) {
-    aux::get<sm_impl<TSM>>(subs).template process_event<TEvent>(event, deps, subs);
+    aux::get<sm_impl<TSM>>(subs).template process_event(event, deps, subs);
     return true;
   }
 

@@ -55,7 +55,7 @@ auto operator""_e() {
 }
 #endif  // __pph__
 
-__BOOST_SML_UNUSED static front::state<front::terminate_state> X;
+__BOOST_SML_UNUSED static front::state<back::terminate_state> X;
 __BOOST_SML_UNUSED static front::history_state H;
 
 /// actions

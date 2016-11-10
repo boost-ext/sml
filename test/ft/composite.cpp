@@ -707,3 +707,71 @@ test composite_entry_exit_sub_sm = [] {
   sm.process_event(e4{});
   expect(std::vector<calls>{calls::ls2_1_exit, calls::sub2_exit, calls::sub1_entry, calls::ls1_1_entry} == c_);
 };
+
+test composite_anonymous_transition_from_outer_state = [] {
+  struct sub {
+    auto operator()() const noexcept {
+      using namespace sml;
+      return make_transition_table(*idle + event<e1> = X);
+    }
+  };
+
+  struct c {
+    auto operator()() const noexcept {
+      using namespace sml;
+      return make_transition_table(*state<sub> = s1);
+    }
+  };
+
+  sml::sm<c> sm;
+  expect(sm.is(sml::state<sub>));
+  expect(sm.is<sub>(idle));
+  sm.process_event(e1{});
+  expect(sm.is(s1));
+};
+
+test composite_anonymous_transition_from_outer_state_orthogonal_regions = [] {
+  struct sub {
+    auto operator()() const noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        *idle + event<e1> = X,
+        *idle2 + event<e2> = X
+      );
+      // clang-format on
+    }
+  };
+
+  struct c {
+    auto operator()() const noexcept {
+      using namespace sml;
+      return make_transition_table(*state<sub> = s1);
+    }
+  };
+
+  {
+    sml::sm<c> sm;
+    expect(sm.is(sml::state<sub>));
+    expect(sm.is<sub>(idle));
+    sm.process_event(e1{});
+    expect(sm.is(s1));
+  }
+
+  {
+    sml::sm<c> sm;
+    expect(sm.is(sml::state<sub>));
+    expect(sm.is<sub>(idle));
+    sm.process_event(e2{});
+    expect(sm.is(s1));
+  }
+
+  {
+    sml::sm<c> sm;
+    expect(sm.is(sml::state<sub>));
+    expect(sm.is<sub>(idle));
+    sm.process_event(e1{});
+    sm.process_event(e2{});
+    expect(sm.is(s1));
+  }
+};

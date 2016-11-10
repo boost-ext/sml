@@ -7,13 +7,13 @@
 .PHONY: all doc clean test example
 CXX?=clang++
 ifneq (, $(findstring clang++, $(CXX)))
-	CXXFLAGS?=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
+	CXXFLAGS+=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
 	INCLUDE_TEST=-include test/common/test.hpp
 else ifneq (, $(findstring g++, $(CXX)))
-	CXXFLAGS?=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
+	CXXFLAGS+=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
 	INCLUDE_TEST=-include test/common/test.hpp
 else
-	CXXFLAGS?=-EHsc -W3 -I include -I .
+	CXXFLAGS+=-EHsc -W3 -I include -I .
 	INCLUDE_TEST=-FI test/common/test.hpp
 endif
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1

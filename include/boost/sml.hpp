@@ -431,6 +431,9 @@ struct _ {};
 struct initial {};
 struct unexpected {};
 struct entry_exit {};
+struct terminate_state {
+  static auto c_str() { return "terminate"; }
+};
 struct internal_event {
   static auto c_str() { return "internal_event"; }
 };
@@ -554,6 +557,14 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
   static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
     return execute_impl(event, sm, deps, subs, current_state);
   }
+  template <class, class SM, class TDeps, class TSubs>
+  static bool execute(const anonymous &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
+    if (aux::cget<sm_impl<TSM>>(subs).is_terminated()) {
+      const auto handled = aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
+      return handled ? handled : transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
+    }
+    return false;
+  }
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute_impl(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
     const auto handled = aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
@@ -575,7 +586,7 @@ struct transitions_sub<sm<TSM>> {
   }
   template <class TEvent, class TDeps, class TSubs>
   static bool execute_impl(const TEvent &event, TDeps &deps, TSubs &subs) {
-    aux::get<sm_impl<TSM>>(subs).template process_event<TEvent>(event, deps, subs);
+    aux::get<sm_impl<TSM>>(subs).template process_event(event, deps, subs);
     return true;
   }
   template <class _, class TEvent, class TDeps, class TSubs>
@@ -804,6 +815,7 @@ struct sm_impl {
   using deps = aux::apply_t<merge_deps, transitions_t>;
   using state_t = aux::conditional_t<(aux::size<states_t>::value > 0xFF), unsigned short, aux::byte>;
   static constexpr auto regions = aux::size<initial_states_t>::value;
+  static constexpr auto terminate_state_id = aux::get_id<states_ids_t, -1, terminate_state>();
   static_assert(regions > 0, "At least one initial state is required");
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
   using exceptions = aux::apply_t<aux::unique_t, aux::apply_t<get_exceptions, events_t>>;
@@ -1032,6 +1044,14 @@ struct sm_impl {
       thread_safety_t &thread_safety_;
     };
     return lock_guard{thread_safety_};
+  }
+  bool is_terminated() const {
+    for (const auto &state : current_state_) {
+      if (state == terminate_state_id) {
+        return true;
+      }
+    }
+    return false;
   }
   transitions_t transitions_;
   state_t current_state_[regions];
@@ -1451,9 +1471,6 @@ struct event {
 namespace front {
 struct initial_state {};
 struct history_state {};
-struct terminate_state {
-  static auto c_str() { return "terminate"; }
-};
 template <class...>
 struct transition;
 template <class, class>
@@ -1968,7 +1985,7 @@ auto operator""_e() {
   return event<aux::string<T, Chrs...>>;
 }
 #endif
-__BOOST_SML_UNUSED static front::state<front::terminate_state> X;
+__BOOST_SML_UNUSED static front::state<back::terminate_state> X;
 __BOOST_SML_UNUSED static front::history_state H;
 __BOOST_SML_UNUSED static front::actions::defer defer;
 __BOOST_SML_UNUSED static front::actions::process process;
