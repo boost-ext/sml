@@ -4,6 +4,7 @@
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
+language: cpp
 sudo: false
 env:
   global:
@@ -58,11 +59,11 @@ matrix:
         packages: ["clang-3.8", "libstdc++-5-dev", "valgrind"]
         sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"]
   - os: linux
-    env: CXX=clang++-4.0 MEMCHECK=VALGRIND
+    env: CXX=clang++-3.9 MEMCHECK=VALGRIND
     addons:
       apt:
-        packages: ["clang-4.0", "libstdc++-6-dev", "valgrind"]
-        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise"]
+        packages: ["clang-3.9", "libstdc++-6-dev", "valgrind"]
+        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.9"]
   - os: linux
     env: CXX=g++-5 MEMCHECK=VALGRIND
     addons:
