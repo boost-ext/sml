@@ -418,9 +418,8 @@ struct sm_impl {
   }
   template <int... Ns>
   bool is_terminated_impl(aux::index_sequence<Ns...>) const {
-    const auto terminate_state_id = aux::get_id<states_ids_t, -1, terminate_state>();
     auto result = false;
-    (void)aux::swallow{0, (current_state_[Ns] == terminate_state_id ? result = true : result)...};
+    (void)aux::swallow{0, (current_state_[Ns] == aux::get_id<states_ids_t, -1, terminate_state>() ? result = true : result)...};
     return result;
   }
 
