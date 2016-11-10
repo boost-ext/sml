@@ -582,7 +582,7 @@ template <class TSM>
 struct transitions_sub<sm<TSM>> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent &event, SM &, TDeps &deps, TSubs &subs, typename SM::state_t &) {
-    aux::get<sm_impl<TSM>>(subs).template process_event(event, deps, subs);
+    aux::get<sm_impl<TSM>>(subs).template process_event<TEvent>(event, deps, subs);
     return true;
   }
 };
