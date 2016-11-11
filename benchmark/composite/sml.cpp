@@ -56,7 +56,7 @@ struct player {
     auto Open = state<class Open>;
     auto Stopped = state<class Stopped>;
     auto Paused = state<class Paused>;
-    auto Playing = state<sm<playing>>;
+    auto Playing = state<playing>;
 
     // clang-format off
     return make_transition_table(
