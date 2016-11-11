@@ -402,8 +402,7 @@ struct sm_impl {
     using dispatch_table_t = void (*)(const TVisitor &);
     const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &sm_impl::visit_state<TVisitor, TStates>...};
-    int _[]{0, (dispatch_table[current_state_[Ns]](visitor), 0)...};
-    (void)_;
+    (void)aux::swallow{0, (dispatch_table[current_state_[Ns]](visitor), 0)...};
   }
 
   template <class TVisitor, class TState>
@@ -526,8 +525,7 @@ class sm {
     using states_ids_t = typename sm_t::states_ids_t;
     auto &sm = aux::get<sm_impl<TSM>>(sub_sms_);
     auto region = 0;
-    int _[]{0, (sm.current_state_[region++] = aux::get_id<states_ids_t, 0, typename TStates::type>(), 0)...};
-    (void)_;
+    (void)aux::swallow{0, (sm.current_state_[region++] = aux::get_id<states_ids_t, 0, typename TStates::type>(), 0)...};
   }
 
  private:

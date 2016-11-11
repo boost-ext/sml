@@ -232,8 +232,7 @@ constexpr int max() {
 template <int... Ts>
 constexpr int max() {
   int max = 0;
-  int _[]{0, (Ts > max ? max = Ts : max)...};
-  (void)_;
+  (void)swallow{0, (Ts > max ? max = Ts : max)...};
   return max;
 }
 #endif  // __pph__
