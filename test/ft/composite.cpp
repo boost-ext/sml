@@ -272,15 +272,15 @@ test composite_is = [] {
 
   sml::sm<c> sm;
   expect(sm.is(idle));
-  expect(sm.is<sub>(s1));
+  expect(sm.is<decltype(sml::state<sub>)>(s1));
 
   sm.process_event(e1{});
   expect(sm.is(sml::state<sub>));
-  expect(sm.is<sub>(s1));
+  expect(sm.is<decltype(sml::state<sub>)>(s1));
 
   sm.process_event(e2{});
   expect(sm.is(sml::state<sub>));
-  expect(sm.is<sub>(sml::X));
+  expect(sm.is<decltype(sml::state<sub>)>(sml::X));
 };
 
 test composite_entry_exit_initial = [] {
@@ -443,25 +443,25 @@ test composite_transition_the_same_event = [] {
   expect(sm.is(idle));
   sm.process_event(e1());
   expect(sm.is(state<sub>));
-  expect(sm.is<sub>(idle));
+  expect(sm.is<decltype(state<sub>)>(idle));
 
   sm.process_event(e4());
 
   sm.process_event(e1());
   expect(sm.is(state<sub>));
-  expect(sm.is<sub>(s1));
+  expect(sm.is<decltype(state<sub>)>(s1));
 
   sm.process_event(e2());
   expect(sm.is(state<sub>));
-  expect(sm.is<sub>(s2));
+  expect(sm.is<decltype(state<sub>)>(s2));
 
   sm.process_event(e3());
   expect(sm.is(s1));
-  expect(sm.is<sub>(s2));
+  expect(sm.is<decltype(state<sub>)>(s2));
 
   sm.process_event(e4());
   expect(sm.is(state<sub>));
-  expect(sm.is<sub>(idle));  // no history
+  expect(sm.is<decltype(state<sub>)>(idle));  // no history
 };
 
 test composite_with_orthogonal_regions = [] {
@@ -497,17 +497,17 @@ test composite_with_orthogonal_regions = [] {
 
   sm.process_event(e1());
   expect(sm.is(s1, sml::state<sub>));
-  expect(sm.is<sub>(idle));
+  expect(sm.is<decltype(sml::state<sub>)>(idle));
 
   sm.process_event(e4());
-  expect(sm.is<sub>(s1));
+  expect(sm.is<decltype(sml::state<sub>)>(s1));
 
   sm.process_event(e4());
-  expect(sm.is<sub>(s2));
+  expect(sm.is<decltype(sml::state<sub>)>(s2));
 
   sm.process_event(e2());
   sm.process_event(e3());
-  expect(sm.is<sub>(s2));
+  expect(sm.is<decltype(sml::state<sub>)>(s2));
   expect(sm.is(sml::X, sml::X));
 };
 
@@ -725,10 +725,10 @@ test composite_anonymous_transition_from_outer_state = [] {
 
   sml::sm<c> sm;
   expect(sm.is(sml::state<sub>));
-  expect(sm.is<sub>(idle));
+  expect(sm.is<decltype(sml::state<sub>)>(idle));
   sm.process_event(e1{});
   expect(sm.is(s1));
-  expect(sm.is<sub>(sml::X));
+  expect(sm.is<decltype(sml::state<sub>)>(sml::X));
 };
 
 test composite_anonymous_transition_from_outer_state_orthogonal_regions = [] {
@@ -754,28 +754,130 @@ test composite_anonymous_transition_from_outer_state_orthogonal_regions = [] {
   {
     sml::sm<c> sm;
     expect(sm.is(sml::state<sub>));
-    expect(sm.is<sub>(idle));
+    expect(sm.is<decltype(sml::state<sub>)>(idle));
     sm.process_event(e1{});
     expect(sm.is(sml::state<sub>));
-    expect(sm.is<sub>(sml::X, idle2));
+    expect(sm.is<decltype(sml::state<sub>)>(sml::X, idle2));
   }
 
   {
     sml::sm<c> sm;
     expect(sm.is(sml::state<sub>));
-    expect(sm.is<sub>(idle));
+    expect(sm.is<decltype(sml::state<sub>)>(idle));
     sm.process_event(e2{});
     expect(sm.is(sml::state<sub>));
-    expect(sm.is<sub>(idle, sml::X));
+    expect(sm.is<decltype(sml::state<sub>)>(idle, sml::X));
   }
 
   {
     sml::sm<c> sm;
     expect(sm.is(sml::state<sub>));
-    expect(sm.is<sub>(idle));
+    expect(sm.is<decltype(sml::state<sub>)>(idle));
     sm.process_event(e1{});
     sm.process_event(e2{});
     expect(sm.is(s1));
-    expect(sm.is<sub>(sml::X, sml::X));
+    expect(sm.is<decltype(sml::state<sub>)>(sml::X, sml::X));
   }
 };
+
+test composite_with_names = [] {
+  struct a;
+  struct b;
+
+  struct sub {
+    auto operator()() const noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        *idle + event<e1> = X
+      );
+      // clang-format on
+    }
+  };
+
+  struct c {
+    auto operator()() const noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        *state<a>.sm<sub>() + event<e2> = state<b>.sm<sub>(),
+         state<b>.sm<sub>() + event<e3> = X
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c> sm;
+  expect(sm.is(sml::state<a>.sm<sub>()));
+  expect(sm.is<decltype(sml::state<a>.sm<sub>())>(idle));
+  expect(sm.is<decltype(sml::state<b>.sm<sub>())>(idle));
+
+  sm.process_event(e1{});
+  expect(sm.is(sml::state<a>.sm<sub>()));
+  expect(sm.is<decltype(sml::state<a>.sm<sub>())>(sml::X));
+  expect(sm.is<decltype(sml::state<b>.sm<sub>())>(idle));
+
+  sm.process_event(e2{});
+  expect(sm.is(sml::state<b>.sm<sub>()));
+  expect(sm.is<decltype(sml::state<a>.sm<sub>())>(sml::X));
+  expect(sm.is<decltype(sml::state<b>.sm<sub>())>(idle));
+
+  sm.process_event(e1{});
+  expect(sm.is(sml::state<b>.sm<sub>()));
+  expect(sm.is<decltype(sml::state<a>.sm<sub>())>(sml::X));
+  expect(sm.is<decltype(sml::state<b>.sm<sub>())>(sml::X));
+
+  sm.process_event(e3{});
+  expect(sm.is(sml::X));
+};
+
+#if !defined(_MSC_VER)
+test composite_with_string_names = [] {
+  struct sub {
+    auto operator()() const noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        *idle + event<e1> = X
+      );
+      // clang-format on
+    }
+  };
+
+  struct c {
+    auto operator()() const noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        *"state a"_s.sm<sub>() + event<e2> = "state b"_s.sm<sub>(),
+         "state b"_s.sm<sub>() + event<e3> = X
+      );
+      // clang-format on
+    }
+  };
+
+  using namespace sml;
+  sm<c> sm;
+  expect(sm.is("state a"_s.sm<sub>()));
+  expect(sm.is<decltype("state a"_s.sm<sub>())>(idle));
+  expect(sm.is<decltype("state b"_s.sm<sub>())>(idle));
+
+  sm.process_event(e1{});
+  expect(sm.is("state a"_s.sm<sub>()));
+  expect(sm.is<decltype("state a"_s.sm<sub>())>(X));
+  expect(sm.is<decltype("state b"_s.sm<sub>())>(idle));
+
+  sm.process_event(e2{});
+  expect(sm.is("state b"_s.sm<sub>()));
+  expect(sm.is<decltype("state a"_s.sm<sub>())>(X));
+  expect(sm.is<decltype("state b"_s.sm<sub>())>(idle));
+
+  sm.process_event(e1{});
+  expect(sm.is("state b"_s.sm<sub>()));
+  expect(sm.is<decltype("state a"_s.sm<sub>())>(X));
+  expect(sm.is<decltype("state b"_s.sm<sub>())>(X));
+
+  sm.process_event(e3{});
+  expect(sm.is(X));
+};
+#endif

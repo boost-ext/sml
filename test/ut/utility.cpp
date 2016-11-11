@@ -42,11 +42,11 @@ test join_types = [] {
 };
 
 template <class... Ts>
-using identity = type_list<Ts...>;
+using make_type_list = type_list<Ts...>;
 
 test apply_types = [] {
   using types = type_list<int, double, float>;
-  static_expect(is_same<types, apply_t<identity, types>>::value);
+  static_expect(is_same<types, apply_t<make_type_list, types>>::value);
 };
 
 test tuple_empty = [] {

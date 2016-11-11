@@ -69,6 +69,10 @@ struct state : state_impl<state<TState>> {
   auto operator=(const T &t) const {
     return transition<T, state>{t, *this};
   }
+  template <class T>
+  auto sm() const {
+    return state<back::sm<back::sm_policy<T, state>>>{};
+  }
 };
 
 template <class TState>

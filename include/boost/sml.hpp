@@ -71,6 +71,10 @@ struct inherit : Ts... {
   using type = inherit;
 };
 template <class T>
+struct identity {
+  using type = T;
+};
+template <class T>
 T &&declval();
 template <class T, T V>
 struct integral_constant {
@@ -753,6 +757,16 @@ template <class>
 no_policy get_policy(...);
 template <class T, class TPolicy>
 TPolicy get_policy(aux::pair<T, TPolicy> *);
+template <class, class...>
+struct sm_policy;
+template <class T, class... TPolicies>
+struct rebind_impl {
+  using type = sm_policy<T, TPolicies...>;
+};
+template <class T, class... TDetails, class... TPolicies>
+struct rebind_impl<sm<sm_policy<T, TDetails...>>, TPolicies...> {
+  using type = sm_policy<T, TDetails..., TPolicies...>;
+};
 template <class SM, class... TPolicies>
 struct sm_policy {
   using sm = SM;
@@ -760,7 +774,7 @@ struct sm_policy {
   using defer_queue_policy = decltype(get_policy<defer_queue_policy__>((aux::inherit<TPolicies...> *)0));
   using logger_policy = decltype(get_policy<logger_policy__>((aux::inherit<TPolicies...> *)0));
   template <class T>
-  using rebind = sm_policy<T, TPolicies...>;
+  using rebind = typename rebind_impl<T, TPolicies...>::type;
 };
 template <class>
 struct get_sub_sm : aux::type_list<> {};
@@ -780,8 +794,6 @@ struct convert_to_sm<aux::type_list<Ts...>> {
 };
 template <class TSM>
 struct sm_impl {
-  template <class T>
-  using rebind = sm<sm_policy<T>>;
   using sm_t = typename TSM::sm;
   using thread_safety_t = typename TSM::thread_safety_policy::type;
   using defer_policy_t = typename TSM::defer_queue_policy;
@@ -1093,36 +1105,39 @@ class sm {
   void process_event(const TEvent &event) {
     aux::get<sm_impl<TSM>>(sub_sms_).process_event(unexpected_event<_, TEvent>{event}, deps_, sub_sms_);
   }
-  template <class T = sm_t, class TVisitor, __BOOST_SML_REQUIRES(concepts::callable<void, TVisitor>::value)>
+  template <class T = aux::identity<sm_t>, class TVisitor, __BOOST_SML_REQUIRES(concepts::callable<void, TVisitor>::value)>
   void visit_current_states(const TVisitor &visitor) const {
-    using type = sm_impl<typename TSM::template rebind<T>>;
-    using states_t = typename type::states_t;
-    constexpr auto regions = type::regions;
-    aux::cget<type>(sub_sms_).visit_current_states(visitor, states_t{}, aux::make_index_sequence<regions>{});
+    using type = typename T::type;
+    using sm_t = sm_impl<typename TSM::template rebind<type>>;
+    using states_t = typename sm_t::states_t;
+    constexpr auto regions = sm_t::regions;
+    aux::cget<sm_t>(sub_sms_).visit_current_states(visitor, states_t{}, aux::make_index_sequence<regions>{});
   }
-  template <class T = sm_t, class TState>
+  template <class T = aux::identity<sm_t>, class TState>
   bool is(const TState &) const {
     auto result = false;
     visit_current_states<T>(
         [&](auto state) { result |= aux::is_same<typename TState::type, typename decltype(state)::type>::value; });
     return result;
   }
-  template <class T = sm_t, class... TStates,
-            __BOOST_SML_REQUIRES(sizeof...(TStates) == sm_impl<typename TSM::template rebind<T>>::regions)>
+  template <class T = aux::identity<sm_t>, class... TStates,
+            __BOOST_SML_REQUIRES(sizeof...(TStates) == sm_impl<typename TSM::template rebind<typename T::type>>::regions)>
   bool is(const TStates &...) const {
     auto result = true;
     auto i = 0;
-    using type = sm_impl<typename TSM::template rebind<T>>;
-    using states_ids_t = typename type::states_ids_t;
+    using type = typename T::type;
+    using sm_t = sm_impl<typename TSM::template rebind<type>>;
+    using states_ids_t = typename sm_t::states_ids_t;
     int state_ids[] = {aux::get_id<states_ids_t, 0, typename TStates::type>()...};
     visit_current_states<T>(
         [&](auto state) { result &= (aux::get_id<states_ids_t, 0, typename decltype(state)::type>() == state_ids[i++]); });
     return result;
   }
-  template <class T = sm_t, class... TStates>
+  template <class T = aux::identity<sm_t>, class... TStates>
   void __set_current_states(const TStates &...) {
-    using type = sm_impl<typename TSM::template rebind<T>>;
-    using states_ids_t = typename type::states_ids_t;
+    using type = typename T::type;
+    using sm_t = sm_impl<typename TSM::template rebind<type>>;
+    using states_ids_t = typename sm_t::states_ids_t;
     auto &sm = aux::get<sm_impl<TSM>>(sub_sms_);
     auto region = 0;
     int _[]{0, (sm.current_state_[region++] = aux::get_id<states_ids_t, 0, typename TStates::type>(), 0)...};
@@ -1508,6 +1523,10 @@ struct state : state_impl<state<TState>> {
   template <class T>
   auto operator=(const T &t) const {
     return transition<T, state>{t, *this};
+  }
+  template <class T>
+  auto sm() const {
+    return state<back::sm<back::sm_policy<T, state>>>{};
   }
 };
 template <class TState>
