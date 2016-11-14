@@ -14,17 +14,17 @@ BOOST_SML_NAMESPACE_BEGIN
 namespace utility {
 namespace concepts {
 
-template <class...>
-struct is_valid_event : aux::true_type {};
-
 template <class>
 aux::false_type dispatchable_impl(...);
 
 template <class, class TEvent>
-auto dispatchable_impl(TEvent &&) -> is_valid_event<decltype(TEvent::id), decltype(TEvent())>;
+auto dispatchable_impl(TEvent &&) -> aux::always<decltype(TEvent::id), decltype(TEvent())>;
 
 template <class T, class TEvent>
-auto dispatchable_impl(TEvent &&) -> is_valid_event<decltype(TEvent::id), decltype(TEvent(aux::declval<T>()))>;
+auto dispatchable_impl(TEvent &&) -> aux::always<decltype(TEvent::id), decltype(TEvent(aux::declval<T>()))>;
+
+template <class T, class TEvent>
+auto dispatchable_impl(TEvent &&) -> aux::always<decltype(TEvent::id), decltype(TEvent(aux::declval<T>(), TEvent::id))>;
 
 template <class, class>
 struct dispatchable;
@@ -39,32 +39,26 @@ struct dispatchable<T, aux::type_list<TEvents...>>
 
 namespace detail {
 
-template <class TEvent = void>
+template <int Id, class TEvent = void>
 struct dispatch_event_impl {
-  template <class T, class = void>
-  struct execute_impl {
-    template <class SM>
-    static void execute(SM &sm, const T &) {
-      sm.process_event(TEvent());
-    }
-  };
-
-  template <class T>
-  struct execute_impl<T, aux::void_t<decltype(TEvent{aux::declval<T>()})>> {
-    template <class SM>
-    static void execute(SM &sm, const T &data) {
-      sm.process_event(TEvent(data));
-    }
-  };
+  template <class SM, class T>
+  static auto execute(SM &sm, const T &) -> aux::void_t<decltype(typename aux::identity<TEvent, T>::type())> {
+    sm.process_event(TEvent());
+  }
 
   template <class SM, class T>
-  static void execute(SM &sm, const T &data) {
-    execute_impl<T>::execute(sm, data);
+  static auto execute(SM &sm, const T &data) -> aux::void_t<decltype(TEvent(data))> {
+    sm.process_event(TEvent(data));
+  }
+
+  template <class SM, class T>
+  static auto execute(SM &sm, const T &data) -> aux::void_t<decltype(TEvent(data, Id))> {
+    sm.process_event(TEvent(data, Id));
   }
 };
 
-template <>
-struct dispatch_event_impl<void> {
+template <int N>
+struct dispatch_event_impl<N, void> {
   template <class SM, class T>
   static void execute(SM &, const T &) {}
 };
@@ -72,14 +66,23 @@ struct dispatch_event_impl<void> {
 template <int, class>
 struct events_ids_impl {};
 
+template <class, class>
+struct inherit_events_ids_impl;
+
+template <class T, class... Ts>
+struct inherit_events_ids_impl<T, aux::type_list<Ts...>> : events_ids_impl<Ts::value, T>... {};
+
+template <class T>
+struct events_ids_impl<-1, T> : inherit_events_ids_impl<T, typename T::ids> {};
+
 template <class... Ts>
 struct event_id : events_ids_impl<Ts::id, Ts>... {};
 
-template <int>
-dispatch_event_impl<> get_event_impl(...);
+template <int N>
+dispatch_event_impl<N> get_event_impl(...);
 
 template <int N, class T>
-dispatch_event_impl<T> get_event_impl(events_ids_impl<N, T> *);
+dispatch_event_impl<N, T> get_event_impl(events_ids_impl<N, T> *);
 
 template <int N, class T>
 struct get_event {
@@ -100,6 +103,20 @@ auto make_dispatch_table(sm<SM> &fsm, const aux::index_sequence<Ns...> &) {
   };
 }
 }  // detail
+
+template <int... Ids>
+struct id_impl {
+  static constexpr auto id = -1 /*dynamic*/;
+  using ids = aux::type_list<aux::integral_constant<int, Ids>...>;
+};
+
+template <int Id>
+struct id_impl<Id> {
+  static constexpr auto id = Id;
+};
+
+template <int... Ids>
+using id = id_impl<Ids...>;
 
 template <class TEvent, int EventRangeBegin, int EventRangeEnd, class SM,
           __BOOST_SML_REQUIRES(concepts::dispatchable<TEvent, typename sm<SM>::events>::value)>

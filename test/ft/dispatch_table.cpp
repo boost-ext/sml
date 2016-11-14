@@ -35,9 +35,11 @@ struct event1 {
 struct event2 {
   static constexpr auto id = 2;
 };
-struct event3 {
-  static constexpr auto id = 3;
+struct event3 : sml::utility::id<3> {
   explicit event3(const runtime_event &) {}
+};
+struct event4_5 : sml::utility::id<4, 5> {
+  explicit event4_5(const runtime_event &, int i) { expect(i == 4 || i == 5); }
 };
 struct event4 {};
 
@@ -94,6 +96,38 @@ test dispatch_runtime_event = [] {
   }
 
   {
+    runtime_event event{5};
+    dispatcher(event, event.id);
+    expect(sm.is(sml::X));
+  }
+};
+
+test dispatch_runtime_event_dynamic_id = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+
+      // clang-format off
+      return make_transition_table(
+         *idle + event<event4_5> = X
+      );
+      // clang-format on
+    }
+  };
+
+  {
+    sml::sm<c> sm;
+    expect(sm.is(idle));
+    auto dispatcher = sml::utility::make_dispatch_table<runtime_event, 1 /*min*/, 10 /*max*/>(sm);
+    runtime_event event{4};
+    dispatcher(event, event.id);
+    expect(sm.is(sml::X));
+  }
+
+  {
+    sml::sm<c> sm;
+    expect(sm.is(idle));
+    auto dispatcher = sml::utility::make_dispatch_table<runtime_event, 1 /*min*/, 10 /*max*/>(sm);
     runtime_event event{5};
     dispatcher(event, event.id);
     expect(sm.is(sml::X));

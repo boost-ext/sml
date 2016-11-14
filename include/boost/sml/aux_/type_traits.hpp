@@ -32,7 +32,7 @@ template <class... Ts>
 struct inherit : Ts... {
   using type = inherit;
 };
-template <class T>
+template <class T, class...>
 struct identity {
   using type = T;
 };
@@ -49,7 +49,12 @@ using true_type = integral_constant<bool, true>;
 using false_type = integral_constant<bool, false>;
 
 template <class...>
-using void_t = void;
+struct voider {
+  using type = void;
+};
+
+template <class... Ts>
+using void_t = typename voider<Ts...>::type;
 
 template <class...>
 struct always : aux::true_type {};
