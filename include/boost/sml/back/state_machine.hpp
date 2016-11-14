@@ -110,6 +110,7 @@ struct sm_policy {
   using thread_safety_policy = decltype(get_policy<thread_safety_policy__>((aux::inherit<TPolicies...> *)0));
   using defer_queue_policy = decltype(get_policy<defer_queue_policy__>((aux::inherit<TPolicies...> *)0));
   using logger_policy = decltype(get_policy<logger_policy__>((aux::inherit<TPolicies...> *)0));
+  using testing_policy = decltype(get_policy<testing_policy__>((aux::inherit<TPolicies...> *)0));
   template <class T>
   using rebind = typename rebind_impl<T, TPolicies...>::type;
 };
@@ -518,7 +519,8 @@ class sm {
     return result;
   }
 
-  template <class T = aux::identity<sm_t>, class... TStates>
+  template <class T = aux::identity<sm_t>, class... TStates,
+            __BOOST_SML_REQUIRES(!aux::is_same<no_policy, typename TSM::testing_policy>::value && aux::always<T>::value)>
   void __set_current_states(const TStates &...) {
     using type = typename T::type;
     using sm_t = sm_impl<typename TSM::template rebind<type>>;
