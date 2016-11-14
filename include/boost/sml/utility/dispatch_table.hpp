@@ -41,18 +41,18 @@ namespace detail {
 
 template <int Id, class TEvent = void>
 struct dispatch_event_impl {
-  template <class SM, class T>
-  static auto execute(SM &sm, const T &) -> aux::void_t<decltype(typename aux::identity<TEvent, T>::type())> {
+  template <class SM, class T, __BOOST_SML_REQUIRES(aux::always<T>::value &&aux::is_constructible<TEvent>::value)>
+  static void execute(SM &sm, const T &) {
     sm.process_event(TEvent());
   }
 
-  template <class SM, class T>
-  static auto execute(SM &sm, const T &data) -> aux::void_t<decltype(TEvent(data))> {
+  template <class SM, class T, __BOOST_SML_REQUIRES(aux::is_constructible<TEvent, T>::value)>
+  static void execute(SM &sm, const T &data) {
     sm.process_event(TEvent(data));
   }
 
-  template <class SM, class T>
-  static auto execute(SM &sm, const T &data) -> aux::void_t<decltype(TEvent(data, Id))> {
+  template <class SM, class T, __BOOST_SML_REQUIRES(aux::is_constructible<TEvent, T, int>::value)>
+  static void execute(SM &sm, const T &data) {
     sm.process_event(TEvent(data, Id));
   }
 };

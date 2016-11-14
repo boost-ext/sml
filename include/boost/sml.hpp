@@ -83,16 +83,12 @@ struct integral_constant {
 };
 using true_type = integral_constant<bool, true>;
 using false_type = integral_constant<bool, false>;
-template <class...>
-struct voider {
-  using type = void;
-};
 template <class... Ts>
-using void_t = typename voider<Ts...>::type;
+using void_t = void;
 template <class...>
-struct always : aux::true_type {};
+struct always : true_type {};
 template <class...>
-struct never : aux::false_type {};
+struct never : false_type {};
 template <bool B, class T, class F>
 struct conditional {
   using type = T;
@@ -122,6 +118,12 @@ struct is_base_of : integral_constant<bool, __is_base_of(T, U)> {
 #else
 using is_base_of = integral_constant<bool, __is_base_of(T, U)>;
 #endif
+template <class T, class... TArgs>
+decltype(T(declval<TArgs>()...), true_type{}) test_is_constructible(int);
+template <class, class...>
+false_type test_is_constructible(...);
+template <class T, class... TArgs>
+using is_constructible = decltype(test_is_constructible<T, TArgs...>(0));
 template <class T>
 struct remove_reference {
   using type = T;
