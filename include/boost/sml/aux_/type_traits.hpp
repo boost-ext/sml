@@ -32,7 +32,7 @@ template <class... Ts>
 struct inherit : Ts... {
   using type = inherit;
 };
-template <class T, class...>
+template <class T>
 struct identity {
   using type = T;
 };

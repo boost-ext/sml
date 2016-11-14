@@ -41,7 +41,7 @@ namespace detail {
 
 template <int Id, class TEvent = void>
 struct dispatch_event_impl {
-  template <class SM, class T, __BOOST_SML_REQUIRES(aux::always<T>::value &&aux::is_constructible<TEvent>::value)>
+  template <class SM, class T, __BOOST_SML_REQUIRES(aux::is_constructible<TEvent>::value &&aux::always<T>::value)>
   static void execute(SM &sm, const T &) {
     sm.process_event(TEvent());
   }
