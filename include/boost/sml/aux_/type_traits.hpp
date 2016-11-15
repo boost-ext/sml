@@ -95,7 +95,11 @@ decltype(T(declval<TArgs>()...), true_type{}) test_is_constructible(int);
 template <class, class...>
 false_type test_is_constructible(...);
 template <class T, class... TArgs>
+#if defined(_MSC_VER)  // __pph__
 using is_constructible = decltype(test_is_constructible<T, TArgs...>(0));
+#else   // __pph__
+struct is_constructible : decltype(test_is_constructible<T, TArgs...>(0)) {};
+#endif  // __pph__
 
 template <class T>
 struct remove_reference {

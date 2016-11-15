@@ -123,7 +123,12 @@ decltype(T(declval<TArgs>()...), true_type{}) test_is_constructible(int);
 template <class, class...>
 false_type test_is_constructible(...);
 template <class T, class... TArgs>
+#if defined(_MSC_VER)
 using is_constructible = decltype(test_is_constructible<T, TArgs...>(0));
+#else
+struct is_constructible : decltype(test_is_constructible<T, TArgs...>(0)) {
+};
+#endif
 template <class T>
 struct remove_reference {
   using type = T;
