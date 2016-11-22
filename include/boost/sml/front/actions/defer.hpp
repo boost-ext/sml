@@ -20,6 +20,7 @@ class defer_event {
 
   template <class T>
   static void dtor_impl(aux::byte *data) {
+    (void)data;
     reinterpret_cast<T *>(data)->~T();
   }
 

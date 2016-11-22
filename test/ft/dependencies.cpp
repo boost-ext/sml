@@ -50,6 +50,7 @@ test dependencies = [] {
       // clang-format off
       return make_transition_table(
          *idle + event<e1> [ guard ] / (action, [](const auto& e, int i) -> void {
+            (void)e;
             expect(std::is_same<decltype(e), const e1&>::value);
             expect(42 == i);
           }) = X

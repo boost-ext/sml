@@ -38,7 +38,8 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #elif defined(_MSC_VER)
-#define __has_builtin(...) 0
+#define __has_builtin(...) __has_builtin##__VA_ARGS__
+#define __has_builtin__make_integer_seq(...) 1
 #define __BOOST_SML_UNUSED
 #define __BOOST_SML_VT_INIT
 #define __BOOST_SML_ZERO_SIZE_ARRAY(...)
@@ -1395,6 +1396,7 @@ class defer_event {
   static constexpr auto size = aux::max<sizeof(Ts)...>();
   template <class T>
   static void dtor_impl(aux::byte *data) {
+    (void)data;
     reinterpret_cast<T *>(data)->~T();
   }
 
@@ -1764,8 +1766,9 @@ struct transition<state<S1>, transition<state<S2>, transition<front::event<E>, G
 };
 template <class T, class TSubs, class... Ts, class... THs>
 void update_composite_states(TSubs &subs, aux::true_type, const aux::type_list<THs...> &) {
-  auto &sm = aux::get<T>(subs);
   using state_t = typename T::state_t;
+  auto &sm = aux::get<T>(subs);
+  (void)sm;
   (void)aux::swallow{0, (sm.current_state_[aux::get_id<state_t, THs>((typename T::initial_states_ids_t *)0)] =
                              aux::get_id<state_t, THs>((typename T::states_ids_t *)0),
                          0)...};
@@ -2045,5 +2048,6 @@ BOOST_SML_NAMESPACE_END
 #pragma GCC diagnostic pop
 #elif defined(_MSC_VER)
 #undef __has_builtin
+#undef __has_builtin__make_integer_seq
 #endif
 #endif

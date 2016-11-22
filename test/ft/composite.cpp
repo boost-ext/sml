@@ -58,11 +58,11 @@ test composite = [] {
 
       // clang-format off
       return make_transition_table(
-         *idle + event<e1> [guard2{}] / [this] { a_initial = true; } = s1
+         *idle + event<e1> [(guard2{})] / [this] { a_initial = true; } = s1
         , s1 + event<e2> [guard]  / [this]{ a_enter_sub_sm = true; } = state<sub>
         , state<sub> + sml::on_entry<_> / [this] { a_on_entry_sub_sm = true; }
         , state<sub> + sml::on_exit<_> / [this] { a_on_exit_sub_sm = true; }
-        , state<sub> + event<e5> [guard2{}] / [this] { a_exit_sub_sm = true; } = s2
+        , state<sub> + event<e5> [(guard2{})] / [this] { a_exit_sub_sm = true; } = s2
       );
       // clang-format on
     }

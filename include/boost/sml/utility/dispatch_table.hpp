@@ -94,12 +94,12 @@ using get_event_t = typename get_event<N, T>::type;
 
 template <class TEvent, int EventRangeBegin, class SM, int... Ns>
 auto make_dispatch_table(sm<SM> &fsm, const aux::index_sequence<Ns...> &) {
-  using events_ids = aux::apply_t<event_id, typename sm<SM>::events>;
-  return [&](const TEvent &event, int id) {
+  using events_ids_t = aux::apply_t<event_id, typename sm<SM>::events>;
+  return [&](const TEvent &e, int id) {
     using dispatch_table_t = void (*)(sm<SM> &, const TEvent &);
     const static dispatch_table_t dispatch_table[sizeof...(Ns) ? sizeof...(Ns) : 1] = {
-        &get_event_t<Ns + EventRangeBegin, events_ids>::template execute<sm<SM>, TEvent>...};
-    dispatch_table[id - EventRangeBegin](fsm, event);
+        &get_event_t<Ns + EventRangeBegin, events_ids_t>::template execute<sm<SM>, TEvent>...};
+    dispatch_table[id - EventRangeBegin](fsm, e);
   };
 }
 }  // detail

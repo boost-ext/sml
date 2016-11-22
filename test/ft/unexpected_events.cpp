@@ -18,7 +18,7 @@ struct e3 {};
 
 const auto idle = sml::state<class idle>;
 const auto s1 = sml::state<class s1>;
-const auto handled = sml::state<class handled>;
+const auto is_handled = sml::state<class is_handled>;
 const auto errors = sml::state<class errors>;
 
 test unexpected_event_empty = [] {
@@ -65,8 +65,8 @@ test unexpected_specific_event = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-        *(idle)   + event<e1> = handled,
-          handled + unexpected_event<e1> = X
+        (*idle)      + event<e1> = is_handled,
+          is_handled + unexpected_event<e1> = X
       );
       // clang-format on
     }
@@ -75,7 +75,7 @@ test unexpected_specific_event = [] {
   sml::sm<c> sm;
   using namespace sml;
   sm.process_event(e1{});
-  expect(sm.is(handled));
+  expect(sm.is(is_handled));
   sm.process_event(e1{});
   expect(sm.is(X));
 };
@@ -89,9 +89,9 @@ test unexpected_specific_event_with_data = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-         *(idle)   + event<e1> = handled,
-           handled + unexpected_event<event_data>
-              / [](const event_data& event) { expect(42 == event.i); } = X
+         *(idle)      + event<e1> = is_handled,
+           is_handled + unexpected_event<event_data>
+              / [](const event_data& e) { expect(42 == e.i); } = X
       );
       // clang-format on
     }
@@ -100,7 +100,7 @@ test unexpected_specific_event_with_data = [] {
   sml::sm<c> sm;
   using namespace sml;
   sm.process_event(e1{});
-  expect(sm.is(handled));
+  expect(sm.is(is_handled));
   sm.process_event(event_data{42});
   expect(sm.is(X));
 };
@@ -123,10 +123,10 @@ test unexpected_any_event = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-        *(idle)   + event<e1> = handled,
-          handled + unexpected_event<e1> / [this] { ++ue_calls[calls::unexpected_event_e1]; },
-          handled + unexpected_event<e2> / [this](int& i) { i = 42; ++ue_calls[calls::unexpected_event_e2]; },
-          handled + unexpected_event<_>  / handle_unexpected_events<calls, e3>{ue_calls} = X
+        (*idle)      + event<e1> = is_handled,
+          is_handled + unexpected_event<e1> / [this] { ++ue_calls[calls::unexpected_event_e1]; },
+          is_handled + unexpected_event<e2> / [this](int& i) { i = 42; ++ue_calls[calls::unexpected_event_e2]; },
+          is_handled + unexpected_event<_>  / handle_unexpected_events<calls, e3>{ue_calls} = X
       );
       // clang-format on
     }
@@ -139,31 +139,31 @@ test unexpected_any_event = [] {
   sml::sm<c> sm{c_, i};
   using namespace sml;
   sm.process_event(e1{});
-  expect(sm.is(handled));
+  expect(sm.is(is_handled));
 
   sm.process_event(e1{});
   expect(1 == c_.ue_calls[calls::unexpected_event_e1]);
   expect(0 == c_.ue_calls[calls::unexpected_event_e2]);
   expect(0 == c_.ue_calls[calls::unexpected_event_any]);
-  expect(sm.is(handled));
+  expect(sm.is(is_handled));
 
   sm.process_event(e1{});
   expect(2 == c_.ue_calls[calls::unexpected_event_e1]);
   expect(0 == c_.ue_calls[calls::unexpected_event_e2]);
   expect(0 == c_.ue_calls[calls::unexpected_event_any]);
-  expect(sm.is(handled));
+  expect(sm.is(is_handled));
 
   sm.process_event(e2{});
   expect(2 == c_.ue_calls[calls::unexpected_event_e1]);
   expect(1 == c_.ue_calls[calls::unexpected_event_e2]);
   expect(0 == c_.ue_calls[calls::unexpected_event_any]);
-  expect(sm.is(handled));
+  expect(sm.is(is_handled));
 
   sm.process_event(e1{});
   expect(3 == c_.ue_calls[calls::unexpected_event_e1]);
   expect(1 == c_.ue_calls[calls::unexpected_event_e2]);
   expect(0 == c_.ue_calls[calls::unexpected_event_any]);
-  expect(sm.is(handled));
+  expect(sm.is(is_handled));
 
   sm.process_event(e3{});
   expect(3 == c_.ue_calls[calls::unexpected_event_e1]);
