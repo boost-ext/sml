@@ -95,8 +95,8 @@ test is_specialization = [] {
 
 test type_id_basic = [] {
   using type_ids = type_id<int, double>;
-  static_expect(0 == get_id<int, int>((type_ids*)0));
-  static_expect(1 == get_id<int, double>((type_ids*)0));
+  expect(0 == get_id<int, int>((type_ids*)0));
+  expect(1 == get_id<int, double>((type_ids*)0));
 };
 
 }  // aux
