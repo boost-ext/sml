@@ -7,69 +7,6 @@
 //
 #pragma once
 
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
-#pragma clang diagnostic ignored "-Wzero-length-array"
-#if !defined(__BOOST_SML_UNUSED)
-#define __BOOST_SML_UNUSED __attribute__((unused))
-#endif
-#if !defined(__BOOST_SML_VT_INIT)
-#define __BOOST_SML_VT_INIT \
-  {}
-#endif
-#if !defined(__BOOST_SML_ZERO_SIZE_ARRAY)
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
-#endif
-#if !defined(__BOOST_SML_ZERO_SIZE_ARRAY_CREATE)
-#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...)
-#endif
-#if !defined(__BOOST_SML_TEMPLATE_KEYWORD)
-#define __BOOST_SML_TEMPLATE_KEYWORD template
-#endif
-#elif defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
-#if !defined(__BOOST_SML_UNUSED)
-#define __BOOST_SML_UNUSED __attribute__((unused))
-#endif
-#if !defined(__BOOST_SML_VT_INIT)
-#define __BOOST_SML_VT_INIT \
-  {}
-#endif
-#if !defined(__BOOST_SML_ZERO_SIZE_ARRAY)
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
-#endif
-#if !defined(__BOOST_SML_ZERO_SIZE_ARRAY_CREATE)
-#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
-#endif
-#if !defined(__BOOST_SML_TEMPLATE_KEYWORD)
-#define __BOOST_SML_TEMPLATE_KEYWORD template
-#endif
-#elif defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4200)
-#if !defined(__BOOST_SML_UNUSED)
-#define __BOOST_SML_UNUSED
-#endif
-#if !defined(__BOOST_SML_VT_INIT)
-#define __BOOST_SML_VT_INIT
-#endif
-#if !defined(__BOOST_SML_ZERO_SIZE_ARRAY)
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...)
-#endif
-#if !defined(__BOOST_SML_ZERO_SIZE_ARRAY_CREATE)
-#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
-#endif
-#if !defined(__BOOST_SML_TEMPLATE_KEYWORD)
-#define __BOOST_SML_TEMPLATE_KEYWORD
-#endif
-#endif
-
-#if !defined(__has_builtin)
-#define __has_builtin(...) 0
-#endif
-
 #include <cstdio>
 #include <cstdlib>
 
