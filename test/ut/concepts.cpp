@@ -5,6 +5,8 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...)
+#define __has_builtin(...) 0
 #include "boost/sml/concepts/callable.hpp"
 #include "boost/sml/concepts/composable.hpp"
 #include "boost/sml/concepts/transitional.hpp"
@@ -23,7 +25,7 @@ test composable_concept = [] {
     auto operator()() { return aux::pool<>{}; }
   };
   struct c4 {
-    int operator()();
+    int operator()() { return {}; }
   };
   struct c5 {
     auto setup() { return aux::pool<>{}; }
@@ -53,7 +55,7 @@ struct call6 {
 test callable_concept = [] {
   struct call {};
   struct call1 {
-    void operator()();
+    void operator()() { }
   };
   struct call2 {
     void operator()(int) const {}
