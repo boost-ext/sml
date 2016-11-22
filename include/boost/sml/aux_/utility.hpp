@@ -257,6 +257,15 @@ struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
   zero_wrapper(...) {}
 };
 
+template <class T>
+constexpr auto get_type_name() {
+#if defined(_MSC_VER)  // __pph__
+  return __FUNCSIG__;
+#else   // __pph__
+  return __PRETTY_FUNCTION__;
+#endif  // __pph__
+}
+
 template <class T, T...>
 struct string;
 
@@ -277,7 +286,7 @@ struct string<T> {
   static decltype(U::c_str()) c_str_impl(U *) {
     return U::c_str();
   }
-  static auto c_str_impl(...) { return __PRETTY_FUNCTION__; }
+  static auto c_str_impl(...) { return get_type_name<T>(); }
 };
 
 }  // aux

@@ -202,7 +202,7 @@ struct sm_impl {
   template <class... TStates>
   void initialize(const aux::type_list<TStates...> &) {
     auto region = 0, i = region;
-    (void)aux::swallow{0, (region = i, current_state_[region] = aux::get_id<states_ids_t, 0, TStates>(), ++i, 0)...};
+    (void)aux::swallow{0, (region = i, current_state_[region] = (state_t)aux::get_id<states_ids_t, 0, TStates>(), ++i, 0)...};
   }
 
   template <class TDeps, class TSubs>
@@ -425,13 +425,13 @@ struct sm_impl {
 
   bool is_terminated() const { return is_terminated_impl(aux::make_index_sequence<regions>{}); }
   bool is_terminated_impl(aux::index_sequence<0>) const {
-    return current_state_[0] == aux::get_id<states_ids_t, -1, terminate_state>();
+    return current_state_[0] == (state_t)aux::get_id<states_ids_t, -1, terminate_state>();
   }
   template <int... Ns>
   bool is_terminated_impl(aux::index_sequence<Ns...>) const {
     auto result = true;
-    (void)aux::swallow{0,
-                       (current_state_[Ns] == aux::get_id<states_ids_t, -1, terminate_state>() ? result : result = false)...};
+    (void)aux::swallow{
+        0, (current_state_[Ns] == (state_t)aux::get_id<states_ids_t, -1, terminate_state>() ? result : result = false)...};
     return result;
   }
 
@@ -513,9 +513,11 @@ class sm {
     using type = typename T::type;
     using sm_t = sm_impl<typename TSM::template rebind<type>>;
     using states_ids_t = typename sm_t::states_ids_t;
-    int state_ids[] = {aux::get_id<states_ids_t, 0, typename TStates::type>()...};
-    visit_current_states<T>(
-        [&](auto state) { result &= (aux::get_id<states_ids_t, 0, typename decltype(state)::type>() == state_ids[i++]); });
+    using state_t = typename sm_t::state_t;
+    state_t state_ids[] = {(state_t)aux::get_id<states_ids_t, 0, typename TStates::type>()...};
+    visit_current_states<T>([&](auto state) {
+      result &= ((state_t)aux::get_id<states_ids_t, 0, typename decltype(state)::type>() == state_ids[i++]);
+    });
     return result;
   }
 
@@ -525,9 +527,11 @@ class sm {
     using type = typename T::type;
     using sm_t = sm_impl<typename TSM::template rebind<type>>;
     using states_ids_t = typename sm_t::states_ids_t;
+    using state_t = typename sm_t::state_t;
     auto &sm = aux::get<sm_impl<TSM>>(sub_sms_);
     auto region = 0;
-    (void)aux::swallow{0, (sm.current_state_[region++] = aux::get_id<states_ids_t, 0, typename TStates::type>(), 0)...};
+    (void)aux::swallow{0,
+                       (sm.current_state_[region++] = (state_t)aux::get_id<states_ids_t, 0, typename TStates::type>(), 0)...};
   }
 
  private:
