@@ -157,7 +157,7 @@ test states_generic_entry_actions_with_events = [] {
         , s1 + sml::on_entry<anonymous> / [this](auto const&) -> void { entries.push_back(std::type_index(typeid(anonymous))); }
         , s1 + sml::on_entry<e1>        / [this](e1 const&) { entries.push_back(std::type_index(typeid(e1))); }
         , s1 + sml::on_entry<e2>        / [this](e2 const&) { entries.push_back(std::type_index(typeid(e2))); }
-        , s1 + sml::on_entry<_>         / [this](auto const& e) -> void { entries.push_back(std::type_index(typeid(e))); }
+        , s1 + sml::on_entry<_>         / [this](auto const& e) -> void { (void)e; entries.push_back(std::type_index(typeid(e))); }
       );
       // clang-format on
     }
@@ -198,9 +198,9 @@ test states_initial_entry_actions_with_events = [] {
       return make_transition_table(
         (*idle) = s1,
           idle + sml::on_entry<initial> / [this](auto const&) -> void { entries.push_back(std::type_index(typeid(initial))); },
-          idle + sml::on_exit<_>        / [this](auto const& e) -> void { entries.push_back(std::type_index(typeid(e))); },
-          s1   + sml::on_entry<_>       / [this](auto const& e) -> void { entries.push_back(std::type_index(typeid(e))); },
-          s1   + sml::on_exit<_>        / [this](auto const& e) -> void { entries.push_back(std::type_index(typeid(e))); }
+          idle + sml::on_exit<_>        / [this](auto const& e) -> void { (void)e; entries.push_back(std::type_index(typeid(e))); },
+          s1   + sml::on_entry<_>       / [this](auto const& e) -> void { (void)e; entries.push_back(std::type_index(typeid(e))); },
+          s1   + sml::on_exit<_>        / [this](auto const& e) -> void { (void)e; entries.push_back(std::type_index(typeid(e))); }
       );
       // clang-format on
     }
