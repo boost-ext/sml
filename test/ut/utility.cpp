@@ -6,7 +6,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #define __BOOST_SML_ZERO_SIZE_ARRAY(...)
+#if !defined(__has_builtin)
 #define __has_builtin(...) 0
+#endif
 #include "boost/sml/aux_/utility.hpp"
 
 namespace aux {
