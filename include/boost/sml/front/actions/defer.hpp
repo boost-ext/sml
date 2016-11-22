@@ -30,7 +30,7 @@ class defer_event {
 
   template <class T>
   defer_event(T object) {  // non explicit
-    id = aux::get_id<ids_t, -1, T>();
+    id = aux::get_id<int, T>((ids_t *)0);
     dtor = &dtor_impl<T>;
     new (&data) T(static_cast<T &&>(object));
   }

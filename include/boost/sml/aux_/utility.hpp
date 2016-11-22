@@ -194,17 +194,9 @@ struct type_id_impl<index_sequence<Ns...>, Ts...> : type_id_type<Ns, Ts>... {};
 template <class... Ts>
 struct type_id : type_id_impl<make_index_sequence<sizeof...(Ts)>, Ts...> {};
 
-template <class T, int, int N>
-constexpr int get_id_impl(type_id_type<N, T> *) {
-  return N;
-}
-template <class T, int D>
-constexpr int get_id_impl(...) {
-  return D;
-}
-template <class TIds, int D, class T>
-constexpr int get_id() {
-  return get_id_impl<T, D>((TIds *)0);
+template <class R, class T, int N>
+constexpr R get_id(type_id_type<N, T> *) {
+  return static_cast<R>(N);
 }
 
 template <template <class...> class, class T>

@@ -93,19 +93,10 @@ test is_specialization = [] {
   static_expect(is<pool, pool<int, double>>::value);
 };
 
-test type_id_empty = [] {
-  using type_ids = type_id<>;
-  static_expect(-1 == get_id<type_ids, -1, int>());
-  static_expect(-1 == get_id<type_ids, -1, double>());
-};
-
 test type_id_basic = [] {
   using type_ids = type_id<int, double>;
-  static_expect(-1 == get_id<type_ids, -1, float>());
-#if !defined(_MSC_VER)
-  static_expect(0 == get_id<type_ids, -1, int>());
-  static_expect(1 == get_id<type_ids, -1, double>());
-#endif
+  static_expect(0 == get_id<int, int>((type_ids*)0));
+  static_expect(1 == get_id<int, double>((type_ids*)0));
 };
 
 }  // aux
