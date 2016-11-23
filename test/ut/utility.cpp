@@ -5,7 +5,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...)
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _
 #if !defined(__has_builtin)
 #define __has_builtin(...) 0
 #endif
