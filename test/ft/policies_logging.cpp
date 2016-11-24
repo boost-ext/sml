@@ -166,20 +166,20 @@ struct c_log_sub_sm {
   }
 };
 
-#if 0
+#if defined(__clang__)
 test log_sub_sm = [] {
   // clang-format off
   std::vector<std::string> messages_expected = {
      "[c_log_sub_sm] e1"
    , "[sub] e1"
-   , "[c_log_sub_sm] sub (a) -> sub (a)"
+   , "[c_log_sub_sm] sub (a) -> sub (b)"
    , "[c_log_sub_sm] e2"
    , "[sub] e2"
    , "[sub] idle -> terminate"
    , "[c_log_sub_sm] e3"
    , "[sub] e3"
    , "[c_log_sub_sm] e3[guard]: true"
-   , "[c_log_sub_sm] sub (a) -> terminate"
+   , "[c_log_sub_sm] sub (b) -> terminate"
    , "[c_log_sub_sm] /action"
   };
   // clang-format on
