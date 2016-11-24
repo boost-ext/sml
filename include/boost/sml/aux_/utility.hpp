@@ -152,7 +152,7 @@ T &try_get(...) {
 }
 
 template <class T>
-static T &try_get(pool_type<T> *object) {
+T &try_get(pool_type<T> *object) {
   return static_cast<pool_type<T> &>(*object).value;
 }
 
@@ -232,6 +232,7 @@ constexpr int max() {
 template <class TExpr, class = void>
 struct zero_wrapper : TExpr {
   explicit zero_wrapper(const TExpr &expr) : TExpr(expr) {}
+  const TExpr &get() const { return *this; }
 };
 
 template <class, class>
@@ -247,14 +248,25 @@ template <class TExpr>
 struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
     : zero_wrapper_impl<TExpr, function_traits_t<decltype(&TExpr::operator())>> {
   zero_wrapper(...) {}
+  const TExpr &get() const { return reinterpret_cast<const TExpr &>(*this); }
 };
 
+namespace detail {
+template <int N, int... Ns>
+auto get_type_name(const char *ptr, index_sequence<Ns...>) {
+  static const char str[] = {ptr[N + Ns]..., 0};
+  return str;
+}
+}  // detail
+
 template <class T>
-constexpr auto get_type_name() {
+const char *get_type_name() {
 #if defined(_MSC_VER)  // __pph__
-  return __FUNCSIG__;
-#else   // __pph__
-  return __PRETTY_FUNCTION__;
+  return detail::get_type_name<34>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 34 - 8>{});
+#elif defined(__clang__)  // __pph__
+  return detail::get_type_name<58>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 58 - 2>{});
+#elif defined(__GNUC__)  // __pph__
+  return detail::get_type_name<63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
 #endif  // __pph__
 }
 

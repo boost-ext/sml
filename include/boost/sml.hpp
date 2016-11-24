@@ -293,7 +293,7 @@ T &try_get(...) {
   static_assert(never<T>::value, "Type T has to be passed via constructor!");
 }
 template <class T>
-static T &try_get(pool_type<T> *object) {
+T &try_get(pool_type<T> *object) {
   return static_cast<pool_type<T> &>(*object).value;
 }
 template <class T, class TPool>
@@ -361,6 +361,7 @@ constexpr int max() {
 template <class TExpr, class = void>
 struct zero_wrapper : TExpr {
   explicit zero_wrapper(const TExpr &expr) : TExpr(expr) {}
+  const TExpr &get() const { return *this; }
 };
 template <class, class>
 struct zero_wrapper_impl;
@@ -373,13 +374,23 @@ template <class TExpr>
 struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
     : zero_wrapper_impl<TExpr, function_traits_t<decltype(&TExpr::operator())>> {
   zero_wrapper(...) {}
+  const TExpr &get() const { return reinterpret_cast<const TExpr &>(*this); }
 };
+namespace detail {
+template <int N, int... Ns>
+auto get_type_name(const char *ptr, index_sequence<Ns...>) {
+  static const char str[] = {ptr[N + Ns]..., 0};
+  return str;
+}
+}
 template <class T>
-constexpr auto get_type_name() {
+const char *get_type_name() {
 #if defined(_MSC_VER)
-  return __FUNCSIG__;
-#else
-  return __PRETTY_FUNCTION__;
+  return detail::get_type_name<34>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 34 - 8>{});
+#elif defined(__clang__)
+  return detail::get_type_name<58>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 58 - 2>{});
+#elif defined(__GNUC__)
+  return detail::get_type_name<63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
 #endif
 }
 template <class T, T...>
@@ -402,44 +413,6 @@ struct string<T> {
   }
   static auto c_str_impl(...) { return get_type_name<T>(); }
 };
-}
-namespace back {
-struct no_policy {
-  using type = no_policy;
-  template <class>
-  using rebind = no_policy;
-  template <class...>
-  using defer = no_policy;
-  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
-};
-struct thread_safety_policy__ {};
-struct defer_queue_policy__ {};
-struct logger_policy__ {};
-struct testing_policy__ {};
-template <class, class TDeps, class TEvent>
-void log_process_event(const aux::type<no_policy> &, TDeps &, const TEvent &) {}
-template <class SM, class TLogger, class TDeps, class TEvent>
-void log_process_event(const aux::type<TLogger> &, TDeps &deps, const TEvent &event) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_process_event<SM>(event);
-}
-template <class, class TDeps, class TSrcState, class TDstState>
-void log_state_change(const aux::type<no_policy> &, TDeps &, const TSrcState &, const TDstState &) {}
-template <class SM, class TLogger, class TDeps, class TSrcState, class TDstState>
-void log_state_change(const aux::type<TLogger> &, TDeps &deps, const TSrcState &src, const TDstState &dst) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_state_change<SM>(src, dst);
-}
-template <class, class TDeps, class TAction, class TEvent>
-void log_action(const aux::type<no_policy> &, TDeps &, const TAction &, const TEvent &) {}
-template <class SM, class TLogger, class TDeps, class TAction, class TEvent>
-void log_action(const aux::type<TLogger> &, TDeps &deps, const TAction &action, const TEvent &event) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_action<SM>(action, event);
-}
-template <class, class TDeps, class TGuard, class TEvent>
-void log_guard(const aux::type<no_policy> &, TDeps &, const TGuard &, const TEvent &, bool) {}
-template <class SM, class TLogger, class TDeps, class TGuard, class TEvent>
-void log_guard(const aux::type<TLogger> &, TDeps &deps, const TGuard &guard, const TEvent &event, bool result) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_guard<SM>(guard, event, result);
-}
 }
 namespace back {
 struct _ {};
@@ -520,6 +493,198 @@ template <class>
 class sm;
 template <class>
 struct sm_impl;
+template <class, class...>
+struct sm_policy;
+template <class TEvent>
+using get_event = aux::conditional_t<aux::is_base_of<internal_event, TEvent>::value, aux::type_list<>, aux::type_list<TEvent>>;
+template <class, class, class TEvent>
+struct get_all_events_impl {
+  using type = get_event<TEvent>;
+};
+template <class TSrc, class TDst, class TEvent>
+struct get_all_events_impl<TSrc, TDst, unexpected_event<TEvent>> {
+  using type = aux::type_list<TEvent>;
+};
+template <class TSrc, class TDst, class TEvent>
+struct get_all_events_impl<sm<TSrc>, TDst, TEvent> {
+  using type = aux::join_t<get_event<TEvent>, typename sm<TSrc>::events>;
+};
+template <class TSrc, class TDst, class TEvent>
+struct get_all_events_impl<TSrc, sm<TDst>, TEvent> {
+  using type = aux::join_t<get_event<TEvent>, typename sm<TDst>::events>;
+};
+template <class TSrc, class TDst, class TEvent>
+struct get_all_events_impl<sm<TSrc>, sm<TDst>, TEvent> {
+  using type = aux::join_t<get_event<TEvent>, typename sm<TSrc>::events, typename sm<TDst>::events>;
+};
+template <class, class TEvent>
+struct get_sub_internal_events_impl {
+  using type = aux::conditional_t<aux::is_base_of<internal_event, TEvent>::value, aux::type_list<TEvent>, aux::type_list<>>;
+};
+template <class T, class TEvent>
+struct get_sub_internal_events_impl<sm<T>, TEvent> {
+  using type = aux::join_t<aux::type_list<TEvent>, typename sm_impl<T>::sub_internal_events_t>;
+};
+template <class... Ts>
+using get_all_events =
+    aux::join_t<typename get_all_events_impl<typename Ts::src_state, typename Ts::dst_state, typename Ts::event>::type...>;
+template <class... Ts>
+using get_sub_internal_events =
+    aux::join_t<typename get_sub_internal_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
+template <class... Ts>
+using get_events = aux::type_list<typename Ts::event...>;
+template <class T>
+struct get_exception : aux::type_list<> {};
+template <class T>
+struct get_exception<exception<T>> : aux::type_list<exception<T>> {};
+template <class... Ts>
+using get_exceptions = aux::join_t<typename get_exception<Ts>::type...>;
+template <class... Ts>
+using get_states = aux::join_t<aux::type_list<typename Ts::src_state, typename Ts::dst_state>...>;
+template <class... Ts>
+using get_initial_states =
+    aux::join_t<typename aux::conditional<Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>::type...>;
+template <class... Ts>
+using get_history_states = aux::join_t<
+    typename aux::conditional<!Ts::history && Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>::type...>;
+template <class>
+struct get_sub_sm : aux::type_list<> {};
+template <class T>
+struct get_sub_sm<sm<T>> : aux::join_t<aux::type_list<T>, typename sm<T>::state_machines> {};
+template <class... Ts>
+using get_sub_sms = aux::join_t<typename get_sub_sm<Ts>::type...>;
+template <class... Ts>
+using get_sm_t = aux::type_list<typename Ts::sm...>;
+template <class... Ts>
+using merge_deps = aux::join_t<typename Ts::deps...>;
+template <class>
+struct sub_sm;
+template <class T, class... Ts>
+struct sub_sm<sm_impl<sm_policy<T, Ts...>>> {
+  template <class... TPolicies>
+  static sm_impl<sm_policy<T, Ts..., TPolicies...>> &get(aux::pool_type<sm_impl<sm_policy<T, Ts..., TPolicies...>>> *object) {
+    return static_cast<aux::pool_type<sm_impl<sm_policy<T, Ts..., TPolicies...>>> &>(*object).value;
+  }
+  template <class... TPolicies>
+  static const sm_impl<sm_policy<T, Ts..., TPolicies...>> &cget(
+      const aux::pool_type<sm_impl<sm_policy<T, Ts..., TPolicies...>>> *object) {
+    return static_cast<const aux::pool_type<sm_impl<sm_policy<T, Ts..., TPolicies...>>> &>(*object).value;
+  }
+};
+template <class T, class... TPolicies>
+struct rebind_impl {
+  using type = sm_policy<T, TPolicies...>;
+};
+template <class T, class... TDetails, class... TPolicies>
+struct rebind_impl<sm_policy<T, TDetails...>, TPolicies...> {
+  using type = sm_policy<T, TDetails..., TPolicies...>;
+};
+template <class T, class... TDetails, class... TPolicies>
+struct rebind_impl<sm<sm_policy<T, TDetails...>>, TPolicies...> {
+  using type = sm_policy<T, TDetails..., TPolicies...>;
+};
+template <class, class>
+struct convert_to_sm;
+template <class T, class... Ts>
+struct convert_to_sm<T, aux::type_list<Ts...>> {
+  using type = aux::type_list<sm_impl<T>, sm_impl<typename T::template rebind<Ts>>...>;
+};
+}
+namespace back {
+template <class>
+class sm;
+template <class, class...>
+struct sm_policy;
+struct thread_safety_policy__ {};
+struct defer_queue_policy__ {};
+struct logger_policy__ {};
+struct testing_policy__ {};
+struct no_policy {
+  using type = no_policy;
+  template <class>
+  using rebind = no_policy;
+  template <class...>
+  using defer = no_policy;
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
+};
+template <class>
+no_policy get_policy(...);
+template <class T, class TPolicy>
+TPolicy get_policy(aux::pair<T, TPolicy> *);
+template <class, class...>
+struct sm_policy;
+template <class SM, class... TPolicies>
+struct sm_policy {
+  using sm = SM;
+  using thread_safety_policy = decltype(get_policy<thread_safety_policy__>((aux::inherit<TPolicies...> *)0));
+  using defer_queue_policy = decltype(get_policy<defer_queue_policy__>((aux::inherit<TPolicies...> *)0));
+  using logger_policy = decltype(get_policy<logger_policy__>((aux::inherit<TPolicies...> *)0));
+  using testing_policy = decltype(get_policy<testing_policy__>((aux::inherit<TPolicies...> *)0));
+  template <class T>
+  using rebind = typename rebind_impl<T, TPolicies...>::type;
+};
+template <class...>
+struct state_machine;
+template <class>
+struct get_state_name;
+template <class T>
+struct get_state_name<aux::string<T>> {
+  using type = aux::string<T>;
+};
+template <class T, class... Ts>
+struct get_state_name<aux::string<sm<sm_policy<T, Ts...>>>> {
+  using type = typename get_state_name<aux::string<sm_policy<T, Ts...>>>::type;
+};
+template <class T>
+struct get_state_name<aux::string<sm_policy<T>>> {
+  using type = aux::string<T>;
+};
+template <class T, class TName>
+struct get_state_name<aux::string<sm_policy<T, TName>>> {
+  using type = aux::string<T(typename TName::type)>;
+};
+template <class T>
+using get_state_name_t = typename get_state_name<T>::type;
+template <class, class TDeps, class TEvent>
+void log_process_event(const aux::type<no_policy> &, TDeps &, const TEvent &) {}
+template <class SM, class TLogger, class TDeps, class TEvent>
+void log_process_event(const aux::type<TLogger> &, TDeps &deps, const TEvent &event) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_process_event<SM>(event);
+}
+template <class, class TDeps, class TSrcState, class TDstState>
+void log_state_change(const aux::type<no_policy> &, TDeps &, const TSrcState &, const TDstState &) {}
+template <class SM, class TLogger, class TDeps, class TSrcState, class TDstState>
+void log_state_change(const aux::type<TLogger> &, TDeps &deps, const TSrcState &, const TDstState &) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_state_change<SM>(get_state_name_t<TSrcState>{},
+                                                                                            get_state_name_t<TDstState>{});
+}
+template <class, class TDeps, class TAction, class TEvent>
+void log_action(const aux::type<no_policy> &, TDeps &, const TAction &, const TEvent &) {}
+template <class SM, class TLogger, class TDeps, class TAction, class TEvent>
+void log_action(const aux::type<TLogger> &, TDeps &deps, const TAction &action, const TEvent &event) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_action<SM>(action, event);
+}
+template <class SM, class TLogger, class TDeps, class TAction, class TEvent>
+void log_action(const aux::type<TLogger> &, TDeps &deps, const aux::zero_wrapper<TAction> &action, const TEvent &event) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_action<SM>(action.get(), event);
+}
+template <class, class TDeps, class TGuard, class TEvent>
+void log_guard(const aux::type<no_policy> &, TDeps &, const TGuard &, const TEvent &, bool) {}
+template <class SM, class TLogger, class TDeps, class TGuard, class TEvent>
+void log_guard(const aux::type<TLogger> &, TDeps &deps, const TGuard &guard, const TEvent &event, bool result) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_guard<SM>(guard, event, result);
+}
+template <class SM, class TLogger, class TDeps, class TGuard, class TEvent>
+void log_guard(const aux::type<TLogger> &, TDeps &deps, const aux::zero_wrapper<TGuard> &guard, const TEvent &event,
+               bool result) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_guard<SM>(guard.get(), event, result);
+}
+}
+namespace back {
+template <class>
+class sm;
+template <class>
+struct sm_impl;
 template <class...>
 struct transitions;
 template <class...>
@@ -574,22 +739,22 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
   }
   template <class, class SM, class TDeps, class TSubs>
   static bool execute(const anonymous &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
-    if (aux::cget<sm_impl<TSM>>(subs).is_terminated()) {
-      const auto handled = aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
+    if (sub_sm<sm_impl<TSM>>::cget(&subs).is_terminated()) {
+      const auto handled = sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
       return handled ? handled : transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
     }
     return false;
   }
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute_impl(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
-    const auto handled = aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
+    const auto handled = sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
     return handled ? handled : transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
   }
   template <class _, class TEvent, class SM, class TDeps, class TSubs>
   static bool execute_impl(const back::on_entry<_, TEvent> &event, SM &sm, TDeps &deps, TSubs &subs,
                            typename SM::state_t &current_state) {
     transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
-    aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
+    sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
     return true;
   }
 };
@@ -597,7 +762,7 @@ template <class TSM>
 struct transitions_sub<sm<TSM>> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent &event, SM &, TDeps &deps, TSubs &subs, typename SM::state_t &) {
-    aux::get<sm_impl<TSM>>(subs).template process_event<TEvent>(event, deps, subs);
+    sub_sm<sm_impl<TSM>>::get(&subs).template process_event<TEvent>(event, deps, subs);
     return true;
   }
 };
@@ -712,98 +877,6 @@ template <class, class T>
 struct callable : decltype(test_callable<aux::inherit<T, callable_fallback>>(0)) {};
 }
 namespace back {
-template <class TEvent>
-using get_event = aux::conditional_t<aux::is_base_of<internal_event, TEvent>::value, aux::type_list<>, aux::type_list<TEvent>>;
-template <class, class, class TEvent>
-struct get_all_events_impl {
-  using type = get_event<TEvent>;
-};
-template <class TSrc, class TDst, class TEvent>
-struct get_all_events_impl<TSrc, TDst, unexpected_event<TEvent>> {
-  using type = aux::type_list<TEvent>;
-};
-template <class TSrc, class TDst, class TEvent>
-struct get_all_events_impl<sm<TSrc>, TDst, TEvent> {
-  using type = aux::join_t<get_event<TEvent>, typename sm<TSrc>::events>;
-};
-template <class TSrc, class TDst, class TEvent>
-struct get_all_events_impl<TSrc, sm<TDst>, TEvent> {
-  using type = aux::join_t<get_event<TEvent>, typename sm<TDst>::events>;
-};
-template <class TSrc, class TDst, class TEvent>
-struct get_all_events_impl<sm<TSrc>, sm<TDst>, TEvent> {
-  using type = aux::join_t<get_event<TEvent>, typename sm<TSrc>::events, typename sm<TDst>::events>;
-};
-template <class, class TEvent>
-struct get_sub_internal_events_impl {
-  using type = aux::conditional_t<aux::is_base_of<internal_event, TEvent>::value, aux::type_list<TEvent>, aux::type_list<>>;
-};
-template <class T, class TEvent>
-struct get_sub_internal_events_impl<sm<T>, TEvent> {
-  using type = aux::join_t<aux::type_list<TEvent>, typename sm_impl<T>::sub_internal_events_t>;
-};
-template <class... Ts>
-using get_all_events =
-    aux::join_t<typename get_all_events_impl<typename Ts::src_state, typename Ts::dst_state, typename Ts::event>::type...>;
-template <class... Ts>
-using get_sub_internal_events =
-    aux::join_t<typename get_sub_internal_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
-template <class... Ts>
-using get_events = aux::type_list<typename Ts::event...>;
-template <class T>
-struct get_exception : aux::type_list<> {};
-template <class T>
-struct get_exception<exception<T>> : aux::type_list<exception<T>> {};
-template <class... Ts>
-using get_exceptions = aux::join_t<typename get_exception<Ts>::type...>;
-template <class... Ts>
-using get_states = aux::join_t<aux::type_list<typename Ts::src_state, typename Ts::dst_state>...>;
-template <class... Ts>
-using get_initial_states =
-    aux::join_t<typename aux::conditional<Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>::type...>;
-template <class... Ts>
-using get_history_states = aux::join_t<
-    typename aux::conditional<!Ts::history && Ts::initial, aux::type_list<typename Ts::src_state>, aux::type_list<>>::type...>;
-template <class>
-no_policy get_policy(...);
-template <class T, class TPolicy>
-TPolicy get_policy(aux::pair<T, TPolicy> *);
-template <class, class...>
-struct sm_policy;
-template <class T, class... TPolicies>
-struct rebind_impl {
-  using type = sm_policy<T, TPolicies...>;
-};
-template <class T, class... TDetails, class... TPolicies>
-struct rebind_impl<sm<sm_policy<T, TDetails...>>, TPolicies...> {
-  using type = sm_policy<T, TDetails..., TPolicies...>;
-};
-template <class SM, class... TPolicies>
-struct sm_policy {
-  using sm = SM;
-  using thread_safety_policy = decltype(get_policy<thread_safety_policy__>((aux::inherit<TPolicies...> *)0));
-  using defer_queue_policy = decltype(get_policy<defer_queue_policy__>((aux::inherit<TPolicies...> *)0));
-  using logger_policy = decltype(get_policy<logger_policy__>((aux::inherit<TPolicies...> *)0));
-  using testing_policy = decltype(get_policy<testing_policy__>((aux::inherit<TPolicies...> *)0));
-  template <class T>
-  using rebind = typename rebind_impl<T, TPolicies...>::type;
-};
-template <class>
-struct get_sub_sm : aux::type_list<> {};
-template <class T>
-struct get_sub_sm<sm<T>> : aux::join_t<aux::type_list<T>, typename sm<T>::state_machines> {};
-template <class... Ts>
-using get_sub_sms = aux::join_t<typename get_sub_sm<Ts>::type...>;
-template <class... Ts>
-using get_sm_t = aux::type_list<typename Ts::sm...>;
-template <class... Ts>
-using merge_deps = aux::join_t<typename Ts::deps...>;
-template <class>
-struct convert_to_sm;
-template <class... Ts>
-struct convert_to_sm<aux::type_list<Ts...>> {
-  using type = aux::type_list<sm_impl<Ts>...>;
-};
 template <class TSM>
 struct sm_impl {
   using sm_t = typename TSM::sm;
@@ -1090,9 +1163,7 @@ class sm {
 
  private:
   using sm_all_t = aux::apply_t<aux::inherit, aux::join_t<aux::type_list<sm_t>, aux::apply_t<get_sm_t, state_machines>>>;
-  using sub_sms_t =
-      aux::apply_t<aux::pool,
-                   typename convert_to_sm<aux::join_t<aux::type_list<TSM>, aux::apply_t<get_sub_sms, states>>>::type>;
+  using sub_sms_t = aux::apply_t<aux::pool, typename convert_to_sm<TSM, aux::apply_t<get_sub_sms, states>>::type>;
   using deps = aux::apply_t<merge_deps, transitions_t>;
   using deps_t =
       aux::apply_t<aux::pool,
@@ -1767,7 +1838,7 @@ struct transition<state<S1>, transition<state<S2>, transition<front::event<E>, G
 template <class T, class TSubs, class... Ts, class... THs>
 void update_composite_states(TSubs &subs, aux::true_type, const aux::type_list<THs...> &) {
   using state_t = typename T::state_t;
-  auto &sm = aux::get<T>(subs);
+  auto &sm = back::sub_sm<T>::get(&subs);
   (void)sm;
   (void)aux::swallow{0, (sm.current_state_[aux::get_id<state_t, THs>((typename T::initial_states_ids_t *)0)] =
                              aux::get_id<state_t, THs>((typename T::states_ids_t *)0),
@@ -1775,7 +1846,7 @@ void update_composite_states(TSubs &subs, aux::true_type, const aux::type_list<T
 }
 template <class T, class TSubs>
 void update_composite_states(TSubs &subs, aux::false_type, ...) {
-  aux::get<T>(subs).initialize(typename T::initial_states_t{});
+  back::sub_sm<T>::get(&subs).initialize(typename T::initial_states_t{});
 }
 template <class SM, class TDeps, class TSubs, class TSrcState, class TDstState>
 void update_current_state(SM &, TDeps &deps, TSubs &, typename SM::state_t &current_state,

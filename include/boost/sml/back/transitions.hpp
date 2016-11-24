@@ -8,6 +8,7 @@
 #define BOOST_SML_BACK_STATE_TRANSITIONS_HPP
 
 #include "boost/sml/aux_/utility.hpp"
+#include "boost/sml/back/utility.hpp"
 
 namespace back {
 
@@ -80,8 +81,8 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
 
   template <class, class SM, class TDeps, class TSubs>
   static bool execute(const anonymous& event, SM& sm, TDeps& deps, TSubs& subs, typename SM::state_t& current_state) {
-    if (aux::cget<sm_impl<TSM>>(subs).is_terminated()) {
-      const auto handled = aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
+    if (sub_sm<sm_impl<TSM>>::cget(&subs).is_terminated()) {
+      const auto handled = sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
       return handled ? handled : transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
     }
     return false;
@@ -89,7 +90,7 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
 
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute_impl(const TEvent& event, SM& sm, TDeps& deps, TSubs& subs, typename SM::state_t& current_state) {
-    const auto handled = aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
+    const auto handled = sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
     return handled ? handled : transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
   }
 
@@ -97,7 +98,7 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
   static bool execute_impl(const back::on_entry<_, TEvent>& event, SM& sm, TDeps& deps, TSubs& subs,
                            typename SM::state_t& current_state) {
     transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
-    aux::get<sm_impl<TSM>>(subs).process_event(event, deps, subs);
+    sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
     return true;  // from top to bottom
   }
 };
@@ -106,7 +107,7 @@ template <class TSM>
 struct transitions_sub<sm<TSM>> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent& event, SM&, TDeps& deps, TSubs& subs, typename SM::state_t&) {
-    aux::get<sm_impl<TSM>>(subs).template process_event<TEvent>(event, deps, subs);
+    sub_sm<sm_impl<TSM>>::get(&subs).template process_event<TEvent>(event, deps, subs);
     return true;
   }
 };

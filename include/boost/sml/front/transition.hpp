@@ -232,7 +232,7 @@ struct transition<state<S1>, transition<state<S2>, transition<front::event<E>, G
 template <class T, class TSubs, class... Ts, class... THs>
 void update_composite_states(TSubs &subs, aux::true_type, const aux::type_list<THs...> &) {
   using state_t = typename T::state_t;
-  auto &sm = aux::get<T>(subs);
+  auto &sm = back::sub_sm<T>::get(&subs);
   (void)sm;
   (void)aux::swallow{0, (sm.current_state_[aux::get_id<state_t, THs>((typename T::initial_states_ids_t *)0)] =
                              aux::get_id<state_t, THs>((typename T::states_ids_t *)0),
@@ -241,7 +241,7 @@ void update_composite_states(TSubs &subs, aux::true_type, const aux::type_list<T
 
 template <class T, class TSubs>
 void update_composite_states(TSubs &subs, aux::false_type, ...) {
-  aux::get<T>(subs).initialize(typename T::initial_states_t{});
+  back::sub_sm<T>::get(&subs).initialize(typename T::initial_states_t{});
 }
 
 template <class SM, class TDeps, class TSubs, class TSrcState, class TDstState>

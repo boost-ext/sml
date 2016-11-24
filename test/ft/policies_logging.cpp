@@ -6,112 +6,194 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <boost/sml.hpp>
+#include <iomanip>
 #include <sstream>
 #include <vector>
 
 namespace sml = boost::sml;
 
 #if !defined(_MSC_VER)
-std::vector<std::string> messages_out;
-
 struct my_logger {
   template <class SM, class TEvent>
   void log_process_event(const TEvent& evt) {
     std::stringstream sstr;
-    sstr << evt.c_str();
+    sstr << "[" << sml::aux::get_type_name<SM>() << "] " << evt.c_str();
     messages_out.push_back(sstr.str());
   }
 
   template <class SM, class TGuard, class TEvent>
-  void log_guard(const TGuard&, const TEvent&, bool) {}
+  void log_guard(const TGuard&, const TEvent&, bool result) {
+    std::stringstream sstr;
+    sstr << "[" << sml::aux::get_type_name<SM>() << "] " << sml::aux::get_type_name<TEvent>() << "["
+         << sml::aux::get_type_name<TGuard>() << "]: " << std::boolalpha << result;
+    messages_out.push_back(sstr.str());
+  }
 
   template <class SM, class TAction, class TEvent>
-  void log_action(const TAction&, const TEvent&) {}
+  void log_action(const TAction&, const TEvent&) {
+    std::stringstream sstr;
+    sstr << "[" << sml::aux::get_type_name<SM>() << "] "
+         << "/" << sml::aux::get_type_name<TAction>();
+    messages_out.push_back(sstr.str());
+  }
 
   template <class SM, class TSrcState, class TDstState>
   void log_state_change(const TSrcState& src, const TDstState& dst) {
     std::stringstream sstr;
-    sstr << src.c_str() << " -> " << dst.c_str();
+    sstr << "[" << sml::aux::get_type_name<SM>() << "] " << src.c_str() << " -> " << dst.c_str();
     messages_out.push_back(sstr.str());
   }
+
+  std::vector<std::string> messages_out;
 };
 
+struct e1 {
+  static auto c_str() { return "e1"; }
+};
 struct e2 {
-  static auto c_str() { return "An Event"; }
+  static auto c_str() { return "e2"; }
+};
+struct e3 {
+  static auto c_str() { return "e3"; }
 };
 struct s1_label {
-  static auto c_str() { return "A State"; }
+  static auto c_str() { return "s1_label"; }
 };
 auto s1 = sml::state<s1_label>;
 
-test logging = [] {
-  messages_out.clear();
+struct guard {
+  bool operator()() const { return true; }
+};
+struct action {
+  void operator()() const {}
+};
+
+struct c_log_sm {
+  auto operator()() {
+    using namespace sml;
+    // clang-format off
+    return make_transition_table(
+       *"idle"_s + "e1"_e = s1
+      , s1 + event<e2> = X
+    );
+    // clang-format on
+  }
+};
+
+test log_sm = [] {
   // clang-format off
   std::vector<std::string> messages_expected = {
-     "e1"
-   , "idle -> A State"
-   , "An Event"
-   , "A State -> terminate"
+     "[c_log_sm] e1"
+   , "[c_log_sm] idle -> s1_label"
+   , "[c_log_sm] e2"
+   , "[c_log_sm] s1_label -> terminate"
   };
   // clang-format on
 
-  struct c {
-    auto operator()() {
-      using namespace sml;
-      // clang-format off
-      return make_transition_table(
-          *"idle"_s + "e1"_e = s1
-        , s1 + event<e2> = X
-      );
-      // clang-format on
-    }
-  };
-
   my_logger logger;
-  sml::sm<c, sml::logger<my_logger>> sm{logger};
+  sml::sm<c_log_sm, sml::logger<my_logger>> sm{logger};
+
   using namespace sml;
   sm.process_event("e1"_e());
   sm.process_event(e2{});
-  expect(messages_out.size() == messages_expected.size());
-  expect(std::equal(messages_out.begin(), messages_out.end(), messages_expected.begin()));
+
+  expect(logger.messages_out.size() == messages_expected.size());
+  expect(std::equal(logger.messages_out.begin(), logger.messages_out.end(), messages_expected.begin()));
 };
 
-test logging_entry_exit = [] {
-  messages_out.clear();
+struct c_log_entry_exit {
+  auto operator()() {
+    using namespace sml;
+    // clang-format off
+    return make_transition_table(
+       *"idle"_s + "e1"_e = s1
+      , s1 + sml::on_entry<_> / action{}
+      , s1 + sml::on_exit<_> / action{}
+      , s1 + event<e2> = X
+    );
+    // clang-format on
+  }
+};
+
+test log_sm_entry_exit = [] {
   // clang-format off
   std::vector<std::string> messages_expected = {
-     "on_entry"
-   , "e1"
-   , "on_exit"
-   , "idle -> A State"
-   , "on_entry"
-   , "An Event"
-   , "on_exit"
-   , "A State -> terminate"
-   , "on_entry"
+     "[c_log_entry_exit] on_entry"
+   , "[c_log_entry_exit] e1"
+   , "[c_log_entry_exit] on_exit"
+   , "[c_log_entry_exit] idle -> s1_label"
+   , "[c_log_entry_exit] on_entry"
+   , "[c_log_entry_exit] /action"
+   , "[c_log_entry_exit] e2"
+   , "[c_log_entry_exit] on_exit"
+   , "[c_log_entry_exit] /action"
+   , "[c_log_entry_exit] s1_label -> terminate"
+   , "[c_log_entry_exit] on_entry"
   };
   // clang-format on
 
-  struct c {
-    auto operator()() {
-      using namespace sml;
-      // clang-format off
-      return make_transition_table(
-          *"idle"_s + "e1"_e = s1
-        , s1 + sml::on_entry<_> / [](){}
-        , s1 + sml::on_exit<_> / [](){}
-        , s1 + event<e2> = X
-      );
-      // clang-format on
-    }
-  };
-
   my_logger logger;
-  sml::sm<c, sml::logger<my_logger>> sm{logger};
+  sml::sm<c_log_entry_exit, sml::logger<my_logger>> sm{logger};
+
   using namespace sml;
   sm.process_event("e1"_e());
   sm.process_event(e2{});
-  expect(messages_out.size() == messages_expected.size());
-  expect(std::equal(messages_out.begin(), messages_out.end(), messages_expected.begin()));
+
+  expect(logger.messages_out.size() == messages_expected.size());
+  expect(std::equal(logger.messages_out.begin(), logger.messages_out.end(), messages_expected.begin()));
 };
+
+struct sub {
+  auto operator()() const noexcept {
+    using namespace sml;
+    // clang-format off
+    return make_transition_table(
+      *"idle"_s + event<e2> = X
+    );
+    // clang-format on
+  }
+};
+
+struct c_log_sub_sm {
+  auto operator()() const noexcept {
+    using namespace sml;
+    // clang-format off
+    return make_transition_table(
+      *state<class a>.sm<sub>() + event<e1> = state<class b>.sm<sub>(),
+       state<class b>.sm<sub>() + event<e3> [ (guard{}) ] / action{} = X
+    );
+    // clang-format on
+  }
+};
+
+#if 0
+test log_sub_sm = [] {
+  // clang-format off
+  std::vector<std::string> messages_expected = {
+     "[c_log_sub_sm] e1"
+   , "[sub] e1"
+   , "[c_log_sub_sm] sub (a) -> sub (a)"
+   , "[c_log_sub_sm] e2"
+   , "[sub] e2"
+   , "[sub] idle -> terminate"
+   , "[c_log_sub_sm] e3"
+   , "[sub] e3"
+   , "[c_log_sub_sm] e3[guard]: true"
+   , "[c_log_sub_sm] sub (a) -> terminate"
+   , "[c_log_sub_sm] /action"
+  };
+  // clang-format on
+
+  my_logger logger;
+  sml::sm<c_log_sub_sm, sml::logger<my_logger>> sm{logger};
+
+  sm.process_event(e1{});
+  sm.process_event(e2{});
+  sm.process_event(e3{});
+
+  expect(logger.messages_out.size() == messages_expected.size());
+  expect(std::equal(logger.messages_out.begin(), logger.messages_out.end(), messages_expected.begin()));
+};
+#endif
+
 #endif
