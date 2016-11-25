@@ -5,12 +5,15 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <algorithm>
 #include <boost/sml.hpp>
 #include <iomanip>
 #include <sstream>
 #include <vector>
 
 namespace sml = boost::sml;
+
+void remove_spaces(std::string& str) { str.erase(std::remove_if(str.begin(), str.end(), isspace), str.end()); }
 
 #if !defined(_MSC_VER)
 struct my_logger {
@@ -33,14 +36,18 @@ struct my_logger {
   void log_action(const TAction&, const TEvent&) {
     std::stringstream sstr;
     sstr << "[" << sml::aux::get_type_name<SM>() << "] "
-         << "/" << sml::aux::get_type_name<TAction>();
+         << "/ " << sml::aux::get_type_name<TAction>();
     messages_out.push_back(sstr.str());
   }
 
   template <class SM, class TSrcState, class TDstState>
   void log_state_change(const TSrcState& src, const TDstState& dst) {
     std::stringstream sstr;
-    sstr << "[" << sml::aux::get_type_name<SM>() << "] " << src.c_str() << " -> " << dst.c_str();
+    std::string src_state = src.c_str();
+    remove_spaces(src_state);
+    std::string dst_state = dst.c_str();
+    remove_spaces(dst_state);
+    sstr << "[" << sml::aux::get_type_name<SM>() << "] " << src_state << " -> " << dst_state;
     messages_out.push_back(sstr.str());
   }
 
@@ -123,10 +130,10 @@ test log_sm_entry_exit = [] {
    , "[c_log_entry_exit] on_exit"
    , "[c_log_entry_exit] idle -> s1_label"
    , "[c_log_entry_exit] on_entry"
-   , "[c_log_entry_exit] /action"
+   , "[c_log_entry_exit] / action"
    , "[c_log_entry_exit] e2"
    , "[c_log_entry_exit] on_exit"
-   , "[c_log_entry_exit] /action"
+   , "[c_log_entry_exit] / action"
    , "[c_log_entry_exit] s1_label -> terminate"
    , "[c_log_entry_exit] on_entry"
   };
@@ -154,33 +161,35 @@ struct sub {
   }
 };
 
+class a;
+class b;
+
 struct c_log_sub_sm {
   auto operator()() const noexcept {
     using namespace sml;
     // clang-format off
     return make_transition_table(
-      *state<class a>.sm<sub>() + event<e1> = state<class b>.sm<sub>(),
-       state<class b>.sm<sub>() + event<e3> [ (guard{}) ] / action{} = X
+      *state<a>.sm<sub>() + event<e1> = state<b>.sm<sub>(),
+       state<b>.sm<sub>() + event<e3> [ (guard{}) ] / action{} = X
     );
     // clang-format on
   }
 };
 
-#if defined(__clang__)
 test log_sub_sm = [] {
   // clang-format off
   std::vector<std::string> messages_expected = {
      "[c_log_sub_sm] e1"
    , "[sub] e1"
-   , "[c_log_sub_sm] sub (a) -> sub (b)"
+   , "[c_log_sub_sm] sub(a) -> sub(b)"
    , "[c_log_sub_sm] e2"
    , "[sub] e2"
    , "[sub] idle -> terminate"
    , "[c_log_sub_sm] e3"
    , "[sub] e3"
    , "[c_log_sub_sm] e3[guard]: true"
-   , "[c_log_sub_sm] sub (b) -> terminate"
-   , "[c_log_sub_sm] /action"
+   , "[c_log_sub_sm] sub(b) -> terminate"
+   , "[c_log_sub_sm] / action"
   };
   // clang-format on
 
@@ -194,6 +203,5 @@ test log_sub_sm = [] {
   expect(logger.messages_out.size() == messages_expected.size());
   expect(std::equal(logger.messages_out.begin(), logger.messages_out.end(), messages_expected.begin()));
 };
-#endif
 
 #endif
