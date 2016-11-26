@@ -15,7 +15,7 @@ pph() {
   echo "//"
   echo "#pragma once"
   echo "#if (__cplusplus < 201305L && _MSC_VER < 1900)"
-  echo "#error \"Boost.SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)\""
+  echo "#error \"[Boost].SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)\""
   echo "#else"
   echo "#define BOOST_SML_VERSION ${version}'${revision}'${patch}"
   echo "#define BOOST_SML_NAMESPACE_BEGIN namespace boost { namespace sml { inline namespace v${version}_${revision}_${patch} {"

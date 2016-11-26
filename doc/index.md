@@ -10,7 +10,7 @@
 Introduction
 ============
 
-| **Experimental Boost.SML (State Machine Language/Lite/Library)** / formerly called Boost.MSM-lite | |
+| **[Boost].SML (State Machine Language/Lite/Library)** / formerly called Boost.MSM-lite | |
 | - | - |
 | Your scalable C++14 header State Machine Library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-experimental/sml" data-style="mega" data-count-href="/boost-experimental/sml/stargazers" data-count-api="/repos/boost-experimental/sml#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-experimental/sml on GitHub">GitHub</a> |
 
@@ -42,7 +42,7 @@ void some_function() {
 ```
 
 If above code looks somewhat similar to your code base or if you like
-to avoid it `Boost.SML` may suit you!
+to avoid it `[Boost].SML` may suit you!
 
 ###Real Life examples?
 
@@ -53,10 +53,10 @@ to avoid it `Boost.SML` may suit you!
 
 &nbsp;
 
-###Why Boost.SML?
+###Why [Boost].SML?
 
 * [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) is awesome, however it has a few huge limitations making it unusable on a large scale projects;
-  Boost.SML, therefore, is trying to address those issues.
+  [Boost].SML, therefore, is trying to address those issues.
 
 ###Problems with Boost.MSM - eUML
 
@@ -72,7 +72,7 @@ to avoid it `Boost.SML` may suit you!
 * Huge complexity may overwhelm in the beginning
 * A lot of Boost dependencies
 
-###Boost.SML design goals
+###[Boost].SML design goals
 
 * Keep the Boost.MSM - eUML 'goodies'
     * Performance (see [Performance](overview.md#performance))
@@ -123,7 +123,7 @@ to avoid it `Boost.SML` may suit you!
 
 ###Acknowledgements
 * Thanks to Christophe Henry for a great [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) library
-* Thanks to Vicente J. Botet Escriba for useful suggestions how to improve Boost.SML
+* Thanks to Vicente J. Botet Escriba for useful suggestions how to improve [Boost].SML
 * Thanks to [Ulenspiegel](https://github.com/Ulenspiegel) for insuring the quality of the library!
 * Thanks to [feltech](https://github.com/feltech) for improvements and bug fixes
 * Thanks to [Takatoshi Kondo](https://github.com/redboltz) for testing, improving the library and for a great [Boost.MSM guide](http://redboltz.wikidot.com)!
