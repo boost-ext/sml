@@ -5,7 +5,7 @@
 
 <meta name="author" content="Kris Jusiak">
 <link rel="canonical" href="http://boost-experimental.github.io/sml/overview/index.html">
-<title>Overview - Boost.SML</title>
+<title>Overview - [Boost].SML</title>
 
 <link href="../css/boostbook.css" rel="stylesheet">
 <link href="../css/github.css" rel="stylesheet">
@@ -126,20 +126,20 @@ namespace sml = boost::sml;
 <tbody>
 <tr>
 <td><code>BOOST_SML_VERSION</code></td>
-<td>Current version of Boost.SML (ex. 1'0'0)</td>
+<td>Current version of [Boost].SML (ex. 1'0'0)</td>
 </tr>
 </tbody>
 </table>
 <h3 id="exception-safety">Exception Safety</h3>
 <ul>
-<li>Boost.SML doesn't use exceptions internally and therefore might be compiled with <code>-fno-exceptions</code>.</li>
+<li>[Boost].SML doesn't use exceptions internally and therefore might be compiled with <code>-fno-exceptions</code>.</li>
 <li>If guard throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will stay in a current state.</li>
 <li>If action throws an exception <a href="../user_guide/index.html##sm-state-machine">State Machine</a> will be in the new state</li>
 <li>Exceptions might be caught using transition table via <code>exception</code> event. See <a href="../tutorial/index.html#8-error-handling">Error handling</a>.</li>
 </ul>
 <h3 id="thread-safety">Thread Safety</h3>
 <ul>
-<li>Boost.SML is not thread safe by default.</li>
+<li>[Boost].SML is not thread safe by default.</li>
 <li>Thread Safety might be enabled by defining a thread_safe policy when creating a State Machine. Lock type has to be provided.</li>
 </ul>
 <pre><code class="cpp">sml::sm&lt;example, sml::thread_safe&lt;std::recursive_mutex&gt;&gt; sm;

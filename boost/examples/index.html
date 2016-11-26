@@ -5,7 +5,7 @@
 
 <meta name="author" content="Kris Jusiak">
 <link rel="canonical" href="http://boost-experimental.github.io/sml/examples/index.html">
-<title>Examples - Boost.SML</title>
+<title>Examples - [Boost].SML</title>
 
 <link href="../css/boostbook.css" rel="stylesheet">
 <link href="../css/github.css" rel="stylesheet">
@@ -653,30 +653,30 @@ int main() {
 #include &lt;cassert&gt;
 #include &lt;cstdio&gt;
 #include &lt;iostream&gt;
-#include &lt;typeinfo&gt;
 
 namespace sml = boost::sml;
 
 struct my_logger {
   template &lt;class SM, class TEvent&gt;
   void log_process_event(const TEvent&amp;) {
-    printf(&quot;[%s][process_event] %s\n&quot;, typeid(SM).name(), typeid(TEvent).name());
+    printf(&quot;[%s][process_event] %s\n&quot;, sml::aux::get_type_name&lt;SM&gt;(), sml::aux::get_type_name&lt;TEvent&gt;());
   }
 
   template &lt;class SM, class TGuard, class TEvent&gt;
   void log_guard(const TGuard&amp;, const TEvent&amp;, bool result) {
-    printf(&quot;[%s][guard] %s %s %s\n&quot;, typeid(SM).name(), typeid(TGuard).name(), typeid(TEvent).name(),
-           (result ? &quot;[OK]&quot; : &quot;[Reject]&quot;));
+    printf(&quot;[%s][guard] %s %s %s\n&quot;, sml::aux::get_type_name&lt;SM&gt;(), sml::aux::get_type_name&lt;TGuard&gt;(),
+           sml::aux::get_type_name&lt;TEvent&gt;(), (result ? &quot;[OK]&quot; : &quot;[Reject]&quot;));
   }
 
   template &lt;class SM, class TAction, class TEvent&gt;
   void log_action(const TAction&amp;, const TEvent&amp;) {
-    printf(&quot;[%s][action] %s %s\n&quot;, typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name());
+    printf(&quot;[%s][action] %s %s\n&quot;, sml::aux::get_type_name&lt;SM&gt;(), sml::aux::get_type_name&lt;TAction&gt;(),
+           sml::aux::get_type_name&lt;TEvent&gt;());
   }
 
   template &lt;class SM, class TSrcState, class TDstState&gt;
   void log_state_change(const TSrcState&amp; src, const TDstState&amp; dst) {
-    printf(&quot;[%s][transition] %s -&gt; %s\n&quot;, typeid(SM).name(), src.c_str(), dst.c_str());
+    printf(&quot;[%s][transition] %s -&gt; %s\n&quot;, sml::aux::get_type_name&lt;SM&gt;(), src.c_str(), dst.c_str());
   }
 };
 
