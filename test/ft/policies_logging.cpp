@@ -204,4 +204,44 @@ test log_sub_sm = [] {
   expect(std::equal(logger.messages_out.begin(), logger.messages_out.end(), messages_expected.begin()));
 };
 
+struct c_log_sub_sm_mix {
+  auto operator()() const noexcept {
+    using namespace sml;
+    // clang-format off
+    return make_transition_table(
+      *state<a>.sm<sub>() + event<e1> = state<sub>,
+       state<sub> + event<e3> [ (guard{}) ] / action{} = X
+    );
+    // clang-format on
+  }
+};
+
+test log_sub_sm_mix = [] {
+  // clang-format off
+  std::vector<std::string> messages_expected = {
+     "[c_log_sub_sm_mix] e1"
+   , "[sub] e1"
+   , "[c_log_sub_sm_mix] sub(a) -> sub"
+   , "[c_log_sub_sm_mix] e2"
+   , "[sub] e2"
+   , "[sub] idle -> terminate"
+   , "[c_log_sub_sm_mix] e3"
+   , "[sub] e3"
+   , "[c_log_sub_sm_mix] e3[guard]: true"
+   , "[c_log_sub_sm_mix] sub -> terminate"
+   , "[c_log_sub_sm_mix] / action"
+  };
+  // clang-format on
+
+  my_logger logger;
+  sml::sm<c_log_sub_sm_mix, sml::logger<my_logger>> sm{logger};
+
+  sm.process_event(e1{});
+  sm.process_event(e2{});
+  sm.process_event(e3{});
+
+  expect(logger.messages_out.size() == messages_expected.size());
+  expect(std::equal(logger.messages_out.begin(), logger.messages_out.end(), messages_expected.begin()));
+};
+
 #endif

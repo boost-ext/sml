@@ -71,7 +71,7 @@ struct state : state_impl<state<TState>> {
   }
   template <class T>
   auto sm() const {
-    return state<back::sm<back::sm_policy<T, state>>>{};
+    return state<back::sm<back::sm_policy<T, aux::identity<TState>>>>{};
   }
 };
 

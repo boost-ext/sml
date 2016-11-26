@@ -110,17 +110,37 @@ using merge_deps = aux::join_t<typename Ts::deps...>;
 template <class>
 struct sub_sm;
 
-template <class T, class... Ts>
-struct sub_sm<sm_impl<sm_policy<T, Ts...>>> {
-  template <class... TPolicies>
-  static sm_impl<sm_policy<T, Ts..., TPolicies...>> &get(aux::pool_type<sm_impl<sm_policy<T, Ts..., TPolicies...>>> *object) {
-    return static_cast<aux::pool_type<sm_impl<sm_policy<T, Ts..., TPolicies...>>> &>(*object).value;
+template <class T>
+struct sub_sm<sm_impl<sm_policy<T>>> {
+  template <class U, class... TPolicies>
+  static sm_impl<sm_policy<T, aux::identity<U>, TPolicies...>> &get(
+      aux::pool_type<sm_impl<sm_policy<T, aux::identity<U>, TPolicies...>>> *object) {
+    return static_cast<aux::pool_type<sm_impl<sm_policy<T, aux::identity<U>, TPolicies...>>> &>(*object).value;
   }
 
   template <class... TPolicies>
-  static const sm_impl<sm_policy<T, Ts..., TPolicies...>> &cget(
-      const aux::pool_type<sm_impl<sm_policy<T, Ts..., TPolicies...>>> *object) {
-    return static_cast<const aux::pool_type<sm_impl<sm_policy<T, Ts..., TPolicies...>>> &>(*object).value;
+  static sm_impl<sm_policy<T, TPolicies...>> &get(aux::pool_type<sm_impl<sm_policy<T, TPolicies...>>> *object) {
+    return static_cast<aux::pool_type<sm_impl<sm_policy<T, TPolicies...>>> &>(*object).value;
+  }
+
+  template <class... TPolicies>
+  static const sm_impl<sm_policy<T, TPolicies...>> &cget(const aux::pool_type<sm_impl<sm_policy<T, TPolicies...>>> *object) {
+    return static_cast<const aux::pool_type<sm_impl<sm_policy<T, TPolicies...>>> &>(*object).value;
+  }
+};
+
+template <class T, class U>
+struct sub_sm<sm_impl<sm_policy<T, aux::identity<U>>>> {
+  template <class... TPolicies>
+  static sm_impl<sm_policy<T, aux::identity<U>, TPolicies...>> &get(
+      aux::pool_type<sm_impl<sm_policy<T, aux::identity<U>, TPolicies...>>> *object) {
+    return static_cast<aux::pool_type<sm_impl<sm_policy<T, aux::identity<U>, TPolicies...>>> &>(*object).value;
+  }
+
+  template <class... TPolicies>
+  static const sm_impl<sm_policy<T, aux::identity<U>, TPolicies...>> &cget(
+      const aux::pool_type<sm_impl<sm_policy<T, aux::identity<U>, TPolicies...>>> *object) {
+    return static_cast<const aux::pool_type<sm_impl<sm_policy<T, aux::identity<U>, TPolicies...>>> &>(*object).value;
   }
 };
 
