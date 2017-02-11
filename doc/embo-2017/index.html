@@ -132,6 +132,17 @@ Scenario 4: Disconnecting
 
 ----
 
+##Connection - Details
+
+```cpp
+void resetTimeout() { std::puts("resetTimeout"); }
+void establish() { std::puts("establish"); }
+void close() { std::puts("close"); }
+bool is_valid(const Ping&) { return true; }
+```
+
+----
+
 ##Connection (V1) - Naive Implementation
 
 ```cpp
@@ -188,16 +199,42 @@ public:
 
 ##Connection (V1) - Benchmark
 
-| GCC-7            |        |
-|------------------|----------------|
-| Compilation time | 0.144s         |
-| sizeof(ConnectionV1)       | 14b            |
-| Executable size  | 11K            |
-| Connect: ASM x86-64 | ```cpp main: movslq  %edi, %rax jmpq    *.L_ZZ4mainE10jump_table-8(,%rax,8) ``` |
+|                      | GCC-7          | Clang-3.9      |
+|----------------------|----------------|----------------|
+| Compilation time     | 0.101s         | 0.122s         |
+| sizeof(ConnectionV1) | 3b             | 3b             |
+| Executable size      | 6.2K           | 6.2K           |
+
+---
+
+<table>
+<tr>
+<td>Connect: <br/>ASM x86-64</td>
+<td>
+<pre>
+main:
+  sub     rsp, 8
+  mov     edi, OFFSET FLAT:.LC1
+  call    puts
+  xor     eax, eax
+  add     rsp, 8
+  ret
+</pre>
+</td>
+</tr>
+</table>
+https://godbolt.org/g/0qpgvv
 
 ----
 
-##Can we do better?
+##Connection (V1) - Summary
+
+* (+) Quick compilation times
+* (+) Good performance
+* (-) Uses more size than required
+* (-) Hard to follow
+* (-) Hard to extend and maintain
+* (-) Hard to test
 
 ----
 
@@ -205,29 +242,32 @@ public:
 
 ```cpp
 class ConnectionV2 {
-    enum class { DISCONNECTED, CONNECTING, CONNECTED } state;
+    enum class State : unsigned char { DISCONNECTED, CONNECTING, CONNECTED } state;
 ```
+<!-- .element: style="margin-left:-5%; width:105%" -->
 
 ```cpp
 public:
     void connect() {
         switch(state) {
             default: break;
-            case disconnected:
-            case connected: establish(); state = CONNECTING; break;
+            case State::DISCONNECTED:
+            case State::CONNECTED: establish(); state = State::CONNECTING; break;
         }
     }
 ```
+<!-- .element: style="margin-left:-5%; width:105%" -->
 
 ```cpp
     void disconnect() {
         switch(state) {
             default: break;
-            case connecting:
-            case connected: close(); state = DISCONNECTED; break;
+            case State::CONNECTING:
+            case State::CONNECTED: close(); state = State::DISCONNECTED; break;
         }
     }
 ```
+<!-- .element: style="margin-left:-5%; width:105%" -->
 
 ----
 
@@ -235,13 +275,13 @@ public:
 
 ```cpp
     void established() {
-        state = CONNECTED;
+        state = State::CONNECTED;
     }
 ```
 
 ```cpp
     void ping(const Ping& event) {
-        if (state == CONNECTED && is_valid(event)) {
+        if (state == State::CONNECTED && is_valid(event)) {
             resetTimeout();
         }
     }
@@ -256,16 +296,42 @@ public:
 
 ##Connection (V2) - Benchmark
 
-| GCC-7            |        |
-|------------------|----------------|
-| Compilation time | 0.144s         |
-| sizeof(ConnectionV1)       | 14b            |
-| Executable size  | 11K            |
-| Connect: ASM x86-64 | ```cpp main: movslq  %edi, %rax jmpq    *.L_ZZ4mainE10jump_table-8(,%rax,8) ``` |
+|                      | GCC-7          | Clang-3.9      |
+|----------------------|----------------|----------------|
+| Compilation time     | 0.112s         | 0.118s         |
+| sizeof(ConnectionV2) | 1b             | 1b             |
+| Executable size      | 6.2K           | 6.2K           |
+
+---
+
+<table>
+<tr>
+<td>Connect: <br/>ASM x86-64</td>
+<td>
+<pre>
+main:
+  sub     rsp, 8
+  mov     edi, OFFSET FLAT:.LC1
+  call    puts
+  xor     eax, eax
+  add     rsp, 8
+  ret
+</pre>
+</td>
+</tr>
+</table>
+https://godbolt.org/g/3Qphjb
 
 ----
 
-##Can we do better?
+##Connection (V2) - Summary
+
+* (+) Quick compilation times
+* (+) Good performance
+* (+) Minimal size used
+* (-) Hard to follow
+* (-) Hard to extend and maintain
+* (-) Hard to test
 
 ----
 
@@ -283,10 +349,11 @@ class ConnectionV3 {
 ```cpp
 public:
     void connect() {
-        std::visit(overload(
-            [&](Disconnected) { establish(); state = Connecting{}; }
-            [&](Connected) { establish(); state = Connecting{}; }
-        ),state);
+        std::visit(overload{
+            [&](Disconnected) { establish(); state = Connecting{}; },
+            [&](Connected) { establish(); state = Connecting{}; },
+            [](auto) { }
+        }, state);
     }
 ```
 
@@ -296,10 +363,11 @@ public:
 
 ```cpp
     void disconnect() {
-        std::visit(overload(
-            [&](Connecting) { close(); state = Disconnected{}; }
-            [&](Connected) { close(); state = Disconnected{}; }
-        ),state);
+        std::visit(overload{
+            [&](Connecting) { close(); state = Disconnected{}; },
+            [&](Connected) { close(); state = Disconnected{}; },
+            [](auto) { }
+        }, state);
     }
 ```
 
@@ -311,7 +379,7 @@ public:
 
 ```cpp
     void ping(const Ping& event) {
-        if (get_if<Connected>(&state) && is_valid(event)) {
+        if (std::get_if<Connected>(&state) && is_valid(event)) {
             resetTimeout();
         }
     }
@@ -326,16 +394,45 @@ public:
 
 ##Connection (V3) - Benchmark
 
-| GCC-7            |        |
-|------------------|----------------|
-| Compilation time | 0.144s         |
-| sizeof(ConnectionV1)       | 14b            |
-| Executable size  | 11K            |
-| Connect: ASM x86-64 | ```cpp main: movslq  %edi, %rax jmpq    *.L_ZZ4mainE10jump_table-8(,%rax,8) ``` |
+|                      | GCC-7          | Clang-3.9      |
+|----------------------|----------------|----------------|
+| Compilation time     | 0.112s         | 0.099s         |
+| sizeof(ConnectionV3) | 2b             | 8b             |
+| Executable size      | 6.1K           | 6.1K           |
+
+---
+
+<table>
+<tr>
+<td>Connect: <br/>ASM x86-64</td>
+<td>
+<pre>
+main:
+        sub     rsp, 56
+        xor     eax, eax
+        lea     rsi, [rsp+16]
+        lea     rdi, [rsp+32]
+        mov     WORD PTR [rsp+16], ax
+        mov     QWORD PTR [rsp+8], rsi
+        movq    xmm0, QWORD PTR [rsp+8]
+        ...
+</pre>
+</td>
+</tr>
+</table>
+https://godbolt.org/g/yf1BjN
 
 ----
 
-##Can we do better?
+##Connection (V3) - Summary
+
+* (+) Data connected with the state naturally
+* (+) Quick compilation times
+* (-) Poor performance
+* (-) Uses more size than required (different on GCC and Clang)
+* (-) Hard to follow
+* (-) Hard to extend and maintain
+* (-) Hard to test
 
 ----
 
@@ -383,7 +480,7 @@ sml::sm connectionV4 = [] {
   return transition_table{
     * "Disconnected"_s + connect / establish                = "Connecting"_s,
       "Connecting"_s   + established                        = "Connected"_s,
-      "Connected"_s    + ping [ is_valid ] / resetTimeout
+      "Connected"_s    + ping [ is_valid ] / resetTimeout,
       "Connected"_s    + timeout / establish                = "Connecting"_s,
       "Connected"_s    + disconnect / close                 = "Disconnected"_s
   };
@@ -410,22 +507,53 @@ const auto is_valid = [](auto event){ return true; };
 
 ##Connection (V4) - Benchmark
 
-| GCC-7            |        |
-|------------------|----------------|
-| Compilation time | 0.144s         |
-| sizeof(ConnectionV1)       | 14b            |
-| Executable size  | 11K            |
-| Connect: ASM x86-64 | ```cpp main: movslq  %edi, %rax jmpq    *.L_ZZ4mainE10jump_table-8(,%rax,8) ``` |
+|                      | GCC-7          | Clang-3.9      |
+|----------------------|----------------|----------------|
+| Compilation time     | 0.151s         | 0.169s         |
+| sizeof(ConnectionV4) | 1b             | 1b             |
+| Executable size      | 6.2K           | 6.2K           |
+
+---
+
+<table>
+<tr>
+<td>Connect: <br/>ASM x86-64</td>
+<td>
+<pre>
+main:
+        subq    $8, %rsp
+        movl    $.LC0, %edi
+        call    puts
+        xorl    %eax, %eax
+        addq    $8, %rsp
+        ret
+</pre>
+</td>
+</tr>
+</table>
+https://godbolt.org/g/6z6UF4
+
+----
+
+##Connection (V4) - Summary
+
+* (+) Quick compilation times
+* (+) Good performance
+* (+) Minimal size used
+* (+) Easy to follow
+* (+) Easty to extend and maintain
+* (+) Easy to test
+* (-) Library has to be used (C++14)
 
 ----
 
 ##Connection - Benchmark
 
-| GCC-7            | V1 | V2 | V3 | V4 |
-|------------------|----------------|-|-|-|-|
-| Compilation time | 0.144s         | | | | |
-| sizeof(ConnectionV1)       | 14b            | | | | |
-| Executable size  | 11K            | | | | |
+|                  | Naive  | Enum/Switch | Variant | [Boost].SML |
+|------------------|------- |-------------|---------|-------------|
+| Compilation time | 0.101s |      0.112s |         |      0.151s |
+| sizeof(sm)       |     3b |          1b |         |          1b |
+| Executable size  |   6.2K |        6.2K |         |        6.2K |
 
 ==============================================================================
 
