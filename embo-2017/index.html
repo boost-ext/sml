@@ -678,19 +678,19 @@ using mappings_t = type_list<
     transitions<
       transition<state<"Disconnected">, state<"Connecting">, connect, always, establish>
     >,
-    transitions<unexpected_event>, // Connecting
-    transitions<unexpected_event>  // Connected
+    transitions<>, // Connecting (unexpected event)
+    transitions<>  // Connected  (unexpected event)
   >,
   pair<established, type_list<
-    transitions<unexpected_event>, // Disconnected
+    transitions<>, // Disconnected (unexpected event)
     transitions<
       transition<state<"Connecting">, state<"Connected">,  established, always, none>
     >,
-    transitions<unexpected_event>  // Connected
+    transitions<>  // Connected (unexpected event)
   >
 >;
 ```
-<!-- .element: style="margin-left:-13%; width:125%" -->
+<!-- .element: style="margin-left:-8%; width:112%" -->
 
 ----
 
@@ -705,12 +705,14 @@ constexpr void process_event(const TEvent& event) {
 }
 
 template<class... Transitions, class TEvent>
-constexpr void process_event_impl(const TEvent& event, mappings<Transitions...>) {
-  const static (*dispatch_table[])(const TEvent&) = { &Transitions::execute<TEvent>... };
+constexpr void process_event_impl(const TEvent& event, type_list<Transitions...>) {
+  const static (*dispatch_table[])(const TEvent&) = { 
+    &Transitions::template execute<TEvent>...
+  };
   dispatch_table[current_state](event); // Complexity: O(1) - jump table
 }
 ```
-<!-- .element: style="margin-left:-13%; width:125%" -->
+<!--[> .element: style="width:105%" <]-->
 
 ==============================================================================
 
