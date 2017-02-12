@@ -396,9 +396,9 @@ public:
 
 |                      | GCC-7          | Clang-3.9      |
 |----------------------|----------------|----------------|
-| Compilation time     | 0.112s         | 0.099s         |
+| Compilation time     | 0.272s         | 0.269s         |
 | sizeof(ConnectionV3) | 2b             | 8b             |
-| Executable size      | 6.1K           | 6.1K           |
+| Executable size      | 6.2K           | 6.2K           |
 
 ---
 
@@ -551,10 +551,10 @@ https://godbolt.org/g/6z6UF4
 
 |                  | Naive  | Enum/Switch | Variant | [Boost].SML |
 |------------------|------- |-------------|---------|-------------|
-| Compilation time | 0.101s |      0.112s |         |      0.151s |
-| sizeof(sm)       |     3b |          1b |         |          1b |
-| Executable size  |   6.2K |        6.2K |         |        6.2K |
-| Performance      | inlined|      inlined|         |      inlined|
+| Compilation time | 0.101s |      0.112s |  0.269s |      0.151s |
+| sizeof(sm)       |     3b |          1b |   2b/8b |          1b |
+| Executable size  |   6.2K |        6.2K |    6.2K |        6.2K |
+| Performance (connect)   | inlined |      inlined |    not-inlined    |      inlined|
 
 ==============================================================================
 
@@ -872,7 +872,7 @@ constexpr void process_event_impl(const TEvent& event, type_list<Transitions...>
 | ------- | ------------- |
 | Documentation | http://boost-experimental.github.io/sml |
 | Source Code | https://github.com/boost-experimental/sml |
-| Try it online! | https://github.com/boost-experimental/sml/examples |
+| Try it online! | http://boost-experimental.github.io/sml/examples |
 |                | https://godbolt.org/g/UX6eWt |
 <!-- .element: style="margin-left:-13%; width:125%" -->
 

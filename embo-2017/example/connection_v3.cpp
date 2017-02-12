@@ -28,9 +28,7 @@ class ConnectionV3 {
 public:
     void connect() {
         std::visit(overload{
-            [&](Disconnected) { establish(); state = Connecting{}; },
-            [&](Connected) { establish(); state = Connecting{}; },
-            [](auto) { }
+            [&](Disconnected) { establish(); state = Connecting{}; }, [&](Connected) { establish(); state = Connecting{}; }, [](auto) { }
         }, state);
     }
 
@@ -57,7 +55,11 @@ public:
 
 int main() {
   ConnectionV3 connection;
+  #if defined(__clang__)
   static_assert(8 == sizeof(connection), "");
+  #elif defined(__GNUC__)
+  static_assert(2 == sizeof(connection), "");
+  #endif
 
   connection.connect();
 }
