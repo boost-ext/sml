@@ -49,7 +49,7 @@ emBO++ 2017
 
 #'Embedding' a Meta State Machine
 
-Kris Jusiak
+Kris Jusiak, Quantlab
 
 ---
 
@@ -68,7 +68,7 @@ Kris Jusiak
 * [Boost].SML
   * Overview
   * SML vs Boost.MSM vs Boost.Statechart
-  * Design
+  * Design in a nutshell
 * Summary
 
 ==============================================================================
@@ -562,22 +562,30 @@ https://godbolt.org/g/6z6UF4
 
 ![Benchmark](images/benchmark.png)
 
-| Test | CXXFLAGS | Events | States | Transitions | Process Events |
-| ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Process Events](https://github.com/boost-experimental/sml/tree/master/test/pt/complex) | -O3 -s | 50 | 50 | 50 | 1'000'000 |
+| Events | States | Transitions | Process Events |
+| ------ | ------ | ----------- | -------------- |
+| 50 | 50 | 50 | 1'000'000 |
 
 ----
 
 ##More realist benchmark
 
+####Main
 ```cpp
-for (auto i = 0; i < 1'000'000; ++i) {
-  if (rand() % 1) sm.process_event(e1());
-  if (rand() % 2) sm.process_event(e2());
-  if (rand() % 3) sm.process_event(e3());
-  ...
-  if (rand() % 100) sm.process_event(e100());
+int main() {
+  for (auto i = 0; i < 1'000'000; ++i) {
+    if (rand() % 1) sm.process_event(e1());
+    if (rand() % 2) sm.process_event(e2());
+    if (rand() % 3) sm.process_event(e3());
+    ...
+    if (rand() % 100) sm.process_event(e100());
+  }
 }
+```
+
+####CXXFLAGS
+```
+$CXX -std=c++1z -O3 -DNDEBUG benchmark.cpp
 ```
 
 ----
@@ -586,12 +594,12 @@ for (auto i = 0; i < 1'000'000; ++i) {
 
 |                  | Enum/Switch | Variant | [Boost].SML |
 |------------------|-------------|---------|-------------|
-| Compilation time |      0.112s |  0.269s |      0.151s |
-| sizeof(sm)       |     3b |          1b |   2b/8b |          1b |
-| Executable size  |   6.2K |        6.2K |    6.2K |        6.2K |
-| Performance (connect)   | inlined |      inlined |    not-inlined    |      inlined|
+| Compilation time |   0.132s | 15.321s | 0.582s |
+| Execution time   |    629ms | 747ms   |  622ms |
+| Memory usage     |       1b | 2b      |     1b |
+| Executable size  |      15K | 187K    |    35K |
 | | | | |
-| LOC | | | |
+| Line of Code (LOC) | ~300 | ~250 | ~50 |
 
 ==============================================================================
 
@@ -748,7 +756,9 @@ int main() {
 
 ----
 
-| Library     | [Boost].SML    | Boost.MSM-eUML  | Boost.Statechart |
+##Overview
+
+| Library     | [Boost].SML | Boost.MSM-eUML  | Boost.Statechart |
 | --------    | ----------- | --------------- | ---------------- |
 | Standard    | C++14       | C++98/03        | C++98/03         |
 | Version     | 1.0.1       | 1.63            | 1.63             |
@@ -759,31 +769,26 @@ int main() {
 
 ##Benchmark
 
-| Test | CXXFLAGS | Events | States | Transitions | Process Events |
-| ---- | -------- | ------ | ------ | ----------- | -------------- |
-|[Process Events](https://github.com/boost-experimental/sml/tree/master/test/pt/complex) | -O3 -s | 50 | 50 | 50 | 1'000'000 |
+![Benchmark](images/benchmark.png)
+
+| Events | States | Transitions | Process Events |
+| ------ | ------ | ----------- | -------------- |
+| 50 | 50 | 50 | 1'000'000 |
 
 ----
 
-| Clang-3.9        | [Boost].SML    | Boost.MSM-eUML | Boost.Statechart |
-|------------------|----------------|------------------|--------------------|
-| Compilation time | 0.582s         | 1m15.935s        | 3.661s             |
-| Execution time   | 69ms           | 81ms             | 6221ms             |
-| Memory usage     | 1b             | 120b             | 200b               |
-| Executable size  | 35K            | 611K             | 343K               |
+##Benchmark - Results
 
-----
-
-| GCC-6.0          | [Boost].SML    | Boost.MSM-eUML | Boost.Statechart |
+|                  | [Boost].SML    | Boost.MSM-eUML   | Boost.Statechart   |
 |------------------|----------------|------------------|--------------------|
-| Compilation time | 0.726s         | 52.238s          | 4.997s             |
-| Execution time   | 72ms           | 77ms             | 5520ms             |
-| Memory usage     | 1b             | 120b             | 224b               |
-| Executable size  | 35K            | 271K             | 215K               |
+| Compilation time |         0.582s |        1m15.935s |             5.671s |
+| Execution time   |          622ms |        685ms     |             2282ms |
+| Memory usage     |             1b |        120b      |             224b   |
+| Executable size  |            35K |        611K      |             211K   |
 
 ==============================================================================
 
-##[Boost].SML Design
+##[Boost].SML Design in a nutshell
 
 ![design](images/design.png)
 
@@ -883,6 +888,10 @@ constexpr void process_event_impl(const TEvent& event, type_list<Transitions...>
 ==============================================================================
 
 ##Summary
+
+----
+
+##If you like it or not, your code won't be stateful (most likely)
 
 ----
 

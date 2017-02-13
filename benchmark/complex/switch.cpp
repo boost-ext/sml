@@ -61,7 +61,6 @@ struct e50 {};
 
 struct c {
   enum class State : unsigned char {
-    IDLE,
     S1,
     S2,
     S3,
@@ -110,26 +109,14 @@ struct c {
     S46,
     S47,
     S48,
-    S49
+    S49,
+    S50
   } state;
 
   bool guard() { return true; }
   void action() {}
 
   void handle(const e1&) {
-    switch (state) {
-      default:
-        break;
-      case State::IDLE:
-        if (guard()) {
-          action();
-          state = State::S1;
-        }
-        break;
-    }
-  }
-
-  void handle(const e2&) {
     switch (state) {
       default:
         break;
@@ -142,7 +129,7 @@ struct c {
     }
   }
 
-  void handle(const e3&) {
+  void handle(const e2&) {
     switch (state) {
       default:
         break;
@@ -155,7 +142,7 @@ struct c {
     }
   }
 
-  void handle(const e4&) {
+  void handle(const e3&) {
     switch (state) {
       default:
         break;
@@ -168,7 +155,7 @@ struct c {
     }
   }
 
-  void handle(const e5&) {
+  void handle(const e4&) {
     switch (state) {
       default:
         break;
@@ -181,7 +168,7 @@ struct c {
     }
   }
 
-  void handle(const e6&) {
+  void handle(const e5&) {
     switch (state) {
       default:
         break;
@@ -194,7 +181,7 @@ struct c {
     }
   }
 
-  void handle(const e7&) {
+  void handle(const e6&) {
     switch (state) {
       default:
         break;
@@ -207,7 +194,7 @@ struct c {
     }
   }
 
-  void handle(const e8&) {
+  void handle(const e7&) {
     switch (state) {
       default:
         break;
@@ -220,7 +207,7 @@ struct c {
     }
   }
 
-  void handle(const e9&) {
+  void handle(const e8&) {
     switch (state) {
       default:
         break;
@@ -233,7 +220,7 @@ struct c {
     }
   }
 
-  void handle(const e10&) {
+  void handle(const e9&) {
     switch (state) {
       default:
         break;
@@ -246,7 +233,7 @@ struct c {
     }
   }
 
-  void handle(const e11&) {
+  void handle(const e10&) {
     switch (state) {
       default:
         break;
@@ -259,7 +246,7 @@ struct c {
     }
   }
 
-  void handle(const e12&) {
+  void handle(const e11&) {
     switch (state) {
       default:
         break;
@@ -272,7 +259,7 @@ struct c {
     }
   }
 
-  void handle(const e13&) {
+  void handle(const e12&) {
     switch (state) {
       default:
         break;
@@ -285,7 +272,7 @@ struct c {
     }
   }
 
-  void handle(const e14&) {
+  void handle(const e13&) {
     switch (state) {
       default:
         break;
@@ -298,7 +285,7 @@ struct c {
     }
   }
 
-  void handle(const e15&) {
+  void handle(const e14&) {
     switch (state) {
       default:
         break;
@@ -311,7 +298,7 @@ struct c {
     }
   }
 
-  void handle(const e16&) {
+  void handle(const e15&) {
     switch (state) {
       default:
         break;
@@ -324,7 +311,7 @@ struct c {
     }
   }
 
-  void handle(const e17&) {
+  void handle(const e16&) {
     switch (state) {
       default:
         break;
@@ -337,7 +324,7 @@ struct c {
     }
   }
 
-  void handle(const e18&) {
+  void handle(const e17&) {
     switch (state) {
       default:
         break;
@@ -350,7 +337,7 @@ struct c {
     }
   }
 
-  void handle(const e19&) {
+  void handle(const e18&) {
     switch (state) {
       default:
         break;
@@ -363,7 +350,7 @@ struct c {
     }
   }
 
-  void handle(const e20&) {
+  void handle(const e19&) {
     switch (state) {
       default:
         break;
@@ -376,7 +363,7 @@ struct c {
     }
   }
 
-  void handle(const e21&) {
+  void handle(const e20&) {
     switch (state) {
       default:
         break;
@@ -389,7 +376,7 @@ struct c {
     }
   }
 
-  void handle(const e22&) {
+  void handle(const e21&) {
     switch (state) {
       default:
         break;
@@ -402,7 +389,7 @@ struct c {
     }
   }
 
-  void handle(const e23&) {
+  void handle(const e22&) {
     switch (state) {
       default:
         break;
@@ -415,7 +402,7 @@ struct c {
     }
   }
 
-  void handle(const e24&) {
+  void handle(const e23&) {
     switch (state) {
       default:
         break;
@@ -428,7 +415,7 @@ struct c {
     }
   }
 
-  void handle(const e25&) {
+  void handle(const e24&) {
     switch (state) {
       default:
         break;
@@ -441,7 +428,7 @@ struct c {
     }
   }
 
-  void handle(const e26&) {
+  void handle(const e25&) {
     switch (state) {
       default:
         break;
@@ -454,7 +441,7 @@ struct c {
     }
   }
 
-  void handle(const e27&) {
+  void handle(const e26&) {
     switch (state) {
       default:
         break;
@@ -467,7 +454,7 @@ struct c {
     }
   }
 
-  void handle(const e28&) {
+  void handle(const e27&) {
     switch (state) {
       default:
         break;
@@ -480,7 +467,7 @@ struct c {
     }
   }
 
-  void handle(const e29&) {
+  void handle(const e28&) {
     switch (state) {
       default:
         break;
@@ -493,7 +480,7 @@ struct c {
     }
   }
 
-  void handle(const e30&) {
+  void handle(const e29&) {
     switch (state) {
       default:
         break;
@@ -506,7 +493,7 @@ struct c {
     }
   }
 
-  void handle(const e31&) {
+  void handle(const e30&) {
     switch (state) {
       default:
         break;
@@ -519,7 +506,7 @@ struct c {
     }
   }
 
-  void handle(const e32&) {
+  void handle(const e31&) {
     switch (state) {
       default:
         break;
@@ -532,7 +519,7 @@ struct c {
     }
   }
 
-  void handle(const e33&) {
+  void handle(const e32&) {
     switch (state) {
       default:
         break;
@@ -545,7 +532,7 @@ struct c {
     }
   }
 
-  void handle(const e34&) {
+  void handle(const e33&) {
     switch (state) {
       default:
         break;
@@ -558,7 +545,7 @@ struct c {
     }
   }
 
-  void handle(const e35&) {
+  void handle(const e34&) {
     switch (state) {
       default:
         break;
@@ -571,7 +558,7 @@ struct c {
     }
   }
 
-  void handle(const e36&) {
+  void handle(const e35&) {
     switch (state) {
       default:
         break;
@@ -584,7 +571,7 @@ struct c {
     }
   }
 
-  void handle(const e37&) {
+  void handle(const e36&) {
     switch (state) {
       default:
         break;
@@ -597,7 +584,7 @@ struct c {
     }
   }
 
-  void handle(const e38&) {
+  void handle(const e37&) {
     switch (state) {
       default:
         break;
@@ -610,7 +597,7 @@ struct c {
     }
   }
 
-  void handle(const e39&) {
+  void handle(const e38&) {
     switch (state) {
       default:
         break;
@@ -623,7 +610,7 @@ struct c {
     }
   }
 
-  void handle(const e40&) {
+  void handle(const e39&) {
     switch (state) {
       default:
         break;
@@ -636,7 +623,7 @@ struct c {
     }
   }
 
-  void handle(const e41&) {
+  void handle(const e40&) {
     switch (state) {
       default:
         break;
@@ -649,7 +636,7 @@ struct c {
     }
   }
 
-  void handle(const e42&) {
+  void handle(const e41&) {
     switch (state) {
       default:
         break;
@@ -662,7 +649,7 @@ struct c {
     }
   }
 
-  void handle(const e43&) {
+  void handle(const e42&) {
     switch (state) {
       default:
         break;
@@ -675,7 +662,7 @@ struct c {
     }
   }
 
-  void handle(const e44&) {
+  void handle(const e43&) {
     switch (state) {
       default:
         break;
@@ -688,7 +675,7 @@ struct c {
     }
   }
 
-  void handle(const e45&) {
+  void handle(const e44&) {
     switch (state) {
       default:
         break;
@@ -701,7 +688,7 @@ struct c {
     }
   }
 
-  void handle(const e46&) {
+  void handle(const e45&) {
     switch (state) {
       default:
         break;
@@ -714,7 +701,7 @@ struct c {
     }
   }
 
-  void handle(const e47&) {
+  void handle(const e46&) {
     switch (state) {
       default:
         break;
@@ -727,7 +714,7 @@ struct c {
     }
   }
 
-  void handle(const e48&) {
+  void handle(const e47&) {
     switch (state) {
       default:
         break;
@@ -740,7 +727,7 @@ struct c {
     }
   }
 
-  void handle(const e49&) {
+  void handle(const e48&) {
     switch (state) {
       default:
         break;
@@ -753,14 +740,27 @@ struct c {
     }
   }
 
-  void handle(const e50&) {
+  void handle(const e49&) {
     switch (state) {
       default:
         break;
       case State::S49:
         if (guard()) {
           action();
-          state = State::IDLE;
+          state = State::S50;
+        }
+        break;
+    }
+  }
+
+  void handle(const e50&) {
+    switch (state) {
+      default:
+        break;
+      case State::S50:
+        if (guard()) {
+          action();
+          state = State::S1;
         }
         break;
     }

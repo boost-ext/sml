@@ -22,6 +22,8 @@ benchmark_%:
 	@$(CXX) $*/switch.cpp $(CXXFLAGS) && ./a.out && ls -lh a.out
 	time $(CXX) $*/sml.cpp $(CXXFLAGS) -DCHECK_COMPILE_TIME
 	@$(CXX) $*/sml.cpp $(CXXFLAGS) && ./a.out && ls -lh a.out
+	time $(CXX) $*/variant.cpp $(CXXFLAGS) -std=c++1z -DCHECK_COMPILE_TIME
+	@$(CXX) $*/variant.cpp $(CXXFLAGS) -std=c++1z && ./a.out && ls -lh a.out
 	time $(CXX) $*/sc.cpp $(CXXFLAGS) -DCHECK_COMPILE_TIME -ftemplate-depth=1024
 	@$(CXX) $*/sc.cpp $(CXXFLAGS) -ftemplate-depth=1024 && ./a.out && ls -lh a.out
 	time $(CXX) $*/euml.cpp $(CXXFLAGS) -DCHECK_COMPILE_TIME -ftemplate-depth=1024 -lboost_system
