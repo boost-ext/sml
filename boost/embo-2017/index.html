@@ -556,6 +556,43 @@ https://godbolt.org/g/6z6UF4
 | Executable size  |   6.2K |        6.2K |    6.2K |        6.2K |
 | Performance (connect)   | inlined |      inlined |    not-inlined    |      inlined|
 
+----
+
+##More realist benchmark
+
+![Benchmark](images/benchmark.png)
+
+| Test | CXXFLAGS | Events | States | Transitions | Process Events |
+| ---- | -------- | ------ | ------ | ----------- | -------------- |
+|[Process Events](https://github.com/boost-experimental/sml/tree/master/test/pt/complex) | -O3 -s | 50 | 50 | 50 | 1'000'000 |
+
+----
+
+##More realist benchmark
+
+```cpp
+for (auto i = 0; i < 1'000'000; ++i) {
+  if (rand() % 1) sm.process_event(e1());
+  if (rand() % 2) sm.process_event(e2());
+  if (rand() % 3) sm.process_event(e3());
+  ...
+  if (rand() % 100) sm.process_event(e100());
+}
+```
+
+----
+
+##More realist benchmark - Results
+
+|                  | Enum/Switch | Variant | [Boost].SML |
+|------------------|-------------|---------|-------------|
+| Compilation time |      0.112s |  0.269s |      0.151s |
+| sizeof(sm)       |     3b |          1b |   2b/8b |          1b |
+| Executable size  |   6.2K |        6.2K |    6.2K |        6.2K |
+| Performance (connect)   | inlined |      inlined |    not-inlined    |      inlined|
+| | | | |
+| LOC | | | |
+
 ==============================================================================
 
 ##[Boost].SML
