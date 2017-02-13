@@ -5,8 +5,9 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "benchmark.hpp"
 #include <boost/sml.hpp>
+#include <cstdlib>
+#include "benchmark.hpp"
 
 namespace sml = boost::sml;
 
@@ -180,56 +181,56 @@ int main() {
 
   benchmark_execution_speed([&] {
     for (auto i = 0; i < 1'000'000; ++i) {
-      sm.process_event(e1());
-      sm.process_event(e2());
-      sm.process_event(e3());
-      sm.process_event(e4());
-      sm.process_event(e5());
-      sm.process_event(e6());
-      sm.process_event(e7());
-      sm.process_event(e8());
-      sm.process_event(e9());
-      sm.process_event(e10());
-      sm.process_event(e11());
-      sm.process_event(e12());
-      sm.process_event(e13());
-      sm.process_event(e14());
-      sm.process_event(e15());
-      sm.process_event(e16());
-      sm.process_event(e17());
-      sm.process_event(e18());
-      sm.process_event(e19());
-      sm.process_event(e20());
-      sm.process_event(e21());
-      sm.process_event(e22());
-      sm.process_event(e23());
-      sm.process_event(e24());
-      sm.process_event(e25());
-      sm.process_event(e26());
-      sm.process_event(e27());
-      sm.process_event(e28());
-      sm.process_event(e29());
-      sm.process_event(e30());
-      sm.process_event(e31());
-      sm.process_event(e32());
-      sm.process_event(e33());
-      sm.process_event(e34());
-      sm.process_event(e35());
-      sm.process_event(e36());
-      sm.process_event(e37());
-      sm.process_event(e38());
-      sm.process_event(e39());
-      sm.process_event(e40());
-      sm.process_event(e41());
-      sm.process_event(e42());
-      sm.process_event(e43());
-      sm.process_event(e44());
-      sm.process_event(e45());
-      sm.process_event(e46());
-      sm.process_event(e47());
-      sm.process_event(e48());
-      sm.process_event(e49());
-      sm.process_event(e50());
+      if (rand() % 1) sm.process_event(e1());
+      if (rand() % 2) sm.process_event(e2());
+      if (rand() % 3) sm.process_event(e3());
+      if (rand() % 4) sm.process_event(e4());
+      if (rand() % 5) sm.process_event(e5());
+      if (rand() % 6) sm.process_event(e6());
+      if (rand() % 7) sm.process_event(e7());
+      if (rand() % 8) sm.process_event(e8());
+      if (rand() % 9) sm.process_event(e9());
+      if (rand() % 10) sm.process_event(e10());
+      if (rand() % 11) sm.process_event(e11());
+      if (rand() % 12) sm.process_event(e12());
+      if (rand() % 13) sm.process_event(e13());
+      if (rand() % 14) sm.process_event(e14());
+      if (rand() % 15) sm.process_event(e15());
+      if (rand() % 16) sm.process_event(e16());
+      if (rand() % 17) sm.process_event(e17());
+      if (rand() % 18) sm.process_event(e18());
+      if (rand() % 19) sm.process_event(e19());
+      if (rand() % 20) sm.process_event(e20());
+      if (rand() % 21) sm.process_event(e21());
+      if (rand() % 22) sm.process_event(e22());
+      if (rand() % 23) sm.process_event(e23());
+      if (rand() % 24) sm.process_event(e24());
+      if (rand() % 25) sm.process_event(e25());
+      if (rand() % 26) sm.process_event(e26());
+      if (rand() % 27) sm.process_event(e27());
+      if (rand() % 28) sm.process_event(e28());
+      if (rand() % 29) sm.process_event(e29());
+      if (rand() % 30) sm.process_event(e30());
+      if (rand() % 31) sm.process_event(e31());
+      if (rand() % 32) sm.process_event(e32());
+      if (rand() % 33) sm.process_event(e33());
+      if (rand() % 34) sm.process_event(e34());
+      if (rand() % 35) sm.process_event(e35());
+      if (rand() % 36) sm.process_event(e36());
+      if (rand() % 37) sm.process_event(e37());
+      if (rand() % 38) sm.process_event(e38());
+      if (rand() % 39) sm.process_event(e39());
+      if (rand() % 40) sm.process_event(e40());
+      if (rand() % 41) sm.process_event(e41());
+      if (rand() % 42) sm.process_event(e42());
+      if (rand() % 43) sm.process_event(e43());
+      if (rand() % 44) sm.process_event(e44());
+      if (rand() % 45) sm.process_event(e45());
+      if (rand() % 46) sm.process_event(e46());
+      if (rand() % 47) sm.process_event(e47());
+      if (rand() % 48) sm.process_event(e48());
+      if (rand() % 49) sm.process_event(e49());
+      if (rand() % 50) sm.process_event(e50());
     }
   });
   benchmark_memory_usage(sm);

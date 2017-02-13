@@ -10,10 +10,11 @@
 #define BOOST_MPL_LIMIT_LIST_SIZE 50
 #define BOOST_MPL_LIMIT_STRING_SIZE 64
 #define MPLLIBS_LIMIT_STRING_SIZE BOOST_MPL_LIMIT_STRING_SIZE
-#include "benchmark.hpp"
 #include <boost/msm/back/state_machine.hpp>
-#include <boost/msm/front/state_machine_def.hpp>
 #include <boost/msm/front/euml2/euml2.hpp>
+#include <boost/msm/front/state_machine_def.hpp>
+#include <cstdlib>
+#include "benchmark.hpp"
 
 namespace msm = boost::msm;
 
@@ -108,56 +109,56 @@ int main() {
 
   benchmark_execution_speed([&] {
     for (auto i = 0; i < 1'000'000; ++i) {
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e1", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e2", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e3", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e4", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e5", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e6", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e7", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e8", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e9", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e10", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e11", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e12", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e13", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e14", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e15", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e16", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e17", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e18", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e19", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e20", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e21", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e22", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e23", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e24", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e25", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e26", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e27", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e28", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e29", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e30", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e31", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e32", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e33", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e34", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e35", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e36", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e37", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e38", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e39", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e40", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e41", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e42", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e43", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e44", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e45", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e46", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e47", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e48", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e49", player_)());
-      sm.process_event(BOOST_MSM_EUML2_EVENT("e50", player_)());
+      if (rand() % 1) sm.process_event(BOOST_MSM_EUML2_EVENT("e1", player_)());
+      if (rand() % 2) sm.process_event(BOOST_MSM_EUML2_EVENT("e2", player_)());
+      if (rand() % 3) sm.process_event(BOOST_MSM_EUML2_EVENT("e3", player_)());
+      if (rand() % 4) sm.process_event(BOOST_MSM_EUML2_EVENT("e4", player_)());
+      if (rand() % 5) sm.process_event(BOOST_MSM_EUML2_EVENT("e5", player_)());
+      if (rand() % 6) sm.process_event(BOOST_MSM_EUML2_EVENT("e6", player_)());
+      if (rand() % 7) sm.process_event(BOOST_MSM_EUML2_EVENT("e7", player_)());
+      if (rand() % 8) sm.process_event(BOOST_MSM_EUML2_EVENT("e8", player_)());
+      if (rand() % 9) sm.process_event(BOOST_MSM_EUML2_EVENT("e9", player_)());
+      if (rand() % 10) sm.process_event(BOOST_MSM_EUML2_EVENT("e10", player_)());
+      if (rand() % 11) sm.process_event(BOOST_MSM_EUML2_EVENT("e11", player_)());
+      if (rand() % 12) sm.process_event(BOOST_MSM_EUML2_EVENT("e12", player_)());
+      if (rand() % 13) sm.process_event(BOOST_MSM_EUML2_EVENT("e13", player_)());
+      if (rand() % 14) sm.process_event(BOOST_MSM_EUML2_EVENT("e14", player_)());
+      if (rand() % 15) sm.process_event(BOOST_MSM_EUML2_EVENT("e15", player_)());
+      if (rand() % 16) sm.process_event(BOOST_MSM_EUML2_EVENT("e16", player_)());
+      if (rand() % 17) sm.process_event(BOOST_MSM_EUML2_EVENT("e17", player_)());
+      if (rand() % 18) sm.process_event(BOOST_MSM_EUML2_EVENT("e18", player_)());
+      if (rand() % 19) sm.process_event(BOOST_MSM_EUML2_EVENT("e19", player_)());
+      if (rand() % 20) sm.process_event(BOOST_MSM_EUML2_EVENT("e20", player_)());
+      if (rand() % 21) sm.process_event(BOOST_MSM_EUML2_EVENT("e21", player_)());
+      if (rand() % 22) sm.process_event(BOOST_MSM_EUML2_EVENT("e22", player_)());
+      if (rand() % 23) sm.process_event(BOOST_MSM_EUML2_EVENT("e23", player_)());
+      if (rand() % 24) sm.process_event(BOOST_MSM_EUML2_EVENT("e24", player_)());
+      if (rand() % 25) sm.process_event(BOOST_MSM_EUML2_EVENT("e25", player_)());
+      if (rand() % 26) sm.process_event(BOOST_MSM_EUML2_EVENT("e26", player_)());
+      if (rand() % 27) sm.process_event(BOOST_MSM_EUML2_EVENT("e27", player_)());
+      if (rand() % 28) sm.process_event(BOOST_MSM_EUML2_EVENT("e28", player_)());
+      if (rand() % 29) sm.process_event(BOOST_MSM_EUML2_EVENT("e29", player_)());
+      if (rand() % 30) sm.process_event(BOOST_MSM_EUML2_EVENT("e30", player_)());
+      if (rand() % 31) sm.process_event(BOOST_MSM_EUML2_EVENT("e31", player_)());
+      if (rand() % 32) sm.process_event(BOOST_MSM_EUML2_EVENT("e32", player_)());
+      if (rand() % 33) sm.process_event(BOOST_MSM_EUML2_EVENT("e33", player_)());
+      if (rand() % 34) sm.process_event(BOOST_MSM_EUML2_EVENT("e34", player_)());
+      if (rand() % 35) sm.process_event(BOOST_MSM_EUML2_EVENT("e35", player_)());
+      if (rand() % 36) sm.process_event(BOOST_MSM_EUML2_EVENT("e36", player_)());
+      if (rand() % 37) sm.process_event(BOOST_MSM_EUML2_EVENT("e37", player_)());
+      if (rand() % 38) sm.process_event(BOOST_MSM_EUML2_EVENT("e38", player_)());
+      if (rand() % 39) sm.process_event(BOOST_MSM_EUML2_EVENT("e39", player_)());
+      if (rand() % 40) sm.process_event(BOOST_MSM_EUML2_EVENT("e40", player_)());
+      if (rand() % 41) sm.process_event(BOOST_MSM_EUML2_EVENT("e41", player_)());
+      if (rand() % 42) sm.process_event(BOOST_MSM_EUML2_EVENT("e42", player_)());
+      if (rand() % 43) sm.process_event(BOOST_MSM_EUML2_EVENT("e43", player_)());
+      if (rand() % 44) sm.process_event(BOOST_MSM_EUML2_EVENT("e44", player_)());
+      if (rand() % 45) sm.process_event(BOOST_MSM_EUML2_EVENT("e45", player_)());
+      if (rand() % 46) sm.process_event(BOOST_MSM_EUML2_EVENT("e46", player_)());
+      if (rand() % 47) sm.process_event(BOOST_MSM_EUML2_EVENT("e47", player_)());
+      if (rand() % 48) sm.process_event(BOOST_MSM_EUML2_EVENT("e48", player_)());
+      if (rand() % 49) sm.process_event(BOOST_MSM_EUML2_EVENT("e49", player_)());
+      if (rand() % 50) sm.process_event(BOOST_MSM_EUML2_EVENT("e50", player_)());
     }
   });
   benchmark_memory_usage(sm);
