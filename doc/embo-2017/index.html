@@ -585,7 +585,7 @@ int main() {
 
 ####CXXFLAGS
 ```
-$CXX -std=c++1z -O3 -DNDEBUG benchmark.cpp
+$CXX -std=c++1z -O3 -DNDEBUG -flto benchmark.cpp
 ```
 
 ----
@@ -599,7 +599,7 @@ $CXX -std=c++1z -O3 -DNDEBUG benchmark.cpp
 | Memory usage     |       1b | 2b      |     1b |
 | Executable size  |      15K | 187K    |    35K |
 | | | | |
-| Line of Code (LOC) | ~300 | ~250 | ~50 |
+| Line of Code (LOC) | ~300 (no macros) | ~300 | ~50 |
 
 ==============================================================================
 
@@ -767,7 +767,7 @@ int main() {
 
 ----
 
-##Benchmark
+##Benchmark  (Same as before)
 
 ![Benchmark](images/benchmark.png)
 
