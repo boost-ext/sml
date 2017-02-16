@@ -596,7 +596,7 @@ $CXX -std=c++1z -O3 -DNDEBUG -flto benchmark.cpp
 |------------------|-------------|---------|-------------|
 | Compilation time |   0.132s | 15.321s | 0.582s |
 | Execution time   |    629ms | 747ms   |  622ms |
-| Memory usage     |       1b | 2b      |     1b |
+| Memory usage     |       1b | 2b/8b   |     1b |
 | Executable size  |      15K | 187K    |    35K |
 | | | | |
 | Line of Code (LOC) | ~300 (no macros) | ~300 | ~50 |
@@ -631,7 +631,7 @@ https://github.com/boost-experimental/sml
  * Makes transition table from DSL
  * @tparam Ts... transitions (transitional)
  */
-template <class... Ts> requires transitional<Ts>...
+template <class... Ts> requires transitional<Ts>()...
 struct transition_table;
 ```
 
@@ -641,7 +641,7 @@ struct transition_table;
  * @tparam Ts... transitions (transitional)
  * @return transition_table
  */
-template <class... Ts> requires transitional<Ts>...
+template <class... Ts> requires transitional<Ts>()...
 auto make_transition_table(Ts&&...) noexcept;
 ```
 
@@ -658,7 +658,7 @@ auto make_transition_table(Ts&&...) noexcept;
  *                   thread safe, exception safe, etc.
  */
 template<class T,
-         class... TPolicies> requires callable<transition_table, T>
+         class... TPolicies> requires callable<transition_table, T>()
 class sm;
 ```
 
@@ -782,7 +782,7 @@ int main() {
 |                  | [Boost].SML    | Boost.MSM-eUML   | Boost.Statechart   |
 |------------------|----------------|------------------|--------------------|
 | Compilation time |         0.582s |        1m15.935s |             5.671s |
-| Execution time   |          622ms |        685ms     |             2282ms |
+| Execution time   |          622ms |        647ms     |             2282ms |
 | Memory usage     |             1b |        120b      |             224b   |
 | Executable size  |            35K |        611K      |             211K   |
 
@@ -903,12 +903,12 @@ constexpr void process_event_impl(const TEvent& event, type_list<Transitions...>
 ----
 
 ##State Machines are more than just simple transitions
-  * UML-2.5
+  * [UML-2.5](http://www.omg.org/spec/UML/2.5/)
 
 ----
 
 ##Leveraging Zero-cost libraries will boost your design and/or perfrormance
-  * [Boost].SML / Boost.MSM
+  * [[Boost].SML](http://boost-experimental.github.io/sml/) / [Boost.MSM](http://www.boost.org/doc/libs/1_63_0/libs/msm/doc/HTML/index.html)
 
 ==============================================================================
 
