@@ -739,6 +739,7 @@ struct System {
 
 ```cpp
 int main() {
+  using namespace sml;
   sm<System> system;
 
   system.process_event(power_up{});
