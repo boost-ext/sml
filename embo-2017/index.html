@@ -132,7 +132,7 @@ Scenario 4: Disconnecting
 
 ----
 
-##Connection - Details
+##Connection - Helpers/Details
 
 ```cpp
 void resetTimeout() { std::puts("resetTimeout"); }
@@ -476,7 +476,7 @@ https://godbolt.org/g/yf1BjN
 ##Connection (V4)
 
 ```cpp
-sml::sm connectionV4 = [] {
+sml::sm connectionV4 = [] { // C++17 template arg. deduction for class templates
   return transition_table{
     * "Disconnected"_s + connect / establish                = "Connecting"_s,
       "Connecting"_s   + established                        = "Connected"_s,
@@ -617,8 +617,8 @@ https://github.com/boost-experimental/sml
 * Neither Boost nor STL is required
 * Quick compilation-times (-Wall -Wextra -Werror -pedantic -pedantic-errors)
 * Blazing fast run-time (Generated at compile-time)
-* No 'virtual' methods (-fno-rtti)
-* Optional support for 'exceptions' (-fno-exceptions)
+* No 'virtual's (-fno-rtti)
+* Optional support for 'exception's (-fno-exceptions)
 * Supported compilers (C++14)
   * [Clang-3.4+](https://travis-ci.org/boost-experimental/sml), [XCode-6.1+](https://travis-ci.org/boost-experimental/sml), [GCC-5.2+](https://travis-ci.org/boost-experimental/di), [MSVC-2015+](https://ci.appveyor.com/project/krzysztof-jusiak/sml)
 
@@ -642,7 +642,7 @@ struct transition_table;
  * @return transition_table
  */
 template <class... Ts> requires transitional<Ts>()...
-auto make_transition_table(Ts&&...) noexcept;
+constexpr auto make_transition_table(Ts&&...) noexcept;
 ```
 
 ----
@@ -695,6 +695,8 @@ constexpr void process_event(const TEvent&);
 ### [Boost].SML - More realistic example (System)
 
 ![system](images/system.png)
+
+> Enum/Switch? No, thank you!
 
 ----
 
