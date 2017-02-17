@@ -558,7 +558,7 @@ https://godbolt.org/g/6z6UF4
 
 ----
 
-##More realist benchmark
+##More realist [benchmark](https://github.com/boost-experimental/sml/tree/master/benchmark/complex)
 
 ![Benchmark](images/benchmark.png)
 
@@ -568,38 +568,40 @@ https://godbolt.org/g/6z6UF4
 
 ----
 
-##More realist benchmark
+##More realist [benchmark](https://github.com/boost-experimental/sml/tree/master/benchmark/complex)
 
 ####Main
 ```cpp
 int main() {
   for (auto i = 0; i < 1'000'000; ++i) {
-    if (rand() % 1) sm.process_event(e1());
+    if (rand() % 2) sm.process_event(e1());
     if (rand() % 2) sm.process_event(e2());
-    if (rand() % 3) sm.process_event(e3());
+    if (rand() % 2) sm.process_event(e3());
     ...
-    if (rand() % 100) sm.process_event(e100());
+    if (rand() % 2) sm.process_event(e100());
   }
 }
 ```
 
 ####CXXFLAGS
 ```
-$CXX -std=c++1z -O3 -DNDEBUG -flto benchmark.cpp
+$CXX -std=c++1z -O3 -flto -fno-exceptions -DNDEBUG benchmark.cpp
 ```
 
 ----
 
-##More realist benchmark - Results
+##More realist [benchmark](https://github.com/boost-experimental/sml/tree/master/benchmark/complex) - Results
 
 |                  | Enum/Switch | Variant | [Boost].SML |
 |------------------|-------------|---------|-------------|
 | Compilation time |   0.132s | 15.321s | 0.582s |
-| Execution time   |    629ms | 747ms   |  622ms |
+| Execution time   |    679ms | 827ms   |  622ms |
 | Memory usage     |       1b | 2b/8b   |     1b |
-| Executable size  |      15K | 187K    |    35K |
+| Executable size  |      15K | 187K    |    34K |
 | | | | |
 | Line of Code (LOC) | ~300 (no macros) | ~300 | ~50 |
+
+> Median / 100 runs
 
 ==============================================================================
 
@@ -611,7 +613,7 @@ https://github.com/boost-experimental/sml
 
 -----
 
-##[Boost].SML
+##[[Boost].SML](http://boost-experimental.github.io/sml)
 
 * One header - 2k LOC - (boost/sml.hpp) / generated
 * Neither Boost nor STL is required
@@ -624,7 +626,7 @@ https://github.com/boost-experimental/sml
 
 ----
 
-##[Boost].SML - API (Simplified)
+##[[Boost].SML](http://boost-experimental.github.io/sml) - API (Simplified)
 
 ```cpp
 /**
@@ -647,7 +649,7 @@ constexpr auto make_transition_table(Ts&&...) noexcept;
 
 ----
 
-##[Boost].SML - API (Simplified)
+##[[Boost].SML](http://boost-experimental.github.io/sml) - API (Simplified)
 
 ```cpp
 /**
@@ -674,7 +676,7 @@ constexpr void process_event(const TEvent&);
 
 ----
 
-### [Boost].SML - Features
+###[[Boost].SML](http://boost-experimental.github.io/sml) - Features
 
 * UML (2.5)
   * Transition
@@ -692,7 +694,16 @@ constexpr void process_event(const TEvent&);
 
 ----
 
-### [Boost].SML - More realistic example (System)
+###[[Boost].SML](http://boost-experimental.github.io/sml) - Features
+
+We DON'T pay for features we are NOT using!
+
+> For example, if the state machine doesn't use orthogonal regions, the
+code responsible for handling them won't be even generated
+
+----
+
+###[[Boost].SML](http://boost-experimental.github.io/sml) - More realistic example (System)
 
 ![system](images/system.png)
 
@@ -700,7 +711,7 @@ constexpr void process_event(const TEvent&);
 
 ----
 
-### [Boost].SML - More realistic example (System)
+###[[Boost].SML](http://boost-experimental.github.io/sml) - More realistic example (System)
 
 ```cpp
 struct Connection {
@@ -735,7 +746,7 @@ struct System {
 
 ----
 
-### [Boost].SML - More realistic example (System)
+###[[Boost].SML](http://boost-experimental.github.io/sml) - More realistic example (System)
 
 ```cpp
 int main() {
@@ -770,7 +781,7 @@ int main() {
 
 ----
 
-##Benchmark  (Same as before)
+##[Benchmark](https://github.com/boost-experimental/sml/tree/master/benchmark/complex)  (Same as before)
 
 ![Benchmark](images/benchmark.png)
 
@@ -780,18 +791,18 @@ int main() {
 
 ----
 
-##Benchmark - Results
+##[Benchmark](https://github.com/boost-experimental/sml/tree/master/benchmark/complex) - Results
 
 |                  | [Boost].SML    | Boost.MSM-eUML   | Boost.Statechart   |
 |------------------|----------------|------------------|--------------------|
 | Compilation time |         0.582s |        1m15.935s |             5.671s |
-| Execution time   |          622ms |        647ms     |             2282ms |
+| Execution time   |          622ms |        664ms     |             2282ms |
 | Memory usage     |             1b |        120b      |             224b   |
-| Executable size  |            35K |        611K      |             211K   |
+| Executable size  |            34K |        611K      |             211K   |
 
 ==============================================================================
 
-##[Boost].SML Design in a nutshell
+##[[Boost].SML](http://boost-experimental.github.io/sml) Design in a nutshell
 
 ![design](images/design.png)
 
