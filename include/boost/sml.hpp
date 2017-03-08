@@ -1094,7 +1094,7 @@ struct sm_impl {
   template <class TDeps, class TSubs, class... TEvents>
   void process_defer_events(TDeps &, TSubs &, const bool, const aux::type<no_policy> &, const aux::type_list<TEvents...> &) {}
   template <class TDeps, class TSubs, class TEvent>
-  bool process_event_no_deffer(TDeps &deps, TSubs &subs, const void *data) {
+  bool process_event_no_defer(TDeps &deps, TSubs &subs, const void *data) {
     const auto &event = *static_cast<const TEvent *>(data);
     log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
 #if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
@@ -1115,7 +1115,7 @@ struct sm_impl {
       auto size = defer_.size();
       using dispatch_table_t = bool (sm_impl::*)(TDeps &, TSubs &, const void *);
       const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
-          &sm_impl::process_event_no_deffer<TDeps, TSubs, TEvents>...};
+          &sm_impl::process_event_no_defer<TDeps, TSubs, TEvents>...};
       while (size-- && (this->*dispatch_table[defer_.front().id])(deps, subs, defer_.front().data))
         ;
     }
