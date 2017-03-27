@@ -7,7 +7,7 @@
 
 ---------------------------------------
 
-#[Boost].SML (formerly called [Boost].MSM-lite)
+# [Boost].SML (formerly called [Boost].MSM-lite)
 
 > Your scalable C++14 header State Machine Library with no dependencies (**[__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world)**)
 
@@ -89,7 +89,7 @@ int main() {
   * use `state<class state_name>` instead of `"state_name"_s`
   * expliclty state a lambda's result type `auto action = [] -> void {}`
 
-###Benchmark
+### Benchmark
 
 <p align="center">
 <table>
@@ -144,7 +144,7 @@ main:
 
 ---------------------------------------
 
-###Documentation
+### Documentation
 
 [](GENERATE_TOC_BEGIN)
 
@@ -230,9 +230,9 @@ main:
     * [Plant UML Integration](http://boost-experimental.github.io/sml/examples/index.html#plant-uml-integration)
 * [FAQ](http://boost-experimental.github.io/sml/faq/index.html)
 * [CHANGELOG](http://boost-experimental.github.io/sml/CHANGELOG/index.html)
-    * [ [1.1.0] - 2016-XX-XX](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-110-2016-xx-xx)
-    * [ [1.0.1] - 2016-05-06](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-101-2016-05-06)
-    * [[1.0.0] - 2016-01-28](http://boost-experimental.github.io/sml/CHANGELOG/index.html#100-2016-01-28)
+    * [ [1.1.0] - 2016-2017-XX-XX](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-110-2016-2017-xx-xx)
+    * [ [1.0.1] - 2016-2017-05-06](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-101-2016-2017-05-06)
+    * [[1.0.0] - 2016-2017-01-28](http://boost-experimental.github.io/sml/CHANGELOG/index.html#100-2016-2017-01-28)
 * [TODO](http://boost-experimental.github.io/sml/TODO/index.html)
 
 [](GENERATE_TOC_END)

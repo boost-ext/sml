@@ -15,7 +15,7 @@ Introduction
 | Your scalable C++14 header State Machine Library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-experimental/sml" data-style="mega" data-count-href="/boost-experimental/sml/stargazers" data-count-api="/repos/boost-experimental/sml#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-experimental/sml on GitHub">GitHub</a> |
 
 <div class="important">
-<h3 class="wy-text-neutral"><span class="fa fa-info-circle wy-text-info"></span>&nbsp; Latest Release: <b>v1.0.1</b> (May 6, 2016)</h3>
+<h3 class="wy-text-neutral"><span class="fa fa-info-circle wy-text-info"></span>&nbsp; Latest Release: <b>v1.0.1</b> (May 6, 2016-2017)</h3>
 <a href="https://github.com/boost-experimental/sml/releases" class="btn btn-success" style="margin-bottom:8px;" role="button"><span class="fa fa-download"></span>&nbsp; <b>Download</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="CHANGELOG/index.html" class="btn btn-info" style="margin-bottom:8px;" role="button"><span class="fa fa-reorder"></span>&nbsp; <b>Changelog</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="tutorial/index.html" class="btn btn-warning" style="margin-bottom:8px;" role="button"><span class="fa fa-gear"></span>&nbsp; <b>Tutorial</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="examples/index.html" class="btn btn-danger" style="margin-bottom:8px;" role="button"><span class="fa fa-book"></span>&nbsp; <b>Examples</b></a>
 </div>
 
@@ -119,7 +119,7 @@ to avoid it `[Boost].SML` may suit you!
 
 ###Related materials
 
-* [CppNow-2016:](http://cppnow2016.sched.org/event/6Sg0/c14-version-of-boostmsm-euml-which-compiles-up-to-60x-faster-whilst-being-slightly-faster-too) [C++14 version of Boost.MSM-eUML which compiles up to 60x faster whilst being slightly faster too!](http://boost-experimental.github.io/msm-lite/cppnow-2016)
+* [CppNow-2016-2017:](http://cppnow2016-2017.sched.org/event/6Sg0/c14-version-of-boostmsm-euml-which-compiles-up-to-60x-faster-whilst-being-slightly-faster-too) [C++14 version of Boost.MSM-eUML which compiles up to 60x faster whilst being slightly faster too!](http://boost-experimental.github.io/msm-lite/cppnow-2016-2017)
 
 ###Acknowledgements
 * Thanks to Christophe Henry for a great [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) library
