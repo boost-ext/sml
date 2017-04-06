@@ -14,6 +14,10 @@
 #include "boost/sml/back/utility.hpp"
 #include "boost/sml/concepts/callable.hpp"
 
+#if !defined(BOOST_SML_DISABLE_EXCEPTIONS) // __pph__
+#define BOOST_SML_DISABLE_EXCEPTIONS !(defined(__cpp_exceptions) || defined(__EXCEPTIONS))  // __pph__
+#endif// __pph__
+
 namespace back {
 
 template <class TSM>
@@ -44,7 +48,7 @@ struct sm_impl {
   using state_t = aux::conditional_t<(aux::size<states_t>::value > 0xFF), unsigned short, aux::byte>;
   static constexpr auto regions = aux::size<initial_states_t>::value;
   static_assert(regions > 0, "At least one initial state is required");
-#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
+#if !BOOST_SML_DISABLE_EXCEPTIONS  // __pph__
   using exceptions = aux::apply_t<aux::unique_t, aux::apply_t<get_exceptions, events_t>>;
   using has_exceptions = aux::integral_constant<bool, (aux::size<exceptions>::value > 0)>;
 #endif  // __pph__
@@ -62,12 +66,12 @@ struct sm_impl {
   bool process_event(const TEvent &event, TDeps &deps, TSubs &subs) {
     log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
 
-#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
-    const auto handled =
-        process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
-#else   // __pph__
+#if BOOST_SML_DISABLE_EXCEPTIONS  // __pph__
     const auto handled = process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(
         event, deps, subs, states_t{}, aux::make_index_sequence<regions>{});
+#else   // __pph__
+    const auto handled =
+        process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
 #endif  // __pph__
     process_internal_events(anonymous{}, deps, subs);
     process_defer_events(deps, subs, handled, aux::type<defer_queue_t<TEvent>>{}, events_t{});
@@ -101,11 +105,11 @@ struct sm_impl {
                                  !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
   bool process_internal_events(const TEvent &event, TDeps &deps, TSubs &subs) {
     log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
-#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
-    return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
-#else   // __pph__
+#if BOOST_SML_DISABLE_EXCEPTIONS  // __pph__
     return process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, states_t{},
                                                                                     aux::make_index_sequence<regions>{});
+#else   // __pph__
+    return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
 #endif  // __pph__
   }
 
@@ -113,11 +117,11 @@ struct sm_impl {
             __BOOST_SML_REQUIRES(aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
   bool process_internal_events(const TEvent &event, TDeps &deps, TSubs &subs) {
     log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
-#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
-    return process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
-#else   // __pph__
+#if BOOST_SML_DISABLE_EXCEPTIONS  // __pph__
     return process_event_impl<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, deps, subs, states_t{},
                                                                                    aux::make_index_sequence<regions>{});
+#else   // __pph__
+    return process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
 #endif  // __pph__
   }
 
@@ -133,12 +137,12 @@ struct sm_impl {
                                  !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
   bool process_internal_event(const TEvent &event, TDeps &deps, TSubs &subs, state_t &current_state) {
     log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
-#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
-    return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, current_state,
-                                                                                        has_exceptions{});
-#else   // __pph__
+#if BOOST_SML_DISABLE_EXCEPTIONS  // __pph__
     return process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, states_t{},
                                                                                     current_state);
+#else   // __pph__
+    return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, current_state,
+                                                                                        has_exceptions{});
 #endif  // __pph__
   }
 
@@ -146,12 +150,12 @@ struct sm_impl {
             __BOOST_SML_REQUIRES(aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
   bool process_internal_event(const TEvent &event, TDeps &deps, TSubs &subs, state_t &current_state) {
     log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
-#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
-    return process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, deps, subs, current_state,
-                                                                                       has_exceptions{});
-#else   // __pph__
+#if BOOST_SML_DISABLE_EXCEPTIONS  // __pph__
     return process_event_impl<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, deps, subs, states_t{},
                                                                                    current_state);
+#else   // __pph__
+    return process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, deps, subs, current_state,
+                                                                                       has_exceptions{});
 #endif  // __pph__
   }
 
@@ -190,7 +194,7 @@ struct sm_impl {
     return dispatch_table[current_state](event, *this, deps, subs, current_state);
   }
 
-#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
+#if !BOOST_SML_DISABLE_EXCEPTIONS  // __pph__
   template <class TMappings, class TEvent, class TDeps, class TSubs>
   bool process_event_noexcept(const TEvent &event, TDeps &deps, TSubs &subs, aux::false_type) noexcept {
     return process_event_impl<TMappings>(event, deps, subs, states_t{}, aux::make_index_sequence<regions>{});
@@ -243,11 +247,11 @@ struct sm_impl {
   bool process_event_no_defer(TDeps &deps, TSubs &subs, const void *data) {
     const auto &event = *static_cast<const TEvent *>(data);
     log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
-#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)  // __pph__
-    const auto handled = process_event_noexcept<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, has_exceptions{});
-#else   // __pph__
+#if BOOST_SML_DISABLE_EXCEPTIONS  // __pph__
     const auto handled = process_event_impl<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, states_t{},
                                                                                    aux::make_index_sequence<regions>{});
+#else   // __pph__
+    const auto handled = process_event_noexcept<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, has_exceptions{});
 #endif  // __pph__
     if (handled) {
       defer_.pop();
@@ -309,7 +313,7 @@ struct sm_impl {
   bool is_terminated_impl(aux::index_sequence<Ns...>) const {
     auto result = true;
     (void)aux::swallow{
-        0, (current_state_[Ns] == aux::get_id<state_t, terminate_state>((states_ids_t *)0) ? result : result = false)...};
+        0, (current_state_[Ns] == aux::get_id<state_t, terminate_state>((states_ids_t *)0) ? result : (result = false))...};
     return result;
   }
 
@@ -347,7 +351,9 @@ class sm {
   sm(const sm &) = delete;
   sm &operator=(const sm &) = delete;
 
-  sm(aux::init, deps_t &deps) : deps_(deps), sub_sms_{deps} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
+  sm(aux::init, deps_t &deps, typename TSM::sm &sm) : deps_(deps), sub_sms_{aux::pool<typename TSM::sm &, deps_t>{sm, deps}} {
+    aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
+  }
 
   template <class... TDeps, __BOOST_SML_REQUIRES(aux::is_unique_t<TDeps...>::value)>
   explicit sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {

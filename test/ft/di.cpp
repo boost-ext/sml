@@ -40,6 +40,28 @@ test di_minimal = [] {
   expect(sm.is(idle));
 };
 
+test di_ctor = [] {
+  struct c {
+    int &i_;
+
+    auto operator()() const {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        *idle + event<e1> / [this](int i) { expect(i_ == i); }
+      );
+      // clang-format on
+    }
+  };
+
+  auto i = 42;
+  auto injector = di::make_injector(di::bind<>.to(i));
+  auto sm = injector.create<sml::sm<c>>();
+  expect(sm.is(idle));
+  sm.process_event(e1{});
+  expect(sm.is(idle));
+};
+
 test di_complex = [] {
   struct i1 {
     virtual ~i1() noexcept = default;

@@ -189,7 +189,7 @@ class and_ : operator_base {
     (void)aux::swallow{
         0, (call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g), event, sm, deps, subs)
                 ? result
-                : result = false)...};
+                : (result = false))...};
     return result;
   }
 
@@ -212,7 +212,7 @@ class or_ : operator_base {
     auto result = false;
     (void)aux::swallow{
         0, (call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g), event, sm, deps, subs)
-                ? result = true
+                ? (result = true)
                 : result)...};
     return result;
   }

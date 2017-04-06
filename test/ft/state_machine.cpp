@@ -44,6 +44,20 @@ test sm_minimal_ctor = [] {
   (void)sm_;
 };
 
+test sm_ctor = [] {
+  struct c {
+    c(int) {}
+    auto operator()() noexcept {
+      using namespace sml;
+      return make_transition_table(*idle + event<e1> / [] {});
+    }
+  };
+
+  c c_{42};
+  sml::sm<c> sm{c_};
+  (void)sm;
+};
+
 test sm_events = [] {
   struct c {
     auto operator()() noexcept {
