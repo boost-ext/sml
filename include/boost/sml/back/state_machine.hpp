@@ -14,9 +14,9 @@
 #include "boost/sml/back/utility.hpp"
 #include "boost/sml/concepts/callable.hpp"
 
-#if !defined(BOOST_SML_DISABLE_EXCEPTIONS) // __pph__
+#if !defined(BOOST_SML_DISABLE_EXCEPTIONS)                                                  // __pph__
 #define BOOST_SML_DISABLE_EXCEPTIONS !(defined(__cpp_exceptions) || defined(__EXCEPTIONS))  // __pph__
-#endif// __pph__
+#endif                                                                                      // __pph__
 
 namespace back {
 
@@ -356,7 +356,7 @@ class sm {
   }
 
   template <class... TDeps, __BOOST_SML_REQUIRES(aux::is_unique_t<TDeps...>::value)>
-  explicit sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
+  sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
   }
 

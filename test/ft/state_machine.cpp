@@ -5,6 +5,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <array>
 #include <boost/sml.hpp>
 #include <string>
 #include <type_traits>
@@ -56,6 +57,19 @@ test sm_ctor = [] {
   c c_{42};
   sml::sm<c> sm{c_};
   (void)sm;
+
+};
+
+test sm_ctor_in_array = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      return make_transition_table(*idle + event<e1> / [] {});
+    }
+  };
+
+  std::array<sml::sm<c>, 10> sms{};
+  (void)sms;
 };
 
 test sm_events = [] {

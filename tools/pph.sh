@@ -29,6 +29,7 @@ pph() {
   echo "#pragma clang diagnostic push"
   echo "#pragma clang diagnostic ignored \"-Wgnu-string-literal-operator-template\""
   echo "#pragma clang diagnostic ignored \"-Wzero-length-array\""
+  echo "#pragma clang diagnostic ignored \"-Wexpansion-to-defined\""
   echo "#elif defined(__GNUC__)"
   echo "#define __has_builtin(...) 0"
   echo "#define __BOOST_SML_UNUSED __attribute__((unused))"

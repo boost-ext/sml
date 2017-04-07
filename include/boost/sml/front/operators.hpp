@@ -21,7 +21,7 @@ aux::type_list<action_base> args1__(...);
 template <class T, class E>
 auto args1__(int) -> aux::function_traits_t<decltype(&T::operator())>;
 template <class T, class E>
-auto args__(int) -> aux::function_traits_t<decltype(&T::__BOOST_SML_TEMPLATE_KEYWORD operator() < back::get_event_t<E>>)>;
+auto args__(int) -> aux::function_traits_t<decltype(&T::__BOOST_SML_TEMPLATE_KEYWORD operator()<back::get_event_t<E>>)>;
 template <class T, class E>
 auto args__(...) -> decltype(args1__<T, E>(0));
 template <class T, class E>
