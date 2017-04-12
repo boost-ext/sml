@@ -16,7 +16,8 @@
 
 template <class...>
 struct Policies {
-  Policies(...) {}
+  template <class... Ts>
+  Policies(Ts&&...) {}
 };
 
 template <class T>

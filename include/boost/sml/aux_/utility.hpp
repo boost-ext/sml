@@ -176,14 +176,20 @@ struct pool : pool_type<Ts>... {
   pool(init &&, pool<TArgs...> &&p) : pool_type<Ts>(try_get<Ts>(&p))... {}
 
   template <class... TArgs>
-  pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, &p)... {}
+  pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, p)... {}
 };
 template <>
 struct pool<> {
   using boost_di_inject__ = type_list<>;
-  explicit pool(...) {}
+  template <class... Ts>
+  explicit pool(Ts &&...) {}
   __BOOST_SML_ZERO_SIZE_ARRAY(byte);
 };
+
+template <class>
+false_type has_type(...);
+template <class T>
+true_type has_type(const pool_type<T> *);
 
 template <int, class>
 struct type_id_type {};
@@ -247,7 +253,8 @@ struct zero_wrapper_impl<TExpr, type_list<TArgs...>> {
 template <class TExpr>
 struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
     : zero_wrapper_impl<TExpr, function_traits_t<decltype(&TExpr::operator())>> {
-  zero_wrapper(...) {}
+  template <class... Ts>
+  zero_wrapper(Ts &&...) {}
   const TExpr &get() const { return reinterpret_cast<const TExpr &>(*this); }
 };
 

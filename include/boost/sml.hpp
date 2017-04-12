@@ -312,14 +312,19 @@ struct pool : pool_type<Ts>... {
   template <class... TArgs>
   pool(init &&, pool<TArgs...> &&p) : pool_type<Ts>(try_get<Ts>(&p))... {}
   template <class... TArgs>
-  pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, &p)... {}
+  pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, p)... {}
 };
 template <>
 struct pool<> {
   using boost_di_inject__ = type_list<>;
-  explicit pool(...) {}
+  template <class... Ts>
+  explicit pool(Ts &&...) {}
   __BOOST_SML_ZERO_SIZE_ARRAY(byte);
 };
+template <class>
+false_type has_type(...);
+template <class T>
+true_type has_type(const pool_type<T> *);
 template <int, class>
 struct type_id_type {};
 template <class, class...>
@@ -374,7 +379,8 @@ struct zero_wrapper_impl<TExpr, type_list<TArgs...>> {
 template <class TExpr>
 struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
     : zero_wrapper_impl<TExpr, function_traits_t<decltype(&TExpr::operator())>> {
-  zero_wrapper(...) {}
+  template <class... Ts>
+  zero_wrapper(Ts &&...) {}
   const TExpr &get() const { return reinterpret_cast<const TExpr &>(*this); }
 };
 namespace detail {
@@ -931,10 +937,16 @@ struct sm_impl {
   using has_exceptions = aux::integral_constant<bool, (aux::size<exceptions>::value > 0)>;
 #endif
   struct mappings : mappings_t<transitions_t> {};
-  sm_impl(const aux::init &, const aux::pool_type<sm_t &> *t) : transitions_((t->value)()) {
+  template <class TPool>
+  sm_impl(const aux::init &, const TPool &p) : sm_impl(p, decltype(aux::has_type<sm_t &>(&p)){}) {}
+  template <class TPool>
+  sm_impl(const TPool &p, aux::true_type) : transitions_(aux::cget<sm_t &>(p)()) {
     initialize(typename sm_impl<TSM>::initial_states_t{});
   }
-  sm_impl(const aux::init &, ...) : transitions_(sm_t{}()) { initialize(typename sm_impl<TSM>::initial_states_t{}); }
+  template <class TPool>
+  sm_impl(const TPool &, aux::false_type) : transitions_(sm_t{}()) {
+    initialize(typename sm_impl<TSM>::initial_states_t{});
+  }
   sm_impl(sm_impl &&) = default;
   sm_impl(const sm_impl &) = delete;
   sm_impl &operator=(const sm_impl &) = delete;
@@ -963,10 +975,10 @@ struct sm_impl {
     process_internal_events(on_entry<_, initial>{}, deps, subs);
     process_internal_events(anonymous{}, deps, subs);
   }
-  template <class TEvent, class TDeps, class TSubs,
+  template <class TEvent, class TDeps, class TSubs, class... Ts,
             __BOOST_SML_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
                                  !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
-  bool process_internal_events(const TEvent &, TDeps &, TSubs &, ...) {
+  bool process_internal_events(const TEvent &, TDeps &, TSubs &, Ts &&...) {
     return false;
   }
   template <class TEvent, class TDeps, class TSubs,
@@ -992,10 +1004,10 @@ struct sm_impl {
     return process_event_noexcept<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
 #endif
   }
-  template <class TEvent, class TDeps, class TSubs,
+  template <class TEvent, class TDeps, class TSubs, class... Ts,
             __BOOST_SML_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
                                  !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
-  bool process_internal_event(const TEvent &, TDeps &, TSubs &, ...) {
+  bool process_internal_event(const TEvent &, TDeps &, TSubs &, Ts &&...) {
     return false;
   }
   template <class TEvent, class TDeps, class TSubs,
@@ -1529,7 +1541,8 @@ struct defer : action_base {
 }
 template <class...>
 struct Policies {
-  Policies(...) {}
+  template <class... Ts>
+  Policies(Ts &&...) {}
 };
 template <class T>
 struct thread_safe : aux::pair<back::thread_safety_policy__, thread_safe<T>> {
@@ -1561,7 +1574,8 @@ struct rebind_policies<T, Policies<TPolicies...>, Ts...> {
 template <class T, class TPolicy, class... TPolicies>
 using rebind_policies_t = typename rebind_policies<T, TPolicy, TPolicies...>::type;
 }
-template <class T = class SM, class TPolicies = Policies<>, class... Ts>
+class SM;
+template <class T = SM, class TPolicies = Policies<>, class... Ts>
 struct sm : detail::state_machine<detail::rebind_policies_t<T, TPolicies, Ts...>> {
   using detail::state_machine<detail::rebind_policies_t<T, TPolicies, Ts...>>::state_machine;
 };
@@ -1891,8 +1905,8 @@ void update_composite_states(TSubs &subs, aux::true_type, const aux::type_list<T
                              aux::get_id<state_t, THs>((typename T::states_ids_t *)0),
                          0)...};
 }
-template <class T, class TSubs>
-void update_composite_states(TSubs &subs, aux::false_type, ...) {
+template <class T, class TSubs, class... Ts>
+void update_composite_states(TSubs &subs, aux::false_type, Ts &&...) {
   back::sub_sm<T>::get(&subs).initialize(typename T::initial_states_t{});
 }
 template <class SM, class TDeps, class TSubs, class TSrcState, class TDstState>
@@ -1960,8 +1974,8 @@ struct transition<state<internal>, state<S2>, front::event<E>, G, A> {
   using action = A;
   using deps = aux::apply_t<aux::unique_t, aux::join_t<get_deps_t<G, E>, get_deps_t<A, E>>>;
   transition(const G &g, const A &a) : g(g), a(a) {}
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, ...) {
+  template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
+  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, Ts &&...) {
     if (call<TEvent, args_t<G, TEvent>, typename SM::logger_t>::execute(g, event, sm, deps, subs)) {
       call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
       return true;
@@ -2013,8 +2027,8 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, A> {
   using action = A;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<A, E>>;
   transition(const always &, const A &a) : a(a) {}
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, ...) {
+  template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
+  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, Ts &&...) {
     call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
     return true;
   }
@@ -2066,8 +2080,8 @@ struct transition<state<internal>, state<S2>, front::event<E>, G, none> {
   using action = none;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<G, E>>;
   transition(const G &g, const none &) : g(g) {}
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, ...) {
+  template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
+  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, Ts &&...) {
     return call<TEvent, args_t<G, TEvent>, typename SM::logger_t>::execute(g, event, sm, deps, subs);
   }
   G g;
@@ -2112,8 +2126,8 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
   using action = none;
   using deps = aux::type_list<>;
   transition(const always &, const none &) {}
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &, ...) {
+  template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
+  bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &, Ts &&...) {
     return true;
   }
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);

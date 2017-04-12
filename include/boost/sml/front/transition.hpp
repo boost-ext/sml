@@ -239,8 +239,8 @@ void update_composite_states(TSubs &subs, aux::true_type, const aux::type_list<T
                          0)...};
 }
 
-template <class T, class TSubs>
-void update_composite_states(TSubs &subs, aux::false_type, ...) {
+template <class T, class TSubs, class... Ts>
+void update_composite_states(TSubs &subs, aux::false_type, Ts &&...) {
   back::sub_sm<T>::get(&subs).initialize(typename T::initial_states_t{});
 }
 
@@ -320,8 +320,8 @@ struct transition<state<internal>, state<S2>, front::event<E>, G, A> {
 
   transition(const G &g, const A &a) : g(g), a(a) {}
 
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, ...) {
+  template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
+  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, Ts &&...) {
     if (call<TEvent, args_t<G, TEvent>, typename SM::logger_t>::execute(g, event, sm, deps, subs)) {
       call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
       return true;
@@ -384,8 +384,8 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, A> {
 
   transition(const always &, const A &a) : a(a) {}
 
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, ...) {
+  template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
+  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, Ts &&...) {
     call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
     return true;
   }
@@ -448,8 +448,8 @@ struct transition<state<internal>, state<S2>, front::event<E>, G, none> {
 
   transition(const G &g, const none &) : g(g) {}
 
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, ...) {
+  template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
+  bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, Ts &&...) {
     return call<TEvent, args_t<G, TEvent>, typename SM::logger_t>::execute(g, event, sm, deps, subs);
   }
 
@@ -505,8 +505,8 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
 
   transition(const always &, const none &) {}
 
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &, ...) {
+  template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
+  bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &, Ts &&...) {
     return true;
   }
 
