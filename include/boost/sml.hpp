@@ -898,7 +898,8 @@ aux::false_type test_callable(aux::non_type<void (callable_fallback::*)(), &T::o
 template <class>
 aux::true_type test_callable(...);
 template <class, class T>
-struct callable : decltype(test_callable<aux::inherit<T, callable_fallback>>(0)) {};
+struct callable
+    : decltype(test_callable<aux::inherit<aux::conditional_t<__is_class(T), T, aux::none_type>, callable_fallback>>(0)) {};
 }
 #if !defined(BOOST_SML_DISABLE_EXCEPTIONS)
 #define BOOST_SML_DISABLE_EXCEPTIONS !(defined(__cpp_exceptions) || defined(__EXCEPTIONS))
