@@ -45,7 +45,11 @@
 #define __BOOST_SML_VT_INIT
 #define __BOOST_SML_ZERO_SIZE_ARRAY(...)
 #define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
+#if (_MSC_VER >= 1910)  // MSVC 2017
+#define __BOOST_SML_TEMPLATE_KEYWORD template
+#else
 #define __BOOST_SML_TEMPLATE_KEYWORD
+#endif
 #pragma warning(disable : 4503)
 #pragma warning(disable : 4200)
 #endif
