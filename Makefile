@@ -57,7 +57,7 @@ test/ft/policies_thread_safe.out: #-fsanitize=thread
 	$(CXX) test/ft/policies_thread_safe.cpp $(CXXFLAGS) -fno-exceptions -lpthread $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/policies_thread_safe.out && $($(MEMCHECK)) test/ft/policies_thread_safe.out
 
 test/ft/units.out:
-	$(CXX) test/ft/unit1.cpp test/ft/unit2.cpp  test/ft/units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -o test/ft/units.out
+	$(CXX) test/ft/unit1.cpp test/ft/unit2.cpp test/ft/units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -o test/ft/units.out
 
 example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp))
 

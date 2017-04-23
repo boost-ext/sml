@@ -966,6 +966,10 @@ struct sm_impl {
     return handled;
   }
   void initialize(const aux::type_list<> &) {}
+  template <class TState>
+  void initialize(const aux::type_list<TState> &) {
+    current_state_[0] = aux::get_id<state_t, TState>((states_ids_t *)0);
+  }
   template <class... TStates>
   void initialize(const aux::type_list<TStates...> &) {
     auto region = 0, i = region;
