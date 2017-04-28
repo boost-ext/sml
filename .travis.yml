@@ -105,6 +105,9 @@ matrix:
   - os: osx
     osx_image: xcode8
     env: CXX=clang++
+  - os: osx
+    osx_image: xcode8.3
+    env: CXX=clang++
 
 before_install:
   - git config --global user.name "Continuous Integration"
