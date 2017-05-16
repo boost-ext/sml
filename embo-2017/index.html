@@ -891,7 +891,7 @@ constexpr void process_event(const TEvent& event) {
 
 template<class... Transitions, class TEvent>
 constexpr void process_event_impl(const TEvent& event, type_list<Transitions...>) {
-  const static (*dispatch_table[])(const TEvent&) = { 
+  const static (*dispatch_table[])(const TEvent&) = {
     &Transitions::template execute<TEvent>...
   };
   dispatch_table[current_state](event); // Complexity: O(1) - jump table
