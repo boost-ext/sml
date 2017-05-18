@@ -79,14 +79,16 @@ Kris Jusiak, Quantlab Financial
 
 ```cpp
 // guards
-const auto is_valid = [](auto event){ return event.valid; };
+const auto is_valid = [](auto event) { return event.valid; };
 
 // actions
-const auto establish =  []{ std::puts("establish!"); };
-const auto disconnect = []{ std::puts("disconnect!"); };
+const auto establish = [] { std::puts("establish"); };
+const auto close = [] { std::puts("close"); };
+const auto resetTimeout = [] { std::puts("resetTimeout"); };
 
-// events
-struct connect {}; // etc...
+// events (types)
+struct connect {}; // ...
+struct ping { bool valid{}; };
 ```
 <!-- .element: style="width:105%" -->
 
