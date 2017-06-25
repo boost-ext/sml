@@ -24,7 +24,7 @@ struct ignore<E, aux::type_list<Ts...>> {
   template <class T>
   struct non_events {
     using type = aux::conditional_t<aux::is_same<back::get_event_t<E>, aux::remove_reference_t<T>>::value ||
-                                        aux::is_same<T, action_base>::value,
+                                        aux::is_same<T, action_base>::value || aux::is_same<aux::remove_reference_t<T>, sm_ref_fwd>::value,
                                     aux::type_list<>, aux::type_list<T>>;
   };
 

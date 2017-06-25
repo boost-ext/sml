@@ -44,3 +44,33 @@ test process_event = [] {
   expect(1 == c_.a_called);
   expect(sm.is(sml::X));
 };
+
+test process_event_using_injected_sm = [] {
+  struct c {
+    auto operator()() const noexcept {
+      using namespace sml;
+      return make_transition_table(
+          *"s1"_s + event<e1> / [](bool value, auto event, auto& sm){
+              static_expect(aux::is_same<decltype(event), e1>::value);
+              if (value) {
+                sm.process_event(e2{});
+              }
+            } = "s3"_s
+          ,"s1"_s + event<e2> = "s2"_s
+          ,"s3"_s + event<e2> = "s4"_s
+      );
+    }
+  };
+
+  using namespace sml;
+  {
+    sm<c> sm{true};
+    sm.process_event(e1{});
+    expect(sm.is("s4"_s));
+  }
+  {
+    sm<c> sm{false};
+    sm.process_event(e1{});
+    expect(sm.is("s3"_s));
+  }
+};
