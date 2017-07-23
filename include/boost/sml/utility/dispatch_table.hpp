@@ -93,12 +93,12 @@ template <int N, class T>
 using get_event_t = typename get_event<N, T>::type;
 
 template <class TEvent, int EventRangeBegin, class SM, int... Ns>
-auto make_dispatch_table(sm<SM> &fsm, const aux::index_sequence<Ns...> &) {
-  using events_ids_t = aux::apply_t<event_id, typename sm<SM>::events>;
+auto make_dispatch_table(SM &fsm, const aux::index_sequence<Ns...> &) {
+  using events_ids_t = aux::apply_t<event_id, typename SM::events>;
   return [&](const TEvent &e, int id) {
-    using dispatch_table_t = void (*)(sm<SM> &, const TEvent &);
+    using dispatch_table_t = void (*)(SM &, const TEvent &);
     const static dispatch_table_t dispatch_table[sizeof...(Ns) ? sizeof...(Ns) : 1] = {
-        &get_event_t<Ns + EventRangeBegin, events_ids_t>::template execute<sm<SM>, TEvent>...};
+        &get_event_t<Ns + EventRangeBegin, events_ids_t>::template execute<SM, TEvent>...};
     dispatch_table[id - EventRangeBegin](fsm, e);
   };
 }
@@ -119,8 +119,8 @@ template <int... Ids>
 using id = id_impl<Ids...>;
 
 template <class TEvent, int EventRangeBegin, int EventRangeEnd, class SM,
-          __BOOST_SML_REQUIRES(concepts::dispatchable<TEvent, typename sm<SM>::events>::value)>
-auto make_dispatch_table(sm<SM> &fsm) {
+          __BOOST_SML_REQUIRES(concepts::dispatchable<TEvent, typename SM::events>::value)>
+auto make_dispatch_table(SM &fsm) {
   static_assert(EventRangeEnd - EventRangeBegin > 0, "Event ids range difference has to be greater than 0");
   return detail::make_dispatch_table<TEvent, EventRangeBegin>(fsm,
                                                               aux::make_index_sequence<EventRangeEnd - EventRangeBegin + 1>{});
