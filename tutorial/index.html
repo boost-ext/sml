@@ -294,7 +294,7 @@ struct guard4 {
 };
 </code></pre>
 
-<p>Action MUST return void.</p>
+<p>Action MUST not return.</p>
 <pre><code class="cpp">auto action1 = [] { };
 auto action2 = [](int, double) { }; // action with dependencies
 auto action3 = [](int, auto event, double) { }; // action with an event and dependencies
