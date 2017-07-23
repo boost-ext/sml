@@ -172,7 +172,8 @@ test dispatch_sm_with_rebind_policies  = [] {
   };
 
   {
-    sml::sm<c, sml::logger<my_logger>> sm;
+    my_logger logger;
+    sml::sm<c, sml::logger<my_logger>> sm{ logger };
     expect(sm.is(idle));
     auto dispatcher = sml::utility::make_dispatch_table<runtime_event, 1 /*min*/, 10 /*max*/>(sm);
     runtime_event event{4};
@@ -181,7 +182,8 @@ test dispatch_sm_with_rebind_policies  = [] {
   }
 
   {
-    sml::sm<c> sm;
+    my_logger logger;
+    sml::sm<c, sml::logger<my_logger>> sm{ logger };
     expect(sm.is(idle));
     auto dispatcher = sml::utility::make_dispatch_table<runtime_event, 1 /*min*/, 10 /*max*/>(sm);
     runtime_event event{5};
