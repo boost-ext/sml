@@ -139,7 +139,7 @@ template <class R, class T, class... TArgs>
 struct function_traits<R (T::*)(TArgs...) const> {
   using args = type_list<TArgs...>;
 };
-#if __cplusplus > 201402L // __pph__
+#if __cplusplus > 201402L  // __pph__
 template <class R, class... TArgs>
 struct function_traits<R (*)(TArgs...) noexcept> {
   using args = type_list<TArgs...>;
@@ -156,7 +156,7 @@ template <class R, class T, class... TArgs>
 struct function_traits<R (T::*)(TArgs...) const noexcept> {
   using args = type_list<TArgs...>;
 };
-#endif // __pph__
+#endif  // __pph__
 template <class T>
 using function_traits_t = typename function_traits<T>::args;
 

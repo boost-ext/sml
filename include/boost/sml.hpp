@@ -27,7 +27,6 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
 #pragma clang diagnostic ignored "-Wzero-length-array"
-#pragma clang diagnostic ignored "-Wexpansion-to-defined"
 #elif defined(__GNUC__)
 #define __has_builtin(...) 0
 #define __BOOST_SML_UNUSED __attribute__((unused))
@@ -924,7 +923,11 @@ struct callable
     : decltype(test_callable<aux::inherit<aux::conditional_t<__is_class(T), T, aux::none_type>, callable_fallback>>(0)) {};
 }
 #if !defined(BOOST_SML_DISABLE_EXCEPTIONS)
-#define BOOST_SML_DISABLE_EXCEPTIONS !(defined(__cpp_exceptions) || defined(__EXCEPTIONS))
+#if !(defined(__cpp_exceptions) || defined(__EXCEPTIONS))
+#define BOOST_SML_DISABLE_EXCEPTIONS true
+#else
+#define BOOST_SML_DISABLE_EXCEPTIONS false
+#endif
 #endif
 namespace back {
 template <class TSM>
