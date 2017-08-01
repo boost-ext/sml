@@ -29,7 +29,6 @@ pph() {
   echo "#pragma clang diagnostic push"
   echo "#pragma clang diagnostic ignored \"-Wgnu-string-literal-operator-template\""
   echo "#pragma clang diagnostic ignored \"-Wzero-length-array\""
-  echo "#pragma clang diagnostic ignored \"-Wexpansion-to-defined\""
   echo "#elif defined(__GNUC__)"
   echo "#define __has_builtin(...) 0"
   echo "#define __BOOST_SML_UNUSED __attribute__((unused))"
@@ -63,7 +62,7 @@ pph() {
     #include "boost/sml/transition_table.hpp"' > tmp.hpp
   cpp -C -P -nostdinc -I. tmp.hpp 2>/dev/null | \
     sed "s/\/\/\/\///" | \
-    sed "s/[ $]*#define/##define/g" | \
+    sed "s/[ \t$]*#[ \t]*define/##define/g" | \
     cpp -P -I. -fpreprocessed - 2>/dev/null | \
     sed "s/clang-format\(.*\)/\/\/ clang-format\1/g" | \
     sed "s/^##define/#define/g"

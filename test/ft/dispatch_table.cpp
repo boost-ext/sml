@@ -134,7 +134,7 @@ test dispatch_runtime_event_dynamic_id = [] {
   }
 };
 
-test dispatch_sm_with_rebind_policies  = [] {
+namespace {
   struct my_logger {
     template <class SM, class TEvent>
     void log_process_event(const TEvent&) {
@@ -158,7 +158,9 @@ test dispatch_sm_with_rebind_policies  = [] {
       printf("[%s][transition] %s -> %s\n", sml::aux::get_type_name<SM>(), src.c_str(), dst.c_str());
     }
   };
+}
 
+test dispatch_sm_with_rebind_policies = [] {
   struct c {
     auto operator()() noexcept {
       using namespace sml;

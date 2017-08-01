@@ -19,6 +19,7 @@ const auto idle = sml::state<class idle>;
 const auto s1 = sml::state<class s1>;
 const auto s2 = sml::state<class s2>;
 const auto s3 = sml::state<class s3>;
+const auto s4 = sml::state<class s4>;
 
 test process_event = [] {
   struct c {
@@ -52,14 +53,14 @@ test process_event_using_injected_sm = [] {
     auto operator()() const noexcept {
       using namespace sml;
       return make_transition_table(
-          *"s1"_s + event<e1> / [](bool value, auto event, auto& sm){
+          *s1 + event<e1> / [](bool value, auto event, auto& sm){
               static_expect(aux::is_same<decltype(event), e1>::value);
               if (value) {
                 sm.process_event(e2{});
               }
-            } = "s3"_s
-          ,"s1"_s + event<e2> = "s2"_s
-          ,"s3"_s + event<e2> = "s4"_s
+            } = s3
+          ,s1 + event<e2> = s2
+          ,s3 + event<e2> = s4
       );
     }
   };
@@ -68,12 +69,12 @@ test process_event_using_injected_sm = [] {
   {
     sm<c> sm{true};
     sm.process_event(e1{});
-    expect(sm.is("s4"_s));
+    expect(sm.is(s4));
   }
   {
     sm<c> sm{false};
     sm.process_event(e1{});
-    expect(sm.is("s3"_s));
+    expect(sm.is(s3));
   }
 };
 

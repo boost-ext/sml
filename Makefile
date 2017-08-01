@@ -9,12 +9,15 @@ CXX?=clang++
 ifneq (, $(findstring clang++, $(CXX)))
 	CXXFLAGS+=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
 	INCLUDE_TEST=-include test/common/test.hpp
+	DISABLE_EXCEPTIONS=-fno-exceptions
 else ifneq (, $(findstring g++, $(CXX)))
 	CXXFLAGS+=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
 	INCLUDE_TEST=-include test/common/test.hpp
+	DISABLE_EXCEPTIONS=-fno-exceptions
 else
 	CXXFLAGS+=-EHsc -W4 -WX -I include -I .
 	INCLUDE_TEST=-FI test/common/test.hpp
+	DISABLE_EXCEPTIONS=
 endif
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
 DRMEMORY:=drmemory -light -batch -exit_code_if_errors 1 --
@@ -36,28 +39,28 @@ check: style
 test: $(patsubst %.cpp, %.out, $(wildcard test/ft/*.cpp test/ft/errors/*.cpp test/ut/*.cpp))
 
 test/ut/%.out:
-	$(CXX) test/ut/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ut/$*.out	&& $($(MEMCHECK)) test/ut/$*.out
+	$(CXX) test/ut/$*.cpp $(CXXFLAGS) $(DISABLE_EXCEPTIONS) $($(COVERAGE)) $(INCLUDE_TEST) -o test/ut/$*.out && $($(MEMCHECK)) test/ut/$*.out
 
 test/ft/errors/%.out:
 	$(CXX) test/ft/errors/$*.cpp $(CXXFLAGS) -I include 2> /dev/null || [ $$? -ne 0 ]
 
 test/ft/%.out:
-	$(CXX) test/ft/$*.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/$*.out	&& $($(MEMCHECK)) test/ft/$*.out
+	$(CXX) test/ft/$*.cpp $(CXXFLAGS) $(DISABLE_EXCEPTIONS) $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/$*.out && $($(MEMCHECK)) test/ft/$*.out
 
 test/ft/sizeof.out:
-	$(CXX) test/ft/sizeof.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/sizeof.out && $($(MEMCHECK)) test/ft/sizeof.out
+	$(CXX) test/ft/sizeof.cpp $(CXXFLAGS) -ftemplate-depth=1024 $(DISABLE_EXCEPTIONS) $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/sizeof.out && $($(MEMCHECK)) test/ft/sizeof.out
 
 test/ft/state_machine.out:
-	$(CXX) test/ft/state_machine.cpp $(CXXFLAGS) -ftemplate-depth=1024 -fno-exceptions $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/state_machine.out && $($(MEMCHECK)) test/ft/state_machine.out
+	$(CXX) test/ft/state_machine.cpp $(CXXFLAGS) -ftemplate-depth=1024 $(DISABLE_EXCEPTIONS) $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/state_machine.out && $($(MEMCHECK)) test/ft/state_machine.out
 
 test/ft/exceptions.out:
 	$(CXX) test/ft/exceptions.cpp $(CXXFLAGS) $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/exceptions.out && $($(MEMCHECK)) test/ft/exceptions.out
 
 test/ft/policies_thread_safe.out: #-fsanitize=thread
-	$(CXX) test/ft/policies_thread_safe.cpp $(CXXFLAGS) -fno-exceptions -lpthread $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/policies_thread_safe.out && $($(MEMCHECK)) test/ft/policies_thread_safe.out
+	$(CXX) test/ft/policies_thread_safe.cpp $(CXXFLAGS) $(DISABLE_EXCEPTIONS) -lpthread $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/policies_thread_safe.out && $($(MEMCHECK)) test/ft/policies_thread_safe.out
 
 test/ft/units.out:
-	$(CXX) test/ft/unit1.cpp test/ft/unit2.cpp test/ft/units.cpp $(CXXFLAGS) -fno-exceptions $($(COVERAGE)) -o test/ft/units.out
+	$(CXX) test/ft/unit1.cpp test/ft/unit2.cpp test/ft/units.cpp $(CXXFLAGS) $(DISABLE_EXCEPTIONS) $($(COVERAGE)) -o test/ft/units.out
 
 example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp))
 
