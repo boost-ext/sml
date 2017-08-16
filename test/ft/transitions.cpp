@@ -9,12 +9,16 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <type_traits>
 
 namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
 struct e3 {};
+struct e4 {};
+struct e5 {};
+struct e6 {};
 
 const auto idle = sml::state<class idle>;
 const auto s1 = sml::state<class s1>;
@@ -464,4 +468,71 @@ test initial_entry = [] {
   c c_;
   sml::sm<c> sm{c_};
   expect(1 == c_.entry_calls);
+};
+
+test general_transition_overload = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto is_e3_or_e4 = [](auto event) {
+          return std::is_same<e3, typename std::decay<decltype(event)>::type>::value ||
+                 std::is_same<e4, typename std::decay<decltype(event)>::type>::value;
+      };
+      auto is_e5_or_e6 = [](auto event) {
+          return std::is_same<e5, typename std::decay<decltype(event)>::type>::value ||
+                 std::is_same<e6, typename std::decay<decltype(event)>::type>::value;
+      };
+
+      // clang-format off
+      return make_transition_table(
+         *idle + event<e1> = s1
+        , idle + event<_> [is_e3_or_e4] = s3
+        , idle + event<e2> = s2
+        , idle + event<_> [is_e5_or_e6] = s4  // Only e5 will match this line, because
+        , idle + event<e6> = s1               // this line is the better match for e6.
+        // Non-reachable states, just to make some events not 'unexpected'!
+        // Only event e4 is really 'unexpected'.
+        , X + event<e3> / []{}
+        , X + event<e5> / []{}
+        , X + event<e6> / []{}
+      );
+      // clang-format on
+    }
+  };
+
+  {
+    sml::sm<c> sm;
+    sm.process_event(e1{});
+    expect(sm.is(s1));
+  }
+
+  {
+    sml::sm<c> sm;
+    sm.process_event(e2{});
+    expect(sm.is(s2));
+  }
+
+  {
+    sml::sm<c> sm;
+    sm.process_event(e3{});
+    expect(sm.is(s3));
+  }
+
+  {
+    sml::sm<c> sm;
+    sm.process_event(e4{});
+    expect(sm.is(idle));
+  }
+
+  {
+    sml::sm<c> sm;
+    sm.process_event(e5{});
+    expect(sm.is(s4));
+  }
+
+  {
+    sml::sm<c> sm;
+    sm.process_event(e6{});
+    expect(sm.is(s1));
+  }
 };

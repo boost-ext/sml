@@ -141,8 +141,15 @@ transitions<aux::true_type> get_event_mapping_impl(...);
 template <class T, class TMappings>
 TMappings get_event_mapping_impl(event_mappings<T, TMappings> *);
 
+template <class T, class... T1Mappings, class... T2Mappings>
+unique_mappings_t<T1Mappings..., T2Mappings...> get_event_mapping_impl(event_mappings<T, aux::inherit<T1Mappings...>> *,
+                                                                       event_mappings<_, aux::inherit<T2Mappings...>> *);
+
 template <class T, class TMappings>
-using get_event_mapping_t = decltype(get_event_mapping_impl<T>((TMappings *)0));
+using get_event_mapping_t = typename aux::conditional<
+    aux::is_same<transitions<aux::true_type>, decltype(get_event_mapping_impl<_>((TMappings *)0))>::value,
+    decltype(get_event_mapping_impl<T>((TMappings *)0)),
+    decltype(get_event_mapping_impl<T>((TMappings *)0, (TMappings *)0))>::type;
 
 }  // back
 
