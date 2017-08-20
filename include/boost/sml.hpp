@@ -28,7 +28,9 @@
 #pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
 #pragma clang diagnostic ignored "-Wzero-length-array"
 #elif defined(__GNUC__)
+#if !defined(__has_builtin)
 #define __has_builtin(...) 0
+#endif
 #define __BOOST_SML_UNUSED __attribute__((unused))
 #define __BOOST_SML_VT_INIT \
   {}
