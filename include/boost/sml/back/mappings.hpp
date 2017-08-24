@@ -146,10 +146,29 @@ unique_mappings_t<T1Mappings..., T2Mappings...> get_event_mapping_impl(event_map
                                                                        event_mappings<_, aux::inherit<T2Mappings...>> *);
 
 template <class T, class TMappings>
-using get_event_mapping_t = typename aux::conditional<
-    aux::is_same<transitions<aux::true_type>, decltype(get_event_mapping_impl<_>((TMappings *)0))>::value,
-    decltype(get_event_mapping_impl<T>((TMappings *)0)),
-    decltype(get_event_mapping_impl<T>((TMappings *)0, (TMappings *)0))>::type;
+struct get_event_mapping_impl_helper
+    : aux::conditional<aux::is_same<transitions<aux::true_type>, decltype(get_event_mapping_impl<_>((TMappings *)0))>::value,
+                       decltype(get_event_mapping_impl<T>((TMappings *)0)),
+                       decltype(get_event_mapping_impl<T>((TMappings *)0, (TMappings *)0))>::type {};
+
+template <class T, class TMappings>
+struct get_event_mapping_impl_helper<exception<T>, TMappings>
+    : decltype(get_event_mapping_impl<exception<T>>((TMappings *)0)) {};
+
+template <class T1, class T2, class TMappings>
+struct get_event_mapping_impl_helper<unexpected_event<T1, T2>, TMappings>
+    : decltype(get_event_mapping_impl<unexpected_event<T1, T2>>((TMappings *)0)) {};
+
+template <class T1, class T2, class TMappings>
+struct get_event_mapping_impl_helper<on_entry<T1, T2>, TMappings>
+    : decltype(get_event_mapping_impl<on_entry<T1, T2>>((TMappings *)0)) {};
+
+template <class T1, class T2, class TMappings>
+struct get_event_mapping_impl_helper<on_exit<T1, T2>, TMappings>
+    : decltype(get_event_mapping_impl<on_exit<T1, T2>>((TMappings *)0)) {};
+
+template <class T, class TMappings>
+using get_event_mapping_t = get_event_mapping_impl_helper<T, TMappings>;
 
 }  // back
 
