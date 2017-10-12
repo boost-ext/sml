@@ -50,7 +50,11 @@ struct sdl_event_impl {
 template <SDL_EventType Id>
 decltype(sml::event<sdl_event_impl<Id>>) sdl_event{};
 
-auto is_key = [](auto key) { return [=](auto event) { return event.data.key.keysym.sym == key; }; };
+struct IsKey {
+  auto operator()(int key) {
+    return [=](auto event) { return event.data.key.keysym.sym == key; };
+  }
+} is_key;
 
 struct sdl2 {
   auto operator()() const noexcept {
