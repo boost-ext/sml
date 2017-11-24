@@ -7,9 +7,9 @@
 //
 #include <boost/sml.hpp>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
-#include <type_traits>
 
 namespace sml = boost::sml;
 
@@ -475,12 +475,12 @@ test general_transition_overload = [] {
     auto operator()() noexcept {
       using namespace sml;
       auto is_e3_or_e4 = [](auto event) {
-          return std::is_same<e3, typename std::decay<decltype(event)>::type>::value ||
-                 std::is_same<e4, typename std::decay<decltype(event)>::type>::value;
+        return std::is_same<e3, typename std::decay<decltype(event)>::type>::value ||
+               std::is_same<e4, typename std::decay<decltype(event)>::type>::value;
       };
       auto is_e5_or_e6 = [](auto event) {
-          return std::is_same<e5, typename std::decay<decltype(event)>::type>::value ||
-                 std::is_same<e6, typename std::decay<decltype(event)>::type>::value;
+        return std::is_same<e5, typename std::decay<decltype(event)>::type>::value ||
+               std::is_same<e6, typename std::decay<decltype(event)>::type>::value;
       };
 
       // clang-format off

@@ -16,18 +16,14 @@ struct fwd_sm {
   }
 };
 
-c::c()
-  : sm{std::make_unique<sml::sm<fwd_sm>>()}
-{ }
+c::c() : sm{std::make_unique<sml::sm<fwd_sm>>()} {}
 
 void c::update() {
   using namespace sml;
   sm->process_event("event"_e());
 }
 
-bool c::is_done() const {
- return sm->is(sml::X);
-}
+bool c::is_done() const { return sm->is(sml::X); }
 
 test should_transition_to_terminate_state = [] {
   c c_{};

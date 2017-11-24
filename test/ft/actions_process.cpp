@@ -52,16 +52,15 @@ test process_event_using_injected_sm = [] {
   struct c {
     auto operator()() const noexcept {
       using namespace sml;
-      return make_transition_table(
-          *s1 + event<e1> / [](bool value, auto event, auto& sm){
-              static_expect(aux::is_same<decltype(event), e1>::value);
-              if (value) {
-                sm.process_event(e2{});
-              }
-            } = s3
-          ,s1 + event<e2> = s2
-          ,s3 + event<e2> = s4
-      );
+      return make_transition_table(*s1 +
+                                       event<e1> /
+                                           [](bool value, auto event, auto& sm) {
+                                             static_expect(aux::is_same<decltype(event), e1>::value);
+                                             if (value) {
+                                               sm.process_event(e2{});
+                                             }
+                                           } = s3,
+                                   s1 + event<e2> = s2, s3 + event<e2> = s4);
     }
   };
 

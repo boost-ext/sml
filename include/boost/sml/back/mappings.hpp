@@ -152,8 +152,8 @@ struct get_event_mapping_impl_helper
                        decltype(get_event_mapping_impl<T>((TMappings *)0, (TMappings *)0))>::type {};
 
 template <class T, class TMappings>
-struct get_event_mapping_impl_helper<exception<T>, TMappings>
-    : decltype(get_event_mapping_impl<exception<T>>((TMappings *)0)) {};
+struct get_event_mapping_impl_helper<exception<T>, TMappings> : decltype(get_event_mapping_impl<exception<T>>((TMappings *)0)) {
+};
 
 template <class T1, class T2, class TMappings>
 struct get_event_mapping_impl_helper<unexpected_event<T1, T2>, TMappings>

@@ -13,11 +13,11 @@ namespace sml = boost::sml;
 struct fwd_sm;
 
 class c {
-public:
+ public:
   c();
   void update();
   bool is_done() const;
 
-private:
+ private:
   std::unique_ptr<sml::sm<fwd_sm>> sm;
 };
