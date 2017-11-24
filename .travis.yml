@@ -4,11 +4,14 @@
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
-sudo: false
 env:
   global:
-  - secure: "TApi3LdRToyQgUkEAUpgV87gGCMaxgQIP+BNeFYGHSsy/mMfTACQkjlNZpm34HzQ83y8vs6bCAIw42gRvoWGB3HV5WIY7AEnCqMDkHSd/oQGjwg0tXznAO+A2cNTtE1uwBmDBAtgiN6BUiaJ8/xkTk/bzlS3X0pNK1rbe2UfJwGtwWhZbtO1z/eude1qc8iRd53rr3qfdv7snEoU910xap5ZRiOnlrOxpfEPfuA/Wln7+N/ZRkKoG0Qn1IiekrbZjJj7LwGCrZ9fuQBe5T1B6nZHbePw8W6oHX3kJ095V0Dbp+rjue3f7Mtu362WdJqDh65uZijENgUO+/y+3pNiGonEqOTgRvyssvjr4MaGlmtPjQ9MlmXd8CkZ6R+iOYYdPvAdMyRLKGHhar316BEer13p5dniITcO3LV9z4OnxMLyTUK6Je5viNIG+evFxBJ5VSHP38m394x6hBMm2/KAc56KQaRMr7Ycy6jIkrvGdeMmqf5D3WcMx8PgGo0GgFdRQ8jUrowy3NivYdPVc82ywoJn4JiNQlYfJU/M/QRZV3uSmscqTjO0HAKVaX8wafohbhwtJD7GIoUrdr19tNJ5K2+x/AK3gPBh+dzaXxxzoq1tvp90iSdUF40h90RSk4PEa93KAXyVUJ7HGWINdvWikkJWGa5q5d28hQPq6j6DLSE=" # GH_TOKEN
-  - secure: "piiyYcJt9VXzHMgG4uUMe6kFA7iE8mC39/8AhlzJu2xwLeldEGlaHr+oi/2e0Ox/eM9saIR/9EoReSw8CRSZrU10/s4vKXS+TUfnWpAdPUM2goxlUcQ5JvR8ggiwkhJ2HE8lmpwqXF0nJNfIvFhmzIE+MIYO64f8QJviiN8PIoXGL9K67xqe/gex3qkYL4uz6/DgXMql3pYvX3thSVAj55Ujox8Vz3ykF3FoqWAlPAM17k/2fCyo95kdeHupawKRBeAOdxWK3wCtuNn3pyUAhJfJYi4FdJTJ+LAUnL/Pb3LpGOWTT+FGFDLS/rKS0JO/bpu2lxgiXpcQqoxVxvZmXeWDw0H67v5CImBmjb2Cgg+fLOwfNAx7XOhRIXsNRkPa+YmVLIPr4MRAIUFmX8FqljWIK3zvF6Kdabolw12lc48t0rK+QfBx5CRAI7pen7EIR3GnyV+vTylsuB5EPsvfe3BO9+C8DhZuUm6OtAg5ne/UAzr/zXq6hB9k/QNU3mtWBIn4D/5L6sufHCS8d5polClzkua2fUk20NEyZyhBQ3iFSNmXc3glmE7ZoEel+1bpKqrZo3IK1Ck97vKp2kJ7Ui3GK3fBhCwreq7sKwCX7hy/QW/RM7MtiyrsJdc8h6Tdp475LfSVhUwcRywv5zS6F5wJQZ7qBPxSs8ovV3gytgk=" # COVERALLS_REPO_TOKEN
+  - secure: "eWDDsd5M1F8/LMYKdeDDSyfIB9kR1MoRPEg1Cml2PbN3c7T1cHczHH/DKeOrsWD0Ti6tjltczfW4VRYgv+pDSt9TsEsXMQmI5GY2a/lR3QcI/IIuQyQJ05VcmwNRIwZgHtUGukj7uHUzrNlQkATpfmGII7HG5ZXDoG9lfXzxITA=" # GH_TOKEN
+
+git:
+  depth: 1
+
+sudo: false
 
 branches:
   except:
@@ -17,97 +20,88 @@ branches:
 
 matrix:
   fast_finish: true
-
-  allow_failures:
-    - env: CXX=clang++-3.9 MEMCHECK=VALGRIND
-
   include:
-  - os: linux
-    env: CHECK=ON CLANG_FORMAT=clang-format-3.8 CLANG_TIDY=clang-tidy-3.8
-    addons:
-      apt:
-        packages: ["clang-format-3.8", "clang-tidy-3.8"]
-        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"]
+
+#
+# Documentation
+#
   - os: linux
     env: DOCUMENTATION=ON
+#
+# Style
+#
   - os: linux
-    env: CXX=/usr/local/clang-3.4/bin/clang++ MEMCHECK=VALGRIND
-    addons:
-      apt:
-        packages: ["clang-3.4", "libstdc++-5-dev", "valgrind"]
-        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.4"]
+    dist: precise
+    env: CHECK=ON CLANG_FORMAT=clang-format-4.0 CLANG_TIDY=clang-tidy-4.0
+    addons: { apt: { packages: ["clang-format-4.0", "clang-tidy-4.0", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
+
+#
+# Build
+#
   - os: linux
-    env: CXX=clang++-3.5 MEMCHECK=VALGRIND
-    addons:
-      apt:
-        packages: ["clang-3.5", "libstdc++-5-dev", "valgrind"]
-        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.5"]
-  - os: linux
+    dist: precise
     env: CXX=clang++-3.6 MEMCHECK=VALGRIND
-    addons:
-      apt:
-        packages: ["clang-3.6", "libstdc++-5-dev", "valgrind"]
-        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"]
+    addons: { apt: { packages: ["clang-3.6", "libstdc++-5-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"] } }
+    dist: precise
+
   - os: linux
     env: CXX=clang++-3.7 MEMCHECK=VALGRIND
-    addons:
-      apt:
-        packages: ["clang-3.7", "libstdc++-5-dev", "valgrind"]
-        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"]
+    addons: { apt: { packages: ["clang-3.7", "libstdc++-5-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"] } }
+
   - os: linux
+    dist: precise
     env: CXX=clang++-3.8 MEMCHECK=VALGRIND
-    addons:
-      apt:
-        packages: ["clang-3.8", "libstdc++-5-dev", "valgrind"]
-        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"]
+    addons: { apt: { packages: ["clang-3.8", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"] } }
+
   - os: linux
+    dist: precise
     env: CXX=clang++-3.9 MEMCHECK=VALGRIND
-    addons:
-      apt:
-        packages: ["clang-3.9", "libstdc++-5-dev", "valgrind"]
-        sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise"]
+    addons: { apt: { packages: ["clang-3.9", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.9"] } }
+
   - os: linux
+    dist: precise
+    env: CXX=clang++-4.0 MEMCHECK=VALGRIND
+    addons: { apt: { packages: ["clang-4.0", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
+
+  - os: linux
+    dist: precise
+    env: CXX=clang++-4.0 LIBCXX=ON MEMCHECK=VALGRIND
+    addons: { apt: { packages: ["clang-4.0", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
+
+  - os: linux
+    dist: precise
     env: CXX=g++-5 MEMCHECK=VALGRIND
-    addons:
-      apt:
-        packages: ["g++-5", "libstdc++-5-dev", "valgrind"]
-        sources: ["ubuntu-toolchain-r-test"]
+    addons: { apt: { packages: ["g++-5", "libstdc++-5-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
+
   - os: linux
+    dist: precise
     env: CXX=g++-6 MEMCHECK=VALGRIND
-    addons:
-      apt:
-        packages: ["g++-6", "libstdc++-6-dev", "valgrind"]
-        sources: ["ubuntu-toolchain-r-test"]
+    addons: { apt: { packages: ["g++-6", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
+
   - os: linux
-    env: CXX=g++-6 GCOV=gcov-6 COVERAGE=GCOV
-    addons:
-      apt:
-        packages: ["g++-6", "libstdc++-6-dev"]
-        sources: ["ubuntu-toolchain-r-test"]
-  - os: osx
-    osx_image: xcode6.1
-    env: CXX=clang++
-  - os: osx
-    osx_image: xcode6.4
-    env: CXX=clang++
-  - os: osx
-    osx_image: xcode7
-    env: CXX=clang++
-  - os: osx
-    osx_image: xcode7.1
-    env: CXX=clang++
-  - os: osx
-    osx_image: xcode7.2
-    env: CXX=clang++
+    dist: trusty
+    env: CXX=g++-7 MEMCHECK=VALGRIND
+    addons: { apt: { packages: ["g++-7", "libstdc++-7-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
+
   - os: osx
     osx_image: xcode7.3
     env: CXX=clang++
-  - os: osx
-    osx_image: xcode8
-    env: CXX=clang++
+
   - os: osx
     osx_image: xcode8.3
     env: CXX=clang++
+
+  - os: osx
+    osx_image: xcode9.1
+    env: CXX=clang++
+
+#
+# Coverage
+#
+  - os: linux
+    dist: trusty
+    env: COVERAGE=GCOV CXX=g++-7
+    addons: { apt: { packages: ["g++-7", "libstdc++-7-dev"], sources: ["ubuntu-toolchain-r-test"] } }
 
 before_install:
   - git config --global user.name "Continuous Integration"
@@ -128,9 +122,7 @@ script:
     && git push --force --quiet "https://${GH_TOKEN}@github.com/boost-experimental/sml.git"); fi
 
 after_success:
-  - if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${COVERAGE}" != "" ]; then (pip
-    install --user travis requests[security] cpp-coveralls && coveralls -r . -b . --gcov /usr/bin/${GCOV}
-    --repo-token "${COVERALLS_REPO_TOKEN}"); fi
+  - if [ "${COVERAGE}" != "" ]; then (bash <(curl -s https://codecov.io/bash)); fi
 
 notifications:
   webhooks:
