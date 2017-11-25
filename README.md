@@ -2,7 +2,7 @@
 <a href="https://github.com/boost-experimental/sml/releases" target="_blank">![Version](https://badge.fury.io/gh/boost-experimental%2Fsml.svg)</a>
 <a href="https://travis-ci.org/boost-experimental/sml" target="_blank">![Build Status](https://img.shields.io/travis/boost-experimental/sml/master.svg?label=linux/osx)</a>
 <a href="https://ci.appveyor.com/project/krzysztof-jusiak/sml" target="_blank">![Build Status](https://img.shields.io/appveyor/ci/krzysztof-jusiak/sml/master.svg?label=windows)</a>
-<a href="https://codecov.io/gh/boost-experimental/sml" target="_blank">![Codecov](ttps://codecov.io/gh/boost-experimental/sml/branch/master/graph/badge.svg)</a>
+<a href="https://codecov.io/gh/boost-experimental/sml" target="_blank">![Codecov](https://codecov.io/gh/boost-experimental/sml/branch/master/graph/badge.svg)</a>
 <a href="http://github.com/boost-experimental/sml/issues" target="_blank">![Github Issues](https://img.shields.io/github/issues/boost-experimental/sml.svg)</a>
 
 ---------------------------------------
