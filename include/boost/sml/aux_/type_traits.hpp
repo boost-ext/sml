@@ -160,6 +160,29 @@ struct function_traits<R (T::*)(TArgs...) const noexcept> {
 template <class T>
 using function_traits_t = typename function_traits<T>::args;
 
+template <class T>
+struct remove_const {
+  using type = T;
+};
+template <class T>
+struct remove_const<const T> {
+  using type = T;
+};
+template <class T>
+using remove_const_t = typename remove_const<T>::type;
+
+template <class T>
+struct is_const : false_type {};
+template <class T>
+struct is_const<const T> : true_type {};
+
+template <class T>
+struct is_reference : false_type {};
+template <class T>
+struct is_reference<T &> : true_type {};
+template <class T>
+struct is_reference<T &&> : true_type {};
+
 }  // aux
 
 #endif

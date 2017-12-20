@@ -151,9 +151,9 @@ T &try_get(...) {
   static_assert(never<T>::value, "Type T has to be passed via constructor!");
 }
 
-template <class T>
-T &try_get(pool_type<T> *object) {
-  return static_cast<pool_type<T> &>(*object).value;
+template <class T, class U>
+T &try_get(pool_type<U> *object) {
+  return object->value;
 }
 
 template <class T, class TPool>
@@ -173,7 +173,11 @@ struct pool : pool_type<Ts>... {
   explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
 
   template <class... TArgs>
-  pool(init &&, pool<TArgs...> &&p) : pool_type<Ts>(try_get<Ts>(&p))... {}
+  pool(init &&, pool<TArgs...> &&p)
+      : pool_type<Ts>(try_get<Ts>(
+            static_cast<
+                aux::conditional_t<aux::is_reference<Ts>::value, pool_type<aux::remove_const_t<aux::remove_reference_t<Ts>> &>,
+                                   pool_type<aux::remove_const_t<Ts>>> *>(&p)))... {}
 
   template <class... TArgs>
   pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, p)... {}
