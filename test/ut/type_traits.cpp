@@ -18,8 +18,9 @@ test is_same_types = [] {
 test remove_reference_types = [] {
   static_expect(is_same<int, remove_reference_t<int>>::value);
   static_expect(is_same<int, remove_reference_t<int&>>::value);
-  static_expect(is_same<int, remove_reference_t<const int&>>::value);
   static_expect(is_same<int, remove_reference_t<int&&>>::value);
+
+  static_expect(!is_same<int, remove_reference_t<const int&>>::value);
 };
 
 void f1() {}
