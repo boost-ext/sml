@@ -111,10 +111,6 @@ struct remove_reference<T &> {
   using type = T;
 };
 template <class T>
-struct remove_reference<const T &> {
-  using type = T;
-};
-template <class T>
 struct remove_reference<T &&> {
   using type = T;
 };

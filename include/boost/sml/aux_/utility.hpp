@@ -166,18 +166,56 @@ const T &cget(TPool &p) {
   return static_cast<const pool_type<T> &>(p).value;
 }
 
+namespace detail {
+template <class T, bool = aux::is_reference<T>::value>
+struct non_const_pool_type {
+  using type = pool_type<aux::remove_const_t<T>>;
+};
+template <class T>
+struct non_const_pool_type<T, true> {
+  using type = pool_type<aux::remove_const_t<aux::remove_reference_t<T>> &>;
+};
+template <class T>
+using non_const_pool_type_t = typename non_const_pool_type<T>::type;
+
+template <class T, class U, bool = is_base_of<T, U>::value>
+struct base_or_void_ptr {
+  using type = void *;
+};
+template <class T, class U>
+struct base_or_void_ptr<T, U, true> {
+  using type = T *;
+};
+template <class T, class U>
+using base_or_void_ptr_t = typename base_or_void_ptr<T, U>::type;
+} // detail
+
 template <class... Ts>
 struct pool : pool_type<Ts>... {
   using boost_di_inject__ = type_list<Ts...>;
 
   explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
 
+  /* Inject dependencies as follows:
+   * 1. if p derives from pool_type<Ts>, bind to it.
+   * 2. else if (ignoring references) Ts is const and p derives from
+   *   pool_type<remove_const<Ts>>, bind to it.
+   * 3. else fail binding (by casting to void *, which calls wrong try_get).
+   */
   template <class... TArgs>
   pool(init &&, pool<TArgs...> &&p)
       : pool_type<Ts>(try_get<Ts>(
-            static_cast<
-                aux::conditional_t<aux::is_reference<Ts>::value, pool_type<aux::remove_const_t<aux::remove_reference_t<Ts>> &>,
-                                   pool_type<aux::remove_const_t<Ts>>> *>(&p)))... {}
+          static_cast<
+            conditional_t<
+              is_base_of<pool_type<Ts>, pool<TArgs...>>::value,
+              pool_type<Ts> *,
+              conditional_t<
+                is_const<remove_reference_t<Ts>>::value,
+                detail::base_or_void_ptr_t<detail::non_const_pool_type_t<Ts>, pool<TArgs...>>,
+                void *
+              >
+            >
+          >(&p)))... {}
 
   template <class... TArgs>
   pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, p)... {}
