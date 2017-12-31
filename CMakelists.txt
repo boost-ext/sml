@@ -1,0 +1,24 @@
+cmake_minimum_required(VERSION 3.4)
+
+project(sml LANGUAGES CXX)
+
+find_package(Boost          REQUIRED)
+
+include_directories(AFTER
+    ${Boost_INCLUDE_DIR})
+
+if(NOT MSVC)
+  # c++11 options
+  CHECK_CXX_COMPILER_FLAG(-std=c++11 HAS_CXX11_FLAG)
+  CHECK_CXX_COMPILER_FLAG(-std=c++0x HAS_CXX0X_FLAG)
+  if(HAS_CXX11_FLAG)
+    message(STATUS "Compiling with C++11 support")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  elseif(HAS_CXX0X_FLAG)
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+  endif()
+endif()
+
+# add_subdirectory(benchmark)
+# add_subdirectory(doc)
+ add_subdirectory(example)

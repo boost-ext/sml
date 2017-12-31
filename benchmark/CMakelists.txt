@@ -1,0 +1,41 @@
+include_directories(AFTER
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${Boost_INCLUDE_DIR})
+
+
+add_executable(complex_euml
+  complex/euml.cpp)
+add_executable(complex_euml2
+  complex/euml2.cpp)
+add_executable(complex_sc
+  complex/sc.cpp)
+add_executable(complex_sml
+  complex/sml.cpp)
+add_executable(complex_switch
+  complex/switch.cpp)
+add_executable(complex_variant
+  complex/variant.cpp)
+add_executable(composite_euml
+  composite/euml.cpp)
+add_executable(composite_euml2
+  composite/euml2.cpp)
+add_executable(composite_sc
+  composite/sc.cpp)
+add_executable(composite_sml
+  composite/sml.cpp)
+add_executable(header_euml
+  header/euml.cpp)
+add_executable(header_euml2
+  header/euml2.cpp)
+add_executable(header_sc
+  header/sc.cpp)
+add_executable(header_sml
+  header/sml.cpp)
+add_executable(simple_euml
+  simple/euml.cpp)
+add_executable(simple_euml2
+  simple/euml2.cpp)
+add_executable(simple_sc
+  simple/sc.cpp)
+add_executable(simple_sml
+  simple/sml.cpp)
