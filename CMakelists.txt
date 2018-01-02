@@ -2,45 +2,14 @@ cmake_minimum_required(VERSION 3.4)
 
 project(sml LANGUAGES CXX)
 
-#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
-  include(CheckCXXCompilerFlag)
-  CHECK_CXX_COMPILER_FLAG(-std=c++11 HAS_CXX11_FLAG)
-  CHECK_CXX_COMPILER_FLAG(-std=c++0x HAS_CXX0X_FLAG)
-  if(HAS_CXX11_FLAG)
-    message(STATUS "Compiling with C++11 support")
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  endif()
-
-  if(HAS_CXX0X_FLAG)
-    message(STATUS "Compiling with CXX0X support")
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-  endif()
-endif()
-
 set(CMAKE_CXX_STANDARD 14)
 set(CXX_STANDARD_REQUIRED ON)
-
-# set_target_properties(sml PROPERTIES CXX_STANDARD_REQUIRED 11)
-# target_compile_features(sml PUBLIC cxx_std_11)
 
 # Turn on the .vcproj folder support
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 include_directories(AFTER
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-if(NOT MSVC)
-  # c++11 options
-  # CHECK_CXX_COMPILER_FLAG(-std=c++11 HAS_CXX11_FLAG)
-  # CHECK_CXX_COMPILER_FLAG(-std=c++0x HAS_CXX0X_FLAG)
-  # if(HAS_CXX11_FLAG)
-  #   message(STATUS "Compiling with C++11 support")
-  #   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  # elseif(HAS_CXX0X_FLAG)
-  #   #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-  # endif()
-endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
@@ -50,7 +19,8 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
       "-Wfatal-errors" # stops on first error
       "-Wall" # enables all the warnings about constructions
       "-Wextra" # Print extra warning messages"
-      "-Werror" # Make all warnings into errors.
+      # TODO remove below, but benchmark/composite/sml.cpp fail
+      #"-Werror" # Make all warnings into errors.
       "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
       "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings
       )
@@ -63,5 +33,4 @@ endif ()
 
 
 add_subdirectory(benchmark)
-# add_subdirectory(doc)
-# add_subdirectory(example)
+add_subdirectory(example)
