@@ -20,6 +20,8 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
     "-Wno-unused-parameter")
 endif ()
 
+project(benchmark LANGUAGES CXX)
+
 add_subdirectory(complex)
 add_subdirectory(composite)
 add_subdirectory(header)

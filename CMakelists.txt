@@ -2,7 +2,16 @@ cmake_minimum_required(VERSION 3.4)
 
 project(sml LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 14)
+message("CMAKE_CXX_COMPILER_VERSION=${CMAKE_CXX_COMPILER_VERSION}")
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 19.12 OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.12)
+    set(CMAKE_CXX_STANDARD 17)
+  endif()
+else()
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
 set(CXX_STANDARD_REQUIRED ON)
 
 # Turn on the .vcproj folder support
@@ -12,6 +21,14 @@ include_directories(AFTER
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    add_definitions(
+      -DNOMINMAX # avoid Win macro definition of min/max, use std one
+      -D_SCL_SECURE_NO_WARNINGS # disable security-paranoia warning
+      -D_CRT_SECURE_NO_WARNINGS)
+    add_compile_options(
+      "/W3" # waring level
+      "/WX" # warning as error
+      )
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
 
     # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -30,7 +47,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
         add_compile_options("-ftrack-macro-expansion=0;-fno-diagnostics-show-caret")
     endif ()
 endif ()
-
 
 add_subdirectory(benchmark)
 add_subdirectory(example)
