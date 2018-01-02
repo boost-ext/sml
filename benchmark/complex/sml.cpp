@@ -234,4 +234,4 @@ int main() {
     }
   });
   benchmark_memory_usage(sm);
-};
+}

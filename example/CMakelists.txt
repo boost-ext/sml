@@ -2,6 +2,8 @@ include_directories(AFTER
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${Boost_INCLUDE_DIR})
 
+# source_group(example)
+
 add_executable(actions_guards
     actions_guards.cpp)
 add_executable(composite
