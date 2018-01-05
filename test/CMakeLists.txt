@@ -1,6 +1,3 @@
-enable_testing()
-include(CTest)
-
 include_directories(AFTER
     common)
 
