@@ -1,6 +1,20 @@
+# Generate stage:
+#   $mkdirBUILD; cd BUILD; cmake ..
+#   Re-generate after changes:
+#     $cmake .
+
+# Build stage:
+#   Linux: $cmake --build . -- -j
+#   Windows: $cmake --build . -- /maxcpucount
+#   Build only test/action_defer:
+#   $cmake --build . --target actions_defer
+
 cmake_minimum_required(VERSION 3.4)
 
 project(sml LANGUAGES CXX)
+
+# show each build command line as it is launched
+set(CMAKE_VERBOSE_MAKEFILE "ON")
 
 message("CMAKE_CXX_COMPILER_VERSION=${CMAKE_CXX_COMPILER_VERSION}")
 
@@ -48,5 +62,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
     endif ()
 endif ()
 
-add_subdirectory(benchmark)
-add_subdirectory(example)
+#add_subdirectory(benchmark)
+#add_subdirectory(example)
+add_subdirectory(test)
