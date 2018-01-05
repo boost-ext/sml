@@ -4,6 +4,7 @@ include_directories(AFTER
 find_package(Boost          REQUIRED)
 
 include_directories(AFTER
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${Boost_INCLUDE_DIR})
 
 add_definitions(

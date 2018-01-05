@@ -5,6 +5,10 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <common/test.hpp>
+
+int main() {}
+
 // clang-format off
 #if !defined(_MSC_VER)
 #if __has_include(<boost/di.hpp>)
