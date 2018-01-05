@@ -23,8 +23,12 @@ add_executable(dependency_injection
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_executable(dispatch_table
         dispatch_table.cpp)
+
     add_executable(error_handling
         error_handling.cpp)
+    target_compile_options(error_handling PRIVATE
+        "-fexceptions" # Enable exception handling
+      )
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

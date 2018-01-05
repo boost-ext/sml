@@ -10,8 +10,8 @@
 #   $cmake --build . --target actions_defer
 
 cmake_minimum_required(VERSION 3.4)
-
 project(sml LANGUAGES CXX)
+include(CTest)
 
 # show each build command line as it is launched
 set(CMAKE_VERBOSE_MAKEFILE "ON")
@@ -54,6 +54,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
       #"-Werror" # Make all warnings into errors.
       "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
       "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings
+      "-fno-exceptions" # compiles without exception support
       )
 
     if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.7)
@@ -62,6 +63,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
     endif ()
 endif ()
 
-#add_subdirectory(benchmark)
-#add_subdirectory(example)
+add_subdirectory(benchmark)
+add_subdirectory(example)
 add_subdirectory(test)

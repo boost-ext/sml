@@ -12,6 +12,7 @@ int main() {}
 #include <boost/sml.hpp>
 #include <queue>
 #include <vector>
+#include <iostream>
 
 namespace sml = boost::sml;
 
@@ -84,6 +85,7 @@ test defer_transition = [] {
 test defer_and_transitions = [] {
   struct c {
     auto operator()() {
+      std::cout << "hello test !" << std::endl;
       using namespace sml;
       // clang-format off
       return make_transition_table(
