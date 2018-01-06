@@ -26,7 +26,7 @@ project(sml LANGUAGES CXX)
 include(CTest)
 
 # show each build command line as it is launched
-# set(CMAKE_VERBOSE_MAKEFILE "ON")
+set(CMAKE_VERBOSE_MAKEFILE "ON")
 
 message("CMAKE_CXX_COMPILER_VERSION=${CMAKE_CXX_COMPILER_VERSION}")
 
@@ -77,6 +77,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
 endif ()
 
 #add_subdirectory(benchmark)
+set(DOC_AS_TEST ON)
 add_subdirectory(doc)
 #add_subdirectory(example)
 #add_subdirectory(test)

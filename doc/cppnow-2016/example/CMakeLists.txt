@@ -10,10 +10,7 @@ add_executable(mpl_unique mpl_unique.cpp)
 
 add_executable(unique unique.cpp)
 
-set(DOC_AS_TEST ON)
-message("DOC_AS_TEST=${DOC_AS_TEST}")
 if(DOC_AS_TEST)
-  message("DOC_AS_TEST=${DOC_AS_TEST}")
   add_test(cpp_now_2016_at at)
 
   add_test(cpp_now_2016_hana_at hana_at)

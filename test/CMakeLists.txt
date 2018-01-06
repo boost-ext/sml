@@ -11,8 +11,6 @@ add_definitions(
 
 project(test LANGUAGES CXX)
 
-enable_testing()
-
 add_subdirectory(ft)
 add_subdirectory(ut)
 
