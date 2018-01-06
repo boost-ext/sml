@@ -2,6 +2,8 @@
 #   $mkdirBUILD; cd BUILD; cmake ..
 #   Re-generate after changes:
 #     $cmake .
+#   Show each build command line as it is launched
+#   $cmake -DCMAKE_VERBOSE_MAKEFILE=ON ..
 
 # Build stage:
 #   Linux: $cmake --build . -- -j
@@ -10,7 +12,9 @@
 #   $cmake --build . --target actions_defer
 
 # Test stage:
-#    $ctest --verbose
+#    Launch all tests: $ctest --verbose
+#    List available test: $ctest -N
+#    Launch benchmark tests: $ctest -R benchmark*
 
 ###########################################################################################
 # TODO
@@ -42,15 +46,13 @@
 
 ###########################################################################################
 cmake_minimum_required(VERSION 3.10)
+message(STATUS "cmake version: ${CMAKE_VERSION}")"
 project(sml LANGUAGES CXX)
 include(CTest)
 
-# show each build command line as it is launched
-# set(CMAKE_VERBOSE_MAKEFILE "ON")
-
 include(CheckCXXCompilerFlag)
 
-if(NOT MSVC)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
   check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)
   check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
   check_cxx_compiler_flag(-std=c++17 HAS_CXX17_FLAG)
@@ -62,15 +64,13 @@ if(NOT MSVC)
   else()
     message(FATAL "sml requires c++14")
   endif()
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 19.12 OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.12)
+    set(CMAKE_CXX_STANDARD 17) # Visual Studio 15 2017
+  endif()
+else()
+  set(CMAKE_CXX_STANDARD 14)
 endif()
-
-#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-#  if(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 19.12 OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.12)
-#    set(CMAKE_CXX_STANDARD 17)
-#  endif()
-#else()
-#  set(CMAKE_CXX_STANDARD 14)
-#endif()
 
 set(CXX_STANDARD_REQUIRED ON)
 message(STATUS "CMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}")
@@ -93,7 +93,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       "/W3" # waring level
       "/WX" # warning as error
       )
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
     # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
     add_compile_options(
       "-Wfatal-errors" # stops on first error
@@ -105,13 +105,13 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
       "-fno-exceptions" # compiles without exception support
       )
 
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.7)
+    if ("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER 4.7)
         # http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
         add_compile_options("-ftrack-macro-expansion=0;-fno-diagnostics-show-caret")
     endif ()
 endif ()
 
 add_subdirectory(benchmark)
-#add_subdirectory(doc)
-#add_subdirectory(example)
-#add_subdirectory(test)
+add_subdirectory(doc)
+add_subdirectory(example)
+add_subdirectory(test)

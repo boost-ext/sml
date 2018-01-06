@@ -1,4 +1,4 @@
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   add_executable(complex_euml euml.cpp)
   add_test(benchmark_complex_euml complex_euml)
 endif()

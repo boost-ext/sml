@@ -1,9 +1,12 @@
 add_executable(connection_v1 connection_v1.cpp)
+add_test(doc_embo_2017_connection_v1 connection_v1)
 
 add_executable(connection_v2 connection_v2.cpp)
+add_test(doc_embo_2017_connection_v2 connection_v2)
 
 if(${CMAKE_CXX_STANDARD} EQUAL 17 OR ${CMAKE_CXX_STANDARD} GREATER 17)
   #add_executable(connection_v3 connection_v3.cpp)
+  #add_test(doc_embo_2017_connection_v3 connection_v3)
 
 # In file included from /mnt/c/dev/sml/doc/embo-2017/example/connection_v3.cpp:2:0:
 # /usr/include/c++/7/variant: In instantiation of ‘constexpr decltype(auto) std::visit(_Visitor&&, _Variants&& ...)
@@ -16,15 +19,4 @@ if(${CMAKE_CXX_STANDARD} EQUAL 17 OR ${CMAKE_CXX_STANDARD} GREATER 17)
 endif()
 
 add_executable(connection_v4 connection_v4.cpp)
-
-if(DOC_AS_TEST)
-  add_test(embo_2017_connection_v1 connection_v1)
-
-  add_test(embo_2017_connection_v2 connection_v2)
-
-  if(${CMAKE_CXX_STANDARD} EQUAL 17 OR ${CMAKE_CXX_STANDARD} GREATER 17)
-    #add_test(embo_2017_connection_v3 connection_v3)
-  endif()
-
-  add_test(embo_2017_connection_v4 connection_v4)
-endif()
+add_test(doc_embo_2017_connection_v4 connection_v4)

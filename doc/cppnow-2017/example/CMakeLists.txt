@@ -1,4 +1,5 @@
 add_executable(god_object god_object.cpp)
+add_test(doc_cpp_now_2017_god_object god_object)
 
 #     8: Test command: /mnt/c/dev/sml/BUILD-Lin/doc/cppnow-2017/example/static_polymorphism
 #     8: Test timeout computed to be: 1500
@@ -6,10 +7,12 @@ add_executable(god_object god_object.cpp)
 #        FileReader::FileReader(const string&): Assertion `file.good()' failed.
 #     1/1 Test #8: cpp_now_2017_static_polymorphism ...***Exception: Child aborted  0.01 sec
 #add_executable(static_polymorphism static_polymorphism.cpp)
+#add_test(doc_cpp_now_2017_static_polymorphism static_polymorphism)
 
 #/mnt/c/dev/sml/doc/cppnow-2017/example/type_erasure.cpp: In constructor ‘FileReader::FileReader(const string&)’:
 #/mnt/c/dev/sml/doc/cppnow-2017/example/type_erasure.cpp:19:54: error: ‘path’ was not declared in this scope
 #add_executable(type_erasure type_erasure.cpp)
+#add_test(doc_cpp_now_2017_type_erasure type_erasure)
 
 #In file included from /mnt/c/dev/boost_1_65_1/boost/type_erasure/builtin.hpp:17:0,
 #                 from /mnt/c/dev/boost_1_65_1/boost/type_erasure/detail/normalize.hpp:34,
@@ -31,17 +34,10 @@ add_executable(god_object god_object.cpp)
 #/mnt/c/dev/boost_1_65_1/boost/type_erasure/detail/vtable.hpp:156:43: error: unused parameter ‘other’ [-Werror=unused-parameter]
 
 # Modify in order to avoid the 3 warnings above
-#if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
+#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
 #  target_compile_options(type_erasure PRIVATE
 #      "-Wno-pedantic"
 #      "-Wno-unused-local-typedefs"
 #      "-Wno-unused-parameter")
 #endif()
 
-if(DOC_AS_TEST)
-  add_test(cpp_now_2017_god_object god_object)
-
-  #add_test(cpp_now_2017_static_polymorphism static_polymorphism)
-
-  #add_test(cpp_now_2017_type_erasure type_erasure)
-endif()
