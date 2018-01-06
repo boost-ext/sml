@@ -48,6 +48,8 @@
 # - Update source files in order to remove all target_compile_options,
 #   some appears only in release mode
 
+# - Solve MSVC build failures
+
 ###########################################################################################
 cmake_minimum_required(VERSION 3.10)
 message(STATUS "cmake version: ${CMAKE_VERSION}")
@@ -66,15 +68,25 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
   elseif(HAS_CXX14_FLAG)
     set(CMAKE_CXX_STANDARD 14)
   else()
-    message(FATAL "sml requires c++14")
+    message(FATAL_ERROR "sml requires c++14")
   endif()
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 19.12 OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.12)
     message(STATUS "Visual Studio 15 2017 is C++17")
+    set(IS_MSVC_2017 ON)
     set(CMAKE_CXX_STANDARD 17) # Visual Studio 15 2017
+  elseif(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 19.0 OR CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.12)
+    set(IS_MSVC_2015 ON)
+    set(CMAKE_CXX_STANDARD 14) # Visual Studio 14 2015
+  else()
+    message(FATAL_ERROR "sml requires c++14")
   endif()
 else()
   set(CMAKE_CXX_STANDARD 14)
+endif()
+
+if(NOT (DEFINED CMAKE_CXX_STANDARD) OR CMAKE_CXX_STANDARD STREQUAL "")
+    message(FATAL_ERROR "sml requires c++14")
 endif()
 
 set(CXX_STANDARD_REQUIRED ON)

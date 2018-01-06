@@ -11,19 +11,22 @@ endif()
 add_executable(complex_sc sc.cpp)
 add_test(benchmark_complex_sc complex_sc)
 
-add_executable(complex_sml sml.cpp)
-add_test(benchmark_complex_sml complex_sml)
-#[[In file included from /mnt/c/dev/sml/benchmark/composite/sml.cpp:9:0:
-/mnt/c/dev/sml/include/boost/sml.hpp: In instantiation of ‘struct boost::sml::v1_1_0::concepts::composable<playing>’:
-/mnt/c/dev/sml/include/boost/sml.hpp:2242:35:   recursively required by substitution of
-/mnt/c/dev/sml/include/boost/sml.hpp:2242:35:   required from here
-/mnt/c/dev/sml/include/boost/sml.hpp:1334:8: error: ‘boost::sml::v1_1_0::concepts::composable<playing>’
-    has a field ‘boost::sml::v1_1_0::concepts::composable<playing>::<anonymous>’
-whose type uses the anonymous namespace [-Werror=subobject-linkage]]
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    target_compile_options(complex_sml PRIVATE
-        "-Wno-subobject-linkage"
-        "-Wno-fatal-errors")
+# sml\include\boost/sml.hpp(1671): error C2039: 'state_machine': is not a member of 'boost::sml::v1_1_0::back::sm<boost::sml::v1_1_0::back::sm_policy<T>>'
+if (NOT IS_MSVC_2015)
+    add_executable(complex_sml sml.cpp)
+    add_test(benchmark_complex_sml complex_sml)
+    #[[In file included from /mnt/c/dev/sml/benchmark/composite/sml.cpp:9:0:
+    /mnt/c/dev/sml/include/boost/sml.hpp: In instantiation of ‘struct boost::sml::v1_1_0::concepts::composable<playing>’:
+    /mnt/c/dev/sml/include/boost/sml.hpp:2242:35:   recursively required by substitution of
+    /mnt/c/dev/sml/include/boost/sml.hpp:2242:35:   required from here
+    /mnt/c/dev/sml/include/boost/sml.hpp:1334:8: error: ‘boost::sml::v1_1_0::concepts::composable<playing>’
+        has a field ‘boost::sml::v1_1_0::concepts::composable<playing>::<anonymous>’
+    whose type uses the anonymous namespace [-Werror=subobject-linkage]]
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(complex_sml PRIVATE
+            "-Wno-subobject-linkage"
+            "-Wno-fatal-errors")
+    endif()
 endif()
 
 add_executable(switch switch.cpp)
