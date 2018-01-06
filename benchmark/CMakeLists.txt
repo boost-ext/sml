@@ -2,11 +2,6 @@ include_directories(AFTER
     ${CMAKE_CURRENT_SOURCE_DIR}
     header)
 
-find_package(Boost          REQUIRED)
-
-include_directories(AFTER
-    ${Boost_INCLUDE_DIR})
-
 add_definitions(
     -DCHECK_COMPILE_TIME
     -DBOOST_ALL_NO_LIB

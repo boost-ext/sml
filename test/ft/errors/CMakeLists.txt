@@ -1,5 +1,3 @@
-# TODO use ctest to check build fail
-
 # add_executable(test_not_callable not_callable.cpp)
 
 #add_executable(test_not_configurable not_configurable.cpp)

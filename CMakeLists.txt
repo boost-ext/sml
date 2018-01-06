@@ -9,12 +9,24 @@
 #   Build only test/action_defer:
 #   $cmake --build . --target actions_defer
 
+# Test stage:
+#    $ctest --verbose
+
+# TODO
+# - translate sml/benchmark/Makefile
+# - translate sml/doc/cppnow-2016/example/Makefile
+# - merge 02cf41c691 [appveyor] Fix for MSVC
+# - In test/ft/errors/CMakeLists.txt
+#     Implement ctest_build to check build failure
+#     https://cmake.org/cmake/help/latest/manual/ctest.1.html#ctest-build-step
+#     https://cmake.org/cmake/help/latest/command/ctest_build.html#command:ctest_build
+
 cmake_minimum_required(VERSION 3.4)
 project(sml LANGUAGES CXX)
 include(CTest)
 
 # show each build command line as it is launched
-set(CMAKE_VERBOSE_MAKEFILE "ON")
+# set(CMAKE_VERBOSE_MAKEFILE "ON")
 
 message("CMAKE_CXX_COMPILER_VERSION=${CMAKE_CXX_COMPILER_VERSION}")
 
@@ -31,7 +43,10 @@ set(CXX_STANDARD_REQUIRED ON)
 # Turn on the .vcproj folder support
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+find_package(Boost          REQUIRED)
+
 include_directories(AFTER
+    ${Boost_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -49,8 +64,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
       "-Wfatal-errors" # stops on first error
       "-Wall" # enables all the warnings about constructions
       "-Wextra" # Print extra warning messages"
-      # TODO remove below, but benchmark/composite/sml.cpp fail
-      #"-Werror" # Make all warnings into errors.
+      "-Werror" # Make all warnings into errors.
       "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
       "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings
       "-fno-exceptions" # compiles without exception support
@@ -62,6 +76,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
     endif ()
 endif ()
 
-add_subdirectory(benchmark)
-add_subdirectory(example)
-add_subdirectory(test)
+#add_subdirectory(benchmark)
+add_subdirectory(doc)
+#add_subdirectory(example)
+#add_subdirectory(test)

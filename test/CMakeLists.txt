@@ -1,11 +1,8 @@
 include_directories(AFTER
     common)
 
-find_package(Boost          REQUIRED)
-
 include_directories(AFTER
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${Boost_INCLUDE_DIR})
+    ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(
     -DCHECK_COMPILE_TIME
