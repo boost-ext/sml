@@ -12,6 +12,7 @@
 # Test stage:
 #    $ctest --verbose
 
+###########################################################################################
 # TODO
 # - translate sml/benchmark/Makefile
 # - translate sml/doc/cppnow-2016/example/Makefile
@@ -20,25 +21,45 @@
 #     Implement ctest_build to check build failure
 #     https://cmake.org/cmake/help/latest/manual/ctest.1.html#ctest-build-step
 #     https://cmake.org/cmake/help/latest/command/ctest_build.html#command:ctest_build
-
-cmake_minimum_required(VERSION 3.4)
+# - doc/cppnow-2017/example/type_erasure.cpp build fail
+# - doc/cppnow-2017/example/static_polymorphism test fail
+# - doc/embo-2017/example/connection_v3 test build fail
+###########################################################################################
+cmake_minimum_required(VERSION 3.10)
 project(sml LANGUAGES CXX)
 include(CTest)
 
 # show each build command line as it is launched
-set(CMAKE_VERBOSE_MAKEFILE "ON")
+# set(CMAKE_VERBOSE_MAKEFILE "ON")
 
 message("CMAKE_CXX_COMPILER_VERSION=${CMAKE_CXX_COMPILER_VERSION}")
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 19.12 OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.12)
+include(CheckCXXCompilerFlag)
+
+if(NOT MSVC)
+  check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)
+  check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
+  check_cxx_compiler_flag(-std=c++17 HAS_CXX17_FLAG)
+
+  if(HAS_CXX17_FLAG)
     set(CMAKE_CXX_STANDARD 17)
+  elseif(HAS_CXX14_FLAG)
+    set(CMAKE_CXX_STANDARD 14)
+  else()
+    message(FATAL "sml requires c++14")
   endif()
-else()
-  set(CMAKE_CXX_STANDARD 14)
 endif()
 
+#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+#  if(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 19.12 OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.12)
+#    set(CMAKE_CXX_STANDARD 17)
+#  endif()
+#else()
+#  set(CMAKE_CXX_STANDARD 14)
+#endif()
+
 set(CXX_STANDARD_REQUIRED ON)
+message(STATUS "CMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}")
 
 # Turn on the .vcproj folder support
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
