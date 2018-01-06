@@ -23,8 +23,7 @@ add_executable(test_exceptions exceptions.cpp)
 add_test(test_exceptions test_exceptions)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
     target_compile_options(test_exceptions PRIVATE
-        "-fexceptions" # Enable exception handling
-        )
+        "-fexceptions") # Enable exception handling
 endif ()
 
 add_executable(test_fwd fwd.cpp)

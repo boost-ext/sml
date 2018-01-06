@@ -70,6 +70,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
   endif()
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 19.12 OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.12)
+    message(STATUS "Visual Studio 15 2017 is C++17")
     set(CMAKE_CXX_STANDARD 17) # Visual Studio 15 2017
   endif()
 else()
@@ -95,8 +96,12 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       -D_CRT_SECURE_NO_WARNINGS)
     add_compile_options(
       "/W3" # waring level
-      "/WX" # warning as error
-      )
+      "/WX") # warning as error
+    if(CMAKE_CXX_STANDARD EQUAL 17 OR CMAKE_CXX_STANDARD GREATER 17)
+      # benchmark\complex\sc.cpp(18): warning C4996: 'std::allocator<void>': warning STL4009: std::allocator<void> is deprecated in C++1
+      add_definitions(
+        -D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)
+    endif()
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
     # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
     add_compile_options(
@@ -115,7 +120,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
     endif ()
 endif ()
 
-add_subdirectory(benchmark)
+#add_subdirectory(benchmark)
 add_subdirectory(doc)
-add_subdirectory(example)
-add_subdirectory(test)
+#add_subdirectory(example)
+#add_subdirectory(test)

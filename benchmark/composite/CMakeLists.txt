@@ -16,6 +16,8 @@ add_test(benchmark_composite_sml composite_sml)
 /mnt/c/dev/sml/include/boost/sml.hpp:2242:35:   required from here
 /mnt/c/dev/sml/include/boost/sml.hpp:1334:8: error: ‘boost::sml::v1_1_0::concepts::composable<playing>’ has a field ‘boost::sml::v1_1_0::concepts::composable<playing>::<anonymous>’ whose type uses the anonymous namespace [-Werror=subobject-linkage]
 ]]
-target_compile_options(composite_sml PRIVATE
-    "-Wno-subobject-linkage"
-    "-Wno-fatal-errors")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	target_compile_options(composite_sml PRIVATE
+	    "-Wno-subobject-linkage"
+	    "-Wno-fatal-errors")
+endif()

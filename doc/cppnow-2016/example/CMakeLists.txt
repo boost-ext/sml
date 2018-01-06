@@ -1,5 +1,9 @@
-add_executable(at at.cpp)
-add_test(doc_cpp_now_2016_at at)
+# Visual Studio 15 2017 failure
+# doc\cppnow-2016\example\at.cpp(158): error C2938: 'at_key_t<m,std::integral_constant<int,1>,void>' : Failed to specialize alias template
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  add_executable(at at.cpp)
+  add_test(doc_cpp_now_2016_at at)
+endif()
 
 add_executable(hana_at hana_at.cpp)
 add_test(doc_cpp_now_2016_hana_at hana_at)

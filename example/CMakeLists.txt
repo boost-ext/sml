@@ -8,8 +8,10 @@ source_group(example)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_executable(actions_guards actions_guards.cpp)
     add_test(example_actions_guards actions_guards)
-    target_compile_options(actions_guards PRIVATE
-        "-Wno-unused-parameter")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(actions_guards PRIVATE
+            "-Wno-unused-parameter")
+    endif()
 
     add_executable(composite composite.cpp)
     add_test(example_composite composite)
@@ -30,8 +32,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
     add_executable(error_handling error_handling.cpp)
     add_test(example_error_handling error_handling)
-    target_compile_options(error_handling PRIVATE
-        "-fexceptions") # Enable exception handling
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(error_handling PRIVATE
+            "-fexceptions") # Enable exception handling
+    endif()
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -40,8 +44,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
     add_executable(events events.cpp)
     add_test(example_events events)
-    target_compile_options(events PRIVATE
-        "-Wno-unused-parameter")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(events PRIVATE
+            "-Wno-unused-parameter")
+    endif()
 endif()
 
 add_executable(hello_world hello_world.cpp)
