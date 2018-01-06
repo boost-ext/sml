@@ -3,6 +3,8 @@ add_test(doc_embo_2017_connection_v1 connection_v1)
 
 add_executable(connection_v2 connection_v2.cpp)
 add_test(doc_embo_2017_connection_v2 connection_v2)
+target_compile_options(connection_v2 PRIVATE
+    "-Wno-uninitialized")
 
 if(${CMAKE_CXX_STANDARD} EQUAL 17 OR ${CMAKE_CXX_STANDARD} GREATER 17)
   #add_executable(connection_v3 connection_v3.cpp)

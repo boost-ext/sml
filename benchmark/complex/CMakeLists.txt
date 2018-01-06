@@ -24,6 +24,8 @@ target_compile_options(complex_sml PRIVATE
 
 add_executable(switch switch.cpp)
 add_test(benchmark_switch switch)
+target_compile_options(switch PRIVATE
+    "-Wno-maybe-uninitialized")
 
 if (${CMAKE_CXX_STANDARD} EQUAL 17 OR ${CMAKE_CXX_STANDARD} GREATER 17 ) # gcc
     #[[/mnt/c/dev/sml/benchmark/complex/variant.cpp:138:13:   required from here

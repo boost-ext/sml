@@ -8,6 +8,8 @@ source_group(example)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_executable(actions_guards actions_guards.cpp)
     add_test(example_actions_guards actions_guards)
+    target_compile_options(actions_guards PRIVATE
+        "-Wno-unused-parameter")
 
     add_executable(composite composite.cpp)
     add_test(example_composite composite)
@@ -38,6 +40,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
     add_executable(events events.cpp)
     add_test(example_events events)
+    target_compile_options(events PRIVATE
+        "-Wno-unused-parameter")
 endif()
 
 add_executable(hello_world hello_world.cpp)
