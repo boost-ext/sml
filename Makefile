@@ -8,15 +8,15 @@
 CXX?=clang++
 ifneq (, $(findstring clang++, $(CXX)))
 	CXXFLAGS+=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
-	INCLUDE_TEST=-include test/common/test.hpp
+	INCLUDE_TEST=-I test
 	DISABLE_EXCEPTIONS=-fno-exceptions
 else ifneq (, $(findstring g++, $(CXX)))
 	CXXFLAGS+=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
-	INCLUDE_TEST=-include test/common/test.hpp
+	INCLUDE_TEST=-I test
 	DISABLE_EXCEPTIONS=-fno-exceptions
 else
 	CXXFLAGS+=-EHsc -W4 -WX -I include -I .
-	INCLUDE_TEST=-FI test/common/test.hpp
+	INCLUDE_TEST=-I test
 	DISABLE_EXCEPTIONS=
 endif
 VALGRIND:=valgrind --leak-check=full --error-exitcode=1
@@ -60,7 +60,7 @@ test/ft/policies_thread_safe.out: #-fsanitize=thread
 	$(CXX) test/ft/policies_thread_safe.cpp $(CXXFLAGS) $(DISABLE_EXCEPTIONS) -lpthread $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/policies_thread_safe.out && $($(MEMCHECK)) test/ft/policies_thread_safe.out
 
 test/ft/units.out:
-	$(CXX) test/ft/unit1.cpp test/ft/unit2.cpp test/ft/units.cpp $(CXXFLAGS) $(DISABLE_EXCEPTIONS) $($(COVERAGE)) -o test/ft/units.out
+	$(CXX) test/ft/unit1.cpp test/ft/unit2.cpp test/ft/units.cpp -DNO_MAIN $(CXXFLAGS) $(DISABLE_EXCEPTIONS) $($(COVERAGE)) -o test/ft/units.out
 
 example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp))
 

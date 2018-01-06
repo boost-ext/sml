@@ -44,7 +44,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       "/WX" # warning as error
       )
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
-
     # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
     add_compile_options(
       "-Wfatal-errors" # stops on first error
