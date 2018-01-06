@@ -120,7 +120,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
     endif ()
 endif ()
 
-#add_subdirectory(benchmark)
+add_subdirectory(benchmark)
 add_subdirectory(doc)
-#add_subdirectory(example)
-#add_subdirectory(test)
+add_subdirectory(example)
+add_subdirectory(test)

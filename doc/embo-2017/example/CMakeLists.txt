@@ -1,11 +1,16 @@
 add_executable(connection_v1 connection_v1.cpp)
 add_test(doc_embo_2017_connection_v1 connection_v1)
 
-add_executable(connection_v2 connection_v2.cpp)
-add_test(doc_embo_2017_connection_v2 connection_v2)
+# doc\embo-2017\example\connection_v4.cpp(21): error C3688: invalid literal suffix '_s'; literal operator or literal operator template 'operator ""_s' not found
+# Visual Studio 15 2017 failure
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  add_executable(connection_v2 connection_v2.cpp)
+  add_test(doc_embo_2017_connection_v2 connection_v2)
   target_compile_options(connection_v2 PRIVATE
       "-Wno-uninitialized")
+
+  add_executable(connection_v4 connection_v4.cpp)
+  add_test(doc_embo_2017_connection_v4 connection_v4)
 endif()
 
 if(${CMAKE_CXX_STANDARD} EQUAL 17 OR ${CMAKE_CXX_STANDARD} GREATER 17)
@@ -21,6 +26,3 @@ if(${CMAKE_CXX_STANDARD} EQUAL 17 OR ${CMAKE_CXX_STANDARD} GREATER 17)
 # compilation terminated due to -Wfatal-errors.
 
 endif()
-
-add_executable(connection_v4 connection_v4.cpp)
-add_test(doc_embo_2017_connection_v4 connection_v4)
