@@ -6,7 +6,3 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <boost/sml.hpp>
-
-#ifndef NO_MAIN
-int main() {}
-#endif

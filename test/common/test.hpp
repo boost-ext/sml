@@ -24,3 +24,5 @@ struct test {
     test();
   }
 };
+
+int main() {}

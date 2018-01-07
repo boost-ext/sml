@@ -1,5 +1,4 @@
-include_directories(AFTER
-    common)
+project(test LANGUAGES CXX)
 
 include_directories(AFTER
     ${CMAKE_CURRENT_SOURCE_DIR})
@@ -9,7 +8,13 @@ add_definitions(
     -DBOOST_ALL_NO_LIB
     -DBUILD_SHARED_LIBS=OFF)
 
-project(test LANGUAGES CXX)
+add_subdirectory(unit)
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    add_compile_options("-FI ${CMAKE_CURRENT_SOURCE_DIR}/common/test.hpp")
+else()
+    add_compile_options(-include common/test.hpp)
+endif()
 
 add_subdirectory(ft)
 add_subdirectory(ut)
