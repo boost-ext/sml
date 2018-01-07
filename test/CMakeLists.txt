@@ -11,7 +11,7 @@ add_definitions(
 add_subdirectory(unit)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    add_compile_options("-FI ${CMAKE_CURRENT_SOURCE_DIR}/common/test.hpp")
+    add_compile_options("-FI common/test.hpp")
 else()
     add_compile_options(-include common/test.hpp)
 endif()

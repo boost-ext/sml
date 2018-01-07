@@ -14,6 +14,7 @@
 
 # Test stage:
 #    Launch all tests: $ctest --verbose
+#    To run tests with memcheck: $ctest -T memcheck
 #    List available test: $ctest -N
 #    Launch benchmark tests: $ctest -R benchmark*
 
@@ -128,7 +129,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
     endif ()
 endif ()
 
-#add_subdirectory(benchmark)
-#add_subdirectory(doc)
-#add_subdirectory(example)
+add_subdirectory(benchmark)
+add_subdirectory(doc)
+add_subdirectory(example)
 add_subdirectory(test)
