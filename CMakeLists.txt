@@ -56,36 +56,32 @@ message(STATUS "cmake version: ${CMAKE_VERSION}")
 project(sml LANGUAGES CXX)
 include(CTest)
 
-include(CheckCXXCompilerFlag)
-
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
-  check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)
-  check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
-  check_cxx_compiler_flag(-std=c++17 HAS_CXX17_FLAG)
-
-  if(HAS_CXX17_FLAG)
-    set(CMAKE_CXX_STANDARD 17)
-  elseif(HAS_CXX14_FLAG)
-    set(CMAKE_CXX_STANDARD 14)
-  else()
-    message(FATAL_ERROR "sml requires c++14")
-  endif()
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 19.12 OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.12)
-    message(STATUS "Visual Studio 15 2017 is C++17")
-    set(IS_MSVC_2017 ON)
-    set(CMAKE_CXX_STANDARD 17) # Visual Studio 15 2017
-  elseif(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 19.0 OR CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.12)
-    set(IS_MSVC_2015 ON)
-    set(CMAKE_CXX_STANDARD 14) # Visual Studio 14 2015
-  else()
-    message(FATAL_ERROR "sml requires c++14")
-  endif()
-else()
-  set(CMAKE_CXX_STANDARD 14)
+# sml use hana library, according to hana documentation GCC >= 6.0.0
+# http://www.boost.org/doc/libs/release/libs/hana/doc/html/index.html#tutorial-installation-requirements
+# https://github.com/boostorg/hana/wiki/General-notes-on-compiler-support
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 6.0.0)
+  message(FATAL_ERROR "sml requires GCC >= 6.0.0")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 3.5.0)
+  message(FATAL_ERROR "sml requires Clang >= 3.5.0")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
+  message(FATAL_ERROR "sml requires Visual Studio 14 2015 at least")
 endif()
 
-if(NOT (DEFINED CMAKE_CXX_STANDARD) OR CMAKE_CXX_STANDARD STREQUAL "")
+# c++14 required
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)
+check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
+check_cxx_compiler_flag(-std=c++17 HAS_CXX17_FLAG)
+
+if(HAS_CXX17_FLAG)
+  set(CMAKE_CXX_STANDARD 17)
+elseif(HAS_CXX14_FLAG)
+  set(CMAKE_CXX_STANDARD 14)
+else()
+  message(FATAL_ERROR "sml requires c++14")
+endif()
+
+if(NOT (DEFINED CMAKE_CXX_STANDARD) OR CMAKE_CXX_STANDARD STREQUAL "" OR CMAKE_CXX_STANDARD LESS 14)
     message(FATAL_ERROR "sml requires c++14")
 endif()
 
@@ -109,7 +105,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_compile_options(
       "/W3" # waring level
       "/WX") # warning as error
-    if(CMAKE_CXX_STANDARD EQUAL 17 OR CMAKE_CXX_STANDARD GREATER 17)
+    if(CMAKE_CXX_STANDARD GREATER_EQUAL 17)
       # benchmark\complex\sc.cpp(18): warning C4996: 'std::allocator<void>': warning STL4009: std::allocator<void> is deprecated in C++1
       add_definitions(
         -D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)

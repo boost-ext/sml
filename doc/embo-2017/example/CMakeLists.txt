@@ -13,7 +13,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   add_test(doc_embo_2017_connection_v4 connection_v4)
 endif()
 
-if(${CMAKE_CXX_STANDARD} EQUAL 17 OR ${CMAKE_CXX_STANDARD} GREATER 17)
+if(${CMAKE_CXX_STANDARD} GREATER_EQUAL 17)
   #add_executable(connection_v3 connection_v3.cpp)
   #add_test(doc_embo_2017_connection_v3 connection_v3)
 

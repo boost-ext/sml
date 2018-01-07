@@ -36,7 +36,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         "-Wno-maybe-uninitialized")
 endif()
 
-if (${CMAKE_CXX_STANDARD} EQUAL 17 OR ${CMAKE_CXX_STANDARD} GREATER 17 ) # gcc
+if (${CMAKE_CXX_STANDARD} GREATER_EQUAL 17 ) # gcc
     #[[
     /mnt/c/dev/sml/benchmark/complex/variant.cpp:138:13:   required from here
     /usr/include/c++/7/variant:1242:44: error: no match for call to ‘(overload<>) (std::variant_alternative_t<0, std::variant<c::S1, c::S2, c::S3
