@@ -58,7 +58,7 @@ decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::on_exit<T,
   return event.event_;
 }
 template <class T, class TEvent, class TDeps>
-decltype(auto) get_arg(const aux::type<T> &, const back::exception<TEvent> &event, TDeps &) {
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::exception<T, TEvent> &event, TDeps &) {
   return event.exception_;
 }
 

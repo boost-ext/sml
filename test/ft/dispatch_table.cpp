@@ -5,7 +5,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#if 0
+#if !defined(_MSC_VER)
 #include "boost/sml/utility/dispatch_table.hpp"
 #include <boost/sml.hpp>
 #include <string>

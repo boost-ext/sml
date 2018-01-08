@@ -40,7 +40,7 @@ struct on_exit : internal_event, entry_exit {
   const TEvent& event_;
 };
 
-template <class TException>
+template <class T, class TException = T>
 struct exception : internal_event {
   using type = TException;
   explicit exception(const TException& exception = {}) : exception_(exception) {}

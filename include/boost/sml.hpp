@@ -514,7 +514,7 @@ struct on_exit : internal_event, entry_exit {
   explicit on_exit(const TEvent &event = {}) : event_(event) {}
   const TEvent &event_;
 };
-template <class TException>
+template <class T, class TException = T>
 struct exception : internal_event {
   using type = TException;
   explicit exception(const TException &exception = {}) : exception_(exception) {}
@@ -973,14 +973,6 @@ template <class T, class TMappings>
 using get_event_mapping_t = get_event_mapping_impl_helper<T, TMappings>;
 }
 namespace concepts {
-template <class T>
-decltype(aux::declval<T>().operator()()) composable_impl(int);
-template <class>
-void composable_impl(...);
-template <class T>
-struct composable : aux::is<aux::pool, decltype(composable_impl<T>(0))> {};
-}
-namespace concepts {
 struct callable_fallback {
   void operator()();
 };
@@ -991,6 +983,14 @@ aux::true_type test_callable(...);
 template <class, class T>
 struct callable
     : decltype(test_callable<aux::inherit<aux::conditional_t<__is_class(T), T, aux::none_type>, callable_fallback>>(0)) {};
+}
+namespace concepts {
+template <class T>
+decltype(aux::declval<T>().operator()()) composable_impl(int);
+template <class>
+void composable_impl(...);
+template <class T>
+struct composable : aux::is<aux::pool, decltype(composable_impl<T>(0))> {};
 }
 #if !defined(BOOST_SML_DISABLE_EXCEPTIONS)
 #if !(defined(__cpp_exceptions) || defined(__EXCEPTIONS))
@@ -1416,7 +1416,7 @@ decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::on_exit<T,
   return event.event_;
 }
 template <class T, class TEvent, class TDeps>
-decltype(auto) get_arg(const aux::type<T> &, const back::exception<TEvent> &event, TDeps &) {
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::exception<T, TEvent> &event, TDeps &) {
   return event.exception_;
 }
 template <class, class, class>
