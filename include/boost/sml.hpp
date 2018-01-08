@@ -470,7 +470,7 @@ struct on_exit : internal_event, entry_exit {
   explicit on_exit(const TEvent &event = {}) : event_(event) {}
   const TEvent &event_;
 };
-template <class TException>
+template <class T, class TException = T>
 struct exception : internal_event {
   using type = TException;
   explicit exception(const TException &exception = {}) : exception_(exception) {}
@@ -1394,7 +1394,7 @@ decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::on_exit<T,
   return event.event_;
 }
 template <class T, class TEvent, class TSM, class TDeps>
-decltype(auto) get_arg(const aux::type<T> &, const back::exception<TEvent> &event, TSM &, TDeps &) {
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::exception<T, TEvent> &event, TSM &, TDeps &) {
   return event.exception_;
 }
 template <class, class, class>

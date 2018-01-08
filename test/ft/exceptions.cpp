@@ -9,6 +9,8 @@
 
 namespace sml = boost::sml;
 
+struct context {};
+
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -61,12 +63,11 @@ test exception_no_transition = [] {
   expect(sm.is(sml::X));
 };
 
-#if !defined(_MSC_VER)
 test exception_data_minimal = [] {
   struct c {
     auto operator()() const {
       using namespace sml;
-      auto guard = [](const auto& ex) { return ex.value == 42; };
+      auto guard = [](const auto &ex) { return ex.value == 42; };
 
       // clang-format off
       return make_transition_table(
@@ -81,7 +82,6 @@ test exception_data_minimal = [] {
   sm.process_event(e1{});  // throws exception1
   expect(sm.is(sml::X));
 };
-#endif
 
 test exception_many = [] {
   struct c {
@@ -230,5 +230,24 @@ test exception_and_unexpected_event = [] {
   sml::sm<c> sm;
   sm.process_event(e1{});
   expect(sm.is(s1));
+};
+
+test exception_and_context = [] {
+  struct c {
+    auto operator()() const {
+      using namespace sml;
+      // clang-format off
+        return make_transition_table(
+           *idle + event<e1> / [] { throw exception1{}; } = s1
+          , s1 + exception<exception1> / [](const context &,const auto &){} = X
+        );
+      // clang-format on
+    }
+  };
+
+  context ctx{};
+  sml::sm<c> sm{&ctx};
+  sm.process_event(e1{});  // throws exception1
+  expect(sm.is(sml::X));
 };
 #endif
