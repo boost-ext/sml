@@ -36,7 +36,7 @@ pph:
 
 check: style
 
-test: $(patsubst %.cpp, %.out, $(wildcard test/ft/*.cpp test/ft/errors/*.cpp test/ut/*.cpp))
+test: $(patsubst %.cpp, %.out, $(wildcard test/ft/*.cpp test/ft/errors/*.cpp test/ut/*.cpp test/unit/*.cpp))
 
 test/ut/%.out:
 	$(CXX) test/ut/$*.cpp $(CXXFLAGS) $(DISABLE_EXCEPTIONS) $($(COVERAGE)) $(INCLUDE_TEST) -o test/ut/$*.out && $($(MEMCHECK)) test/ut/$*.out
@@ -59,8 +59,8 @@ test/ft/exceptions.out:
 test/ft/policies_thread_safe.out: #-fsanitize=thread
 	$(CXX) test/ft/policies_thread_safe.cpp $(CXXFLAGS) $(DISABLE_EXCEPTIONS) -lpthread $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/policies_thread_safe.out && $($(MEMCHECK)) test/ft/policies_thread_safe.out
 
-test/ft/units.out:
-	$(CXX) test/ft/unit1.cpp test/ft/unit2.cpp test/ft/units.cpp $(CXXFLAGS) $(DISABLE_EXCEPTIONS) $($(COVERAGE)) -o test/ft/units.out
+test/unit/%.out:
+	$(CXX) test/unit/unit1.cpp test/unit/unit2.cpp test/unit/units.cpp $(CXXFLAGS) $(DISABLE_EXCEPTIONS) $($(COVERAGE)) -o test/unit/units.out
 
 example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp))
 
