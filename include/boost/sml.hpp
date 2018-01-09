@@ -145,10 +145,6 @@ struct remove_reference<T &> {
   using type = T;
 };
 template <class T>
-struct remove_reference<const T &> {
-  using type = T;
-};
-template <class T>
 struct remove_reference<T &&> {
   using type = T;
 };
@@ -192,7 +188,27 @@ struct function_traits<R (T::*)(TArgs...) const noexcept> {
 #endif
 template <class T>
 using function_traits_t = typename function_traits<T>::args;
-}
+template <class T>
+struct remove_const {
+  using type = T;
+};
+template <class T>
+struct remove_const<const T> {
+  using type = T;
+};
+template <class T>
+using remove_const_t = typename remove_const<T>::type;
+template <class T>
+struct is_const : false_type {};
+template <class T>
+struct is_const<const T> : true_type {};
+template <class T>
+struct is_reference : false_type {};
+template <class T>
+struct is_reference<T &> : true_type {};
+template <class T>
+struct is_reference<T &&> : true_type {};
+}  // namespace aux
 namespace aux {
 using swallow = int[];
 template <int...>
@@ -316,9 +332,9 @@ template <class T>
 T &try_get(...) {
   static_assert(never<T>::value, "Type T has to be passed via constructor!");
 }
-template <class T>
-T &try_get(pool_type<T> *object) {
-  return static_cast<pool_type<T> &>(*object).value;
+template <class T, class U>
+T &try_get(pool_type<U> *object) {
+  return object->value;
 }
 template <class T, class TPool>
 T &get(TPool &p) {
@@ -328,12 +344,40 @@ template <class T, class TPool>
 const T &cget(TPool &p) {
   return static_cast<const pool_type<T> &>(p).value;
 }
+namespace detail {
+template <class T, bool = aux::is_reference<T>::value>
+struct non_const_pool_type {
+  using type = pool_type<aux::remove_const_t<T>>;
+};
+template <class T>
+struct non_const_pool_type<T, true> {
+  using type = pool_type<aux::remove_const_t<aux::remove_reference_t<T>> &>;
+};
+template <class T>
+using non_const_pool_type_t = typename non_const_pool_type<T>::type;
+template <class T, class U, bool = is_base_of<T, U>::value>
+struct base_or_void_ptr {
+  using type = void *;
+};
+template <class T, class U>
+struct base_or_void_ptr<T, U, true> {
+  using type = T *;
+};
+template <class T, class U>
+using base_or_void_ptr_t = typename base_or_void_ptr<T, U>::type;
+}  // namespace detail
 template <class... Ts>
 struct pool : pool_type<Ts>... {
   using boost_di_inject__ = type_list<Ts...>;
   explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
   template <class... TArgs>
-  pool(init &&, pool<TArgs...> &&p) : pool_type<Ts>(try_get<Ts>(&p))... {}
+  pool(init &&, pool<TArgs...> &&p)
+      : pool_type<Ts>(try_get<Ts>(
+            static_cast<conditional_t<
+                is_base_of<pool_type<Ts>, pool<TArgs...>>::value, pool_type<Ts> *,
+                conditional_t<is_const<remove_reference_t<Ts>>::value,
+                              detail::base_or_void_ptr_t<detail::non_const_pool_type_t<Ts>, pool<TArgs...>>, void *>>>(
+                &p)))... {}
   template <class... TArgs>
   pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, p)... {}
 };
@@ -1808,10 +1852,11 @@ template <class E, class... Ts>
 struct ignore<E, aux::type_list<Ts...>> {
   template <class T>
   struct non_events {
-    using type = aux::conditional_t<aux::is_same<back::get_event_t<E>, aux::remove_reference_t<T>>::value ||
-                                        aux::is_same<T, action_base>::value ||
-                                        aux::is_same<aux::remove_reference_t<T>, sm_ref_fwd>::value,
-                                    aux::type_list<>, aux::type_list<T>>;
+    using type =
+        aux::conditional_t<aux::is_same<back::get_event_t<E>, aux::remove_const_t<aux::remove_reference_t<T>>>::value ||
+                               aux::is_same<T, action_base>::value ||
+                               aux::is_same<aux::remove_reference_t<T>, sm_ref_fwd>::value,
+                           aux::type_list<>, aux::type_list<T>>;
   };
   using type = aux::join_t<typename non_events<Ts>::type...>;
 };

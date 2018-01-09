@@ -71,3 +71,50 @@ test dependencies = [] {
     expect(sm.is(sml::X));
   }
 };
+
+test dependencies_with_const = [] {
+  struct dep {
+    int i = 7;
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+
+      auto guard = [](int i, dep & dependency) {
+        expect(7 == dependency.i);
+        expect(42 == i);
+        return true;
+      };
+
+      auto const_guard = [](dep const & dependency, int const i) {
+        expect(7 == dependency.i);
+        expect(42 == i);
+        return true;
+      };
+
+      auto action = [](int i, dep & dependency, e1) {
+        expect(7 == dependency.i);
+        expect(42 == i);
+      };
+
+      auto const_action = [](dep const & dependency, int const i, e1) {
+        expect(7 == dependency.i);
+        expect(42 == i);
+      };
+
+      // clang-format off
+      return make_transition_table(
+         *idle + event<e1> [ guard && const_guard ] / (action, const_action) = X
+      );
+      // clang-format on
+    }
+  };
+
+  {
+    dep dependency;
+    sml::sm<c> sm{dependency, 42};
+    sm.process_event(e1{});
+    expect(sm.is(sml::X));
+  }
+};
