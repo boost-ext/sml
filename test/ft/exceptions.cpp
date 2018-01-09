@@ -239,14 +239,14 @@ test exception_and_context = [] {
       // clang-format off
         return make_transition_table(
            *idle + event<e1> / [] { throw exception1{}; } = s1
-          , s1 + exception<exception1> / [](const context &,const auto &){} = X
+          , s1 + exception<exception1> / [](context &,const auto &){} = X
         );
       // clang-format on
     }
   };
 
   context ctx{};
-  sml::sm<c> sm{&ctx};
+  sml::sm<c> sm{ctx};
   sm.process_event(e1{});  // throws exception1
   expect(sm.is(sml::X));
 };
