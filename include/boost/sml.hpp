@@ -208,7 +208,7 @@ template <class T>
 struct is_reference<T &> : true_type {};
 template <class T>
 struct is_reference<T &&> : true_type {};
-}  // namespace aux
+}
 namespace aux {
 using swallow = int[];
 template <int...>
@@ -365,7 +365,7 @@ struct base_or_void_ptr<T, U, true> {
 };
 template <class T, class U>
 using base_or_void_ptr_t = typename base_or_void_ptr<T, U>::type;
-}  // namespace detail
+}
 template <class... Ts>
 struct pool : pool_type<Ts>... {
   using boost_di_inject__ = type_list<Ts...>;

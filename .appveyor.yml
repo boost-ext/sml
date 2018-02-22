@@ -4,31 +4,52 @@
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
+version: {build}
+clone_folder: c:\sml
+shallow_clone: true
+
 branches:
   except:
-    - gh-pages
+  - benchmarks
+  - gh-pages
+
+cache:
+  - C:\cmake-3.7.2-win32-x86
 
 environment:
   fast_finish: true
 
   matrix:
-  - platform: x32
-    os: Visual Studio 2015
-    CXX: cl
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    VSPATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
+    BS: cmake
+    CMAKE_GENERATOR: Visual Studio 14 2015
     MEMCHECK: DRMEMORY
+    PLATFORM: amd64
 
-  - platform: x64
-    os: Visual Studio 2015
-    CXX: cl
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    VSPATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
+    BS: cmake
+    CMAKE_GENERATOR: Visual Studio 15 2017
     MEMCHECK: DRMEMORY
+    PLATFORM: amd64
+
+matrix:
+  fast_finish: true
 
 install:
-  - cinst drmemory
+  - ps: |
+      if (![IO.File]::Exists("C:\cmake-3.7.2-win32-x86\bin\cmake.exe")) {
+        pushd c:\
+        Start-FileDownload 'https://cmake.org/files/v3.7/cmake-3.7.2-win32-x86.zip'
+        7z x -y cmake-3.7.2-win32-x86.zip
+        popd
+      }
+  - cinst -y drmemory
   - appveyor DownloadFile http://downloads.sourceforge.net/mingw-w64/x86_64-5.2.0-release-posix-seh-rt_v4-rev1.7z
   - 7z x x86_64-5.2.0-release-posix-seh-rt_v4-rev1.7z > nul
-  - C:\"Program Files (x86)"\"Microsoft Visual Studio 14.0"\VC\vcvarsall.bat
-  - set PATH=mingw64\bin;"C:\Program Files (x86)\Dr. Memory\bin";%PATH%
+  - call "%VSPATH%"\vcvarsall %PLATFORM%
+  - set PATH=C:\cmake-3.7.2-win32-x86\bin;mingw64\bin;%PATH%;
 
 build_script:
   - mingw32-make test example/hello_world.out
-
