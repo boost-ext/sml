@@ -14,12 +14,6 @@
 
 /// policies
 
-template <class...>
-struct Policies {
-  template <class... Ts>
-  Policies(Ts&&...) {}
-};
-
 template <class T>
 struct thread_safe : aux::pair<back::thread_safety_policy__, thread_safe<T>> {
   using type = T;
@@ -44,27 +38,9 @@ struct testing : aux::pair<back::testing_policy__, testing> {};
 namespace detail {
 template <class T, __BOOST_SML_REQUIRES(concepts::composable<typename T::sm>::value)>
 using state_machine = back::sm<T>;
-
-template <class T, class TPolicy, class... TPolicies>
-struct rebind_policies {
-  using type = back::sm_policy<T, TPolicy, TPolicies...>;
-};
-
-template <class T, class... TPolicies, class... Ts>
-struct rebind_policies<T, Policies<TPolicies...>, Ts...> {
-  using type = back::sm_policy<T, TPolicies..., Ts...>;
-};
-
-template <class T, class TPolicy, class... TPolicies>
-using rebind_policies_t = typename rebind_policies<T, TPolicy, TPolicies...>::type;
-
 }  // detail
 
-class SM;
-
-template <class T = SM, class TPolicies = Policies<>, class... Ts>
-struct sm : detail::state_machine<detail::rebind_policies_t<T, TPolicies, Ts...>> {
-  using detail::state_machine<detail::rebind_policies_t<T, TPolicies, Ts...>>::state_machine;
-};
+template <class T, class... TPolicies>
+using sm = detail::state_machine<back::sm_policy<T, TPolicies...>>;
 
 #endif

@@ -62,34 +62,6 @@ test di_ctor = [] {
   expect(sm.is(idle));
 };
 
-template <class T = class TDdata>
-struct sm {
-  T &data;
-
-  auto operator()() const {
-    using namespace sml;
-    // clang-format off
-    return make_transition_table(
-      *idle + event<e1> / [this](int i) { expect(data == i); }
-    );
-    // clang-format on
-  }
-};
-
-test di_inject = [] {
-  auto i = 42;
-  // clang-format off
-  const auto injector = di::make_injector(
-    di::bind<sml::SM>.to<sm>(),
-    di::bind<class TDdata>.to(i)
-  );
-  // clang-format on
-  auto sm = injector.create<sml::sm>();
-  expect(sm.is(idle));
-  sm.process_event(e1{});
-  expect(sm.is(idle));
-};
-
 test di_complex = [] {
   struct i1 {
     virtual ~i1() noexcept = default;
