@@ -84,13 +84,13 @@ struct call<TEvent, aux::type_list<>, TLogger> {
   template <class TSM, class T, class TDeps>
   static auto execute_impl(const aux::type<bool> &, T object, const TEvent &event, TDeps &deps) {
     const auto result = object();
-    back::log_guard<TSM>(aux::type<TLogger>{}, deps, object, event, result);
+    back::policies::log_guard<TSM>(aux::type<TLogger>{}, deps, object, event, result);
     return result;
   }
 
   template <class TSM, class T, class TDeps>
   static auto execute_impl(const aux::type<void> &, T object, const TEvent &event, TDeps &deps) {
-    back::log_action<TSM>(aux::type<TLogger>{}, deps, object, event);
+    back::policies::log_action<TSM>(aux::type<TLogger>{}, deps, object, event);
     object();
   }
 };
@@ -114,13 +114,13 @@ struct call<TEvent, aux::type_list<TEvent>, TLogger> {
   template <class TSM, class T, class TDeps>
   static auto execute_impl(const aux::type<bool> &, T object, const TEvent &event, TDeps &deps) {
     const auto result = object(event);
-    back::log_guard<TSM>(aux::type<TLogger>{}, deps, object, event, result);
+    back::policies::log_guard<TSM>(aux::type<TLogger>{}, deps, object, event, result);
     return result;
   }
 
   template <class TSM, class T, class TDeps>
   static auto execute_impl(const aux::type<void> &, T object, const TEvent &event, TDeps &deps) {
-    back::log_action<TSM>(aux::type<TLogger>{}, deps, object, event);
+    back::policies::log_action<TSM>(aux::type<TLogger>{}, deps, object, event);
     object(event);
   }
 };
@@ -159,12 +159,12 @@ struct call<TEvent, aux::type_list<Ts...>, TLogger> {
   template <class TSM, class T, class TDeps>
   static auto execute_impl(const aux::type<bool> &, T object, const TEvent &event, TDeps &deps) {
     const auto result = object(get_arg(aux::type<Ts>{}, event, deps)...);
-    back::log_guard<TSM>(aux::type<TLogger>{}, deps, object, event, result);
+    back::policies::log_guard<TSM>(aux::type<TLogger>{}, deps, object, event, result);
     return result;
   }
   template <class TSM, class T, class TDeps>
   static auto execute_impl(const aux::type<void> &, T object, const TEvent &event, TDeps &deps) {
-    back::log_action<TSM>(aux::type<TLogger>{}, deps, object, event);
+    back::policies::log_action<TSM>(aux::type<TLogger>{}, deps, object, event);
     object(get_arg(aux::type<Ts>{}, event, deps)...);
   }
 };

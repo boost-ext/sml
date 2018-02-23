@@ -13,26 +13,15 @@
 
 /// policies
 
-template <class T>
-struct thread_safe : aux::pair<back::thread_safety_policy__, thread_safe<T>> {
-  using type = T;
-};
-
 template <template <class...> class T>
-struct defer_queue : aux::pair<back::defer_queue_policy__, defer_queue<T>> {
-  template <class U>
-  using rebind = T<U>;
+using defer_queue = back::policies::defer_queue<T, front::actions::defer_event>;
+template<class T>
+using logger = back::policies::logger<T>;
+using testing = back::policies::testing;
+template<class T>
+using thread_safe = back::policies::thread_safe<T>;
 
-  template <class... Ts>
-  using defer = front::actions::defer_event<Ts...>;
-};
-
-template <class T>
-struct logger : aux::pair<back::logger_policy__, logger<T>> {
-  using type = T;
-};
-
-struct testing : aux::pair<back::testing_policy__, testing> {};
+/// state machine
 
 #if defined(_MSC_VER)  // __pph__
 template <class T, class... TPolicies, class T__ = decltype(aux::declval<T>())>
