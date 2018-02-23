@@ -470,6 +470,7 @@ test initial_entry = [] {
   expect(1 == c_.entry_calls);
 };
 
+#if !defined(_MSC_VER)
 test general_transition_overload = [] {
   struct c {
     auto operator()() noexcept {
@@ -536,3 +537,4 @@ test general_transition_overload = [] {
     expect(sm.is(s1));
   }
 };
+#endif

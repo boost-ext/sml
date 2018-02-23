@@ -13,6 +13,7 @@
 #include "boost/sml/back/mappings.hpp"
 #include "boost/sml/back/utility.hpp"
 #include "boost/sml/concepts/callable.hpp"
+#include "boost/sml/concepts/composable.hpp"
 
 #if !defined(BOOST_SML_DISABLE_EXCEPTIONS)                 // __pph__
 #if !(defined(__cpp_exceptions) || defined(__EXCEPTIONS))  // __pph__
@@ -345,6 +346,8 @@ class sm {
   using logger_dep_t =
       aux::conditional_t<aux::is_same<no_policy, logger_t>::value, aux::type_list<>, aux::type_list<logger_t &>>;
   using transitions_t = decltype(aux::declval<sm_t>().operator()());
+
+  static_assert(concepts::composable<sm_t>::value, "Composable constraint is not satisfied!");
 
  public:
   using states = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;

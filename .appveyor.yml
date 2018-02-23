@@ -22,15 +22,15 @@ environment:
   matrix:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     VSPATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
-    BS: cmake
     CMAKE_GENERATOR: Visual Studio 14 2015
+    CXX: cl
     MEMCHECK: DRMEMORY
     PLATFORM: amd64
 
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     VSPATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
-    BS: cmake
     CMAKE_GENERATOR: Visual Studio 15 2017
+    CXX: cl
     MEMCHECK: DRMEMORY
     PLATFORM: amd64
 
@@ -49,7 +49,7 @@ install:
   - appveyor DownloadFile http://downloads.sourceforge.net/mingw-w64/x86_64-5.2.0-release-posix-seh-rt_v4-rev1.7z
   - 7z x x86_64-5.2.0-release-posix-seh-rt_v4-rev1.7z > nul
   - call "%VSPATH%"\vcvarsall %PLATFORM%
-  - set PATH=C:\cmake-3.7.2-win32-x86\bin;mingw64\bin;%PATH%;
+  - set PATH=C:\cmake-3.7.2-win32-x86\bin;mingw64\bin;"C:\Program Files (x86)\Dr. Memory\bin";%PATH%;
 
 build_script:
   - mingw32-make test example/hello_world.out

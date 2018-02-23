@@ -81,24 +81,24 @@ test dependencies_with_const = [] {
     auto operator()() noexcept {
       using namespace sml;
 
-      auto guard = [](int i, dep & dependency) {
+      auto guard = [](int i, dep& dependency) {
         expect(7 == dependency.i);
         expect(42 == i);
         return true;
       };
 
-      auto const_guard = [](dep const & dependency, int const i) {
+      auto const_guard = [](dep const& dependency, int const i) {
         expect(7 == dependency.i);
         expect(42 == i);
         return true;
       };
 
-      auto action = [](int i, dep & dependency, e1) {
+      auto action = [](int i, dep& dependency, e1) {
         expect(7 == dependency.i);
         expect(42 == i);
       };
 
-      auto const_action = [](dep const & dependency, int const i, e1) {
+      auto const_action = [](dep const& dependency, int const i, e1) {
         expect(7 == dependency.i);
         expect(42 == i);
       };

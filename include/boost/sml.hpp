@@ -682,10 +682,6 @@ struct convert_to_sm<T, aux::type_list<Ts...>> {
 };
 }
 namespace back {
-template <class>
-class sm;
-template <class, class...>
-struct sm_policy;
 struct thread_safety_policy__ {};
 struct defer_queue_policy__ {};
 struct logger_policy__ {};
@@ -702,8 +698,8 @@ template <class>
 no_policy get_policy(...);
 template <class T, class TPolicy>
 TPolicy get_policy(aux::pair<T, TPolicy> *);
-template <class, class...>
-struct sm_policy;
+template <class>
+class sm;
 template <class SM, class... TPolicies>
 struct sm_policy {
   using sm = SM;
@@ -975,6 +971,14 @@ struct get_event_mapping_impl_helper<on_exit<T1, T2>, TMappings>
     : decltype(get_event_mapping_impl<on_exit<T1, T2>>((TMappings *)0)) {};
 template <class T, class TMappings>
 using get_event_mapping_t = get_event_mapping_impl_helper<T, TMappings>;
+}
+namespace concepts {
+template <class T>
+decltype(aux::declval<T>().operator()()) composable_impl(int);
+template <class>
+void composable_impl(...);
+template <class T>
+struct composable : aux::is<aux::pool, decltype(composable_impl<T>(0))> {};
 }
 namespace concepts {
 struct callable_fallback {
@@ -1283,6 +1287,7 @@ class sm {
   using logger_dep_t =
       aux::conditional_t<aux::is_same<no_policy, logger_t>::value, aux::type_list<>, aux::type_list<logger_t &>>;
   using transitions_t = decltype(aux::declval<sm_t>().operator()());
+  static_assert(concepts::composable<sm_t>::value, "Composable constraint is not satisfied!");
 
  public:
   using states = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
@@ -1369,76 +1374,49 @@ class sm {
   sub_sms_t sub_sms_;
 };
 }
-namespace concepts {
-template <class T>
-decltype(aux::declval<T>().operator()()) composable_impl(int);
-template <class>
-void composable_impl(...);
-template <class T>
-struct composable : aux::is<aux::pool, decltype(composable_impl<T>(0))> {};
-}
-namespace front {
-struct operator_base {};
-struct action_base {};
 template <class TRootSM, class... TSubSMs>
 TRootSM get_root_sm_impl(aux::pool<TRootSM, TSubSMs...> *);
 template <class TSubs>
 using get_root_sm_t = decltype(get_root_sm_impl((TSubs *)0));
-template <class TSM, class TDeps, class TSubs>
-struct sm_ref {
-  template <class TEvent>
-  auto process_event(const TEvent &event) {
-    return aux::get<get_root_sm_t<TSubs>>(subs).process_event(event, deps, subs);
-  }
-  TDeps &deps;
-  TSubs &subs;
-};
-struct sm_ref_fwd {
-  template <class TEvent>
-  auto process_event(const TEvent &) {}
-};
-template <class, class, class>
+namespace front {
+struct operator_base {};
+struct action_base {};
+template <class, class>
 aux::type_list<action_base> args1__(...);
-template <class T, class E, class>
+template <class T, class E>
 auto args1__(int) -> aux::function_traits_t<decltype(&T::operator())>;
-template <class T, class E, class>
+template <class T, class E>
 auto args__(int) -> aux::function_traits_t<decltype(&T::__BOOST_SML_TEMPLATE_KEYWORD operator()<back::get_event_t<E>>)>;
-template <class T, class E, class TSM>
-auto args__(int) -> aux::function_traits_t<decltype(&T::__BOOST_SML_TEMPLATE_KEYWORD operator()<back::get_event_t<E>, TSM>)>;
-template <class T, class E, class TSM>
-auto args__(...) -> decltype(args1__<T, E, TSM>(0));
-template <class T, class E, class TSM = sm_ref_fwd>
-using args_t = decltype(args__<T, E, TSM>(0));
-template <class T, class TEvent, class TSM, class TDeps>
-decltype(auto) get_arg(const aux::type<T> &, const TEvent &, TSM &, TDeps &deps) {
+template <class T, class E>
+auto args__(...) -> decltype(args1__<T, E>(0));
+template <class T, class E>
+using args_t = decltype(args__<T, E>(0));
+template <class T, class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<T> &, const TEvent &, TDeps &deps) {
   return aux::get<T>(deps);
 }
-template <class TSM, class TEvent, class TDeps>
-decltype(auto) get_arg(const aux::type<sm_ref_fwd &> &, const TEvent &, TSM &sm, TDeps &) {
-  return sm;
-}
-template <class TEvent, class TSM, class TDeps>
-decltype(auto) get_arg(const aux::type<TEvent> &, const TEvent &event, TSM &, TDeps &) {
+template <class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<TEvent> &, const TEvent &event, TDeps &) {
   return event;
 }
-template <class TEvent, class TSM, class TDeps>
-decltype(auto) get_arg(const aux::type<const TEvent &> &, const TEvent &event, TSM &, TDeps &) {
+template <class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const TEvent &event, TDeps &) {
   return event;
 }
-template <class T, class TEvent, class TSM, class TDeps>
-decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::unexpected_event<T, TEvent> &event, TSM &, TDeps &) {
+template <class T, class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::unexpected_event<T, TEvent> &event, TDeps &) {
   return event.event_;
 }
-template <class T, class TEvent, class TSM, class TDeps>
-decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::on_entry<T, TEvent> &event, TSM &, TDeps &) {
+template <class T, class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::on_entry<T, TEvent> &event, TDeps &) {
   return event.event_;
 }
-template <class T, class TEvent, class TSM, class TDeps>
-decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::on_exit<T, TEvent> &event, TSM &, TDeps &) {
+template <class T, class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<const TEvent &> &, const back::on_exit<T, TEvent> &event, TDeps &) {
   return event.event_;
 }
-template <class T, class TEvent, class TSM, class TDeps>
-decltype(auto) get_arg(const aux::type<T> &, const back::exception<TEvent> &event, TSM &, TDeps &) {
+template <class T, class TEvent, class TDeps>
+decltype(auto) get_arg(const aux::type<T> &, const back::exception<TEvent> &event, TDeps &) {
   return event.exception_;
 }
 template <class, class, class>
@@ -1512,31 +1490,27 @@ struct call<TEvent, aux::type_list<action_base>, TLogger> {
 template <class TEvent, class... Ts>
 struct call<TEvent, aux::type_list<Ts...>, back::no_policy> {
   template <class T, class TSM, class TDeps, class TSubs>
-  static auto execute(T object, const TEvent &event, TSM &, TDeps &deps, TSubs &subs) {
-    sm_ref<TSM, TDeps, TSubs> sm_ref{deps, subs};
-    return object(get_arg(aux::type<Ts>{}, event, sm_ref, deps)...);
+  static auto execute(T object, const TEvent &event, TSM &, TDeps &deps, TSubs &) {
+    return object(get_arg(aux::type<Ts>{}, event, deps)...);
   }
 };
 template <class TEvent, class... Ts, class TLogger>
 struct call<TEvent, aux::type_list<Ts...>, TLogger> {
   template <class T, class TSM, class TDeps, class TSubs>
-  static auto execute(T object, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
-    sm_ref<TSM, TDeps, TSubs> sm_ref{deps, subs};
-    using result_type = decltype(object(get_arg(aux::type<Ts>{}, event, sm_ref, deps)...));
-    return execute_impl<typename TSM::sm_t>(aux::type<result_type>{}, object, event, sm, deps, subs);
+  static auto execute(T object, const TEvent &event, TSM &, TDeps &deps, TSubs &) {
+    using result_type = decltype(object(get_arg(aux::type<Ts>{}, event, deps)...));
+    return execute_impl<typename TSM::sm_t>(aux::type<result_type>{}, object, event, deps);
   }
-  template <class TSM, class T, class SM, class TDeps, class TSubs>
-  static auto execute_impl(const aux::type<bool> &, T object, const TEvent &event, SM &, TDeps &deps, TSubs &subs) {
-    sm_ref<SM, TDeps, TSubs> sm_ref{deps, subs};
-    const auto result = object(get_arg(aux::type<Ts>{}, event, sm_ref, deps)...);
+  template <class TSM, class T, class TDeps>
+  static auto execute_impl(const aux::type<bool> &, T object, const TEvent &event, TDeps &deps) {
+    const auto result = object(get_arg(aux::type<Ts>{}, event, deps)...);
     back::log_guard<TSM>(aux::type<TLogger>{}, deps, object, event, result);
     return result;
   }
-  template <class TSM, class T, class SM, class TDeps, class TSubs>
-  static auto execute_impl(const aux::type<void> &, T object, const TEvent &event, SM &, TDeps &deps, TSubs &subs) {
-    sm_ref<SM, TDeps, TSubs> sm_ref{deps, subs};
+  template <class TSM, class T, class TDeps>
+  static auto execute_impl(const aux::type<void> &, T object, const TEvent &event, TDeps &deps) {
     back::log_action<TSM>(aux::type<TLogger>{}, deps, object, event);
-    object(get_arg(aux::type<Ts>{}, event, sm_ref, deps)...);
+    object(get_arg(aux::type<Ts>{}, event, deps)...);
   }
 };
 template <class... Ts>
@@ -1690,12 +1664,13 @@ struct logger : aux::pair<back::logger_policy__, logger<T>> {
   using type = T;
 };
 struct testing : aux::pair<back::testing_policy__, testing> {};
-namespace detail {
-template <class T, __BOOST_SML_REQUIRES(concepts::composable<typename T::sm>::value)>
-using state_machine = back::sm<T>;
-}
+#if defined(_MSC_VER)
+template <class T, class... TPolicies, class T__ = decltype(aux::declval<T>())>
+using sm = back::sm<back::sm_policy<T__, TPolicies...>>;
+#else
 template <class T, class... TPolicies>
-using sm = detail::state_machine<back::sm_policy<T, TPolicies...>>;
+using sm = back::sm<back::sm_policy<T, TPolicies...>>;
+#endif
 namespace concepts {
 aux::false_type transitional_impl(...);
 template <class T>
@@ -1817,6 +1792,16 @@ struct state<TState(history_state)> : state_impl<state<TState(history_state)>> {
     return transition<T, state>{t, *this};
   }
 };
+#if defined(_MSC_VER)
+template <class T, class T__ = decltype(aux::declval<T>()), class = void>
+struct state_sm {
+  using type = state<T>;
+};
+template <class T, class T__>
+struct state_sm<T, T__, aux::enable_if_t<concepts::composable<T__>::value>> {
+  using type = state<back::sm<back::sm_policy<T__>>>;
+};
+#else
 template <class T, class = void>
 struct state_sm {
   using type = state<T>;
@@ -1825,6 +1810,7 @@ template <class T>
 struct state_sm<T, aux::enable_if_t<concepts::composable<T>::value>> {
   using type = state<back::sm<back::sm_policy<T>>>;
 };
+#endif
 }
 namespace front {
 struct internal {};
@@ -1836,8 +1822,7 @@ struct ignore<E, aux::type_list<Ts...>> {
   struct non_events {
     using type =
         aux::conditional_t<aux::is_same<back::get_event_t<E>, aux::remove_const_t<aux::remove_reference_t<T>>>::value ||
-                               aux::is_same<T, action_base>::value ||
-                               aux::is_same<aux::remove_reference_t<T>, sm_ref_fwd>::value,
+                               aux::is_same<T, action_base>::value,
                            aux::type_list<>, aux::type_list<T>>;
   };
   using type = aux::join_t<typename non_events<Ts>::type...>;

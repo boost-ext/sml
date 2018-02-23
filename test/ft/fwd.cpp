@@ -9,10 +9,13 @@
 
 namespace sml = boost::sml;
 
+struct e1 {};
+auto idle = sml::state<class idle>;
+
 struct fwd_sm {
   auto operator()() noexcept {
     using namespace sml;
-    return make_transition_table(*"idle"_s + "event"_e = X);
+    return make_transition_table(*idle + event<e1> = X);
   }
 };
 
@@ -20,7 +23,7 @@ c::c() : sm{std::make_unique<sml::sm<fwd_sm>>()} {}
 
 void c::update() {
   using namespace sml;
-  sm->process_event("event"_e());
+  sm->process_event(e1{});
 }
 
 bool c::is_done() const { return sm->is(sml::X); }

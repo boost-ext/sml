@@ -9,7 +9,6 @@
 
 #include "boost/sml/back/policies.hpp"
 #include "boost/sml/back/state_machine.hpp"
-#include "boost/sml/concepts/composable.hpp"
 #include "boost/sml/front/actions/defer.hpp"
 
 /// policies
@@ -35,12 +34,12 @@ struct logger : aux::pair<back::logger_policy__, logger<T>> {
 
 struct testing : aux::pair<back::testing_policy__, testing> {};
 
-namespace detail {
-template <class T, __BOOST_SML_REQUIRES(concepts::composable<typename T::sm>::value)>
-using state_machine = back::sm<T>;
-}  // detail
-
+#if defined(_MSC_VER)  // __pph__
+template <class T, class... TPolicies, class T__ = decltype(aux::declval<T>())>
+using sm = back::sm<back::sm_policy<T__, TPolicies...>>;
+#else   // __pph__
 template <class T, class... TPolicies>
-using sm = detail::state_machine<back::sm_policy<T, TPolicies...>>;
+using sm = back::sm<back::sm_policy<T, TPolicies...>>;
+#endif  // __pph__
 
 #endif

@@ -5,6 +5,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#if 0
 #include "boost/sml/utility/dispatch_table.hpp"
 #include <boost/sml.hpp>
 #include <string>
@@ -255,3 +256,4 @@ test dispatch_runtime_event_sub_sm = [] {
     expect(1 == in_sub);
   }
 };
+#endif

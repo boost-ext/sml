@@ -15,24 +15,24 @@
 
 namespace concepts {
 
-test composable_concept = [] {
-  struct c0 {};
-  struct c1 {
-    auto operator()() const noexcept { return aux::pool<>{}; }
-  };
-  struct c2 {
-    auto operator()() noexcept { return aux::pool<>{}; }
-  };
-  struct c3 {
-    auto operator()() { return aux::pool<>{}; }
-  };
-  struct c4 {
-    int operator()() { return {}; }
-  };
-  struct c5 {
-    auto setup() { return aux::pool<>{}; }
-  };
+struct c0 {};
+struct c1 {
+  auto operator()() const noexcept { return aux::pool<>{}; }
+};
+struct c2 {
+  auto operator()() noexcept { return aux::pool<>{}; }
+};
+struct c3 {
+  auto operator()() { return aux::pool<>{}; }
+};
+struct c4 {
+  int operator()() { return {}; }
+};
+struct c5 {
+  auto setup() { return aux::pool<>{}; }
+};
 
+test composable_concept = [] {
   static_expect(composable<c1>::value);
   static_expect(composable<c2>::value);
   static_expect(composable<c3>::value);

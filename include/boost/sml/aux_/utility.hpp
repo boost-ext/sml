@@ -188,7 +188,7 @@ struct base_or_void_ptr<T, U, true> {
 };
 template <class T, class U>
 using base_or_void_ptr_t = typename base_or_void_ptr<T, U>::type;
-} // detail
+}  // detail
 
 template <class... Ts>
 struct pool : pool_type<Ts>... {
@@ -205,17 +205,11 @@ struct pool : pool_type<Ts>... {
   template <class... TArgs>
   pool(init &&, pool<TArgs...> &&p)
       : pool_type<Ts>(try_get<Ts>(
-          static_cast<
-            conditional_t<
-              is_base_of<pool_type<Ts>, pool<TArgs...>>::value,
-              pool_type<Ts> *,
-              conditional_t<
-                is_const<remove_reference_t<Ts>>::value,
-                detail::base_or_void_ptr_t<detail::non_const_pool_type_t<Ts>, pool<TArgs...>>,
-                void *
-              >
-            >
-          >(&p)))... {}
+            static_cast<conditional_t<
+                is_base_of<pool_type<Ts>, pool<TArgs...>>::value, pool_type<Ts> *,
+                conditional_t<is_const<remove_reference_t<Ts>>::value,
+                              detail::base_or_void_ptr_t<detail::non_const_pool_type_t<Ts>, pool<TArgs...>>, void *>>>(
+                &p)))... {}
 
   template <class... TArgs>
   pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, p)... {}

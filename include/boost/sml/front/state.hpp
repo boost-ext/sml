@@ -101,15 +101,26 @@ struct state<TState(history_state)> : state_impl<state<TState(history_state)>> {
   }
 };
 
-template <class T, class = void>
+#if defined(_MSC_VER)  // __pph__
+template <class T, class T__ = decltype(aux::declval<T>()), class = void>
 struct state_sm {
   using type = state<T>;
 };
 
+template <class T, class T__>
+struct state_sm<T, T__, aux::enable_if_t<concepts::composable<T__>::value>> {
+  using type = state<back::sm<back::sm_policy<T__>>>;
+};
+#else   // __pph__
+template <class T, class = void>
+struct state_sm {
+  using type = state<T>;
+};
 template <class T>
 struct state_sm<T, aux::enable_if_t<concepts::composable<T>::value>> {
   using type = state<back::sm<back::sm_policy<T>>>;
 };
+#endif  // __pph__
 
 }  // front
 
