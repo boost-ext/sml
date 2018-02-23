@@ -501,89 +501,6 @@ struct defer_queue : aux::pair<back::policies::defer_queue_policy__, defer_queue
 }
 }
 namespace back {
-template <class>
-struct sm;
-template <class, class...>
-struct sm_policy;
-struct no_policy;
-namespace policies {
-struct logger_policy__ {};
-template <class T>
-struct logger : aux::pair<logger_policy__, logger<T>> {
-  using type = T;
-};
-template <class>
-struct get_state_name;
-template <class T>
-struct get_state_name<aux::string<T>> {
-  using type = aux::string<T>;
-};
-template <class T, class... Ts>
-struct get_state_name<aux::string<sm<sm_policy<T, Ts...>>>> {
-  using type = typename get_state_name<aux::string<sm_policy<T, Ts...>>>::type;
-};
-template <class T>
-struct get_state_name<aux::string<sm_policy<T>>> {
-  using type = aux::string<T>;
-};
-template <class T, class TName>
-struct get_state_name<aux::string<sm_policy<T, TName>>> {
-  using type = aux::string<T(typename TName::type)>;
-};
-template <class T>
-using get_state_name_t = typename get_state_name<T>::type;
-template <class, class TDeps, class TEvent>
-void log_process_event(const aux::type<no_policy> &, TDeps &, const TEvent &) {}
-template <class SM, class TLogger, class TDeps, class TEvent>
-void log_process_event(const aux::type<TLogger> &, TDeps &deps, const TEvent &event) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_process_event<SM>(event);
-}
-template <class, class TDeps, class TSrcState, class TDstState>
-void log_state_change(const aux::type<no_policy> &, TDeps &, const TSrcState &, const TDstState &) {}
-template <class SM, class TLogger, class TDeps, class TSrcState, class TDstState>
-void log_state_change(const aux::type<TLogger> &, TDeps &deps, const TSrcState &, const TDstState &) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_state_change<SM>(get_state_name_t<TSrcState>{},
-                                                                                            get_state_name_t<TDstState>{});
-}
-template <class, class TDeps, class TAction, class TEvent>
-void log_action(const aux::type<no_policy> &, TDeps &, const TAction &, const TEvent &) {}
-template <class SM, class TLogger, class TDeps, class TAction, class TEvent>
-void log_action(const aux::type<TLogger> &, TDeps &deps, const TAction &action, const TEvent &event) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_action<SM>(action, event);
-}
-template <class SM, class TLogger, class TDeps, class TAction, class TEvent>
-void log_action(const aux::type<TLogger> &, TDeps &deps, const aux::zero_wrapper<TAction> &action, const TEvent &event) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_action<SM>(action.get(), event);
-}
-template <class, class TDeps, class TGuard, class TEvent>
-void log_guard(const aux::type<no_policy> &, TDeps &, const TGuard &, const TEvent &, bool) {}
-template <class SM, class TLogger, class TDeps, class TGuard, class TEvent>
-void log_guard(const aux::type<TLogger> &, TDeps &deps, const TGuard &guard, const TEvent &event, bool result) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_guard<SM>(guard, event, result);
-}
-template <class SM, class TLogger, class TDeps, class TGuard, class TEvent>
-void log_guard(const aux::type<TLogger> &, TDeps &deps, const aux::zero_wrapper<TGuard> &guard, const TEvent &event,
-               bool result) {
-  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_guard<SM>(guard.get(), event, result);
-}
-}
-}
-namespace back {
-namespace policies {
-struct testing_policy__ {};
-struct testing : aux::pair<testing_policy__, testing> {};
-}
-}
-namespace back {
-namespace policies {
-struct thread_safety_policy__ {};
-template <class T>
-struct thread_safe : aux::pair<thread_safety_policy__, thread_safe<T>> {
-  using type = T;
-};
-}
-}
-namespace back {
 struct _ {};
 struct initial {};
 struct unexpected {};
@@ -774,30 +691,6 @@ struct convert_to_sm;
 template <class T, class... Ts>
 struct convert_to_sm<T, aux::type_list<Ts...>> {
   using type = aux::type_list<sm_impl<T>, sm_impl<typename T::template rebind<Ts>>...>;
-};
-}
-namespace back {
-struct no_policy {
-  using type = no_policy;
-  template <class>
-  using rebind = no_policy;
-  template <class...>
-  using defer = no_policy;
-  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
-};
-template <class>
-no_policy get_policy(...);
-template <class T, class TPolicy>
-TPolicy get_policy(aux::pair<T, TPolicy> *);
-template <class SM, class... TPolicies>
-struct sm_policy {
-  using sm = SM;
-  using thread_safety_policy = decltype(get_policy<policies::thread_safety_policy__>((aux::inherit<TPolicies...> *)0));
-  using defer_queue_policy = decltype(get_policy<policies::defer_queue_policy__>((aux::inherit<TPolicies...> *)0));
-  using logger_policy = decltype(get_policy<policies::logger_policy__>((aux::inherit<TPolicies...> *)0));
-  using testing_policy = decltype(get_policy<policies::testing_policy__>((aux::inherit<TPolicies...> *)0));
-  template <class T>
-  using rebind = typename rebind_impl<T, TPolicies...>::type;
 };
 }
 namespace back {
@@ -1005,6 +898,192 @@ struct get_event_mapping_impl_helper<on_exit<T1, T2>, TMappings>
 template <class T, class TMappings>
 using get_event_mapping_t = get_event_mapping_impl_helper<T, TMappings>;
 }
+namespace back {
+namespace policies {
+struct dispatch_policy__ {};
+template <class T>
+struct dispatch : aux::pair<dispatch_policy__, T> {
+  using type = T;
+};
+struct jump_table {
+  template <int, class TMappings, class sm_impl, class State, class TEvent, class TDeps, class TSubs>
+  static bool dispatch(sm_impl &, State &, const TEvent &, TDeps &, TSubs &, const aux::type_list<> &) {
+    return false;
+  }
+  template <int, class TMappings, class sm_impl, class State, class TEvent, class TDeps, class TSubs, class... TStates>
+  static bool dispatch(sm_impl &self, State &current_state, const TEvent &event, TDeps &deps, TSubs &subs,
+                       const aux::type_list<TStates...> &) {
+    using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, State &);
+    constexpr static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
+        &get_state_mapping_t<TStates, TMappings, typename sm_impl::has_unexpected_events>::template execute<TEvent, sm_impl,
+                                                                                                            TDeps, TSubs>...};
+    return dispatch_table[current_state](event, self, deps, subs, current_state);
+  }
+};
+struct branch_stm {
+  template <int, class TMappings, class sm_impl, class State, class TEvent, class TDeps, class TSubs>
+  static bool dispatch(sm_impl &, State &, const TEvent &, TDeps &, TSubs &, const aux::type_list<> &) {
+    return false;
+  }
+  template <int N, class TMappings, class sm_impl, class State, class TEvent, class TDeps, class TSubs, class TState,
+            class... TStates>
+  static bool dispatch(sm_impl &self, State &current_state, const TEvent &event, TDeps &deps, TSubs &subs,
+                       const aux::type_list<TState, TStates...> &) {
+    return current_state == N
+               ? get_state_mapping_t<TState, TMappings, typename sm_impl::has_unexpected_events>::template execute<
+                     TEvent, sm_impl, TDeps, TSubs>(event, self, deps, subs, current_state)
+               : dispatch<N + 1, TMappings>(self, current_state, event, deps, subs, aux::type_list<TStates...>{});
+  }
+};
+struct switch_stm {
+  template <int, class TMappings, class sm_impl, class State, class TEvent, class TDeps, class TSubs>
+  static bool dispatch(sm_impl &, State &, const TEvent &, TDeps &, TSubs &, const aux::type_list<> &) {
+    return false;
+  }
+  template <int N, class TMappings, class sm_impl, class State, class TEvent, class TDeps, class TSubs, class TState,
+            class... TStates>
+  static bool dispatch(sm_impl &self, State &current_state, const TEvent &event, TDeps &deps, TSubs &subs,
+                       const aux::type_list<TState, TStates...> &) {
+    switch (current_state) {
+      case N:
+        return get_state_mapping_t<TState, TMappings, typename sm_impl::has_unexpected_events>::template execute<
+            TEvent, sm_impl, TDeps, TSubs>(event, self, deps, subs, current_state);
+      default:
+        return dispatch<N + 1, TMappings>(self, current_state, event, deps, subs, aux::type_list<TStates...>{});
+    }
+  }
+};
+#if defined(__cpp_fold_expressions)
+struct fold_expr {
+  template <class TMappings, auto... Ns, class sm_impl, class State, class TEvent, class TDeps, class TSubs, class... TStates>
+  static bool dispatch_impl(sm_impl &self, State &current_state, aux::index_sequence<Ns...>, const TEvent &event, TDeps &deps,
+                            TSubs &subs, const aux::type_list<TStates...> &states) {
+    return ((current_state == Ns
+                 ? get_state_mapping_t<TStates, TMappings, typename sm_impl::has_unexpected_events>::template execute<
+                       TEvent, sm_impl, TDeps, TSubs>(event, self, deps, subs, current_state)
+                 : false) ||
+            ...);
+  }
+  template <int N, class TMappings, class sm_impl, class State, class TEvent, class TDeps, class TSubs, class... TStates>
+  static bool dispatch(sm_impl &self, State &current_state, const TEvent &event, TDeps &deps, TSubs &subs,
+                       const aux::type_list<TStates...> &states) {
+    return dispatch_impl<TMappings>(self, current_state, aux::make_index_sequence<sizeof...(TStates)>{}, event, deps, subs,
+                                    states);
+  }
+};
+#endif
+}
+}
+namespace back {
+template <class>
+class sm;
+template <class, class...>
+struct sm_policy;
+struct no_policy;
+namespace policies {
+struct logger_policy__ {};
+template <class T>
+struct logger : aux::pair<logger_policy__, logger<T>> {
+  using type = T;
+};
+template <class>
+struct get_state_name;
+template <class T>
+struct get_state_name<aux::string<T>> {
+  using type = aux::string<T>;
+};
+template <class T, class... Ts>
+struct get_state_name<aux::string<sm<sm_policy<T, Ts...>>>> {
+  using type = typename get_state_name<aux::string<sm_policy<T, Ts...>>>::type;
+};
+template <class T>
+struct get_state_name<aux::string<sm_policy<T>>> {
+  using type = aux::string<T>;
+};
+template <class T, class TName>
+struct get_state_name<aux::string<sm_policy<T, TName>>> {
+  using type = aux::string<T(typename TName::type)>;
+};
+template <class T>
+using get_state_name_t = typename get_state_name<T>::type;
+template <class, class TDeps, class TEvent>
+void log_process_event(const aux::type<no_policy> &, TDeps &, const TEvent &) {}
+template <class SM, class TLogger, class TDeps, class TEvent>
+void log_process_event(const aux::type<TLogger> &, TDeps &deps, const TEvent &event) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_process_event<SM>(event);
+}
+template <class, class TDeps, class TSrcState, class TDstState>
+void log_state_change(const aux::type<no_policy> &, TDeps &, const TSrcState &, const TDstState &) {}
+template <class SM, class TLogger, class TDeps, class TSrcState, class TDstState>
+void log_state_change(const aux::type<TLogger> &, TDeps &deps, const TSrcState &, const TDstState &) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_state_change<SM>(get_state_name_t<TSrcState>{},
+                                                                                            get_state_name_t<TDstState>{});
+}
+template <class, class TDeps, class TAction, class TEvent>
+void log_action(const aux::type<no_policy> &, TDeps &, const TAction &, const TEvent &) {}
+template <class SM, class TLogger, class TDeps, class TAction, class TEvent>
+void log_action(const aux::type<TLogger> &, TDeps &deps, const TAction &action, const TEvent &event) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_action<SM>(action, event);
+}
+template <class SM, class TLogger, class TDeps, class TAction, class TEvent>
+void log_action(const aux::type<TLogger> &, TDeps &deps, const aux::zero_wrapper<TAction> &action, const TEvent &event) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_action<SM>(action.get(), event);
+}
+template <class, class TDeps, class TGuard, class TEvent>
+void log_guard(const aux::type<no_policy> &, TDeps &, const TGuard &, const TEvent &, bool) {}
+template <class SM, class TLogger, class TDeps, class TGuard, class TEvent>
+void log_guard(const aux::type<TLogger> &, TDeps &deps, const TGuard &guard, const TEvent &event, bool result) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_guard<SM>(guard, event, result);
+}
+template <class SM, class TLogger, class TDeps, class TGuard, class TEvent>
+void log_guard(const aux::type<TLogger> &, TDeps &deps, const aux::zero_wrapper<TGuard> &guard, const TEvent &event,
+               bool result) {
+  return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_guard<SM>(guard.get(), event, result);
+}
+}
+}
+namespace back {
+namespace policies {
+struct testing_policy__ {};
+struct testing : aux::pair<testing_policy__, testing> {};
+}
+}
+namespace back {
+namespace policies {
+struct thread_safety_policy__ {};
+template <class T>
+struct thread_safe : aux::pair<thread_safety_policy__, thread_safe<T>> {
+  using type = T;
+};
+}
+}
+namespace back {
+struct no_policy {
+  using type = no_policy;
+  template <class>
+  using rebind = no_policy;
+  template <class...>
+  using defer = no_policy;
+  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
+};
+template <class TDefault, class>
+TDefault get_policy(...);
+template <class, class T, class TPolicy>
+TPolicy get_policy(aux::pair<T, TPolicy> *);
+template <class SM, class... TPolicies>
+struct sm_policy {
+  using sm = SM;
+  using thread_safety_policy =
+      decltype(get_policy<no_policy, policies::thread_safety_policy__>((aux::inherit<TPolicies...> *)0));
+  using defer_queue_policy = decltype(get_policy<no_policy, policies::defer_queue_policy__>((aux::inherit<TPolicies...> *)0));
+  using logger_policy = decltype(get_policy<no_policy, policies::logger_policy__>((aux::inherit<TPolicies...> *)0));
+  using testing_policy = decltype(get_policy<no_policy, policies::testing_policy__>((aux::inherit<TPolicies...> *)0));
+  using dispatch_policy =
+      decltype(get_policy<policies::jump_table, policies::dispatch_policy__>((aux::inherit<TPolicies...> *)0));
+  template <class T>
+  using rebind = typename rebind_impl<T, TPolicies...>::type;
+};
+}
 namespace concepts {
 struct callable_fallback {
   void operator()();
@@ -1043,6 +1122,7 @@ struct sm_impl {
   template <class... Ts>
   using defer_event_t = typename defer_policy_t::template defer<Ts...>;
   using logger_t = typename TSM::logger_policy::type;
+  using dispatch_t = typename TSM::dispatch_policy;
   using transitions_t = decltype(aux::declval<sm_t>().operator()());
   using states_t = aux::apply_t<aux::unique_t, aux::apply_t<get_states, transitions_t>>;
   using states_ids_t = aux::apply_t<aux::type_id, states_t>;
@@ -1169,36 +1249,29 @@ struct sm_impl {
 #endif
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
-  bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
+  bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &states,
                           aux::index_sequence<0>) {
-    using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
-    const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
-        &get_state_mapping_t<TStates, TMappings, has_unexpected_events>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
-    return dispatch_table[current_state_[0]](event, *this, deps, subs, current_state_[0]);
+    return dispatch_t::template dispatch<0, TMappings>(*this, current_state_[0], event, deps, subs, states);
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates, int... Ns>
-  bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
+  bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &states,
                           aux::index_sequence<Ns...>) {
-    using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
-    const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
-        &get_state_mapping_t<TStates, TMappings, has_unexpected_events>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     auto handled = false;
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
-    (void)aux::swallow{0, (handled |= dispatch_table[current_state_[Ns]](event, *this, deps, subs, current_state_[Ns]), 0)...};
+    (void)aux::swallow{
+        0,
+        (handled |= dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, deps, subs, states), 0)...};
     return handled;
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
-  bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &,
+  bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &states,
                           state_t &current_state) {
-    using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, state_t &);
-    const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
-        &get_state_mapping_t<TStates, TMappings, has_unexpected_events>::template execute<TEvent, sm_impl, TDeps, TSubs>...};
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
-    return dispatch_table[current_state](event, *this, deps, subs, current_state);
+    return dispatch_t::template dispatch<0, TMappings>(*this, current_state, event, deps, subs, states);
   }
 #if !BOOST_SML_DISABLE_EXCEPTIONS
   template <class TMappings, class TEvent, class TDeps, class TSubs>
@@ -1681,13 +1754,15 @@ struct defer : action_base {
 };
 }
 }
-template <template <class...> class T>
-using defer_queue = back::policies::defer_queue<T, front::actions::defer_event>;
-template <class T>
-using logger = back::policies::logger<T>;
 using testing = back::policies::testing;
 template <class T>
+using logger = back::policies::logger<T>;
+template <class T>
 using thread_safe = back::policies::thread_safe<T>;
+template <class T>
+using dispatch = back::policies::dispatch<T>;
+template <template <class...> class T>
+using defer_queue = back::policies::defer_queue<T, front::actions::defer_event>;
 #if defined(_MSC_VER)
 template <class T, class... TPolicies, class T__ = decltype(aux::declval<T>())>
 using sm = back::sm<back::sm_policy<T__, TPolicies...>>;

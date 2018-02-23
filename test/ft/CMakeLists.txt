@@ -52,6 +52,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
     add_executable(test_policies_testing policies_testing.cpp)
     add_test(test_policies_testing test_policies_testing)
 
+    add_executable(test_policies_dispatch policies_dispatch.cpp)
+    add_test(test_policies_dispatch test_policies_dispatch)
+
     add_executable(test_policies_thread_safe policies_thread_safe.cpp)
     add_test(test_policies_thread_safe test_policies_thread_safe)
     target_link_libraries(test_policies_thread_safe

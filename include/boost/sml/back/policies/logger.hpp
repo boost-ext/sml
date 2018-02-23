@@ -12,7 +12,7 @@
 namespace back {
 
 template <class>
-struct sm;
+class sm;
 template <class, class...>
 struct sm_policy;
 struct no_policy;
@@ -96,7 +96,7 @@ void log_guard(const aux::type<TLogger>&, TDeps& deps, const aux::zero_wrapper<T
   return static_cast<aux::pool_type<TLogger&>&>(deps).value.template log_guard<SM>(guard.get(), event, result);
 }
 
-}  // back
 }  // policies
+}  // back
 
 #endif

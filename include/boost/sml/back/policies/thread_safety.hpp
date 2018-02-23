@@ -19,7 +19,7 @@ struct thread_safe : aux::pair<thread_safety_policy__, thread_safe<T>> {
   using type = T;
 };
 
-}  // back
 }  // policies
+}  // back
 
 #endif

@@ -14,7 +14,7 @@ namespace policies {
 
 struct defer_queue_policy__ {};
 
-template <template <class...> class T, template<class...> class TDefer>
+template <template <class...> class T, template <class...> class TDefer>
 struct defer_queue : aux::pair<back::policies::defer_queue_policy__, defer_queue<T, TDefer>> {
   template <class U>
   using rebind = T<U>;
@@ -23,7 +23,7 @@ struct defer_queue : aux::pair<back::policies::defer_queue_policy__, defer_queue
   using defer = TDefer<Ts...>;
 };
 
-}  // back
 }  // policies
+}  // back
 
 #endif

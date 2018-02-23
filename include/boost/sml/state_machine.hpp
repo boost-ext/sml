@@ -13,13 +13,15 @@
 
 /// policies
 
+using testing = back::policies::testing;
+template <class T>
+using logger = back::policies::logger<T>;
+template <class T>
+using thread_safe = back::policies::thread_safe<T>;
+template <class T>
+using dispatch = back::policies::dispatch<T>;
 template <template <class...> class T>
 using defer_queue = back::policies::defer_queue<T, front::actions::defer_event>;
-template<class T>
-using logger = back::policies::logger<T>;
-using testing = back::policies::testing;
-template<class T>
-using thread_safe = back::policies::thread_safe<T>;
 
 /// state machine
 

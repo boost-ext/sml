@@ -9,6 +9,7 @@
 
 #include "boost/sml/aux_/utility.hpp"
 #include "boost/sml/back/policies/defer_queue.hpp"
+#include "boost/sml/back/policies/dispatch.hpp"
 #include "boost/sml/back/policies/logger.hpp"
 #include "boost/sml/back/policies/testing.hpp"
 #include "boost/sml/back/policies/thread_safety.hpp"
@@ -25,19 +26,23 @@ struct no_policy {
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 
-template <class>
-no_policy get_policy(...);
+template <class TDefault, class>
+TDefault get_policy(...);
 
-template <class T, class TPolicy>
-TPolicy get_policy(aux::pair<T, TPolicy>*);
+template <class, class T, class TPolicy>
+TPolicy get_policy(aux::pair<T, TPolicy> *);
 
 template <class SM, class... TPolicies>
 struct sm_policy {
   using sm = SM;
-  using thread_safety_policy = decltype(get_policy<policies::thread_safety_policy__>((aux::inherit<TPolicies...>*)0));
-  using defer_queue_policy = decltype(get_policy<policies::defer_queue_policy__>((aux::inherit<TPolicies...>*)0));
-  using logger_policy = decltype(get_policy<policies::logger_policy__>((aux::inherit<TPolicies...>*)0));
-  using testing_policy = decltype(get_policy<policies::testing_policy__>((aux::inherit<TPolicies...>*)0));
+  using thread_safety_policy =
+      decltype(get_policy<no_policy, policies::thread_safety_policy__>((aux::inherit<TPolicies...> *)0));
+  using defer_queue_policy = decltype(get_policy<no_policy, policies::defer_queue_policy__>((aux::inherit<TPolicies...> *)0));
+  using logger_policy = decltype(get_policy<no_policy, policies::logger_policy__>((aux::inherit<TPolicies...> *)0));
+  using testing_policy = decltype(get_policy<no_policy, policies::testing_policy__>((aux::inherit<TPolicies...> *)0));
+  using dispatch_policy =
+      decltype(get_policy<policies::jump_table, policies::dispatch_policy__>((aux::inherit<TPolicies...> *)0));
+
   template <class T>
   using rebind = typename rebind_impl<T, TPolicies...>::type;
 };
