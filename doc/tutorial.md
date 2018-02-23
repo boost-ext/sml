@@ -29,7 +29,7 @@ If you happen to have a Clang/GCC compiler, you can create an Event on the fly.
 
 ```cpp
 using namespace sml;
-auto event  = "event"_t;
+auto event  = "event"_e;
 ```
 
 However, such event will not store any data.
