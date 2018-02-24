@@ -28,10 +28,10 @@ class top {
   }
 
  private:
-  sml::sm<nested> sm{};
+  sml::sm<nested> sm;
 };
 
 int main() {
-  top<> sm{};
+  top<> sm;
   sm.process();
 }

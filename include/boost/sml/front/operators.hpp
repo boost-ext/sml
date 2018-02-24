@@ -182,9 +182,13 @@ class seq_ : operator_base {
  private:
   template <int... Ns, class TEvent, class TSM, class TDeps, class TSubs>
   void for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
+#if defined(__cpp_fold_expressions)  // __pph__
+    (call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&a), event, sm, deps, subs), ...);
+#else   // __pph__
     (void)aux::swallow{
         0, (call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&a), event, sm, deps, subs),
             0)...};
+#endif  // __pph__
   }
 
   aux::tuple<Ts...> a;
@@ -203,12 +207,17 @@ class and_ : operator_base {
  private:
   template <int... Ns, class TEvent, class TSM, class TDeps, class TSubs>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
+#if defined(__cpp_fold_expressions)  // __pph__
+    return (call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g), event, sm, deps, subs) &&
+            ...);
+#else   // __pph__
     auto result = true;
     (void)aux::swallow{0, (result && call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g),
                                                                                                        event, sm, deps, subs)
                                ? result
                                : (result = false))...};
     return result;
+#endif  // __pph__
   }
 
   aux::tuple<Ts...> g;
@@ -227,12 +236,17 @@ class or_ : operator_base {
  private:
   template <int... Ns, class TEvent, class TSM, class TDeps, class TSubs>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
+#if defined(__cpp_fold_expressions)  // __pph__
+    return (call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g), event, sm, deps, subs) ||
+            ...);
+#else   // __pph__
     auto result = false;
     (void)aux::swallow{0, (result || call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g),
                                                                                                        event, sm, deps, subs)
                                ? (result = true)
                                : result)...};
     return result;
+#endif  // __pph__
   }
 
   aux::tuple<Ts...> g;

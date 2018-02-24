@@ -32,7 +32,7 @@ struct process {
     return process_impl<TEvent>{event};
   }
 };
-}
+}  // actions
 }  // front::actions
 
 #endif

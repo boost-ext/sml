@@ -272,7 +272,6 @@ send: 42
     * [ [1.1.0] - 2017-XX-XX](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-110-2017-xx-xx)
     * [ [1.0.1] - 2016-05-06](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-101-2016-05-06)
     * [[1.0.0] - 2016-01-28](http://boost-experimental.github.io/sml/CHANGELOG/index.html#100-2016-01-28)
-* [TODO](http://boost-experimental.github.io/sml/TODO/index.html)
 
 [](GENERATE_TOC_END)
 

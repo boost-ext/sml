@@ -235,9 +235,15 @@ void update_composite_states(TSubs &subs, aux::true_type, const aux::type_list<T
   using state_t = typename T::state_t;
   auto &sm = back::sub_sm<T>::get(&subs);
   (void)sm;
+#if defined(__cpp_fold_expressions)  // __pph__
+  ((sm.current_state_[aux::get_id<state_t, THs>((typename T::initial_states_ids_t *)0)] =
+        aux::get_id<state_t, THs>((typename T::states_ids_t *)0)),
+   ...);
+#else   // __pph__
   (void)aux::swallow{0, (sm.current_state_[aux::get_id<state_t, THs>((typename T::initial_states_ids_t *)0)] =
                              aux::get_id<state_t, THs>((typename T::states_ids_t *)0),
                          0)...};
+#endif  // __pph__
 }
 
 template <class T, class TSubs, class... Ts>
