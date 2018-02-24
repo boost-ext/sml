@@ -6,12 +6,14 @@
 #
 .PHONY: all doc clean test example
 CXX?=clang++
+CXXSTD?=c++14
+
 ifneq (, $(findstring clang++, $(CXX)))
-	CXXFLAGS+=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
+	CXXFLAGS+=-std=$(CXXSTD) -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
 	INCLUDE_TEST=-include test/common/test.hpp
 	DISABLE_EXCEPTIONS=-fno-exceptions
 else ifneq (, $(findstring g++, $(CXX)))
-	CXXFLAGS+=-std=c++1y -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
+	CXXFLAGS+=-std=$(CXXSTD) -Wall -Wextra -Werror -pedantic -pedantic-errors -I include -I .
 	INCLUDE_TEST=-include test/common/test.hpp
 	DISABLE_EXCEPTIONS=-fno-exceptions
 else

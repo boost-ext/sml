@@ -32,6 +32,6 @@ class top {
 };
 
 int main() {
-  top<> sm{};
+  top<> sm;
   sm.process();
 }

@@ -72,7 +72,7 @@ test sm_testing = [] {
     sml::sm<c, sml::testing> sm{fake_data, c_fake_data, true};
     expect(sm.is(idle));
 
-    sm.__set_current_states(s2);
+    sm.set_current_states(s2);
     fake_data.value = 42;
     sm.process_event(e3{});
     expect(sm.is(sml::X));
@@ -85,7 +85,7 @@ test sm_testing = [] {
     sml::sm<c, sml::testing> sm{c_fake_data, fake_data, true};
     expect(sm.is(idle));
 
-    sm.__set_current_states(s2);
+    sm.set_current_states(s2);
     fake_data.value = 42;
     sm.process_event(e3{});
     expect(sm.is(sml::X));
@@ -98,7 +98,7 @@ test sm_testing = [] {
     sml::sm<c, sml::testing> sm{fake_data, c_fake_data, true};
     expect(sm.is(idle));
 
-    sm.__set_current_states(s1);
+    sm.set_current_states(s1);
     fake_data.value = 42;
     sm.process_event(e2{});
     expect(sm.is(s2));
@@ -124,6 +124,6 @@ test sm_testing_orthogonal_regions = [] {
 
   sml::sm<c, sml::testing> sm;
   expect(sm.is(idle, idle2));
-  sm.__set_current_states(s1, s3);
+  sm.set_current_states(s1, s3);
   expect(sm.is(s1, s3));
 };

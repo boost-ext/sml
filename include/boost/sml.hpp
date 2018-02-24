@@ -957,7 +957,7 @@ struct switch_stm {
 struct fold_expr {
   template <class TMappings, auto... Ns, class sm_impl, class State, class TEvent, class TDeps, class TSubs, class... TStates>
   static bool dispatch_impl(sm_impl &self, State &current_state, aux::index_sequence<Ns...>, const TEvent &event, TDeps &deps,
-                            TSubs &subs, const aux::type_list<TStates...> &states) {
+                            TSubs &subs, const aux::type_list<TStates...> &) {
     return ((current_state == Ns
                  ? get_state_mapping_t<TStates, TMappings, typename sm_impl::has_unexpected_events>::template execute<
                        TEvent, sm_impl, TDeps, TSubs>(event, self, deps, subs, current_state)
@@ -1180,8 +1180,12 @@ struct sm_impl {
   }
   template <class... TStates>
   void initialize(const aux::type_list<TStates...> &) {
-    auto region = 0, i = region;
-    (void)aux::swallow{0, (region = i, current_state_[region] = aux::get_id<state_t, TStates>((states_ids_t *)0), ++i, 0)...};
+    auto region = 0;
+#if defined(__cpp_fold_expressions)
+    ((current_state_[region++] = aux::get_id<state_t, TStates>((states_ids_t *)0)), ...);
+#else
+    (void)aux::swallow{0, (current_state_[region++] = aux::get_id<state_t, TStates>((states_ids_t *)0), 0)...};
+#endif
   }
   template <class TDeps, class TSubs>
   void start(TDeps &deps, TSubs &subs) {
@@ -1258,12 +1262,17 @@ struct sm_impl {
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates, int... Ns>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &states,
                           aux::index_sequence<Ns...>) {
-    auto handled = false;
     const auto lock = create_lock(aux::type<thread_safety_t>{});
     (void)lock;
+    auto handled = false;
+#if defined(__cpp_fold_expressions)
+    return ((handled |= dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, deps, subs, states)),
+            ...);
+#else
     (void)aux::swallow{
         0,
         (handled |= dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, deps, subs, states), 0)...};
+#endif
     return handled;
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
@@ -1354,7 +1363,11 @@ struct sm_impl {
     using dispatch_table_t = void (*)(const TVisitor &);
     const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &sm_impl::visit_state<TVisitor, TStates>...};
+#if defined(__cpp_fold_expressions)
+    (dispatch_table[current_state_[Ns]](visitor), ...);
+#else
     (void)aux::swallow{0, (dispatch_table[current_state_[Ns]](visitor), 0)...};
+#endif
   }
   template <class TVisitor, class TState>
   static void visit_state(const TVisitor &visitor) {
@@ -1376,10 +1389,14 @@ struct sm_impl {
   }
   template <int... Ns>
   bool is_terminated_impl(aux::index_sequence<Ns...>) const {
+#if defined(__cpp_fold_expressions)
+    return ((current_state_[Ns] == aux::get_id<state_t, terminate_state>((states_ids_t *)0)) && ...);
+#else
     auto result = true;
     (void)aux::swallow{
         0, (current_state_[Ns] == aux::get_id<state_t, terminate_state>((states_ids_t *)0) ? result : (result = false))...};
     return result;
+#endif
   }
   transitions_t transitions_;
   state_t current_state_[regions];
@@ -1439,12 +1456,11 @@ class sm {
   }
   template <class T = aux::identity<sm_t>, class TState>
   bool is(const TState &) const {
-    auto result = false;
-    visit_current_states<T>([&](auto state) {
-      (void)state;
-      result |= aux::is_same<typename TState::type, typename decltype(state)::type>::value;
-    });
-    return result;
+    using type = typename T::type;
+    using sm_impl_t = sm_impl<typename TSM::template rebind<type>>;
+    using state_t = typename sm_impl_t::state_t;
+    using states_ids_t = typename sm_impl_t::states_ids_t;
+    return aux::get_id<state_t, typename TState::type>((states_ids_t *)0) == aux::cget<sm_impl_t>(sub_sms_).current_state_[0];
   }
   template <class T = aux::identity<sm_t>, class... TStates,
             __BOOST_SML_REQUIRES(sizeof...(TStates) == sm_impl<typename TSM::template rebind<typename T::type>>::regions)>
@@ -1464,15 +1480,19 @@ class sm {
   }
   template <class T = aux::identity<sm_t>, class... TStates,
             __BOOST_SML_REQUIRES(!aux::is_same<no_policy, typename TSM::testing_policy>::value && aux::always<T>::value)>
-  void __set_current_states(const TStates &...) {
+  void set_current_states(const TStates &...) {
     using type = typename T::type;
     using sm_impl_t = sm_impl<typename TSM::template rebind<type>>;
     using states_ids_t = typename sm_impl_t::states_ids_t;
     using state_t = typename sm_impl_t::state_t;
     auto &sm = aux::get<sm_impl<TSM>>(sub_sms_);
     auto region = 0;
+#if defined(__cpp_fold_expressions)
+    ((sm.current_state_[region++] = aux::get_id<state_t, typename TStates::type>((states_ids_t *)0)), ...);
+#else
     (void)aux::swallow{0,
                        (sm.current_state_[region++] = aux::get_id<state_t, typename TStates::type>((states_ids_t *)0), 0)...};
+#endif
   }
 
  private:
@@ -1631,9 +1651,13 @@ class seq_ : operator_base {
  private:
   template <int... Ns, class TEvent, class TSM, class TDeps, class TSubs>
   void for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
+#if defined(__cpp_fold_expressions)
+    (call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&a), event, sm, deps, subs), ...);
+#else
     (void)aux::swallow{
         0, (call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&a), event, sm, deps, subs),
             0)...};
+#endif
   }
   aux::tuple<Ts...> a;
 };
@@ -1649,12 +1673,17 @@ class and_ : operator_base {
  private:
   template <int... Ns, class TEvent, class TSM, class TDeps, class TSubs>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
+#if defined(__cpp_fold_expressions)
+    return (call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g), event, sm, deps, subs) &&
+            ...);
+#else
     auto result = true;
     (void)aux::swallow{0, (result && call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g),
                                                                                                        event, sm, deps, subs)
                                ? result
                                : (result = false))...};
     return result;
+#endif
   }
   aux::tuple<Ts...> g;
 };
@@ -1670,12 +1699,17 @@ class or_ : operator_base {
  private:
   template <int... Ns, class TEvent, class TSM, class TDeps, class TSubs>
   auto for_all(const aux::index_sequence<Ns...> &, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
+#if defined(__cpp_fold_expressions)
+    return (call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g), event, sm, deps, subs) ||
+            ...);
+#else
     auto result = false;
     (void)aux::swallow{0, (result || call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g),
                                                                                                        event, sm, deps, subs)
                                ? (result = true)
                                : result)...};
     return result;
+#endif
   }
   aux::tuple<Ts...> g;
 };
@@ -2104,9 +2138,15 @@ void update_composite_states(TSubs &subs, aux::true_type, const aux::type_list<T
   using state_t = typename T::state_t;
   auto &sm = back::sub_sm<T>::get(&subs);
   (void)sm;
+#if defined(__cpp_fold_expressions)
+  ((sm.current_state_[aux::get_id<state_t, THs>((typename T::initial_states_ids_t *)0)] =
+        aux::get_id<state_t, THs>((typename T::states_ids_t *)0)),
+   ...);
+#else
   (void)aux::swallow{0, (sm.current_state_[aux::get_id<state_t, THs>((typename T::initial_states_ids_t *)0)] =
                              aux::get_id<state_t, THs>((typename T::states_ids_t *)0),
                          0)...};
+#endif
 }
 template <class T, class TSubs, class... Ts>
 void update_composite_states(TSubs &subs, aux::false_type, Ts &&...) {
