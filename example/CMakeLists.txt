@@ -64,6 +64,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_executable(logging logging.cpp)
     add_test(example_logging logging)
 
+    add_executable(nested nested.cpp)
+    add_test(example_nested nested)
+
     add_executable(orthogonal_regions orthogonal_regions.cpp)
     add_test(example_orthogonal_regions orthogonal_regions)
 

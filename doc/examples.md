@@ -9,6 +9,7 @@
 * [History](#history)
 * [Error handling](#error-handling)
 * [Logging](#logging)
+* [Nested](#nested)
 * [Testing](#testing)
 * [Runtime Dispatcher](#runtime-dispatcher)
 * [eUML Emulation](#euml-emulation)
@@ -51,6 +52,9 @@
 
 ###Logging
 ![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/example/logging.cpp)
+
+###Nested
+![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/example/nested.cpp)
 
 ###Testing
 ![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/example/testing.cpp)
