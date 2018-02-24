@@ -105,10 +105,14 @@ int main() {
   * expliclty state a lambda's result type `auto action = [] -> void {}`
 
 #### Compile
-```sh
-gcc/clang$ $CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-errors tcp_release.cpp
-msvc$      cl /std:c++14 /Ox /W3 tcp_release.cpp
-```
+* **GCC/Clang**
+  ```sh
+  $CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-errors tcp_release.cpp
+  ```
+* **MSVC**
+  ```sh
+  cl /std:c++14 /Ox /W3 tcp_release.cpp
+  ```
 
 <p align="center">
 <table>
