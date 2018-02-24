@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 Kris Jusiak (kris at jusiak dot net)
+// Copyright (c) 2016-2018 Kris Jusiak (kris at jusiak dot net)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,7 +10,7 @@
 
 namespace sml = boost::sml;
 
-template<class = class Dummy> // Use a dummy template to delay POI and support nested SM
+template <class = class Dummy>  // Use a dummy template to delay POI and support nested SM
 class top {
   struct e1 {};
 
@@ -21,13 +21,13 @@ class top {
     }
   };
 
-public:
+ public:
   void process() {
     sm.process_event(e1{});
     assert(sm.is(sml::X));
   }
 
-private:
+ private:
   sml::sm<nested> sm{};
 };
 
