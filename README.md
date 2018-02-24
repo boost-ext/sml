@@ -259,6 +259,7 @@ send: 42
     * [History](http://boost-experimental.github.io/sml/examples/index.html#history)
     * [Error handling](http://boost-experimental.github.io/sml/examples/index.html#error-handling)
     * [Logging](http://boost-experimental.github.io/sml/examples/index.html#logging)
+    * [Nested](http://boost-experimental.github.io/sml/examples/index.html#nested)
     * [Testing](http://boost-experimental.github.io/sml/examples/index.html#testing)
     * [Runtime Dispatcher](http://boost-experimental.github.io/sml/examples/index.html#runtime-dispatcher)
     * [eUML Emulation](http://boost-experimental.github.io/sml/examples/index.html#euml-emulation)

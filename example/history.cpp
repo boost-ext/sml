@@ -15,10 +15,10 @@ struct sub {
   auto operator()() const noexcept {
     using namespace sml;
     // clang-format off
-      return make_transition_table(
-        "s1"_s <= "idle"_s(H) + "e1"_e / [] { std::cout << "in sub" << std::endl; }
-      , X      <= "s1"_s      + "e2"_e / [] { std::cout << "in sub again" << std::endl; }
-      );
+    return make_transition_table(
+      "s1"_s <= "idle"_s(H) + "e1"_e / [] { std::cout << "in sub" << std::endl; }
+    , X      <= "s1"_s      + "e2"_e / [] { std::cout << "in sub again" << std::endl; }
+    );
     // clang-format on
   }
 };
