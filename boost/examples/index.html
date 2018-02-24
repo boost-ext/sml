@@ -720,6 +720,10 @@ int main() {
 <pre><code class="cpp">#include &lt;boost/sml.hpp&gt;
 #include &lt;cassert&gt;
 
+#if defined(__GNUC__) &amp;&amp; !defined(__clang__)
+  int main() { }
+#else
+
 namespace sml = boost::sml;
 
 template &lt;class = class Dummy&gt;  // Use a dummy template to delay POI and support nested SM
@@ -740,13 +744,14 @@ class top {
   }
 
  private:
-  sml::sm&lt;nested&gt; sm;
+  sml::sm&lt;nested&gt; sm{};
 };
 
 int main() {
-  top&lt;&gt; sm;
+  top&lt;&gt; sm{};
   sm.process();
 }
+#endif
 </code></pre>
 
 <ul>
