@@ -122,8 +122,14 @@ to avoid it `[Boost].SML` may suit you!
 * [CppNow-2016-2017:](http://cppnow2016-2017.sched.org/event/6Sg0/c14-version-of-boostmsm-euml-which-compiles-up-to-60x-faster-whilst-being-slightly-faster-too) [C++14 version of Boost.MSM-eUML which compiles up to 60x faster whilst being slightly faster too!](http://boost-experimental.github.io/msm-lite/cppnow-2016-2017)
 
 ###Acknowledgements
-* Thanks to Christophe Henry for a great [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) library
-* Thanks to Vicente J. Botet Escriba for useful suggestions how to improve [Boost].SML
-* Thanks to [Ulenspiegel](https://github.com/Ulenspiegel) for insuring the quality of the library!
-* Thanks to [feltech](https://github.com/feltech) for improvements and bug fixes
+* Thanks to [Christophe Henry](https://github.com/henry-ch) for a great [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) library
+* Thanks to [Deniz Bahadir](https://github.com/Bagira80) for all his constributions and support
 * Thanks to [Takatoshi Kondo](https://github.com/redboltz) for testing, improving the library and for a great [Boost.MSM guide](http://redboltz.wikidot.com)!
+* Thanks to [Ulenspiegel](https://github.com/Ulenspiegel) for insuring the quality of the library
+* Thanks to [Jean Davy](https://github.com/splitsen) for the cmake support
+* Thanks to [feltech](https://github.com/feltech) for improvements and bug fixes
+* Thanks to [Vicente J. Botet Escriba](https://github.com/viboes) for useful suggestions how to improve the library
+* Thanks to [AnthonyVH](https://github.com/AnthonyVH) for all contributions
+* Thanks to [Oliver Daniell](https://github.com/oliverdaniell) for all contributions
+* Thanks to [Julius Gelšvartas](https://github.com/JuliusGel) for bug fixes
+* Thanks to [Christopher Motl](https://github.com/cmotl) for documentation fixes
