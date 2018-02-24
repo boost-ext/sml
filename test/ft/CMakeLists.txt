@@ -1,3 +1,9 @@
+#
+# Copyright (c) 2016-2017 Jean Davy
+#
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
 # include\boost/sml.hpp(1330): error C3779: 'c::operator ()': a function that returns 'auto' cannot be used before it is defined
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
     add_executable(test_actions_defer actions_defer.cpp)

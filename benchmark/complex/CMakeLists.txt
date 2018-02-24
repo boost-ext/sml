@@ -1,3 +1,9 @@
+#
+# Copyright (c) 2016-2017 Jean Davy
+#
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
 # Visual Studio 15 2017 failure:
 # boost_1_65_1\boost/proto/transform/call.hpp(230): fatal error C1202: recursive type or function dependency context too complex
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
