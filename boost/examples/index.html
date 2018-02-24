@@ -72,6 +72,10 @@
     
 
     
+        <dt><span class="section"><a href="#nested">Nested</a></span></dt>
+    
+
+    
         <dt><span class="section"><a href="#testing">Testing</a></span></dt>
     
 
@@ -117,6 +121,7 @@
 <li><a href="#history">History</a></li>
 <li><a href="#error-handling">Error handling</a></li>
 <li><a href="#logging">Logging</a></li>
+<li><a href="#nested">Nested</a></li>
 <li><a href="#testing">Testing</a></li>
 <li><a href="#runtime-dispatcher">Runtime Dispatcher</a></li>
 <li><a href="#euml-emulation">eUML Emulation</a></li>
@@ -569,10 +574,10 @@ namespace sml = boost::sml;
 struct sub {
   auto operator()() const noexcept {
     using namespace sml;
-      return make_transition_table(
-        &quot;s1&quot;_s &lt;= &quot;idle&quot;_s(H) + &quot;e1&quot;_e / [] { std::cout &lt;&lt; &quot;in sub&quot; &lt;&lt; std::endl; }
-      , X      &lt;= &quot;s1&quot;_s      + &quot;e2&quot;_e / [] { std::cout &lt;&lt; &quot;in sub again&quot; &lt;&lt; std::endl; }
-      );
+    return make_transition_table(
+      &quot;s1&quot;_s &lt;= &quot;idle&quot;_s(H) + &quot;e1&quot;_e / [] { std::cout &lt;&lt; &quot;in sub&quot; &lt;&lt; std::endl; }
+    , X      &lt;= &quot;s1&quot;_s      + &quot;e2&quot;_e / [] { std::cout &lt;&lt; &quot;in sub again&quot; &lt;&lt; std::endl; }
+    );
   }
 };
 
@@ -711,6 +716,42 @@ int main() {
 <ul>
 <li><a href="https://raw.githubusercontent.com/boost-experimental/sml/master/example/logging.cpp">https://raw.githubusercontent.com/boost-experimental/sml/master/example/logging.cpp</a></li>
 </ul>
+<h3 id="nested">Nested</h3>
+<pre><code class="cpp">#include &lt;boost/sml.hpp&gt;
+#include &lt;cassert&gt;
+
+namespace sml = boost::sml;
+
+template &lt;class = class Dummy&gt;  // Use a dummy template to delay POI and support nested SM
+class top {
+  struct e1 {};
+
+  struct nested {
+    auto operator()() const noexcept {
+      using namespace sml;
+      return make_transition_table(*&quot;idle&quot;_s + event&lt;e1&gt; = X);
+    }
+  };
+
+ public:
+  void process() {
+    sm.process_event(e1{});
+    assert(sm.is(sml::X));
+  }
+
+ private:
+  sml::sm&lt;nested&gt; sm;
+};
+
+int main() {
+  top&lt;&gt; sm;
+  sm.process();
+}
+</code></pre>
+
+<ul>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/sml/master/example/nested.cpp">https://raw.githubusercontent.com/boost-experimental/sml/master/example/nested.cpp</a></li>
+</ul>
 <h3 id="testing">Testing</h3>
 <pre><code class="cpp">#include &lt;boost/sml.hpp&gt;
 #include &lt;cassert&gt;
@@ -744,7 +785,7 @@ int main() {
   using namespace sml;
   data fake_data{0};
   sml::sm&lt;::testing, sml::testing&gt; sm{fake_data};
-  sm.__set_current_states(&quot;s2&quot;_s);
+  sm.set_current_states(&quot;s2&quot;_s);
   sm.process_event(e3{});
   assert(sm.is(X));
   assert(fake_data.value = 42);
