@@ -72,7 +72,7 @@ sm.process_event(event{}); // thread safe call
 
 ###Design
 
-[![Design](images/sml.png)](images/sml.png)
+[![Design](images/design.png)](images/design.png)
 
 | Component    | Description |
 | ------------ | ----------- |
