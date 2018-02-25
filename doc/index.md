@@ -10,9 +10,9 @@
 Introduction
 ============
 
-| **[Boost].SML (State Machine Language/Lite/Library)** / formerly called Boost.MSM-lite | |
+| **[Boost].SML (State Machine Language/Lite/Library)** | |
 | - | - |
-| Your scalable C++14 header State Machine Library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-experimental/sml" data-style="mega" data-count-href="/boost-experimental/sml/stargazers" data-count-api="/repos/boost-experimental/sml#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-experimental/sml on GitHub">GitHub</a> |
+| Your scalable C++14 one header only State Machine Library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-experimental/sml" data-style="mega" data-count-href="/boost-experimental/sml/stargazers" data-count-api="/repos/boost-experimental/sml#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-experimental/sml on GitHub">GitHub</a> |
 
 <div class="important">
 <h3 class="wy-text-neutral"><span class="fa fa-info-circle wy-text-info"></span>&nbsp; Latest Release: <b>v1.0.1</b> (May 6, 2017)</h3>
