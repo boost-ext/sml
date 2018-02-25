@@ -9,7 +9,7 @@
 #include <cassert>
 
 #if defined(__GNUC__) && !defined(__clang__)
-  int main() { }
+int main() {}
 #else
 
 namespace sml = boost::sml;
