@@ -1,0 +1,26 @@
+@startuml
+
+package "SML" {
+
+package "Back End" {
+class state_machine {
+  process_event(TEvent): void
+}
+}
+
+package "Front End" {
+  class transition {
+    operator=()
+    operator+()
+    operator/()
+  }
+
+  note right of transition: Produced by DSL\nExample: "src"_s + event[guard]/action = "dst"_s
+}
+
+transition  --> "1..N" "<<Transitional>>"
+note right : transition_table<Transitional...>
+
+"<<Transitional>>" <-- state_machine
+
+@enduml
