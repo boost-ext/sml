@@ -1419,7 +1419,6 @@ class sm {
   using transitions = aux::apply_t<aux::type_list, transitions_t>;
 
  private:
-  using sm_all_t = aux::apply_t<aux::inherit, aux::join_t<aux::type_list<sm_t>, aux::apply_t<get_sm_t, state_machines>>>;
   using sub_sms_t = aux::apply_t<aux::pool, typename convert_to_sm<TSM, aux::apply_t<get_sub_sms, states>>::type>;
   using deps = aux::apply_t<merge_deps, transitions_t>;
   using deps_t =
@@ -1431,11 +1430,12 @@ class sm {
   sm(sm &&) = default;
   sm(const sm &) = delete;
   sm &operator=(const sm &) = delete;
-  sm(aux::init, deps_t &deps, typename TSM::sm &sm) : deps_(deps), sub_sms_{aux::pool<typename TSM::sm &, deps_t>{sm, deps}} {
+  sm() : deps_{aux::init{}, aux::pool<>{}}, sub_sms_{aux::pool<>{}} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
+  template <class... TDeps, __BOOST_SML_REQUIRES((sizeof...(TDeps) > 0) && aux::is_unique_t<TDeps...>::value)>
+  explicit sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
   }
-  template <class... TDeps, __BOOST_SML_REQUIRES(aux::is_unique_t<TDeps...>::value)>
-  sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
+  sm(aux::init, deps_t &deps, typename TSM::sm &sm) : deps_(deps), sub_sms_{aux::pool<typename TSM::sm &, deps_t>{sm, deps}} {
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
   }
   template <class TEvent, __BOOST_SML_REQUIRES(aux::is_base_of<TEvent, events_ids>::value)>
