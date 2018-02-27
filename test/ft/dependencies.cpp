@@ -5,6 +5,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <array>
 #include <boost/sml.hpp>
 #include <string>
 #include <type_traits>
@@ -118,3 +119,73 @@ test dependencies_with_const = [] {
     expect(sm.is(sml::X));
   }
 };
+
+#if (_MSC_VER >= 1910)  // MSVC 2017
+test dependencies_multiple_subs = [] {
+  struct update {
+    int id = 0;
+  };
+
+  struct data {
+    int i = 0;
+  };
+
+  struct dep {
+    std::string name;
+  };
+
+  struct action1 {
+    void operator()(dep& common) {
+      expect("text" == common.name);
+      expect(42 == d.i);
+      ++d.i;
+    }
+
+    data& d;
+  };
+
+  struct sub {
+    data d;
+
+    auto operator()() {
+      const auto action2 = [](data& d) {
+        return [&d](dep& common) {
+          expect("text" == common.name);
+          expect(43 == d.i);
+          --d.i;
+        };
+      };
+
+      using namespace sml;
+      return make_transition_table(*idle + event<e1> / (action1{d}, action2(d)));
+    }
+  };
+
+  struct top {
+    auto operator()() const {
+      using namespace sml;
+      return make_transition_table(*idle +
+                                       event<update> / [](const auto& event, std::array<boost::sml::sm<sub>, 5>& subs) -> void {
+        subs[event.id].process_event(e1{});
+      });
+    }
+  };
+
+  dep d{"text"};
+  data da{42};
+
+  std::array<boost::sml::sm<sub>, 5> subs{{boost::sml::sm<sub>{d, sub{da}}, boost::sml::sm<sub>{d, sub{da}},
+                                           boost::sml::sm<sub>{d, sub{da}}, boost::sml::sm<sub>{d, sub{da}},
+                                           boost::sml::sm<sub>{d, sub{da}}}};
+
+  sml::sm<top> sm{subs};
+  sm.process_event(update{0});
+  sm.process_event(update{1});
+  sm.process_event(update{2});
+
+  for (auto i = 0u; i < subs.size(); ++i) {
+    sub& s = subs[i];
+    expect(42 == s.d.i);
+  }
+};
+#endif

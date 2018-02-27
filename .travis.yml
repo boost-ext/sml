@@ -39,12 +39,6 @@ matrix:
 # Build
 #
   - os: linux
-    dist: precise
-    env: CXX=clang++-3.6 MEMCHECK=VALGRIND
-    addons: { apt: { packages: ["clang-3.6", "libstdc++-5-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"] } }
-    dist: precise
-
-  - os: linux
     env: CXX=clang++-3.7 MEMCHECK=VALGRIND
     addons: { apt: { packages: ["clang-3.7", "libstdc++-5-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"] } }
 

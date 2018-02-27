@@ -105,6 +105,10 @@ template <class... Ts>
 using get_sm_t = aux::type_list<typename Ts::sm...>;
 
 template <class... Ts>
+using get_non_empty_t =
+    aux::join_t<typename aux::conditional<aux::is_empty<Ts>::value, aux::type_list<>, aux::type_list<Ts>>::type...>;
+
+template <class... Ts>
 using merge_deps = aux::join_t<typename Ts::deps...>;
 
 template <class>

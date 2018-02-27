@@ -103,8 +103,8 @@ test defer_and_transitions = [] {
     std::vector<int> entries;
   };
 
-  c c_;
-  sml::sm<c, sml::defer_queue<std::queue>> sm{c_};
+  sml::sm<c, sml::defer_queue<std::queue>> sm;
+  const c& c_ = sm;
   sm.process_event(event1());
   sm.process_event(event1());
   sm.process_event(event2());
@@ -120,6 +120,8 @@ test defer_and_transitions = [] {
 
 test defer_and_anonymous = [] {
   struct c {
+    c() {}
+
     auto operator()() {
       using namespace sml;
       // clang-format off
@@ -141,8 +143,8 @@ test defer_and_anonymous = [] {
     std::vector<int> entries;
   };
 
-  c c_;
-  sml::sm<c, sml::defer_queue<std::queue>> sm{c_};
+  sml::sm<c, sml::defer_queue<std::queue>> sm{c{}};
+  const c& c_ = sm;
   sm.process_event(event1());
   sm.process_event(event2());
 

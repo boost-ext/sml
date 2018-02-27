@@ -54,8 +54,7 @@ test sm_ctor = [] {
     }
   };
 
-  c c_{42};
-  sml::sm<c> sm{c_};
+  sml::sm<c> sm{c{42}};
   (void)sm;
 
 };

@@ -78,13 +78,13 @@ test anonymous_transition = [] {
       );
       // clang-format on
     }
+
     bool a_called = false;
   };
 
-  c c_;
-  sml::sm<c> sm{c_};
+  sml::sm<c> sm{};
   expect(sm.is(s1));
-  expect(c_.a_called);
+  expect(static_cast<const c&>(sm).a_called);
 };
 
 test self_transition = [] {
@@ -140,8 +140,8 @@ test transition_with_action_with_event = [] {
     bool called = false;
   };
 
-  c c_;
-  sml::sm<c> sm{c_};
+  sml::sm<c> sm;
+  const c& c_ = sm;
   expect(sm.is(idle));
   sm.process_event(e1{});
   expect(c_.called);
@@ -162,8 +162,8 @@ test transition_with_action_with_parameter = [] {
     bool called = false;
   };
 
-  c c_;
-  sml::sm<c> sm{c_, 42};
+  sml::sm<c> sm{42};
+  const c& c_ = sm;
   sm.process_event(e1{});
   expect(c_.called);
   expect(sm.is(s1));
@@ -196,8 +196,8 @@ test transition_with_action_and_guad_with_parameter = [] {
     bool g_called = false;
   };
 
-  c c_;
-  sml::sm<c> sm{c_, 87.0, 42};
+  sml::sm<c> sm{87.0, 42};
+  const c& c_ = sm;
   sm.process_event(e1{});
   expect(c_.g_called);
   expect(c_.a_called);
@@ -233,9 +233,9 @@ test transition_with_action_and_guad_with_parameters_and_event = [] {
     bool g_called = false;
   };
 
-  c c_;
   auto f = 12.f;
-  sml::sm<c> sm{c_, 42, 87.0, f};
+  sml::sm<c> sm{42, 87.0, f};
+  const c& c_ = sm;
   sm.process_event(e1{});
   expect(c_.g_called);
   expect(c_.a_called);
@@ -465,8 +465,8 @@ test initial_entry = [] {
     int entry_calls = 0;
   };
 
-  c c_;
-  sml::sm<c> sm{c_};
+  sml::sm<c> sm{};
+  const c& c_ = sm;
   expect(1 == c_.entry_calls);
 };
 

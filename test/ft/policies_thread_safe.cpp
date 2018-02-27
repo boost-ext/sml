@@ -36,8 +36,8 @@ test process_the_same_event = [] {
     int action2_calls = 0;
   };
 
-  actions_guards ag;
-  sml::sm<actions_guards, sml::thread_safe<std::mutex>> sm{ag};
+  sml::sm<actions_guards, sml::thread_safe<std::mutex>> sm{};
+  const actions_guards& ag = sm;
   std::thread t1{[&] { sm.process_event(e1{}); }};
   std::thread t2{[&] { sm.process_event(e2{}); }};
   t1.join();

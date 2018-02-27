@@ -100,8 +100,8 @@ test orthogonal_regions_initial_entry = [] {
     int entry_2 = 0;
   };
 
-  c c_;
-  sml::sm<c> sm{c_};
+  sml::sm<c> sm{c{}};
+  const c& c_ = sm;
   expect(1 == c_.entry_1);
   expect(1 == c_.entry_2);
 };
@@ -168,8 +168,8 @@ test orthogonal_regions_entry_exit = [] {
     int a_exit_action = 0;
   };
 
-  c c_;
-  sml::sm<c> sm{c_};
+  sml::sm<c> sm{};
+  c& c_ = sm;
   sm.process_event(e1{});
   expect(c_.a_entry_action == 1);
   expect(c_.a_exit_action == 0);

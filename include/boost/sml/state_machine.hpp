@@ -26,7 +26,7 @@ using defer_queue = back::policies::defer_queue<T, front::actions::defer_event>;
 /// state machine
 
 #if defined(_MSC_VER)  // __pph__
-template <class T, class... TPolicies, class T__ = decltype(aux::declval<T>())>
+template <class T, class... TPolicies, class T__ = aux::remove_reference_t<decltype(aux::declval<T>())>>
 using sm = back::sm<back::sm_policy<T__, TPolicies...>>;
 #else   // __pph__
 template <class T, class... TPolicies>

@@ -103,19 +103,17 @@ using is_constructible = decltype(test_is_constructible<T, TArgs...>(0));
 #endif  // __pph__
 
 template <class T>
-struct remove_reference {
-  using type = T;
-};
+struct is_const : false_type {};
 template <class T>
-struct remove_reference<T &> {
-  using type = T;
+struct is_const<const T> : true_type {};
+
+template <class T, class U>
+struct is_empty_base : T {
+  U _;
 };
+
 template <class T>
-struct remove_reference<T &&> {
-  using type = T;
-};
-template <class T>
-using remove_reference_t = typename remove_reference<T>::type;
+struct is_empty : aux::integral_constant<bool, sizeof(is_empty_base<T, none_type>) == sizeof(none_type)> {};
 
 template <class>
 struct function_traits;
@@ -168,16 +166,19 @@ template <class T>
 using remove_const_t = typename remove_const<T>::type;
 
 template <class T>
-struct is_const : false_type {};
+struct remove_reference {
+  using type = T;
+};
 template <class T>
-struct is_const<const T> : true_type {};
-
+struct remove_reference<T &> {
+  using type = T;
+};
 template <class T>
-struct is_reference : false_type {};
+struct remove_reference<T &&> {
+  using type = T;
+};
 template <class T>
-struct is_reference<T &> : true_type {};
-template <class T>
-struct is_reference<T &&> : true_type {};
+using remove_reference_t = typename remove_reference<T>::type;
 
 }  // aux
 
