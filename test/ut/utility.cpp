@@ -73,6 +73,7 @@ test tuple_same_types = [] {
 test pool_empty = [] {
   pool<> p;
   static_expect(0 == size<decltype(p)>::value);
+  (void)p;
 };
 
 test pool_basic = [] {

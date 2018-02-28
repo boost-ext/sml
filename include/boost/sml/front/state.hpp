@@ -102,7 +102,7 @@ struct state<TState(history_state)> : state_impl<state<TState(history_state)>> {
 };
 
 #if defined(_MSC_VER)  // __pph__
-template <class T, class T__ = decltype(aux::declval<T>()), class = void>
+template <class T, class T__ = aux::remove_reference_t<decltype(aux::declval<T>())>, class = void>
 struct state_sm {
   using type = state<T>;
 };

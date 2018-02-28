@@ -135,8 +135,8 @@ test unexpected_any_event = [] {
   };
 
   int i = 0;
-  c c_;
-  sml::sm<c> sm{c_, i};
+  sml::sm<c> sm{i};
+  c& c_ = sm;
   using namespace sml;
   sm.process_event(e1{});
   expect(sm.is(is_handled));

@@ -36,8 +36,8 @@ test process_event = [] {
     int a_called = 0;
   };
 
-  c c_;
-  sml::sm<c> sm{c_};
+  sml::sm<c> sm{};
+  c& c_ = sm;
   expect(sm.is(idle));
   sm.process_event(e1{});
   expect(sm.is(s1));
@@ -76,8 +76,8 @@ test process_event_from_substate = [] {
     int a_called = 0;
   };
 
-  c c_;
-  sml::sm<c> sm{c_};
+  sml::sm<c> sm;
+  const c& c_ = sm;
   expect(sm.is(idle));
   expect(sm.is<decltype(sml::state<sub>)>(s1));
 

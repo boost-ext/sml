@@ -141,18 +141,30 @@ struct pool_type {
   explicit pool_type(const T &object) : value(object) {}
 
   template <class TObject>
-  pool_type(const init &i, const TObject &object) : value(i, object) {}
+  pool_type(init i, const TObject &object) : value(i, object) {}
 
   T value;
 };
 
 template <class T>
-T &try_get(...) {
-  static_assert(never<T>::value, "Type T has to be passed via constructor!");
+T try_get(...) {
+  static_assert(aux::is_constructible<T>::value,
+                "Type T is not default constructible and has to be provided by the SM constructor");
+  return {};
 }
 
-template <class T, class U>
-T &try_get(pool_type<U> *object) {
+template <class T>
+T try_get(const pool_type<T> *object) {
+  return object->value;
+}
+
+template <class T>
+const T &try_get(const pool_type<const T &> *object) {
+  return object->value;
+}
+
+template <class T>
+T &try_get(const pool_type<T &> *object) {
   return object->value;
 }
 
@@ -162,70 +174,36 @@ T &get(TPool &p) {
 }
 
 template <class T, class TPool>
-const T &cget(TPool &p) {
+const T &cget(const TPool &p) {
   return static_cast<const pool_type<T> &>(p).value;
 }
-
-namespace detail {
-template <class T, bool = aux::is_reference<T>::value>
-struct non_const_pool_type {
-  using type = pool_type<aux::remove_const_t<T>>;
-};
-template <class T>
-struct non_const_pool_type<T, true> {
-  using type = pool_type<aux::remove_const_t<aux::remove_reference_t<T>> &>;
-};
-template <class T>
-using non_const_pool_type_t = typename non_const_pool_type<T>::type;
-
-template <class T, class U, bool = is_base_of<T, U>::value>
-struct base_or_void_ptr {
-  using type = void *;
-};
-template <class T, class U>
-struct base_or_void_ptr<T, U, true> {
-  using type = T *;
-};
-template <class T, class U>
-using base_or_void_ptr_t = typename base_or_void_ptr<T, U>::type;
-}  // detail
 
 template <class... Ts>
 struct pool : pool_type<Ts>... {
   using boost_di_inject__ = type_list<Ts...>;
 
+  pool() = default;
+
   explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
 
-  /* Inject dependencies as follows:
-   * 1. if p derives from pool_type<Ts>, bind to it.
-   * 2. else if (ignoring references) Ts is const and p derives from
-   *   pool_type<remove_const<Ts>>, bind to it.
-   * 3. else fail binding (by casting to void *, which calls wrong try_get).
-   */
   template <class... TArgs>
-  pool(init &&, pool<TArgs...> &&p)
-      : pool_type<Ts>(try_get<Ts>(
-            static_cast<conditional_t<
-                is_base_of<pool_type<Ts>, pool<TArgs...>>::value, pool_type<Ts> *,
-                conditional_t<is_const<remove_reference_t<Ts>>::value,
-                              detail::base_or_void_ptr_t<detail::non_const_pool_type_t<Ts>, pool<TArgs...>>, void *>>>(
-                &p)))... {}
+  pool(init, const pool<TArgs...> &p) : pool_type<Ts>((Ts)try_get<aux::remove_const_t<aux::remove_reference_t<Ts>>>(&p))... {}
 
   template <class... TArgs>
   pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, p)... {}
 };
+
 template <>
 struct pool<> {
   using boost_di_inject__ = type_list<>;
+
+  pool() = default;
+
   template <class... Ts>
   explicit pool(Ts &&...) {}
+
   __BOOST_SML_ZERO_SIZE_ARRAY(byte);
 };
-
-template <class>
-false_type has_type(...);
-template <class T>
-true_type has_type(const pool_type<T> *);
 
 template <int, class>
 struct type_id_type {};

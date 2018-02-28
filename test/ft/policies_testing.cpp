@@ -52,8 +52,7 @@ test sm_testing = [] {
 
   {
     data fake_data;
-    const data &c_fake_data = fake_data;
-    sml::sm<c, sml::testing> sm{c_fake_data, fake_data, true};
+    sml::sm<c, sml::testing> sm{fake_data, true};
     expect(sm.is(idle));
 
     sm.process_event(e1{});
@@ -68,8 +67,7 @@ test sm_testing = [] {
 
   {
     data fake_data;
-    const data &c_fake_data = fake_data;
-    sml::sm<c, sml::testing> sm{fake_data, c_fake_data, true};
+    sml::sm<c, sml::testing> sm{fake_data, true};
     expect(sm.is(idle));
 
     sm.set_current_states(s2);
@@ -81,8 +79,7 @@ test sm_testing = [] {
 
   {
     data fake_data;
-    const data &c_fake_data = fake_data;
-    sml::sm<c, sml::testing> sm{c_fake_data, fake_data, true};
+    sml::sm<c, sml::testing> sm{fake_data, true};
     expect(sm.is(idle));
 
     sm.set_current_states(s2);
@@ -94,8 +91,7 @@ test sm_testing = [] {
 
   {
     data fake_data;
-    const data &c_fake_data = fake_data;
-    sml::sm<c, sml::testing> sm{fake_data, c_fake_data, true};
+    sml::sm<c, sml::testing> sm{fake_data, true};
     expect(sm.is(idle));
 
     sm.set_current_states(s1);

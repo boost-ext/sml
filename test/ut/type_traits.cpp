@@ -57,4 +57,13 @@ test function_traits_parameters_type_const_methods = [] {
   static_expect(is_same<type_list<int, const double&>, typename function_traits<decltype(&c2::f3)>::args>::value);
 };
 
+test is_empty_type = [] {
+  struct empty {};
+  struct non_empty {
+    int _;
+  };
+  static_expect(is_empty<empty>::value);
+  static_expect(!is_empty<non_empty>::value);
+};
+
 }  // aux

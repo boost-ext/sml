@@ -74,9 +74,10 @@ test composite = [] {
     bool a_on_entry_sub_sm = false;
   };
 
-  c c_;
-  sub sub_;
-  sml::sm<c> sm{c_, sub_, 87.0, 42};
+  sml::sm<c> sm{87.0, 42};
+
+  c& c_ = sm;
+  sub& sub_ = sm;
 
   expect(sm.is(idle));
   sm.process_event(e1());
@@ -206,7 +207,10 @@ test composite_custom_ctor = [] {
   };
 
   constexpr auto i = 2;
-  auto test = [=](auto&& sm) {
+
+  {
+    in_sub = 0;
+    sml::sm<c> sm{sub{i}};
     expect(sm.is(idle));
     sm.process_event(e1());
 
@@ -221,27 +225,44 @@ test composite_custom_ctor = [] {
     sm.process_event(e5());
     expect(2 * i == in_sub);
     expect(sm.is(s2));
-  };
-
-  {
-    in_sub = 0;
-    sub sub_{i};
-    sml::sm<c> sm{sub_};
-    test(static_cast<decltype(sm)&&>(sm));
   }
 
   {
     in_sub = 0;
-    sub sub_{i};
-    sml::sm<c> sm{sub_};
-    test(static_cast<decltype(sm)&&>(sm));
+    sml::sm<c> sm{sub{i}};
+    expect(sm.is(idle));
+    sm.process_event(e1());
+
+    sm.process_event(e2());
+    expect(0 == in_sub);
+
+    sm.process_event(e3());
+    expect(1 * i == in_sub);
+
+    sm.process_event(e4());
+    expect(2 * i == in_sub);
+    sm.process_event(e5());
+    expect(2 * i == in_sub);
+    expect(sm.is(s2));
   }
 
   {
     in_sub = 0;
-    sub sub_{i};
-    sml::sm<c> sm{sub_};
-    test(static_cast<decltype(sm)&&>(sm));
+    sml::sm<c> sm{sub{i}};
+    expect(sm.is(idle));
+    sm.process_event(e1());
+
+    sm.process_event(e2());
+    expect(0 == in_sub);
+
+    sm.process_event(e3());
+    expect(1 * i == in_sub);
+
+    sm.process_event(e4());
+    expect(2 * i == in_sub);
+    sm.process_event(e5());
+    expect(2 * i == in_sub);
+    expect(sm.is(s2));
   }
 };
 
@@ -316,9 +337,9 @@ test composite_entry_exit_initial = [] {
     int exit_calls = 0;
   };
 
-  sub sub_;
-  c c_;
-  sml::sm<c> sm{c_, sub_};
+  sml::sm<c> sm;
+  const sub& sub_ = sm;
+  const c& c_ = sm;
   expect(1 == c_.entry_calls);
   expect(0 == c_.exit_calls);
   expect(1 == sub_.entry_calls);

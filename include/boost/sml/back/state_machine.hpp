@@ -26,7 +26,7 @@
 namespace back {
 
 template <class TSM>
-struct sm_impl {
+struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux::none_type, typename TSM::sm> {
   using sm_t = typename TSM::sm;
   using thread_safety_t = typename TSM::thread_safety_policy::type;
   using defer_policy_t = typename TSM::defer_queue_policy;
@@ -61,18 +61,17 @@ struct sm_impl {
   struct mappings : mappings_t<transitions_t> {};
 
   template <class TPool>
-  sm_impl(const aux::init &, const TPool &p) : sm_impl(p, decltype(aux::has_type<sm_t &>(&p)){}) {}
+  sm_impl(aux::init, const TPool &p) : sm_impl{p, aux::is_empty<sm_t>{}} {}
+
   template <class TPool>
-  sm_impl(const TPool &p, aux::true_type) : transitions_(aux::cget<sm_t &>(p)()) {
+  sm_impl(const TPool &p, aux::false_type) : sm_t{aux::try_get<sm_t>(&p)}, transitions_{(*this)()} {
     initialize(typename sm_impl<TSM>::initial_states_t{});
   }
+
   template <class TPool>
-  sm_impl(const TPool &, aux::false_type) : transitions_(sm_t{}()) {
+  sm_impl(const TPool &p, aux::true_type) : transitions_{aux::try_get<sm_t>(&p)()} {
     initialize(typename sm_impl<TSM>::initial_states_t{});
   }
-  sm_impl(sm_impl &&) = default;
-  sm_impl(const sm_impl &) = delete;
-  sm_impl &operator=(const sm_impl &) = delete;
 
   template <class TEvent, class TDeps, class TSubs>
   bool process_event(const TEvent &event, TDeps &deps, TSubs &subs) {
@@ -368,18 +367,15 @@ class sm {
   using transitions = aux::apply_t<aux::type_list, transitions_t>;
 
  private:
+  using sm_all_t = aux::apply_t<get_non_empty_t, aux::join_t<aux::type_list<sm_t>, aux::apply_t<get_sm_t, state_machines>>>;
   using sub_sms_t = aux::apply_t<aux::pool, typename convert_to_sm<TSM, aux::apply_t<get_sub_sms, states>>::type>;
   using deps = aux::apply_t<merge_deps, transitions_t>;
   using deps_t =
       aux::apply_t<aux::pool,
-                   aux::apply_t<aux::unique_t, aux::join_t<deps, logger_dep_t, aux::apply_t<merge_deps, sub_sms_t>>>>;
+                   aux::apply_t<aux::unique_t, aux::join_t<deps, sm_all_t, logger_dep_t, aux::apply_t<merge_deps, sub_sms_t>>>>;
   struct events_ids : aux::apply_t<aux::inherit, events> {};
 
  public:
-  sm(sm &&) = default;
-  sm(const sm &) = delete;
-  sm &operator=(const sm &) = delete;
-
   sm() : deps_{aux::init{}, aux::pool<>{}}, sub_sms_{aux::pool<>{}} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
 
   template <class... TDeps, __BOOST_SML_REQUIRES((sizeof...(TDeps) > 0) && aux::is_unique_t<TDeps...>::value)>
@@ -387,9 +383,12 @@ class sm {
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
   }
 
-  sm(aux::init, deps_t &deps, typename TSM::sm &sm) : deps_(deps), sub_sms_{aux::pool<typename TSM::sm &, deps_t>{sm, deps}} {
-    aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
-  }
+  sm(aux::init, deps_t &deps) : deps_{deps}, sub_sms_{deps} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
+
+  sm(sm &&other) : deps_{other.deps_}, sub_sms_{other.deps_} {}
+
+  sm(const sm &) = delete;
+  sm &operator=(const sm &) = delete;
 
   template <class TEvent, __BOOST_SML_REQUIRES(aux::is_base_of<TEvent, events_ids>::value)>
   void process_event(const TEvent &event) {
@@ -452,6 +451,16 @@ class sm {
     (void)aux::swallow{0,
                        (sm.current_state_[region++] = aux::get_id<state_t, typename TStates::type>((states_ids_t *)0), 0)...};
 #endif  // __pph__
+  }
+
+  template <class T>
+  operator T &() {
+    return aux::get<sm_impl<typename TSM::template rebind<T>>>(sub_sms_);
+  }
+
+  template <class T>
+  operator const T &() {
+    return aux::cget<sm_impl<typename TSM::template rebind<T>>>(sub_sms_);
   }
 
  private:

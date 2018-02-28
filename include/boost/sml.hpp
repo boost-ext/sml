@@ -137,19 +137,15 @@ struct is_constructible : decltype(test_is_constructible<T, TArgs...>(0)) {
 using is_constructible = decltype(test_is_constructible<T, TArgs...>(0));
 #endif
 template <class T>
-struct remove_reference {
-  using type = T;
+struct is_const : false_type {};
+template <class T>
+struct is_const<const T> : true_type {};
+template <class T, class U>
+struct is_empty_base : T {
+  U _;
 };
 template <class T>
-struct remove_reference<T &> {
-  using type = T;
-};
-template <class T>
-struct remove_reference<T &&> {
-  using type = T;
-};
-template <class T>
-using remove_reference_t = typename remove_reference<T>::type;
+struct is_empty : aux::integral_constant<bool, sizeof(is_empty_base<T, none_type>) == sizeof(none_type)> {};
 template <class>
 struct function_traits;
 template <class R, class... TArgs>
@@ -199,15 +195,19 @@ struct remove_const<const T> {
 template <class T>
 using remove_const_t = typename remove_const<T>::type;
 template <class T>
-struct is_const : false_type {};
+struct remove_reference {
+  using type = T;
+};
 template <class T>
-struct is_const<const T> : true_type {};
+struct remove_reference<T &> {
+  using type = T;
+};
 template <class T>
-struct is_reference : false_type {};
+struct remove_reference<T &&> {
+  using type = T;
+};
 template <class T>
-struct is_reference<T &> : true_type {};
-template <class T>
-struct is_reference<T &&> : true_type {};
+using remove_reference_t = typename remove_reference<T>::type;
 }
 namespace aux {
 using swallow = int[];
@@ -325,15 +325,25 @@ template <class T>
 struct pool_type {
   explicit pool_type(const T &object) : value(object) {}
   template <class TObject>
-  pool_type(const init &i, const TObject &object) : value(i, object) {}
+  pool_type(init i, const TObject &object) : value(i, object) {}
   T value;
 };
 template <class T>
-T &try_get(...) {
-  static_assert(never<T>::value, "Type T has to be passed via constructor!");
+T try_get(...) {
+  static_assert(aux::is_constructible<T>::value,
+                "Type T is not default constructible and has to be provided by the SM constructor");
+  return {};
 }
-template <class T, class U>
-T &try_get(pool_type<U> *object) {
+template <class T>
+T try_get(const pool_type<T> *object) {
+  return object->value;
+}
+template <class T>
+const T &try_get(const pool_type<const T &> *object) {
+  return object->value;
+}
+template <class T>
+T &try_get(const pool_type<T &> *object) {
   return object->value;
 }
 template <class T, class TPool>
@@ -341,57 +351,27 @@ T &get(TPool &p) {
   return static_cast<pool_type<T> &>(p).value;
 }
 template <class T, class TPool>
-const T &cget(TPool &p) {
+const T &cget(const TPool &p) {
   return static_cast<const pool_type<T> &>(p).value;
-}
-namespace detail {
-template <class T, bool = aux::is_reference<T>::value>
-struct non_const_pool_type {
-  using type = pool_type<aux::remove_const_t<T>>;
-};
-template <class T>
-struct non_const_pool_type<T, true> {
-  using type = pool_type<aux::remove_const_t<aux::remove_reference_t<T>> &>;
-};
-template <class T>
-using non_const_pool_type_t = typename non_const_pool_type<T>::type;
-template <class T, class U, bool = is_base_of<T, U>::value>
-struct base_or_void_ptr {
-  using type = void *;
-};
-template <class T, class U>
-struct base_or_void_ptr<T, U, true> {
-  using type = T *;
-};
-template <class T, class U>
-using base_or_void_ptr_t = typename base_or_void_ptr<T, U>::type;
 }
 template <class... Ts>
 struct pool : pool_type<Ts>... {
   using boost_di_inject__ = type_list<Ts...>;
+  pool() = default;
   explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
   template <class... TArgs>
-  pool(init &&, pool<TArgs...> &&p)
-      : pool_type<Ts>(try_get<Ts>(
-            static_cast<conditional_t<
-                is_base_of<pool_type<Ts>, pool<TArgs...>>::value, pool_type<Ts> *,
-                conditional_t<is_const<remove_reference_t<Ts>>::value,
-                              detail::base_or_void_ptr_t<detail::non_const_pool_type_t<Ts>, pool<TArgs...>>, void *>>>(
-                &p)))... {}
+  pool(init, const pool<TArgs...> &p) : pool_type<Ts>((Ts)try_get<aux::remove_const_t<aux::remove_reference_t<Ts>>>(&p))... {}
   template <class... TArgs>
   pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, p)... {}
 };
 template <>
 struct pool<> {
   using boost_di_inject__ = type_list<>;
+  pool() = default;
   template <class... Ts>
   explicit pool(Ts &&...) {}
   __BOOST_SML_ZERO_SIZE_ARRAY(byte);
 };
-template <class>
-false_type has_type(...);
-template <class T>
-true_type has_type(const pool_type<T> *);
 template <int, class>
 struct type_id_type {};
 template <class, class...>
@@ -641,6 +621,9 @@ template <class... Ts>
 using get_sub_sms = aux::join_t<typename get_sub_sm<Ts>::type...>;
 template <class... Ts>
 using get_sm_t = aux::type_list<typename Ts::sm...>;
+template <class... Ts>
+using get_non_empty_t =
+    aux::join_t<typename aux::conditional<aux::is_empty<Ts>::value, aux::type_list<>, aux::type_list<Ts>>::type...>;
 template <class... Ts>
 using merge_deps = aux::join_t<typename Ts::deps...>;
 template <class>
@@ -1072,6 +1055,7 @@ template <class, class T, class TPolicy>
 TPolicy get_policy(aux::pair<T, TPolicy> *);
 template <class SM, class... TPolicies>
 struct sm_policy {
+  static_assert(aux::is_same<aux::remove_reference_t<SM>, SM>::value, "SM type can't have qualifiers");
   using sm = SM;
   using thread_safety_policy =
       decltype(get_policy<no_policy, policies::thread_safety_policy__>((aux::inherit<TPolicies...> *)0));
@@ -1113,7 +1097,7 @@ struct composable : aux::is<aux::pool, decltype(composable_impl<T>(0))> {};
 #endif
 namespace back {
 template <class TSM>
-struct sm_impl {
+struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux::none_type, typename TSM::sm> {
   using sm_t = typename TSM::sm;
   using thread_safety_t = typename TSM::thread_safety_policy::type;
   using defer_policy_t = typename TSM::defer_queue_policy;
@@ -1147,18 +1131,15 @@ struct sm_impl {
 #endif
   struct mappings : mappings_t<transitions_t> {};
   template <class TPool>
-  sm_impl(const aux::init &, const TPool &p) : sm_impl(p, decltype(aux::has_type<sm_t &>(&p)){}) {}
+  sm_impl(aux::init, const TPool &p) : sm_impl{p, aux::is_empty<sm_t>{}} {}
   template <class TPool>
-  sm_impl(const TPool &p, aux::true_type) : transitions_(aux::cget<sm_t &>(p)()) {
+  sm_impl(const TPool &p, aux::false_type) : sm_t{aux::try_get<sm_t>(&p)}, transitions_{(*this)()} {
     initialize(typename sm_impl<TSM>::initial_states_t{});
   }
   template <class TPool>
-  sm_impl(const TPool &, aux::false_type) : transitions_(sm_t{}()) {
+  sm_impl(const TPool &p, aux::true_type) : transitions_{aux::try_get<sm_t>(&p)()} {
     initialize(typename sm_impl<TSM>::initial_states_t{});
   }
-  sm_impl(sm_impl &&) = default;
-  sm_impl(const sm_impl &) = delete;
-  sm_impl &operator=(const sm_impl &) = delete;
   template <class TEvent, class TDeps, class TSubs>
   bool process_event(const TEvent &event, TDeps &deps, TSubs &subs) {
     policies::log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
@@ -1419,25 +1400,24 @@ class sm {
   using transitions = aux::apply_t<aux::type_list, transitions_t>;
 
  private:
+  using sm_all_t = aux::apply_t<get_non_empty_t, aux::join_t<aux::type_list<sm_t>, aux::apply_t<get_sm_t, state_machines>>>;
   using sub_sms_t = aux::apply_t<aux::pool, typename convert_to_sm<TSM, aux::apply_t<get_sub_sms, states>>::type>;
   using deps = aux::apply_t<merge_deps, transitions_t>;
   using deps_t =
       aux::apply_t<aux::pool,
-                   aux::apply_t<aux::unique_t, aux::join_t<deps, logger_dep_t, aux::apply_t<merge_deps, sub_sms_t>>>>;
+                   aux::apply_t<aux::unique_t, aux::join_t<deps, sm_all_t, logger_dep_t, aux::apply_t<merge_deps, sub_sms_t>>>>;
   struct events_ids : aux::apply_t<aux::inherit, events> {};
 
  public:
-  sm(sm &&) = default;
-  sm(const sm &) = delete;
-  sm &operator=(const sm &) = delete;
   sm() : deps_{aux::init{}, aux::pool<>{}}, sub_sms_{aux::pool<>{}} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
   template <class... TDeps, __BOOST_SML_REQUIRES((sizeof...(TDeps) > 0) && aux::is_unique_t<TDeps...>::value)>
   explicit sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
   }
-  sm(aux::init, deps_t &deps, typename TSM::sm &sm) : deps_(deps), sub_sms_{aux::pool<typename TSM::sm &, deps_t>{sm, deps}} {
-    aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
-  }
+  sm(aux::init, deps_t &deps) : deps_{deps}, sub_sms_{deps} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
+  sm(sm &&other) : deps_{other.deps_}, sub_sms_{other.deps_} {}
+  sm(const sm &) = delete;
+  sm &operator=(const sm &) = delete;
   template <class TEvent, __BOOST_SML_REQUIRES(aux::is_base_of<TEvent, events_ids>::value)>
   void process_event(const TEvent &event) {
     aux::get<sm_impl<TSM>>(sub_sms_).process_event(event, deps_, sub_sms_);
@@ -1493,6 +1473,14 @@ class sm {
     (void)aux::swallow{0,
                        (sm.current_state_[region++] = aux::get_id<state_t, typename TStates::type>((states_ids_t *)0), 0)...};
 #endif
+  }
+  template <class T>
+  operator T &() {
+    return aux::get<sm_impl<typename TSM::template rebind<T>>>(sub_sms_);
+  }
+  template <class T>
+  operator const T &() {
+    return aux::cget<sm_impl<typename TSM::template rebind<T>>>(sub_sms_);
   }
 
  private:
@@ -1798,7 +1786,7 @@ using dispatch = back::policies::dispatch<T>;
 template <template <class...> class T>
 using defer_queue = back::policies::defer_queue<T, front::actions::defer_event>;
 #if defined(_MSC_VER)
-template <class T, class... TPolicies, class T__ = decltype(aux::declval<T>())>
+template <class T, class... TPolicies, class T__ = aux::remove_reference_t<decltype(aux::declval<T>())>>
 using sm = back::sm<back::sm_policy<T__, TPolicies...>>;
 #else
 template <class T, class... TPolicies>
@@ -1926,7 +1914,7 @@ struct state<TState(history_state)> : state_impl<state<TState(history_state)>> {
   }
 };
 #if defined(_MSC_VER)
-template <class T, class T__ = decltype(aux::declval<T>()), class = void>
+template <class T, class T__ = aux::remove_reference_t<decltype(aux::declval<T>())>, class = void>
 struct state_sm {
   using type = state<T>;
 };

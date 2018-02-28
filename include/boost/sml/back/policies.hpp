@@ -34,6 +34,8 @@ TPolicy get_policy(aux::pair<T, TPolicy> *);
 
 template <class SM, class... TPolicies>
 struct sm_policy {
+  static_assert(aux::is_same<aux::remove_reference_t<SM>, SM>::value, "SM type can't have qualifiers");
+
   using sm = SM;
   using thread_safety_policy =
       decltype(get_policy<no_policy, policies::thread_safety_policy__>((aux::inherit<TPolicies...> *)0));

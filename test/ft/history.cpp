@@ -55,9 +55,7 @@ test history = [] {
 
   using namespace sml;
 
-  c c_;
-  sub sub_;
-  sml::sm<c> sm{c_, sub_};
+  sml::sm<c> sm{};
 
   expect(sm.is(idle));
   sm.process_event(e1());
