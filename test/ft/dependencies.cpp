@@ -7,6 +7,7 @@
 //
 #include <array>
 #include <boost/sml.hpp>
+#include <memory>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -118,6 +119,27 @@ test dependencies_with_const = [] {
     sm.process_event(e1{});
     expect(sm.is(sml::X));
   }
+};
+
+test dependencies_smart_ptrs = [] {
+  struct Data {
+    bool m_member{true};
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      const auto guard = [](std::shared_ptr<Data> data) { return data->m_member; };
+      const auto action = [](const std::shared_ptr<Data>& data) { expect(data->m_member); };
+
+      using namespace sml;
+      return make_transition_table(*idle + event<e1>[guard] / action = X);
+    }
+  };
+
+  auto data = std::make_shared<Data>();
+  sml::sm<c> sm{data};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
 };
 
 #if (_MSC_VER >= 1910)  // MSVC 2017
