@@ -1101,7 +1101,7 @@ template <class T>
 struct composable : aux::is<aux::pool, decltype(composable_impl<T>(0))> {};
 }
 #if !defined(BOOST_SML_DISABLE_EXCEPTIONS)
-#if !(defined(__cpp_exceptions) || defined(__EXCEPTIONS))
+#if !(defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND))
 #define BOOST_SML_DISABLE_EXCEPTIONS true
 #else
 #define BOOST_SML_DISABLE_EXCEPTIONS false
