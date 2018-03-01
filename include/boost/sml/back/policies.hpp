@@ -17,7 +17,7 @@
 
 namespace back {
 
-struct no_policy {
+struct no_policy : policies::thread_safety_policy__ {
   using type = no_policy;
   template <class>
   using rebind = no_policy;

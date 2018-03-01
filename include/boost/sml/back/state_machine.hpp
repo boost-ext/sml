@@ -182,7 +182,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &states,
                           aux::index_sequence<0>) {
-    const auto lock = create_lock(aux::type<thread_safety_t>{});
+    const auto lock = thread_safety_.create_lock();
     (void)lock;
     return dispatch_t::template dispatch<0, TMappings>(*this, current_state_[0], event, deps, subs, states);
   }
@@ -190,7 +190,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates, int... Ns>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &states,
                           aux::index_sequence<Ns...>) {
-    const auto lock = create_lock(aux::type<thread_safety_t>{});
+    const auto lock = thread_safety_.create_lock();
     (void)lock;
 
     auto handled = false;
@@ -208,7 +208,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &states,
                           state_t &current_state) {
-    const auto lock = create_lock(aux::type<thread_safety_t>{});
+    const auto lock = thread_safety_.create_lock();
     (void)lock;
     return dispatch_t::template dispatch<0, TMappings>(*this, current_state, event, deps, subs, states);
   }
@@ -314,18 +314,6 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   template <class TVisitor, class TState>
   static void visit_state(const TVisitor &visitor) {
     visitor(aux::string<TState>{});
-  }
-
-  no_policy create_lock(const aux::type<no_policy> &) { return {}; }
-
-  template <class TLockPolicy>
-  auto create_lock(const aux::type<TLockPolicy> &) {
-    struct lock_guard {
-      explicit lock_guard(thread_safety_t &synch) : thread_safety_(synch) { thread_safety_.lock(); }
-      ~lock_guard() { thread_safety_.unlock(); }
-      thread_safety_t &thread_safety_;
-    };
-    return lock_guard{thread_safety_};
   }
 
   bool is_terminated() const { return is_terminated_impl(aux::make_index_sequence<regions>{}); }
