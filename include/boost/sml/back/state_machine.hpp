@@ -15,13 +15,13 @@
 #include "boost/sml/concepts/callable.hpp"
 #include "boost/sml/concepts/composable.hpp"
 
-#if !defined(BOOST_SML_DISABLE_EXCEPTIONS)                 // __pph__
-#if !(defined(__cpp_exceptions) || defined(__EXCEPTIONS))  // __pph__
-#define BOOST_SML_DISABLE_EXCEPTIONS true                  // __pph__
-#else                                                      // __pph__
-#define BOOST_SML_DISABLE_EXCEPTIONS false                 // __pph__
-#endif                                                     // __pph__
-#endif                                                     // __pph__
+#if !defined(BOOST_SML_DISABLE_EXCEPTIONS)                                        // __pph__
+#if !(defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND))  // __pph__
+#define BOOST_SML_DISABLE_EXCEPTIONS true                                         // __pph__
+#else                                                                             // __pph__
+#define BOOST_SML_DISABLE_EXCEPTIONS false                                        // __pph__
+#endif                                                                            // __pph__
+#endif                                                                            // __pph__
 
 namespace back {
 
