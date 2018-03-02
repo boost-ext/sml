@@ -22,6 +22,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_executable(composite composite.cpp)
     add_test(example_composite composite)
 
+    add_executable(data data.cpp)
+    add_test(example_data data)
+
     add_executable(defer_and_process defer_and_process.cpp)
     add_test(example_defer_and_process defer_and_process)
 
