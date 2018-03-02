@@ -11,6 +11,7 @@
 #include "boost/sml/back/policies/defer_queue.hpp"
 #include "boost/sml/back/policies/dispatch.hpp"
 #include "boost/sml/back/policies/logger.hpp"
+#include "boost/sml/back/policies/process_queue.hpp"
 #include "boost/sml/back/policies/testing.hpp"
 #include "boost/sml/back/policies/thread_safety.hpp"
 #include "boost/sml/back/utility.hpp"  // rebind_impl
@@ -40,6 +41,8 @@ struct sm_policy {
   using thread_safety_policy =
       decltype(get_policy<no_policy, policies::thread_safety_policy__>((aux::inherit<TPolicies...> *)0));
   using defer_queue_policy = decltype(get_policy<no_policy, policies::defer_queue_policy__>((aux::inherit<TPolicies...> *)0));
+  using process_queue_policy =
+      decltype(get_policy<no_policy, policies::process_queue_policy__>((aux::inherit<TPolicies...> *)0));
   using logger_policy = decltype(get_policy<no_policy, policies::logger_policy__>((aux::inherit<TPolicies...> *)0));
   using testing_policy = decltype(get_policy<no_policy, policies::testing_policy__>((aux::inherit<TPolicies...> *)0));
   using dispatch_policy =

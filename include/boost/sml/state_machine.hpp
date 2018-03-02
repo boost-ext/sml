@@ -21,7 +21,9 @@ using thread_safe = back::policies::thread_safe<T>;
 template <class T>
 using dispatch = back::policies::dispatch<T>;
 template <template <class...> class T>
-using defer_queue = back::policies::defer_queue<T, front::actions::defer_event>;
+using defer_queue = back::policies::defer_queue<T>;
+template <template <class...> class T>
+using process_queue = back::policies::process_queue<T>;
 
 /// state machine
 

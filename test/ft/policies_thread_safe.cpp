@@ -7,6 +7,7 @@
 //
 #include <boost/sml.hpp>
 #include <mutex>
+#include <queue>
 #include <thread>
 
 namespace sml = boost::sml;
@@ -61,7 +62,7 @@ test process_event_reentrant = [] {
     }
   };
 
-  sml::sm<c, sml::thread_safe<std::recursive_mutex>> sm;
+  sml::sm<c, sml::process_queue<std::queue>, sml::thread_safe<std::recursive_mutex>> sm;
   // Hangs forever awaiting lock if mutex is not reentrant.
   sm.process_event(e1{});
 };

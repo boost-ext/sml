@@ -7,12 +7,14 @@
 //
 #include <boost/sml.hpp>
 #include <queue>
+#include <string>
 #include <vector>
 
 namespace sml = boost::sml;
 
 struct event1 {};
 struct event2 {};
+struct event3 {};
 
 const auto state1 = sml::state<class state1>;
 const auto state2 = sml::state<class state2>;
@@ -153,4 +155,35 @@ test defer_and_anonymous = [] {
   expect(2 == c_.entries[1]);
   expect(3 == c_.entries[2]);
   expect(4 == c_.entries[3]);
+};
+
+test defer_reaction = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        * state1 + on_entry<sml::initial> / [this] { calls += "s1e|"; }
+        , state1 + event<event1> / [this](sml::back::defer<event2, event3> deferEvent) -> void {
+            calls += "a1.begin|";
+            deferEvent(event2{});
+            deferEvent(event3{});
+            calls += "a1.end|";
+          }
+         , state1 + event<event2> / [this] { calls += "a2|"; }
+         , state1 + event<event3> / [this] { calls += "a3|"; } = X
+      );
+      // clang-format on
+    }
+
+    std::string calls{};
+  };
+
+  sml::sm<c, sml::defer_queue<std::queue>> sm{};
+
+  sm.process_event(event1());
+  expect(sm.is(sml::X));
+
+  const c& c_ = sm;
+  expect("s1e|a1.begin|a1.end|a2|a3|" == c_.calls);
 };
