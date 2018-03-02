@@ -7,6 +7,8 @@
 #ifndef BOOST_SML_BACK_INTERNALS_HPP
 #define BOOST_SML_BACK_INTERNALS_HPP
 
+#include "boost/sml/back/queue_handler.hpp"
+
 namespace back {
 
 struct _ {};
@@ -96,6 +98,16 @@ using get_generic_t = typename event_type<TEvent>::generic_t;
 
 template <class TEvent>
 using get_mapped_t = typename event_type<TEvent>::mapped_t;
+
+template <class... TEvents>
+struct process : queue_handler<TEvents...> {
+  using queue_handler<TEvents...>::queue_handler;
+};
+
+template <class... TEvents>
+struct defer : queue_handler<TEvents...> {
+  using queue_handler<TEvents...>::queue_handler;
+};
 
 }  // back
 

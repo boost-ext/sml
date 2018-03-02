@@ -19,8 +19,8 @@ struct process {
     explicit process_impl(const TEvent& event) : event(event) {}
 
     template <class T, class TSM, class TDeps, class TSubs>
-    void operator()(const T&, TSM&, TDeps& deps, TSubs& subs) {
-      aux::get<get_root_sm_t<TSubs>>(subs).process_event(event, deps, subs);
+    void operator()(const T&, TSM& sm, TDeps&, TSubs&) {
+      sm.process_.push(event);
     }
 
    private:
@@ -32,6 +32,7 @@ struct process {
     return process_impl<TEvent>{event};
   }
 };
+
 }  // actions
 }  // front::actions
 
