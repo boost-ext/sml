@@ -14,6 +14,7 @@
 * [Runtime Dispatcher](#runtime-dispatcher)
 * [eUML Emulation](#euml-emulation)
 * [Dependencies](#dependencies)
+* [Data](#data)
 * [Dependency Injection](#dependency-injection)
 * [SDL2 Integration](#sdl2-integration)
 * [Plant UML Integration](#plant-uml-integration)
@@ -67,6 +68,9 @@
 
 ###Dependencies
 ![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/example/dependencies.cpp)
+
+###Data
+![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/example/data.cpp)
 
 ###Dependency Injection
 ![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/example/dependency_injection.cpp)

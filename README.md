@@ -264,6 +264,7 @@ send: 42
     * [Runtime Dispatcher](http://boost-experimental.github.io/sml/examples/index.html#runtime-dispatcher)
     * [eUML Emulation](http://boost-experimental.github.io/sml/examples/index.html#euml-emulation)
     * [Dependencies](http://boost-experimental.github.io/sml/examples/index.html#dependencies)
+    * [Data](http://boost-experimental.github.io/sml/examples/index.html#data)
     * [Dependency Injection](http://boost-experimental.github.io/sml/examples/index.html#dependency-injection)
     * [SDL2 Integration](http://boost-experimental.github.io/sml/examples/index.html#sdl2-integration)
     * [Plant UML Integration](http://boost-experimental.github.io/sml/examples/index.html#plant-uml-integration)
