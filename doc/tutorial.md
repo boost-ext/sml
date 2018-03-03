@@ -34,6 +34,8 @@ auto event  = "event"_e;
 
 However, such event will not store any data.
 
+----
+
 A State can have entry/exit behaviour executed whenever machine enters/leaves State and
 represents current location of the state machine flow.
 

@@ -6,86 +6,49 @@
 
 ###Initial Pseudostate
 
-UML ![](images/initial_state.png)
+* An entry point where everything starts from
 
-SML
-
-```cpp
-*("idle")
-```
+| UML | SML |
+| - | - |
+| ![](images/initial_state.png) | `* "idle"_s` |
 
 ---
 
 ###Terminate Pseudostate
-UML ![](images/initial_state.png)
 
-SML
+* A state which terminates the state machine (there is no escape from)
 
-```cpp
-X
-```
+| UML | SML |
+| - | - |
+| ![](images/terminate_state.png) | `sml::X`
 
 ---
 
 ###External transition
-UML ![](images/external_transition.png)
 
-SML
+* Conditionally updates the current state
 
-```cpp
-"src_state"_s + event [ guard ] / action = "dst_state"_s
-```
-
-> ***where***
-
-```cpp
-struct event {};
-const auto guard = [] { return true; };
-const auto action = [] {};
-```
+| UML | SML |
+| - | - |
+| ![](images/external_transition.png) | `"src_state"_s + event [ guard ] / action = "dst_state"_s`
 
 ---
 
 ###Anonymous transition
 
-UML ![](images/anonymous_transition.png)
+* transition without a trigger (event)
 
-SML
-
-```cpp
-idle [ guard ] / action = connecting
-```
+| UML | SML |
+| - | - |
+| ![](images/anonymous_transition.png) | `"src_state"_s = "dst_state"_s` |
 
 ---
 
-###Internal transition
-
----
-
-###Entry/Exit action
-
----
-
-###Self transition
-
----
-
-###Sub/Composite
-
----
-
-###Orthogonal regions
-
----
-
-###Deep History
-
----
-
-###Shallow History
-
----
-
-###Event defering
-
----
+<!--###Internal transition-->
+<!--###Entry/Exit action-->
+<!--###Self transition-->
+<!--###Sub/Composite-->
+<!--###Orthogonal regions-->
+<!--###Deep History-->
+<!--###Shallow History-->
+<!--###Event defering-->
