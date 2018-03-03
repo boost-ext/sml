@@ -14,7 +14,9 @@ branches:
   - gh-pages
 
 cache:
-  - C:\cmake-3.7.2-win32-x86
+  - C:\ProgramData\chocolatey\lib\cmake.portable -> .appveyor.yml
+  - C:\tools\mingw64                             -> .appveyor.yml
+  - C:\Program Files (x86)\Dr. Memory            -> .appveyor.yml
 
 environment:
   fast_finish: true
@@ -38,18 +40,9 @@ matrix:
   fast_finish: true
 
 install:
-  - ps: |
-      if (![IO.File]::Exists("C:\cmake-3.7.2-win32-x86\bin\cmake.exe")) {
-        pushd c:\
-        Start-FileDownload 'https://cmake.org/files/v3.7/cmake-3.7.2-win32-x86.zip'
-        7z x -y cmake-3.7.2-win32-x86.zip
-        popd
-      }
-  - cinst -y drmemory
-  - appveyor DownloadFile http://downloads.sourceforge.net/mingw-w64/x86_64-5.2.0-release-posix-seh-rt_v4-rev1.7z
-  - 7z x x86_64-5.2.0-release-posix-seh-rt_v4-rev1.7z > nul
+  - cinst -y mingw cmake.portable drmemory
+  - refreshenv
   - call "%VSPATH%"\vcvarsall %PLATFORM%
-  - set PATH=C:\cmake-3.7.2-win32-x86\bin;mingw64\bin;"C:\Program Files (x86)\Dr. Memory\bin";%PATH%;
 
 build_script:
   - mingw32-make test example/hello_world.out
