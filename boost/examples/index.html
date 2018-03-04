@@ -92,6 +92,10 @@
     
 
     
+        <dt><span class="section"><a href="#data">Data</a></span></dt>
+    
+
+    
         <dt><span class="section"><a href="#dependency-injection">Dependency Injection</a></span></dt>
     
 
@@ -126,6 +130,7 @@
 <li><a href="#runtime-dispatcher">Runtime Dispatcher</a></li>
 <li><a href="#euml-emulation">eUML Emulation</a></li>
 <li><a href="#dependencies">Dependencies</a></li>
+<li><a href="#data">Data</a></li>
 <li><a href="#dependency-injection">Dependency Injection</a></li>
 <li><a href="#sdl2-integration">SDL2 Integration</a></li>
 <li><a href="#plant-uml-integration">Plant UML Integration</a></li>
@@ -442,7 +447,8 @@ struct defer_and_process {
 
 int main() {
   using namespace sml;
-  sm&lt;defer_and_process, sml::defer_queue&lt;std::queue&gt;&gt; sm;  /// defer_queue policy to enable deferred events using std::queue
+  sm&lt;defer_and_process, sml::defer_queue&lt;std::queue&gt;, sml::process_queue&lt;std::queue&gt;&gt;
+      sm;  /// defer_queue policy to enable deferred events using std::queue
   assert(sm.is(&quot;idle&quot;_s));
 
   sm.process_event(e1{});
@@ -979,6 +985,58 @@ int main() {
 
 <ul>
 <li><a href="https://raw.githubusercontent.com/boost-experimental/sml/master/example/dependencies.cpp">https://raw.githubusercontent.com/boost-experimental/sml/master/example/dependencies.cpp</a></li>
+</ul>
+<h3 id="data">Data</h3>
+<pre><code class="cpp">#if (__cplusplus &gt;= 201703L &amp;&amp; __has_include(&lt;variant&gt;))
+#include &lt;boost/sml.hpp&gt;
+#include &lt;cassert&gt;
+#include &lt;iostream&gt;
+#include &lt;variant&gt;
+
+namespace sml = boost::sml;
+
+struct connect {};
+struct disconnect {};
+
+class data {
+  struct Disconnected {};
+  struct Connected {
+    int id{};
+  };
+
+ public:
+  explicit data(const std::string&amp; address) : address{address} {}
+
+  inline auto operator()() {
+    using namespace boost::sml;
+    return make_transition_table(
+      * state&lt;Disconnected&gt; + event&lt;connect&gt; / [this] {
+          data_ = Connected{42};
+        } = state&lt;Connected&gt;
+      , state&lt;Connected&gt; + event&lt;disconnect&gt; / [this] {
+          std::cout &lt;&lt; std::get&lt;Connected&gt;(data_).id &lt;&lt; std::endl;
+        } = X
+    );
+  }
+
+ private:
+  std::string address{};
+  std::variant&lt;Disconnected, Connected&gt; data_{};
+};
+
+int main() {
+  sml::sm&lt;data&gt; sm{data{&quot;127.0.0.1&quot;}};
+  sm.process_event(connect{});
+  sm.process_event(disconnect{});
+  assert(sm.is(sml::X));
+}
+#else
+int main() {}
+#endif
+</code></pre>
+
+<ul>
+<li><a href="https://raw.githubusercontent.com/boost-experimental/sml/master/example/data.cpp">https://raw.githubusercontent.com/boost-experimental/sml/master/example/data.cpp</a></li>
 </ul>
 <h3 id="dependency-injection">Dependency Injection</h3>
 <pre><code class="cpp">#if __has_include(&lt;boost/di.hpp&gt;)

@@ -312,7 +312,7 @@
         }, 
         {
             "location": "/examples/index.html", 
-            "text": "Hello World\n\n\nEvents\n\n\nStates\n\n\nActions Guards\n\n\nTransitions\n\n\nDefer/Process\n\n\nOrthogonal Regions\n\n\nComposite\n\n\nHistory\n\n\nError handling\n\n\nLogging\n\n\nNested\n\n\nTesting\n\n\nRuntime Dispatcher\n\n\neUML Emulation\n\n\nDependencies\n\n\nDependency Injection\n\n\nSDL2 Integration\n\n\nPlant UML Integration\n\n\n\n\n\n\nHello World\n\n\n\n\nEvents\n\n\n\n\nStates\n\n\n\n\nActions Guards\n\n\n\n\nTransitions\n\n\n\n\nDefer/Process\n\n\n\n\nOrthogonal Regions\n\n\n\n\nComposite\n\n\n\n\nHistory\n\n\n\n\nError handling\n\n\n\n\nLogging\n\n\n\n\nNested\n\n\n\n\nTesting\n\n\n\n\nRuntime Dispatcher\n\n\n\n\neUML Emulation\n\n\n\n\nDependencies\n\n\n\n\nDependency Injection\n\n\n\n\nSDL2 Integration\n\n\n\n\nPlant UML Integration", 
+            "text": "Hello World\n\n\nEvents\n\n\nStates\n\n\nActions Guards\n\n\nTransitions\n\n\nDefer/Process\n\n\nOrthogonal Regions\n\n\nComposite\n\n\nHistory\n\n\nError handling\n\n\nLogging\n\n\nNested\n\n\nTesting\n\n\nRuntime Dispatcher\n\n\neUML Emulation\n\n\nDependencies\n\n\nData\n\n\nDependency Injection\n\n\nSDL2 Integration\n\n\nPlant UML Integration\n\n\n\n\n\n\nHello World\n\n\n\n\nEvents\n\n\n\n\nStates\n\n\n\n\nActions Guards\n\n\n\n\nTransitions\n\n\n\n\nDefer/Process\n\n\n\n\nOrthogonal Regions\n\n\n\n\nComposite\n\n\n\n\nHistory\n\n\n\n\nError handling\n\n\n\n\nLogging\n\n\n\n\nNested\n\n\n\n\nTesting\n\n\n\n\nRuntime Dispatcher\n\n\n\n\neUML Emulation\n\n\n\n\nDependencies\n\n\n\n\nData\n\n\n\n\nDependency Injection\n\n\n\n\nSDL2 Integration\n\n\n\n\nPlant UML Integration", 
             "title": "Examples"
         }, 
         {
@@ -394,6 +394,11 @@
             "location": "/examples/index.html#dependencies", 
             "text": "", 
             "title": "Dependencies"
+        }, 
+        {
+            "location": "/examples/index.html#data", 
+            "text": "", 
+            "title": "Data"
         }, 
         {
             "location": "/examples/index.html#dependency-injection", 
