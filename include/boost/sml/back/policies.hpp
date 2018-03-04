@@ -37,6 +37,14 @@ template <class SM, class... TPolicies>
 struct sm_policy {
   static_assert(aux::is_same<aux::remove_reference_t<SM>, SM>::value, "SM type can't have qualifiers");
 
+#if defined(_MSC_VER)  // __pph__
+  using default_dispatch_policy = policies::jump_table;
+#elif defined(__clang__)  // __pph__
+  using default_dispatch_policy = policies::jump_table;
+#elif defined(__GNUC__)   // __pph__
+  using default_dispatch_policy = policies::branch_stm;
+#endif                    // __pph__
+
   using sm = SM;
   using thread_safety_policy =
       decltype(get_policy<no_policy, policies::thread_safety_policy__>((aux::inherit<TPolicies...> *)0));
@@ -46,7 +54,7 @@ struct sm_policy {
   using logger_policy = decltype(get_policy<no_policy, policies::logger_policy__>((aux::inherit<TPolicies...> *)0));
   using testing_policy = decltype(get_policy<no_policy, policies::testing_policy__>((aux::inherit<TPolicies...> *)0));
   using dispatch_policy =
-      decltype(get_policy<policies::jump_table, policies::dispatch_policy__>((aux::inherit<TPolicies...> *)0));
+      decltype(get_policy<default_dispatch_policy, policies::dispatch_policy__>((aux::inherit<TPolicies...> *)0));
 
   template <class T>
   using rebind = typename rebind_impl<T, TPolicies...>::type;
