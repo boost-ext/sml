@@ -102,11 +102,6 @@ struct is_constructible : decltype(test_is_constructible<T, TArgs...>(0)) {
 using is_constructible = decltype(test_is_constructible<T, TArgs...>(0));
 #endif  // __pph__
 
-template <class T>
-struct is_const : false_type {};
-template <class T>
-struct is_const<const T> : true_type {};
-
 template <class T, class U>
 struct is_empty_base : T {
   U _;
