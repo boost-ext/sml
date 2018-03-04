@@ -122,22 +122,6 @@
                 
                     <li><a class="toctree-l4" href="#anonymous-transition">Anonymous transition</a></li>
                 
-                    <li><a class="toctree-l4" href="#internal-transition">Internal transition</a></li>
-                
-                    <li><a class="toctree-l4" href="#entryexit-action">Entry/Exit action</a></li>
-                
-                    <li><a class="toctree-l4" href="#self-transition">Self transition</a></li>
-                
-                    <li><a class="toctree-l4" href="#subcomposite">Sub/Composite</a></li>
-                
-                    <li><a class="toctree-l4" href="#orthogonal-regions">Orthogonal regions</a></li>
-                
-                    <li><a class="toctree-l4" href="#deep-history">Deep History</a></li>
-                
-                    <li><a class="toctree-l4" href="#shallow-history">Shallow History</a></li>
-                
-                    <li><a class="toctree-l4" href="#event-defering">Event defering</a></li>
-                
             
             </ul>
         
@@ -212,57 +196,96 @@
 </ul>
 <hr />
 <h3 id="initial-pseudostate">Initial Pseudostate</h3>
-<p>UML <img alt="" src="../images/initial_state.png" /></p>
-<p>SML</p>
-<pre><code class="cpp">*(&quot;idle&quot;)
-</code></pre>
-
+<ul>
+<li>An entry point where everything starts from</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>UML</th>
+<th>SML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="../images/initial_state.png" /></td>
+<td><code>* "idle"_s</code></td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h3 id="terminate-pseudostate">Terminate Pseudostate</h3>
-<p>UML <img alt="" src="../images/initial_state.png" /></p>
-<p>SML</p>
-<pre><code class="cpp">X
-</code></pre>
-
+<ul>
+<li>A state which terminates the state machine (there is no escape from)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>UML</th>
+<th>SML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="../images/terminate_state.png" /></td>
+<td><code>sml::X</code></td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h3 id="external-transition">External transition</h3>
-<p>UML <img alt="" src="../images/external_transition.png" /></p>
-<p>SML</p>
-<pre><code class="cpp">&quot;src_state&quot;_s + event [ guard ] / action = &quot;dst_state&quot;_s
-</code></pre>
-
-<blockquote>
-<p><strong><em>where</em></strong></p>
-</blockquote>
-<pre><code class="cpp">struct event {};
-const auto guard = [] { return true; };
-const auto action = [] {};
-</code></pre>
-
+<ul>
+<li>Conditionally updates the current state</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>UML</th>
+<th>SML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="../images/external_transition.png" /></td>
+<td><code>"src_state"_s + event [ guard ] / action = "dst_state"_s</code></td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h3 id="anonymous-transition">Anonymous transition</h3>
-<p>UML <img alt="" src="../images/anonymous_transition.png" /></p>
-<p>SML</p>
-<pre><code class="cpp">idle [ guard ] / action = connecting
-</code></pre>
+<ul>
+<li>transition without a trigger (event)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>UML</th>
+<th>SML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="../images/anonymous_transition.png" /></td>
+<td><code>"src_state"_s = "dst_state"_s</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<!--###Internal transition-->
 
-<hr />
-<h3 id="internal-transition">Internal transition</h3>
-<hr />
-<h3 id="entryexit-action">Entry/Exit action</h3>
-<hr />
-<h3 id="self-transition">Self transition</h3>
-<hr />
-<h3 id="subcomposite">Sub/Composite</h3>
-<hr />
-<h3 id="orthogonal-regions">Orthogonal regions</h3>
-<hr />
-<h3 id="deep-history">Deep History</h3>
-<hr />
-<h3 id="shallow-history">Shallow History</h3>
-<hr />
-<h3 id="event-defering">Event defering</h3>
-<hr />
+<!--###Entry/Exit action-->
+
+<!--###Self transition-->
+
+<!--###Sub/Composite-->
+
+<!--###Orthogonal regions-->
+
+<!--###Deep History-->
+
+<!--###Shallow History-->
+
+<!--###Event defering-->
               
             </div>
           </div>

@@ -61,6 +61,8 @@ Kris Jusiak, Quantlab Financial
 
 ### Agenda - Introduction
 
+* Motivation
+
 * UML-2.5
   * State Machine
 
@@ -73,16 +75,14 @@ Kris Jusiak, Quantlab Financial
 
 ### Agenda - Workshop - Basic
 
-* Hello World
+* Hello World - Connection
   * Events/States
-  * Transitions
-* Action/Guards
+* Transitions
+  * Actions/Guards
 * Dependencies
-* Runtime Dispatching
+* Testing/Error handling/Debugging
+* Runtime dispatching
 * Performance tuning
-* Error handling
-* Testing
-* Debugging
 
 ----
 
@@ -101,6 +101,99 @@ Kris Jusiak, Quantlab Financial
 <img src="images/qr_code.jpg" style="width: 30%; background:none; border:none; box-shadow:none;" />
 
 http://boost-experimental.github.io/sml/embo-2018
+
+==============================================================================
+
+### Motivation
+
+```gherkin
+Feature: Connection
+
+  Scenario: Establish connection 1/2
+    Given I have a connection handler
+     When I receive a connect request
+     Then I should establish connectivity
+
+  Scenario: Establish connection 2/2
+    Given I have established connectivity
+     When I receive a established ack
+      And The ack is valid
+     Then I'm connected
+```
+
+----
+
+### Motivation - naive implementation
+
+```cpp
+void establish() {}
+bool is_valid(const void*);
+```
+
+```cpp
+void handle(int id, const void* message) {
+  static bool is_connected = false;
+  static bool is_connecting = false;
+
+  if (id == 0 && !is_connected && !is_connecting) {
+    establish();
+    is_connecting = true;
+  } else if (id == 1
+      && is_connecting && !is_connected && is_valid(message)) {
+    is_connecting = false;
+    is_connected = true;
+  } /* else if
+      ...
+    */
+}
+```
+
+----
+
+### Motivation - naive implementation
+
+<img src="images/debug.jpg" style="width: 50%; background:none; border:none; box-shadow:none;" />
+
+> Maintenance nightmare (Spaghetti code)
+
+----
+
+### Motivation - hand written state machine
+
+```cpp
+class Connection {
+  enum { CONNECT, ESTABLISHED, PING, TIMEOUT, DISCONNECT };
+public:
+  void handle(int id, const void* message) {
+    switch (state) {
+      case Disconnected:
+        switch (id) {
+          case CONNECT: establish(); state = Connecting; break;
+        }
+      case Connecting:
+        switch (id) {
+          case ESTABLISHED: state = Connected; break;
+        }
+      /*case...*/
+    }
+  }
+```
+
+```cpp
+private:
+  bool is_valid(const void*) const;
+  void establish();
+  enum { Disconnected, Connecting, Connected } state = Disconnected;
+};
+```
+
+----
+
+### Motivation - hand written state machine
+
+<img src="images/debugging.jpg" style="width: 35%; background:none; border:none; box-shadow:none;" />
+
+> Not scalable - Fusilli code (A spin to make bad code look good)
 
 ==============================================================================
 
@@ -221,15 +314,94 @@ $CXX -std=c++1z -O3 -flto -fno-exceptions -DNDEBUG benchmark.cpp
 
 ### Workshop - Basic
 
+==============================================================================
+
+### Hello World - Connection
+
+![](images/sm_example.png)
+
 ----
 
-### Hello World
+#### State represents current location of the flow
+
+| | |
+|-|-|
+| ![](images/disconnected_state.png) | ![](images/connecting_state.png) |
+
+```cpp
+// On the fly declaration (default)
+using namespace sml;
+"Diconnected"_s
+```
+
+```cpp
+// Standard declaration
+sml::state<class Connecting>{};
+```
+
+----
+
+#### Initial State tells the state machine where to start
+
+![](images/initial_state.png)
+
+```cpp
+// Star indicates that SM should from here
+* "Disconnected"_s
+```
+
+----
+
+#### Event is a unique type which will be processed by the state machine
+
+```cpp
+struct connect { };
+```
+
+----
+
+#### Transition Table is a DSL describing allowed behaviour
+
+```cpp
+struct Connection {
+  auto operator()() const {
+    using namespace sml;
+    return make_transition_table(
+      * "Disconnected"_s + event<connect> = "Connecting"_s
+    )
+  }
+};
+```
+
+----
+
+#### Process event is the client interface with the state machine
+
+```cpp
+// Creates a state machine
+sml::sm<Connection> sm;
+```
+
+```cpp
+// Process incoming events
+sm.process_event(connect{});
+```
+
+----
+
+#### Hello World - Connection
+
+<iframe class="stretch" data-src="https://godbolt.org/g/94k5gs" />
+
+==============================================================================
+
+### Transitions
 
 ![](images/transition_table.png)
 
 ----
 
-### Hello World
+#### Transitions
 
 ```cpp
 * -> Disconnected : connect / establish              -> Connecting
@@ -255,77 +427,599 @@ $CXX -std=c++1z -O3 -flto -fno-exceptions -DNDEBUG benchmark.cpp
 
 ----
 
-### Hello World
+#### Guard is a functor called before the optional transition (MUST return boolean)
 
-<iframe class="stretch" data-src="https://godbolt.org/g/kJUZYn" />
+```cpp
+// Empty guard
+const auto is_valid = [] { return true; };
+```
+
+```cpp
+// Guard can take event as an optional parameter
+const auto is_valid = [](const auto& event) {
+  return event.id > 0;
+};
+```
 
 ----
+
+#### Action is a functor called on transition (MUST not return)
+
+```cpp
+// Empty action
+const auto resetTimeout = [] { };
+```
+
+```cpp
+// Action can take event as an optional parameter
+const auto resetTimeout = [](const auto& event) { };
+```
+
+----
+
+#### Transitions DSL (Domain Specific language)
+
+<center>![Transition](images/simple_transition.png)</center>
+
+```cpp
+"Connected"_s + event<ping> [ is_valid ] / resetTimeout
+```
+
+----
+
+#### Transitions
+
+<iframe class="stretch" data-src="https://godbolt.org/g/AwzRSw" />
+
+----
+
+#### Transitions
+
+<iframe class="stretch" data-src="https://wandbox.org/permlink/sKujYtw4WbUx2Wfq" />
+
+==============================================================================
 
 ### Dependencies
 
-<iframe class="stretch" data-src="https://godbolt.org" />
+----
+
+#### External dependencies are shared between state machines
+
+```cpp
+class Sender { ... };  // Instance per application
+class Context { ... }; // Instance per application
+```
+
+```cpp
+const auto is_valid = [](const Context& ctx, const auto& event) {
+  return ctx.valid(event.id);
+};
+```
+
+```cpp
+const auto establish = [](Sender& sender, Context& ctx) {
+  sender.send(ctx.ip, "establish");
+};
+```
 
 ----
+
+#### External dependencies are injected into guards/actions
+
+```cpp
+const auto is_valid = [](const Context& ctx, const auto& event) {
+                               /                 \
+int main() {                  /                   ----------------\
+  Context ctx{...};          /                                    |
+  Sender sender{...};       /                                     |
+  sml::sm<Connection> sm{ctx, sender}; // order is not specified  |
+                                                                  /
+  sm.process_event(ping{true}); ----------------------------------
+}
+```
+
+----
+
+#### External dependencies
+
+<iframe class="stretch" data-src="https://godbolt.org/g/mS76mE" />
+
+----
+
+#### Per State machine dependencies are specific to the state machine
+
+```cpp
+const auto establish = [](const auto& address) {
+  return [&address](Sender& sender) {
+    sender.send(address, "establish");
+  };
+};
+```
+<!-- .element: style="margin-left:-3%; width:115%" -->
+
+```cpp
+struct Connection {
+  const char* const address{}; // local dependency injected
+
+  auto operator()() const {
+    using namespace sml;
+    return make_transition_table(
+      * "Disconnected"_s + event<connect> / establish(address) = "Connecting"_s,
+      // ...
+    );
+  }
+};
+```
+<!-- .element: style="margin-left:-3%; width:115%" -->
+
+----
+
+#### Per State machine dependencies are initialized by the constructor
+
+```cpp
+int main() {
+  Context ctx{...};
+  Sender sender{...};
+
+  std::array connections = {
+    sml::sm<Connection>{Connection{"127.0.0.1"}, ctx, sender},
+    sml::sm<Connection>{Connection{"127.0.0.2"}, ctx, sender},
+    sml::sm<Connection>{Connection{"127.0.0.3"}, ctx, sender},
+    sml::sm<Connection>{Connection{"127.0.0.4"}, ctx, sender}
+  };
+
+  connections[0].process_event(connect{});
+  connections[1].process_event(established{});
+  connections[2].process_event(ping{42});
+  connections[3].process_event(disconnect{});
+}
+```
+
+----
+
+#### Per State machine dependencies
+
+<iframe class="stretch" data-src="https://godbolt.org/g/wAi7ur" />
+
+----
+
+#### Per Guard/Action dependencies are local to functors
+
+```cpp
+auto establish =
+  [max_retries = 10](const auto& address) mutable {
+    return [&](Sender& sender, Context& ctx) {
+      max_retries -= sender.send(address, "establish");
+
+      if (!max_retries) {
+        ctx.log("Can't send request!");
+        max_retries = {};
+      }
+    };
+  };
+```
+
+----
+
+#### Per Guard/Action dependencies
+
+<iframe class="stretch" data-src="https://godbolt.org/g/5zxyXs" />
+
+----
+
+#### Per State dependencies are used by guards/actions
+
+```cpp
+auto establish =
+  [max_retries = 10](const auto& address, auto& data) mutable {
+    return [&](Sender& sender, Context& ctx, const auto& event) {
+      max_retries -= sender.send(address, "establish");
+
+      if (!max_retries) {
+        ctx.log("Can't send request!");
+        max_retries = {};
+      }
+
+      data = event.id; // per state storage
+    };
+  };
+```
+
+----
+
+#### Per State dependencies limit the required size
+
+```cpp
+struct Connection {
+ public:
+  explicit Connection(std::string_view address) : address_{address} {}
+
+  auto operator()() {
+    using namespace sml;
+    return make_transition_table(
+      * "Disconnected"_s + event<connect> / establish(address_, data_) = "Connecting"_s,
+      // ...
+    );
+  }
+
+ private:
+  std::string_view address_{};
+  std::variant<int /*etc...*/> data_{}; // Type safe union storage per state
+};
+```
+<!-- .element: style="margin-left:-3%; width:115%" -->
+
+----
+
+#### Per State dependencies
+
+<iframe class="stretch" data-src="https://godbolt.org/g/BzzPZd" />
+
+----
+
+### [Boost].DI automates dependency injection
+
+https://github.com/boost-experimental/di
+
+----
+
+#### Inject State Machine dependencies with [Boost].DI
+
+```cpp
+// Manual Dependency Injection
+Context ctx{};
+Sender sender{};
+sml::sm<Connection> sm{ctx, sender};
+```
+
+```cpp
+// Automatic Dependency Injection with [Boost].DI
+auto injector = di::make_injector();
+injector.create<sml::sm<Connection>>();
+```
+
+==============================================================================
+
+### Testing/Error handling/Debugging
+
+----
+
+#### Terminate state finish the state machine (graceful shutdown)
+
+![](images/terminate_state.png)
+
+ ```cpp
+sml::X // sml::terminate_state
+```
+
+----
+
+#### Unexpected event handles case for an undefined trigger
+
+```cpp
+unexpected_event<connect>
+```
+
+----
+
+#### Exception event handles case when exception has been thrown
+
+```cpp
+// Available only if NOT compiled with `-fno-exceptions`
+exception<std::runtime_error>
+```
+
+----
+
+#### Show current states
+```cpp
+sm.visit_current_states([](auto state) {
+  std::cout << state.c_str() << '\n';
+});
+```
+
+----
+
+#### Verify current state
+
+```cpp
+assert(sm.is("idle"_s));
+```
+
+----
+
+<iframe class="stretch" data-src="" />
+
+==============================================================================
 
 ### Runtime Dispatching
 
-<iframe class="stretch" data-src="https://godbolt.org" />
+----
+
+#### Runtime Dispatching requires type/data conversion
+
+```cpp
+struct connect : sml::utility::id<0> {};
+struct ping    : sml::utility::id<1> {
+  explicit ping(const void* msg) // convert dynamic data
+     : valid{msg}
+  { }
+
+  bool valid{};
+};
+struct established : sml::utility::id<2> {};
+struct timeout     : sml::utility::id<3> {};
+struct disconnect  : sml::utility::id<4> {};
+```
 
 ----
+
+#### Runtime Dispatching
+
+```cpp
+#include <boost/sml/utility/dispatch_table.hpp>
+```
+
+```cpp
+int main() {
+  sml::sm<Connection> connection{};
+
+  auto dispatch = sml::utility::make_dispatch_table<
+    void*,        // dynamic data type
+    0,            // min dynamic id
+    4,            // max dynamic id
+  >(connection);  // generates a jump table
+
+  dispatch(nullptr, 0);      // connect
+  dispatch(nullptr, 2);      // established
+  int data{};
+  dispatch((void*)&data, 1); // ping
+  dispatch(nullptr, 4);      // disconnect
+}
+```
+
+----
+
+<iframe class="stretch" data-src="https://wandbox.org/permlink/s4aMv3Zolj9UGug5" />
+
+==============================================================================
 
 ### Performance tuning
 
-<iframe class="stretch" data-src="https://godbolt.org" />
+----
+
+#### Policies allow to change State Machine implementation at compile time
+
+```cpp
+// Don't pay for what you don't use!
+sml::sm<Connection, Policies...> sm{};
+```
 
 ----
 
-### Error handling
+#### Dispatch policy changes event dispatching strategy
 
-<iframe class="stretch" data-src="https://godbolt.org" />
+```cpp
+sml::sm<Connection, sml::dispatch<jump_table>> sm{};
+```
+
+```cpp
+sml::sm<Connection, sml::dispatch<jump_table>> sm{};
+```
+
+```cpp
+sml::sm<Connection, sml::dispatch<switch_stm>> sm{};
+```
+
+```cpp
+sml::sm<Connection, sml::dispatch<branch_stm>> sm{};
+```
+
+```cpp
+sml::sm<Connection, sml::dispatch<fold_expr>> sm{};
+```
 
 ----
 
-### Testing
+#### Thread safe policy enables/disabled thread safety
 
-<iframe class="stretch" data-src="https://godbolt.org" />
+```cpp
+sml::sm<Connection, sml::thread_safe<std::mutex>> sm{};
+```
+
+----
+
+#### Exception handling policy requires a compilation flag
+
+```
+Only if NOT `-fno-exceptions` or `BOOST_SML_DISABLE_EXCEPTIONS`
+```
 
 ----
 
-### Debugging
+#### Performance tuning - Process Event
 
-<iframe class="stretch" data-src="https://godbolt.org" />
+```cpp
+class sm {
+  using states_t = type_list<...>; // SM states
+
+ public:
+  constexpr void process_event(const TEvent& event) {
+    thread_policy::lock();
+    dispatch_policy::dispatch(current_state_, event, states_t{});
+  }
+
+ private:
+  state_t current_state_{};
+};
+```
 
 ----
+
+#### Performance tuning - dispatch - jump table
+
+```cpp
+struct jump_table {
+  template <class TEvent, class... TStates>
+  constexpr auto dispatch(State &current_state,
+                          const TEvent &event,
+                          type_list<TStates...>) {
+    using dispatch_table_t = bool (*)(const TEvent&, State &);
+    constexpr static dispatch_table_t dispatch_table[] = {
+      &state<TStates>::template execute<TEvent>...
+    };
+    return dispatch_table[current_state](event);
+  }
+};
+```
+
+----
+
+#### Performance tuning - dispatch - jump table
+
+<iframe class="stretch" data-src="https://godbolt.org/g/iXquTU" />
+
+----
+
+#### Performance tuning - dispatch - switch
+
+```cpp
+struct switch_stm {
+  template <class TEvent>
+  constexpr auto dispatch(State &, const TEvent &, type_list<>) { }
+
+  template <class TEvent, class TState, class... TStates>
+  constexpr auto dispatch(State &current_state,
+                          const TEvent &event,
+                          type_list<TState, TStates...>) {
+    switch (current_state) {
+      case N:
+        return state<TState>::template execute<TEvent>(event);
+      default:
+        return dispatch(current_state, type_list<TStates...>{});
+    }
+  }
+};
+```
+
+----
+
+#### Performance tuning - dispatch - switch
+
+<iframe class="stretch" data-src="https://godbolt.org/g/pSMZp9" />
+
+----
+
+#### Performance tuning - dispatch - if/else
+
+```cpp
+struct branch_stm {
+  template <class TEvent>
+  constexpr auto dispatch(State &, const TEvent &, type_list<>) { }
+
+  template <class TEvent, class TState, class... TStates>
+  constexpr auto dispatch(State &current_state,
+                          const TEvent &event,
+                          type_list<TState, TStates...>) {
+    return current_state == N
+      ? state<TState>::template execute<TEvent>(event)
+      : dispatch(current_state, event, type_list<TStates...>{});
+  }
+};
+```
+
+----
+
+#### Performance tuning - dispatch - if/else
+
+<iframe class="stretch" data-src="https://godbolt.org/g/gxitRx" />
+
+----
+
+#### Performance tuning - dispatch - fold expressions
+
+```cpp
+struct fold_expr {
+  template <auto... Ns, class TEvent, class... TStates>
+  constexpr auto dispatch_impl(State &current_state,
+                              index_sequence<Ns...>,
+                              const TEvent &event,
+                              type_list<TStates...>) {
+    return ((current_state == Ns
+      ? state<TStates>::template execute<TEvent>(event)
+      : false
+    ) || ...);
+  }
+};
+```
+
+----
+
+#### Performance tuning - dispatch - fold expressions
+
+<iframe class="stretch" data-src="https://godbolt.org/g/CLzFRG" />
+
+==============================================================================
 
 ### Workshop - Advanced
 
-----
+==============================================================================
 
 ### Defer/Process
 
+----
+
 <iframe class="stretch" data-src="https://godbolt.org" />
 
-----
+==============================================================================
 
 ### Orthogonal Regions
 
+----
+
 <iframe class="stretch" data-src="https://godbolt.org" />
 
-----
+==============================================================================
 
 ### Composite states
 
+----
+
 <iframe class="stretch" data-src="https://godbolt.org" />
 
-----
+==============================================================================
 
 ### History
 
+----
+
 <iframe class="stretch" data-src="https://godbolt.org" />
+
+==============================================================================
+
+### Diagrams
 
 ----
 
-### Diagrams
+### PlantUML
+
+```
+@startuml connection.png
+title Connection
+
+[*]          -> Disconnected
+Disconnected -> Connecting    : connect / establish
+Connecting   -> Connected     : established
+Connected    -> Connected     : ping [ is_valid ] / resetTimeout
+Connected    -> Connecting    : timeout
+Connected    -> Disconnected  : disconnect
+
+@enduml
+```
+
+http://plantuml.com/state-diagram
+
+----
 
 <iframe class="stretch" data-src="https://godbolt.org" />
 
