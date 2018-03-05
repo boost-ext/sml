@@ -779,6 +779,7 @@ test composite_anonymous_transition_from_outer_state_orthogonal_regions = [] {
     sm.process_event(e1{});
     expect(sm.is(sml::state<sub>));
     expect(sm.is<decltype(sml::state<sub>)>(sml::X, idle2));
+    expect(sm.is<decltype(sml::state<sub>)>(sml::X));
   }
 
   {
@@ -798,6 +799,7 @@ test composite_anonymous_transition_from_outer_state_orthogonal_regions = [] {
     sm.process_event(e2{});
     expect(sm.is(s1));
     expect(sm.is<decltype(sml::state<sub>)>(sml::X, sml::X));
+    expect(sm.is<decltype(sml::state<sub>)>(sml::X));
   }
 };
 

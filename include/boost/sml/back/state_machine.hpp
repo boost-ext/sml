@@ -436,15 +436,30 @@ class sm {
     return aux::get_id<state_t, typename TState::type>((states_ids_t *)0) == aux::cget<sm_impl_t>(sub_sms_).current_state_[0];
   }
 
+  template <class T = aux::identity<sm_t>, template <class...> class TState>
+  bool is(const TState<terminate_state> &) const {
+    using type = typename T::type;
+    using sm_impl_t = sm_impl<typename TSM::template rebind<type>>;
+    using state_t = typename sm_impl_t::state_t;
+    using states_ids_t = typename sm_impl_t::states_ids_t;
+    auto result = false;
+    visit_current_states<T>([&](auto state) {
+      (void)state;
+      result |= (aux::get_id<state_t, terminate_state>((states_ids_t *)0) ==
+                 aux::get_id<state_t, typename decltype(state)::type>((states_ids_t *)0));
+    });
+    return result;
+  }
+
   template <class T = aux::identity<sm_t>, class... TStates,
             __BOOST_SML_REQUIRES(sizeof...(TStates) == sm_impl<typename TSM::template rebind<typename T::type>>::regions)>
   bool is(const TStates &...) const {
-    auto result = true;
-    auto i = 0;
     using type = typename T::type;
     using sm_impl_t = sm_impl<typename TSM::template rebind<type>>;
     using states_ids_t = typename sm_impl_t::states_ids_t;
     using state_t = typename sm_impl_t::state_t;
+    auto result = true;
+    auto i = 0;
     state_t state_ids[] = {aux::get_id<state_t, typename TStates::type>((states_ids_t *)0)...};
     visit_current_states<T>([&](auto state) {
       (void)state;

@@ -158,14 +158,14 @@ struct call<TEvent, aux::type_list<Ts...>, TLogger> {
     using result_type = decltype(object(get_arg(aux::type<Ts>{}, event, sm, deps)...));
     return execute_impl<typename TSM::sm_t>(aux::type<result_type>{}, object, event, sm, deps);
   }
-  template <class TSM, class T, class TDeps>
-  static auto execute_impl(const aux::type<bool> &, T object, const TEvent &event, TSM &sm, TDeps &deps) {
+  template <class TSM, class T, class SM, class TDeps>
+  static auto execute_impl(const aux::type<bool> &, T object, const TEvent &event, SM &sm, TDeps &deps) {
     const auto result = object(get_arg(aux::type<Ts>{}, event, sm, deps)...);
     back::policies::log_guard<TSM>(aux::type<TLogger>{}, deps, object, event, result);
     return result;
   }
-  template <class TSM, class T, class TDeps>
-  static auto execute_impl(const aux::type<void> &, T object, const TEvent &event, TSM &sm, TDeps &deps) {
+  template <class TSM, class T, class SM, class TDeps>
+  static auto execute_impl(const aux::type<void> &, T object, const TEvent &event, SM &sm, TDeps &deps) {
     back::policies::log_action<TSM>(aux::type<TLogger>{}, deps, object, event);
     object(get_arg(aux::type<Ts>{}, event, sm, deps)...);
   }

@@ -75,24 +75,26 @@ Kris Jusiak, Quantlab Financial
 
 ### Agenda - Workshop - Basic
 
-* Hello World - Connection
-  * Events/States
-* Transitions
-  * Actions/Guards
-* Dependencies
-* Testing/Error handling/Debugging
-* Runtime dispatching
-* Performance tuning
+* Connection State Machine
+  * Hello World
+    * Events/States
+  * Transitions
+    * Actions/Guards
+  * Dependencies
+  * Testing/Error handling/Debugging
+  * Runtime dispatching
+  * Performance tuning
 
 ----
 
 ### Agenda - Workshop - Advanced
 
-* Defer/Process
-* Orthogonal Regions
-* Composite states
-* History
-* Diagrams
+* System State Machine
+  * Defer/Process
+  * Orthogonal Regions
+  * Composite states
+  * History
+  * Diagrams
 
 ==============================================================================
 
@@ -309,6 +311,157 @@ $CXX -std=c++1z -O3 -flto -fno-exceptions -DNDEBUG benchmark.cpp
 
 
 <img style="background:none; border:none; box-shadow:none;" src="images/benchmark_results.png" width="140%" />
+
+----
+
+### [Boost].SML - Design
+
+![design](images/design.png)
+
+----
+
+### Transitional Concept
+
+```cpp
+template <class T>
+concept bool transitional() {
+  return requires(T transition) {
+    typename T::src_state;
+    typename T::dst_state;
+    typename T::event;
+    T::property; // initial, history state, etc.
+
+    { transition.execute(const typename T::Event&) } -> optional<state_t>;
+  }
+};
+```
+<!-- .element: style="width:100%" -->
+
+----
+
+### Front end
+
+#### Domain Specific Language (DSL)
+
+```cpp
+static_assert(std::is_same<
+  decltype(
+    transition_table{
+      * "Disconnected"_s + connect / establish = "Connecting"_s,
+        "Connecting"_s   + established         = "Connected"_s
+    }
+  ),
+
+  transition_table<
+    // ---------------------------------------------------------------------------------- //
+    //         src_state              dst_state            event        guard   action    //
+    // ---------------------------------------------------------------------------------- //
+    transition<state<"Disconnected">, state<"Connecting">, connect,     always, establish>,
+    transition<state<"Connecting">,   state<"Connected">,  established, always, none>
+  >
+>{});
+```
+<!-- .element: style="margin-left:-8%; width:115%" -->
+
+----
+
+### Back-end
+
+#### Generated at Compile Time Mapping per Event and State
+
+```cpp
+using mappings_t = type_list<
+  pair<connect, type_list<
+    transitions<
+      transition<state<"Disconnected">, state<"Connecting">, connect, always, establish>
+    >,
+    transitions<>, // Connecting (unexpected event)
+    transitions<>  // Connected  (unexpected event)
+  >,
+  pair<established, type_list<
+    transitions<>, // Disconnected (unexpected event)
+    transitions<
+      transition<state<"Connecting">, state<"Connected">,  established, always, none>
+    >,
+    transitions<>  // Connected (unexpected event)
+  >
+>;
+```
+<!-- .element: style="margin-left:-8%; width:112%" -->
+
+----
+
+### Back-end
+
+#### Process Event - Jump Table - (Simplified)
+
+```cpp
+template<class TEvent>
+constexpr void process_event(const TEvent& event) {
+  process_event_impl(event, get_mappings_t<TEvent>{});
+}
+
+template<class... Transitions, class TEvent>
+constexpr void process_event_impl(const TEvent& event, type_list<Transitions...>) {
+  const static (*dispatch_table[])(const TEvent&) = {
+    &Transitions::template execute<TEvent>...
+  };
+  dispatch_table[current_state](event); // Complexity: O(1) - jump table
+}
+```
+<!--[> .element: style="width:105%" <]-->
+
+-----
+
+##[[Boost].SML](http://boost-experimental.github.io/sml) - API (Simplified)
+
+```cpp
+/**
+ * Makes transition table from DSL
+ * @tparam Ts... transitions (transitional)
+ */
+template <class... Ts> requires transitional<Ts>()...
+struct transition_table;
+```
+
+```cpp
+/**
+ * Helper function to make transition_table (C++14)
+ * @tparam Ts... transitions (transitional)
+ * @return transition_table
+ */
+template <class... Ts> requires transitional<Ts>()...
+constexpr auto make_transition_table(Ts&&...) noexcept;
+```
+
+----
+
+##[[Boost].SML](http://boost-experimental.github.io/sml) - API (Simplified)
+
+```cpp
+/**
+ * State Machine
+ *
+ * @tparam T Callable object returning transition_table
+ * @tparam TPolicies policies to be applied such as
+ *                   thread safe, exception safe, etc.
+ */
+template<class T,
+         class... TPolicies> requires callable<transition_table, T>()
+class sm;
+```
+
+```cpp
+/**
+ * Process event
+ * Complexity - O(1)
+ * @param TEvent event to be processed
+ */
+template<class TEvent>
+constexpr void process_event(const TEvent&);
+```
+
+----
 
 ==============================================================================
 
@@ -799,25 +952,17 @@ sml::sm<Connection, Policies...> sm{};
 
 #### Dispatch policy changes event dispatching strategy
 
-```cpp
-sml::sm<Connection, sml::dispatch<jump_table>> sm{};
-```
+| Name | POLICY |
+| - | - |
+| Jump Table | `jump_table` |
+| Switch | `switch_stm` |
+| If/else | `branch_stm` |
+| Fold expressions | `fold_expr` |
 
 ```cpp
-sml::sm<Connection, sml::dispatch<jump_table>> sm{};
+sml::sm<Connection, sml::dispatch<sml::back::policies::POLICY>> sm{};
 ```
 
-```cpp
-sml::sm<Connection, sml::dispatch<switch_stm>> sm{};
-```
-
-```cpp
-sml::sm<Connection, sml::dispatch<branch_stm>> sm{};
-```
-
-```cpp
-sml::sm<Connection, sml::dispatch<fold_expr>> sm{};
-```
 
 ----
 
@@ -866,7 +1011,7 @@ struct jump_table {
                           type_list<TStates...>) {
     using dispatch_table_t = bool (*)(const TEvent&, State &);
     constexpr static dispatch_table_t dispatch_table[] = {
-      &state<TStates>::template execute<TEvent>...
+      &mappings_t<TStates>::template execute<TEvent>...
     };
     return dispatch_table[current_state](event);
   }
@@ -894,7 +1039,8 @@ struct switch_stm {
                           type_list<TState, TStates...>) {
     switch (current_state) {
       case N:
-        return state<TState>::template execute<TEvent>(event);
+        return mappings_t<TState>::template
+          execute<TEvent>(event);
       default:
         return dispatch(current_state, type_list<TStates...>{});
     }
@@ -922,7 +1068,8 @@ struct branch_stm {
                           const TEvent &event,
                           type_list<TState, TStates...>) {
     return current_state == N
-      ? state<TState>::template execute<TEvent>(event)
+      ? mappings_t<TState>::template
+          execute<TEvent>(event)
       : dispatch(current_state, event, type_list<TStates...>{});
   }
 };
@@ -946,7 +1093,8 @@ struct fold_expr {
                               const TEvent &event,
                               type_list<TStates...>) {
     return ((current_state == Ns
-      ? state<TStates>::template execute<TEvent>(event)
+      ? mappings_t<TStates>::template
+          execute<TEvent>(event)
       : false
     ) || ...);
   }
@@ -964,6 +1112,10 @@ struct fold_expr {
 ### Workshop - Advanced
 
 ==============================================================================
+
+![system](images/system.png)
+
+----
 
 ### Defer/Process
 
@@ -997,6 +1149,67 @@ struct fold_expr {
 
 ==============================================================================
 
+![system](images/system.png)
+
+> Enum/Switch? No, thank you!
+
+----
+
+###[[Boost].SML](http://boost-experimental.github.io/sml) - More realistic example (System)
+
+```cpp
+struct Connection {
+  auto operator()() const {
+    return transition_table{
+      "Disconnected"_s(H) + connect / []{establish();}               = "Connecting"_s,
+      "Connecting"_s      + established                              = "Connected"_s,
+      "Connected"_s       + ping [ is_valid ] / []{resetTimeout();}
+      "Connected"_s       + timeout / []{establish();}               = "Connecting"_s,
+      "Connected"_s       + disconnect / []{close();}                = "Disconnected"_s
+    };
+  };
+};
+```
+<!-- .element: style="margin-left:-10%; width:120%" -->
+
+```cpp
+struct System {
+  auto operator()() const {
+    return transition_table{
+     * "Idle"_s          + power_up [ has_battery and is_healthy] / connect = state<Connection>,
+       state<Connection> + suspend                                          = "Suspended"_s,
+       "Suspended"_s     + resume                                           = state<Connection>,
+     // ------------------------------------------------------------------------------------ //
+     * "Watchdog"_s      + tick / resetTimeout
+       "Watchdog"_s      + timeout                                          = X
+    };
+  }
+};
+```
+<!-- .element: style="margin-left:-10%; width:120%" -->
+
+----
+
+###[[Boost].SML](http://boost-experimental.github.io/sml) - More realistic example (System)
+
+```cpp
+int main() {
+  using namespace sml;
+  sm<System> system;
+
+  system.process_event(power_up{});
+  assert(system.is(state<Connection>, "Watchdog"_s));
+
+  system.process_event(suspend{});
+  assert(system.is("Suspended"_s, "Watchdog"_s));
+
+  system.process_event(timeout{});
+  assert(system.is(X)); // true if any state is in terminated state (X)
+}
+```
+
+==============================================================================
+
 ### Diagrams
 
 ----
@@ -1022,6 +1235,31 @@ http://plantuml.com/state-diagram
 ----
 
 <iframe class="stretch" data-src="https://godbolt.org" />
+
+==============================================================================
+
+## Summary
+
+----
+
+### If you like it or not, your code won't be stateful (most likely)
+
+----
+
+### Implicit/Hand written state machines are hard to
+* Reason about
+ * Maintain / Extend
+ * Test
+
+----
+
+### State Machines are more than just simple transitions
+* [UML-2.5](http://www.omg.org/spec/UML/2.5/)
+
+----
+
+### Leveraging Zero-cost libraries will boost your design and/or perfrormance
+* [[Boost].SML](http://boost-experimental.github.io/sml/) / [Boost.MSM](http://www.boost.org/doc/libs/1_63_0/libs/msm/doc/HTML/index.html)
 
 ==============================================================================
 
