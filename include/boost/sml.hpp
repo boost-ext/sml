@@ -1556,15 +1556,29 @@ class sm {
     using states_ids_t = typename sm_impl_t::states_ids_t;
     return aux::get_id<state_t, typename TState::type>((states_ids_t *)0) == aux::cget<sm_impl_t>(sub_sms_).current_state_[0];
   }
+  template <class T = aux::identity<sm_t>, template <class...> class TState>
+  bool is(const TState<terminate_state> &) const {
+    using type = typename T::type;
+    using sm_impl_t = sm_impl<typename TSM::template rebind<type>>;
+    using state_t = typename sm_impl_t::state_t;
+    using states_ids_t = typename sm_impl_t::states_ids_t;
+    auto result = false;
+    visit_current_states<T>([&](auto state) {
+      (void)state;
+      result |= (aux::get_id<state_t, terminate_state>((states_ids_t *)0) ==
+                 aux::get_id<state_t, typename decltype(state)::type>((states_ids_t *)0));
+    });
+    return result;
+  }
   template <class T = aux::identity<sm_t>, class... TStates,
             __BOOST_SML_REQUIRES(sizeof...(TStates) == sm_impl<typename TSM::template rebind<typename T::type>>::regions)>
   bool is(const TStates &...) const {
-    auto result = true;
-    auto i = 0;
     using type = typename T::type;
     using sm_impl_t = sm_impl<typename TSM::template rebind<type>>;
     using states_ids_t = typename sm_impl_t::states_ids_t;
     using state_t = typename sm_impl_t::state_t;
+    auto result = true;
+    auto i = 0;
     state_t state_ids[] = {aux::get_id<state_t, typename TStates::type>((states_ids_t *)0)...};
     visit_current_states<T>([&](auto state) {
       (void)state;
@@ -1733,14 +1747,14 @@ struct call<TEvent, aux::type_list<Ts...>, TLogger> {
     using result_type = decltype(object(get_arg(aux::type<Ts>{}, event, sm, deps)...));
     return execute_impl<typename TSM::sm_t>(aux::type<result_type>{}, object, event, sm, deps);
   }
-  template <class TSM, class T, class TDeps>
-  static auto execute_impl(const aux::type<bool> &, T object, const TEvent &event, TSM &sm, TDeps &deps) {
+  template <class TSM, class T, class SM, class TDeps>
+  static auto execute_impl(const aux::type<bool> &, T object, const TEvent &event, SM &sm, TDeps &deps) {
     const auto result = object(get_arg(aux::type<Ts>{}, event, sm, deps)...);
     back::policies::log_guard<TSM>(aux::type<TLogger>{}, deps, object, event, result);
     return result;
   }
-  template <class TSM, class T, class TDeps>
-  static auto execute_impl(const aux::type<void> &, T object, const TEvent &event, TSM &sm, TDeps &deps) {
+  template <class TSM, class T, class SM, class TDeps>
+  static auto execute_impl(const aux::type<void> &, T object, const TEvent &event, SM &sm, TDeps &deps) {
     back::policies::log_action<TSM>(aux::type<TLogger>{}, deps, object, event);
     object(get_arg(aux::type<Ts>{}, event, sm, deps)...);
   }
