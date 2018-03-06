@@ -100,24 +100,13 @@ class System {
 int main() {
   using namespace sml;
   printf_logger log{};
-  sm<System, logger<printf_logger>, defer_queue<std::queue>, dispatch<back::policies::switch_stm>> system{log};
+  sm<System, logger<printf_logger>, defer_queue<std::queue>> system{log};
 
   // clang-format off
   /// start
   system.process_event(power_up{});
   system.process_event(connect{});      /// handled by Connection
   system.process_event(established{});  /// handled by Connection
-
-  /// composite / history
-  system.process_event(suspend{});      /// handled by System
-  system.process_event(resume{});       /// gets back to connected
-  system.process_event(ping{true});     /// handled by Connection
-
-  /// defer
-  system.process_event(suspend{});      /// handled by System
-  system.process_event(ping{true});     /// deferred
-  system.process_event(resume{});       /// ping in connected
-  system.process_event(disconnect{});   /// handled by Connection
 
   /// orthogonal regions
   system.process_event(timeout{});      /// handled by watchdog

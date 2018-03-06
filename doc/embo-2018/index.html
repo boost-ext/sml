@@ -68,7 +68,8 @@ Kris Jusiak, Quantlab Financial
 
 * [Boost].SML
   * Overview
-  * Embedded?
+  * Goals
+  * Design
   * Benchmark
 
 ----
@@ -81,20 +82,22 @@ Kris Jusiak, Quantlab Financial
   * Transitions
     * Actions/Guards
   * Dependencies
-  * Testing/Error handling/Debugging
+  * Logging/Testing/Error handling
   * Runtime dispatching
   * Performance tuning
+  * Diagrams generation
 
 ----
 
 ### Agenda - Workshop - Advanced
 
 * System State Machine
+  * Composite/Sub states
+  * History
   * Defer/Process
   * Orthogonal Regions
-  * Composite states
-  * History
-  * Diagrams
+
+* Exercises
 
 ==============================================================================
 
@@ -224,31 +227,39 @@ https://github.com/boost-experimental/sml
 
 ----
 
-### [Boost].SML - Embedded?
+### [Boost].SML - State Machine Language
 
-* Easy to integrate
-  * One header
-    * `sml.hpp` - 2k LOC
-  * Neither Boost nor STL is required
-  * No 'virtual's (-fno-rtti)
-  * No exceptions (-fno-exceptions)
-  * Supported compilers (C++14)
-   * [Clang-3.4+](https://travis-ci.org/boost-experimental/sml), [XCode-6.1+](https://travis-ci.org/boost-experimental/sml), [GCC-5.2+](https://travis-ci.org/boost-experimental/di), [MSVC-2015+](https://ci.appveyor.com/project/krzysztof-jusiak/sml)
-* Easy to use
-  * Declarative DSL
-  * No code generation
-* Highly customizable
+<iframe class="stretch" data-src="http://boost-experimental.github.io/sml" />
 
 ----
 
-### [Boost].SML - Embedded?
+### [Boost].SML - Overview
 
+* One header
+  * `sml.hpp` - 2k LOC
+* Neither Boost nor STL is required
+* No 'virtual's (-fno-rtti)
+* No exceptions (-fno-exceptions)
+* Supported compilers (C++14)
+ * [Clang-3.4+](https://travis-ci.org/boost-experimental/sml), [XCode-6.1+](https://travis-ci.org/boost-experimental/sml), [GCC-5.2+](https://travis-ci.org/boost-experimental/di), [MSVC-2015+](https://ci.appveyor.com/project/krzysztof-jusiak/sml)
+
+----
+
+### [Boost].SML - Goals
+
+* UML-2.5 standard compliant
+* Declarative
+  * Neither code generation nor macros
 * Quick compilation-times
   * Much faster than Boost.MSM/Boost.Statechart
-* Blazing fast run-time
+* No run-time overhead
   * Don't pay for what you don't use!
-* Small executable size
 * Minimal memory usage
+  ```cpp
+  sizeof(SM) == 1b
+  ```
+* Small executable size
+* Extensible/Customizable
 
 ----
 
@@ -256,15 +267,15 @@ https://github.com/boost-experimental/sml
 
 * UML (2.5)
   * Transition
-    * Anonymous, Internal, Self, ~~Local~~ transition
+    * Anonymous, Internal, External, Self transition
     * Guard, Action
   * Unexpected, Deffered, Any event
   * State
     * Entry/Exit Actions, Initial, Terminate state
-    * **Composite/Sub state**
+    * Composite/Sub state
       * Explicit entry/exit, ~~Fork~~
       * Shallow History, Deep History
-  * **Orthogonal regions**
+  * Orthogonal regions
 
 ----
 
@@ -272,6 +283,12 @@ https://github.com/boost-experimental/sml
 
 * Non-UML
   * Logging, State visitor, Diagrams, Run-time dispatch
+
+----
+
+### [Boost].SML - Design
+
+![design](images/design.png)
 
 ----
 
@@ -309,159 +326,7 @@ $CXX -std=c++1z -O3 -flto -fno-exceptions -DNDEBUG benchmark.cpp
 
 ### [Boost].SML - [Benchmark](https://github.com/boost-experimental/sml/tree/master/benchmark/complex)
 
-
 <img style="background:none; border:none; box-shadow:none;" src="images/benchmark_results.png" width="140%" />
-
-----
-
-### [Boost].SML - Design
-
-![design](images/design.png)
-
-----
-
-### Transitional Concept
-
-```cpp
-template <class T>
-concept bool transitional() {
-  return requires(T transition) {
-    typename T::src_state;
-    typename T::dst_state;
-    typename T::event;
-    T::property; // initial, history state, etc.
-
-    { transition.execute(const typename T::Event&) } -> optional<state_t>;
-  }
-};
-```
-<!-- .element: style="width:100%" -->
-
-----
-
-### Front end
-
-#### Domain Specific Language (DSL)
-
-```cpp
-static_assert(std::is_same<
-  decltype(
-    transition_table{
-      * "Disconnected"_s + connect / establish = "Connecting"_s,
-        "Connecting"_s   + established         = "Connected"_s
-    }
-  ),
-
-  transition_table<
-    // ---------------------------------------------------------------------------------- //
-    //         src_state              dst_state            event        guard   action    //
-    // ---------------------------------------------------------------------------------- //
-    transition<state<"Disconnected">, state<"Connecting">, connect,     always, establish>,
-    transition<state<"Connecting">,   state<"Connected">,  established, always, none>
-  >
->{});
-```
-<!-- .element: style="margin-left:-8%; width:115%" -->
-
-----
-
-### Back-end
-
-#### Generated at Compile Time Mapping per Event and State
-
-```cpp
-using mappings_t = type_list<
-  pair<connect, type_list<
-    transitions<
-      transition<state<"Disconnected">, state<"Connecting">, connect, always, establish>
-    >,
-    transitions<>, // Connecting (unexpected event)
-    transitions<>  // Connected  (unexpected event)
-  >,
-  pair<established, type_list<
-    transitions<>, // Disconnected (unexpected event)
-    transitions<
-      transition<state<"Connecting">, state<"Connected">,  established, always, none>
-    >,
-    transitions<>  // Connected (unexpected event)
-  >
->;
-```
-<!-- .element: style="margin-left:-8%; width:112%" -->
-
-----
-
-### Back-end
-
-#### Process Event - Jump Table - (Simplified)
-
-```cpp
-template<class TEvent>
-constexpr void process_event(const TEvent& event) {
-  process_event_impl(event, get_mappings_t<TEvent>{});
-}
-
-template<class... Transitions, class TEvent>
-constexpr void process_event_impl(const TEvent& event, type_list<Transitions...>) {
-  const static (*dispatch_table[])(const TEvent&) = {
-    &Transitions::template execute<TEvent>...
-  };
-  dispatch_table[current_state](event); // Complexity: O(1) - jump table
-}
-```
-<!--[> .element: style="width:105%" <]-->
-
------
-
-##[[Boost].SML](http://boost-experimental.github.io/sml) - API (Simplified)
-
-```cpp
-/**
- * Makes transition table from DSL
- * @tparam Ts... transitions (transitional)
- */
-template <class... Ts> requires transitional<Ts>()...
-struct transition_table;
-```
-
-```cpp
-/**
- * Helper function to make transition_table (C++14)
- * @tparam Ts... transitions (transitional)
- * @return transition_table
- */
-template <class... Ts> requires transitional<Ts>()...
-constexpr auto make_transition_table(Ts&&...) noexcept;
-```
-
-----
-
-##[[Boost].SML](http://boost-experimental.github.io/sml) - API (Simplified)
-
-```cpp
-/**
- * State Machine
- *
- * @tparam T Callable object returning transition_table
- * @tparam TPolicies policies to be applied such as
- *                   thread safe, exception safe, etc.
- */
-template<class T,
-         class... TPolicies> requires callable<transition_table, T>()
-class sm;
-```
-
-```cpp
-/**
- * Process event
- * Complexity - O(1)
- * @param TEvent event to be processed
- */
-template<class TEvent>
-constexpr void process_event(const TEvent&);
-```
-
-----
 
 ==============================================================================
 
@@ -528,17 +393,156 @@ struct Connection {
 
 ----
 
-#### Process event is the client interface with the state machine
+#### Transition Table - API
+
+```cpp
+template <class T>
+concept transitional = requires(T transition) {
+  typename T::src_state;
+  typename T::dst_state;
+  typename T::event;
+  T::property; // initial, history state, etc.
+  { transition.execute(const typename T::Event&) } -> optional<state_t>;
+};
+```
+<!-- .element: style="width:100%" -->
+
+```cpp
+/**
+ * Helper function to make transition_table (C++14)
+ * @tparam Ts... transitions (transitional)
+ * @return transition_table
+ */
+template <class... Ts> requires transitional<Ts>...
+constexpr auto make_transition_table(Ts&&... transitions) noexcept;
+```
+<!-- .element: style="width:100%" -->
+
+----
+
+### Transition Table - Domain Specific Language (DSL)
+
+```cpp
+static_assert(std::is_same<
+  decltype(
+    make_transition_table( // front-end
+      * "Disconnected"_s + connect / establish = "Connecting"_s,
+        "Connecting"_s   + established         = "Connected"_s
+    )
+  ),
+
+  transition_table< // back-end
+    // --------------------------------------------------------------------------------- //
+    //         src_state              dst_state            event        guard   action   //
+    // --------------------------------------------------------------------------------- //
+    transition<state<"Disconnected">, state<"Connecting">, connect,     always, establish>,
+    transition<state<"Connecting">,   state<"Connected">,  established, always, none>
+  >
+>{});
+```
+<!-- .element: style="margin-left:-8%; width:115%" -->
+
+----
+
+#### State Machine instantiation
 
 ```cpp
 // Creates a state machine
 sml::sm<Connection> sm;
 ```
 
+----
+
+#### State Machine - API
+
+```cpp
+/**
+ * State Machine
+ *
+ * @tparam T Callable object returning transition_table
+ * @tparam TPolicies policies to be applied such as
+ *                   thread safe, exception safe, etc.
+ */
+template<class T, class... TPolicies>
+  requires callable<transition_table, T>
+class sm {
+ public:
+   template<class TDeps>
+   constexpr explicit sm(TDeps&&... deps) noexcept;
+
+   // ...
+};
+```
+
+----
+
+#### Process event is the client interface with the state machine
+
+
 ```cpp
 // Process incoming events
 sm.process_event(connect{});
 ```
+
+----
+
+#### Process event - API
+
+```cpp
+/**
+ * Process event
+ * Complexity - O(1)
+ * @param TEvent event to be processed
+ */
+template<class TEvent>
+constexpr void process_event(const TEvent&);
+```
+
+----
+
+#### Generated at Compile Time Mapping per Event and State
+
+```cpp
+using mappings_t = type_list<
+  pair<connect, type_list<
+    transitions<
+      transition<state<"Disconnected">, state<"Connecting">, connect, always, establish>
+    >,
+    transitions<>, // Connecting (unexpected event)
+    transitions<>  // Connected  (unexpected event)
+  >,
+  pair<established, type_list<
+    transitions<>, // Disconnected (unexpected event)
+    transitions<
+      transition<state<"Connecting">, state<"Connected">,  established, always, none>
+    >,
+    transitions<>  // Connected (unexpected event)
+  >
+>;
+```
+<!-- .element: style="margin-left:-8%; width:112%" -->
+
+----
+
+### Back-end
+
+#### Process Event - Jump Table - (Simplified)
+
+```cpp
+template<class TEvent>
+constexpr void process_event(const TEvent& event) {
+  process_event_impl(event, get_mappings_t<TEvent>{});
+}
+
+template<class... Transitions, class TEvent>
+constexpr void process_event_impl(const TEvent& event, type_list<Transitions...>) {
+  const static (*dispatch_table[])(const TEvent&) = {
+    &Transitions::template execute<TEvent>...
+  };
+  dispatch_table[current_state](event); // Complexity: O(1) - jump table
+}
+```
+<!--[> .element: style="width:105%" <]-->
 
 ----
 
@@ -833,7 +837,7 @@ injector.create<sml::sm<Connection>>();
 
 ==============================================================================
 
-### Testing/Error handling/Debugging
+### Logging/Testing/Error handling
 
 ----
 
@@ -1107,110 +1111,15 @@ struct fold_expr {
 
 <iframe class="stretch" data-src="https://godbolt.org/g/CLzFRG" />
 
-==============================================================================
-
-### Workshop - Advanced
-
-==============================================================================
-
-![system](images/system.png)
-
 ----
 
-### Defer/Process
+#### Performance tuning - dispatch
 
-----
-
-<iframe class="stretch" data-src="https://godbolt.org" />
+<iframe class="stretch" data-src="" />
 
 ==============================================================================
 
-### Orthogonal Regions
-
-----
-
-<iframe class="stretch" data-src="https://godbolt.org" />
-
-==============================================================================
-
-### Composite states
-
-----
-
-<iframe class="stretch" data-src="https://godbolt.org" />
-
-==============================================================================
-
-### History
-
-----
-
-<iframe class="stretch" data-src="https://godbolt.org" />
-
-==============================================================================
-
-![system](images/system.png)
-
-> Enum/Switch? No, thank you!
-
-----
-
-###[[Boost].SML](http://boost-experimental.github.io/sml) - More realistic example (System)
-
-```cpp
-struct Connection {
-  auto operator()() const {
-    return transition_table{
-      "Disconnected"_s(H) + connect / []{establish();}               = "Connecting"_s,
-      "Connecting"_s      + established                              = "Connected"_s,
-      "Connected"_s       + ping [ is_valid ] / []{resetTimeout();}
-      "Connected"_s       + timeout / []{establish();}               = "Connecting"_s,
-      "Connected"_s       + disconnect / []{close();}                = "Disconnected"_s
-    };
-  };
-};
-```
-<!-- .element: style="margin-left:-10%; width:120%" -->
-
-```cpp
-struct System {
-  auto operator()() const {
-    return transition_table{
-     * "Idle"_s          + power_up [ has_battery and is_healthy] / connect = state<Connection>,
-       state<Connection> + suspend                                          = "Suspended"_s,
-       "Suspended"_s     + resume                                           = state<Connection>,
-     // ------------------------------------------------------------------------------------ //
-     * "Watchdog"_s      + tick / resetTimeout
-       "Watchdog"_s      + timeout                                          = X
-    };
-  }
-};
-```
-<!-- .element: style="margin-left:-10%; width:120%" -->
-
-----
-
-###[[Boost].SML](http://boost-experimental.github.io/sml) - More realistic example (System)
-
-```cpp
-int main() {
-  using namespace sml;
-  sm<System> system;
-
-  system.process_event(power_up{});
-  assert(system.is(state<Connection>, "Watchdog"_s));
-
-  system.process_event(suspend{});
-  assert(system.is("Suspended"_s, "Watchdog"_s));
-
-  system.process_event(timeout{});
-  assert(system.is(X)); // true if any state is in terminated state (X)
-}
-```
-
-==============================================================================
-
-### Diagrams
+### Diagrams generation
 
 ----
 
@@ -1234,7 +1143,337 @@ http://plantuml.com/state-diagram
 
 ----
 
+### Diagrams generation
+####Dump transitions
+```cpp
+template <class SM>
+void dump(const SM&) noexcept {
+  std::cout << "@startuml\n\n";
+  dump_transitions(typename SM::transitions{});
+  std::cout << "\n@enduml\n";
+}
+
+template <template <class...> class T, class... Ts>
+void dump_transitions(const T<Ts...>&) noexcept {
+  (dump_transition<Ts>(), ...);
+}
+```
+
+----
+
+####Dump transition
+```cpp
+template <class T>
+void dump_transition() noexcept {
+  const auto src_state = msm::state<typename T::src_state>::c_str();
+  const auto dst_state = msm::state<typename T::dst_state>::c_str();
+
+  if (T::initial) {
+    std::cout << "[*] -> " << src_state << std::endl;
+  }
+
+  std::cout << src_state << " -> " << dst_state << " : "
+            << typeid(typename T::event) << "["
+            << typeid(typename T::guard) << "] / "
+            << typeid(typename T::action);
+}
+```
+
+----
+
 <iframe class="stretch" data-src="https://godbolt.org" />
+
+==============================================================================
+
+### Workshop - Advanced
+
+==============================================================================
+
+### System State Machine
+
+![system](images/system.png)
+
+==============================================================================
+
+### Composite/Sub states
+
+----
+
+### A state machine might be a State itself - Composite
+
+![](images/composite_state.png)
+
+```cpp
+auto state = sml::state<Connection>;
+```
+
+----
+
+### A state machine might be a State itself - Composite
+
+* If composite state is active events are handled by it first
+
+* When composite state didn't handle the event a top state machine is going to try to handle it
+
+* When composite is reactivated - by default - the initial state is entered
+
+----
+
+### Composite/Sub states - System
+
+![system](images/system_composite.png)
+
+----
+
+### Composite/Sub states - System
+
+```cpp
+class System {
+  struct Connection; // Connection State Machine
+
+ public:
+  auto operator()() const {
+    using namespace sml;
+    return make_transition_table(
+     * "Idle"_s          + event<power_up> [ has_battery and
+                                             is_healthy ] / setup = state<Connection>,
+       state<Connection> + event<suspend>                         = "Suspended"_s,
+       "Suspended"_s     + event<resume>                          = state<Connection>
+    );
+  }
+};
+```
+<!-- .element: style="margin-left:-3%; width:115%" -->
+
+----
+
+### Composite/Sub states - System
+
+<iframe class="stretch" data-src="" />
+
+==============================================================================
+
+### History
+
+----
+
+### History enables reactivation of Last active state in composite state
+
+![](images/history_state.png)
+
+```cpp
+"Disconnected"_s(H)
+```
+
+----
+
+### History - System/Connection
+
+![system](images/system_history.png)
+
+----
+
+### History - System/Connection
+
+```cpp
+struct Connection {
+  auto operator()() const {
+    using namespace sml;
+    return make_transition_table(
+      "Disconnected"_s(H) + event<connect> / establish = "Connecting"_s, // History
+      // ...
+    );
+  }
+};
+```
+<!-- .element: style="margin-left:-3%; width:115%" -->
+
+```cpp
+struct System {
+  auto operator()() const {
+    using namespace sml;
+    return make_transition_table(
+     * "Idle"_s          + event<power_up> [ has_battery and
+                                             is_healthy ] / setup = state<Connection>,
+       state<Connection> + event<suspend>                         = "Suspended"_s,
+       "Suspended"_s     + event<resume>                          = state<Connection>
+    );
+  }
+};
+```
+<!-- .element: style="margin-left:-3%; width:115%" -->
+
+----
+
+### History - System/Connection
+
+<iframe class="stretch" data-src="https://godbolt.org" />
+
+==============================================================================
+
+### Defer/Process
+
+----
+
+### Defer saves unwanted events for later processing
+
+![](images/defer.png)
+
+```cpp
+/ defer
+```
+
+----
+
+### Defer/Process
+
+* Defer events are used in a FIFO order
+* Deferred events queue is checked on transition
+* If deferred event can't be handled it stays in the queue
+* [Boost].SML requires defer_queue policy
+  ```cpp
+  sml::sm<System, sml::defer_queue<std::queue>> sm{};
+  ```
+
+----
+
+### Defer/Process - System/Connection
+
+![system](images/system_defer.png)
+
+----
+
+### Defer/Process - System/Connection
+
+```cpp
+struct System {
+  struct Connection; // ping can be handled by Connection
+
+  auto operator()() const {
+    using namespace sml;
+    return make_transition_table(
+     * "Idle"_s          + event<power_up> [ has_battery and
+                                             is_healthy ] / setup = state<Connection>,
+       state<Connection> + event<suspend>                         = "Suspended"_s,
+       "Suspended"_s     + event<resume>                          = state<Connection>
+       "Suspended"_s     + event<ping> / defer // can't handle it now
+                                               // defer for later
+    );
+  }
+};
+```
+<!-- .element: style="margin-left:-3%; width:115%" -->
+
+----
+
+### Defer/Process - System/Connection
+
+<iframe class="stretch" data-src="https://godbolt.org" />
+
+==============================================================================
+
+### Orthogonal Regions
+
+----
+
+### Orthogonal Regions are executed in sudo parallel fashion
+
+![](images/orthogonal_regions.png)
+
+----
+
+### Orthogonal Regions - System
+
+* Events ale always tried to be consumed by all active regions
+  * Even if one region has handled an event
+* [Boost].SML recognizes multiple initial states as separate regions
+  ```cpp
+  make_transition_table(
+    * "region1.0"_s + event [ guard ] / action = "region1.1",
+      "region1.0"_s + event [ guard ] / action = X,
+
+    // ---------------------------------------------------- */
+
+    * "region2.0"_s + event [ guard ] / action = "region2.1",
+      "region2.0"_s + event [ guard ] / action = X
+  )
+  ```
+
+----
+
+### Orthogonal Regions - System
+
+![system](images/system_orthogonal_regions.png)
+
+----
+
+### Orthogonal Regions - System
+
+```cpp
+struct System {
+  struct Connection; // Connection State Machine
+  auto operator()() const {
+    using namespace sml;
+    return make_transition_table(
+     * "Idle"_s          + event<power_up> [ has_battery and
+                                             is_healthy ] / setup = state<Connection>,
+       state<Connection> + event<suspend>                         = "Suspended"_s,
+       "Suspended"_s     + event<resume>                          = state<Connection>
+       "Suspended"_s     + event<ping> / defer
+     // ----------------------------------------------------------------------------- //
+     * "Watchdog"_s      + event<tick> / resetTimeout,
+       "Watchdog"_s      + event<timeout>                         = X
+    );
+  }
+};
+```
+<!-- .element: style="margin-left:-3%; width:115%" -->
+
+----
+
+### Orthogonal Regions - System
+
+<iframe class="stretch" data-src="https://wandbox.org/permlink/JJyuk7mEev5k0Pds" />
+
+==============================================================================
+
+### Exercises - System State Machine
+
+![system](images/system.png)
+
+----
+
+* Add runtime dispatching
+* Context
+* Multiple state machines
+* Transition change
+
+==============================================================================
+
+### More Examples
+
+---
+[Hello World](http://boost-experimental.github.io/sml/examples/index.html#hello-world)
+
+[Events](http://boost-experimental.github.io/sml/examples/index.html#events) |
+[States](http://boost-experimental.github.io/sml/examples/index.html#states) |
+[Actions Guards](http://boost-experimental.github.io/sml/examples/index.html#actions-guards) |
+[Transitions](http://boost-experimental.github.io/sml/examples/index.html#transitions)
+
+[Orthogonal Regions](http://boost-experimental.github.io/sml/examples/index.html#orthogonal-regions) |
+[Composite](http://boost-experimental.github.io/sml/examples/index.html#composite) |
+[History](http://boost-experimental.github.io/sml/examples/index.html#history)
+
+[Error handling](http://boost-experimental.github.io/sml/examples/index.html#error-handling) |
+[Logging](http://boost-experimental.github.io/sml/examples/index.html#logging) |
+[Testing](http://boost-experimental.github.io/sml/examples/index.html#testing)
+
+[Runtime Dispatcher](http://boost-experimental.github.io/sml/examples/index.html#runtime-dispatcher) |
+[eUML Emulation](http://boost-experimental.github.io/sml/examples/index.html#euml-emulation) |
+[Dependency Injection](http://boost-experimental.github.io/sml/examples/index.html#dependency-injection)
+
+[SDL2 Integration](http://boost-experimental.github.io/sml/examples/index.html#sdl2-integration) |
+[Plant UML Integration](http://boost-experimental.github.io/sml/examples/index.html#plant-uml-integration)
 
 ==============================================================================
 
@@ -1258,7 +1497,7 @@ http://plantuml.com/state-diagram
 
 ----
 
-### Leveraging Zero-cost libraries will boost your design and/or perfrormance
+### Leveraging Zero-cost libraries will boost your design and/or performance
 * [[Boost].SML](http://boost-experimental.github.io/sml/) / [Boost.MSM](http://www.boost.org/doc/libs/1_63_0/libs/msm/doc/HTML/index.html)
 
 ==============================================================================
@@ -1270,7 +1509,6 @@ http://plantuml.com/state-diagram
 | Documentation | http://boost-experimental.github.io/sml |
 | Source Code | https://github.com/boost-experimental/sml |
 | Try it online! | http://boost-experimental.github.io/sml/examples |
-|                | https://godbolt.org/g/sNfLzn |
 <!-- .element: style="margin-left:-13%; width:125%" -->
 
 -
