@@ -1,7 +1,5 @@
 #include <boost/sml.hpp>
-#include <cassert>
 #include <cstdio>
-#include <queue>
 
 namespace sml = boost::sml;
 
@@ -87,11 +85,7 @@ class System {
      * "Idle"_s          + event<power_up> [ has_battery and
                                              is_healthy ] / setup       = state<Connection>,
        state<Connection> + event<suspend>                               = "Suspended"_s,
-       "Suspended"_s     + event<resume>                                = state<Connection>,
-       "Suspended"_s     + event<ping> / defer,
-     // --------------------------------------------------------------------------------- //
-     * "Watchdog"_s      + event<tick> / resetTimeout,
-       "Watchdog"_s      + event<timeout>                               = X
+       "Suspended"_s     + event<resume>                                = state<Connection>
     );
     // clang-format on
   }
@@ -100,7 +94,7 @@ class System {
 int main() {
   using namespace sml;
   printf_logger log{};
-  sm<System, logger<printf_logger>, defer_queue<std::queue>, dispatch<back::policies::switch_stm>> system{log};
+  sm<System, logger<printf_logger>> system{log};
 
   // clang-format off
   /// start
@@ -112,15 +106,5 @@ int main() {
   system.process_event(suspend{});      /// handled by System
   system.process_event(resume{});       /// gets back to connected
   system.process_event(ping{true});     /// handled by Connection
-
-  /// defer
-  system.process_event(suspend{});      /// handled by System
-  system.process_event(ping{true});     /// deferred
-  system.process_event(resume{});       /// ping in connected
-  system.process_event(disconnect{});   /// handled by Connection
-
-  /// orthogonal regions
-  system.process_event(timeout{});      /// handled by watchdog
-  assert(system.is(sml::X));            /// true if any state is in terminated state (X)
   // clang-format on
 }
