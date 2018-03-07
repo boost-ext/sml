@@ -13,7 +13,6 @@
 
 namespace sml = boost::sml;
 
-//<-
 namespace {
 template <class R, class... Ts>
 auto call_impl(R (*f)(Ts...)) {
@@ -37,7 +36,6 @@ auto call_impl(const T* self, R (T::*f)(Ts...)) {
  * @return function(args...)
  */
 auto call = [](auto... args) { return call_impl(args...); };
-}
 //->
 
 struct e1 {};
@@ -93,6 +91,7 @@ struct actions_guards {
     std::cout << "action5" << std::endl;
   }
 };
+}
 
 int main() {
   sml::sm<actions_guards> sm{42};

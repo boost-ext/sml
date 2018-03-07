@@ -12,6 +12,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 struct my_logger {
   template <class SM, class TEvent>
   void log_process_event(const TEvent&) {
@@ -57,6 +58,7 @@ struct logging {
     // clang-format on
   }
 };
+}
 
 int main() {
   my_logger logger;

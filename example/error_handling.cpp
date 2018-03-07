@@ -12,6 +12,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 struct some_event {};
 
 struct error_handling {
@@ -31,6 +32,7 @@ struct error_handling {
     // clang-format on
   }
 };
+}
 
 int main() {
   using namespace sml;

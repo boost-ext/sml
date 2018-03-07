@@ -13,7 +13,8 @@ pph() {
   echo "// Distributed under the Boost Software License, Version 1.0."
   echo "// (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)"
   echo "//"
-  echo "#pragma once"
+  echo "#ifndef BOOST_SML_HPP"
+  echo "#define BOOST_SML_HPP"
   echo "#if (__cplusplus < 201305L && _MSC_VER < 1900)"
   echo "#error \"[Boost].SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)\""
   echo "#else"
@@ -83,6 +84,7 @@ pph() {
   echo "#elif defined(_MSC_VER)"
   echo "#undef __has_builtin"
   echo "#undef __has_builtin__make_integer_seq"
+  echo "#endif"
   echo "#endif"
   echo "#endif"
   echo

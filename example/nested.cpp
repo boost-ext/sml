@@ -14,6 +14,7 @@ int main() {}
 
 namespace sml = boost::sml;
 
+namespace {
 template <class = class Dummy>  // Use a dummy template to delay POI and support nested SM
 class top {
   struct e1 {};
@@ -34,6 +35,7 @@ class top {
  private:
   sml::sm<nested> sm{};
 };
+}
 
 int main() {
   top<> sm{};

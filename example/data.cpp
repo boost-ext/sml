@@ -13,6 +13,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 struct connect {};
 struct disconnect {};
 
@@ -43,6 +44,7 @@ class data {
   std::string address{};
   std::variant<Disconnected, Connected> data_{};
 };
+}
 
 int main() {
   sml::sm<data> sm{data{"127.0.0.1"}};

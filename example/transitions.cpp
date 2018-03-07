@@ -11,6 +11,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -30,6 +31,7 @@ struct transitions {
     // clang-format on
   }
 };
+}
 
 int main() {
   sml::sm<transitions> sm;

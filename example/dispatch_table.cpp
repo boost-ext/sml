@@ -11,6 +11,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 struct runtime_event {
   int id = 0;
 };
@@ -33,6 +34,7 @@ struct dispatch_table {
     // clang-format on
   }
 };
+}
 
 int main() {
   sml::sm<dispatch_table> sm;

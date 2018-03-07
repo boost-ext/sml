@@ -10,6 +10,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -63,6 +64,7 @@ bool Guard::operator()(euml_emulation& sm, const TEvent& event) const {
 template <class TEvent>
 void Action::operator()(euml_emulation& sm, const TEvent& event) {
   sm.call_action(event);
+}
 }
 
 int main() {

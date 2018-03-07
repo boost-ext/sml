@@ -3,6 +3,8 @@
 
 namespace sml = boost::sml;
 
+namespace {
+
 /// logger
 struct printf_logger {
   template <class SM, class TEvent>
@@ -90,6 +92,8 @@ class System {
     // clang-format on
   }
 };
+
+}
 
 int main() {
   using namespace sml;
