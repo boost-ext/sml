@@ -10,6 +10,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {
   bool value = true;
@@ -34,6 +35,7 @@ struct events {
     // clang-format on
   }
 };
+}
 
 int main() {
   sml::sm<events> sm;

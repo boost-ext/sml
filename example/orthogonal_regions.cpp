@@ -10,6 +10,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -28,6 +29,7 @@ struct orthogonal_regions {
     // clang-format on
   }
 };
+}
 
 int main() {
   sml::sm<orthogonal_regions> sm;

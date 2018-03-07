@@ -15,7 +15,9 @@
 #include <iostream>
 
 namespace sml = boost::sml;
+namespace di = boost::di;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -45,8 +47,6 @@ struct example {
   }
 };
 
-namespace di = boost::di;
-
 class controller {
  public:
   explicit controller(sml::sm<example>& sm) : sm(sm) {}
@@ -61,6 +61,7 @@ class controller {
  private:
   sml::sm<example>& sm;
 };
+}
 
 int main() {
   // clang-format off

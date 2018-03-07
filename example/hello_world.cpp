@@ -10,6 +10,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 // events
 struct release {};
 struct ack {};
@@ -38,6 +39,7 @@ struct hello_world {
     // clang-format on
   }
 };
+}
 
 int main() {
   using namespace sml;
@@ -77,6 +79,7 @@ struct hello_world {
     // clang-format on
   }
 };
+}
 
 int main() {
   using namespace sml;

@@ -11,6 +11,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -41,6 +42,7 @@ struct composite {
     // clang-format on
   }
 };
+}
 
 int main() {
   sml::sm<composite> sm;

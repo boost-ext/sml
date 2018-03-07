@@ -3,6 +3,8 @@
 
 namespace sml = boost::sml;
 
+namespace {
+
 struct connect {};
 struct ping { bool valid = false; };
 struct established {};
@@ -26,6 +28,8 @@ struct Connection {
     );
   }
 };
+
+}
 
 int main() {
   sml::sm<Connection> connection{};

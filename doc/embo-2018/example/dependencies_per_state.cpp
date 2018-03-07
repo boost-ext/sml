@@ -6,6 +6,8 @@
 
 namespace sml = boost::sml;
 
+namespace {
+
 class Sender {
 public:
   template<class TAddress, class TData>
@@ -69,6 +71,8 @@ struct Connection {
   std::string_view address_{};
   std::variant<int> data_{}; // Type safe union storage per state
 };
+
+}
 
 int main() {
   Context ctx{};

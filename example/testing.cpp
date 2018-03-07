@@ -10,6 +10,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -34,6 +35,7 @@ struct testing {
     // clang-format on
   }
 };
+}
 
 int main() {
   using namespace sml;

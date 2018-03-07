@@ -13,6 +13,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -88,6 +89,7 @@ void dump(const SM&) noexcept {
   std::cout << "@startuml" << std::endl << std::endl;
   dump_transitions(typename SM::transitions{});
   std::cout << std::endl << "@enduml" << std::endl;
+}
 }
 
 int main() {

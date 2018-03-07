@@ -11,6 +11,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 struct sub {
   auto operator()() const noexcept {
     using namespace sml;
@@ -35,6 +36,7 @@ struct history {
     // clang-format on
   }
 };
+}
 
 int main() {
   sml::sm<history> sm;

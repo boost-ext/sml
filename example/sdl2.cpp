@@ -12,6 +12,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 // clang-format off
 #if __has_include(<SDL2/SDL_events.h>)
 #include <SDL2/SDL_events.h>
@@ -78,6 +79,7 @@ struct sdl2 {
     // clang-format on
   }
 };
+}
 
 int main() {
   sml::sm<sdl2> sm;

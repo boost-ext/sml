@@ -4,6 +4,8 @@
 
 namespace sml = boost::sml;
 
+namespace {
+
 struct connect : sml::utility::id<0> {};
 struct ping : sml::utility::id<1> {
   explicit ping(const void* msg)
@@ -33,6 +35,8 @@ struct Connection {
     );
   }
 };
+
+}
 
 int main() {
   sml::sm<Connection> connection{};
