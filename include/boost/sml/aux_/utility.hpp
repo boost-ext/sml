@@ -135,21 +135,41 @@ T &get_by_id(tuple_type<N, T> *object) {
 }
 
 struct init {};
+struct pool_type_base {
+  __BOOST_SML_ZERO_SIZE_ARRAY(byte);
+};
 
 template <class T>
-struct pool_type {
-  explicit pool_type(const T &object) : value(object) {}
+struct pool_type : pool_type_base {
+  explicit pool_type(T object) : value{object} {}
 
   template <class TObject>
-  pool_type(init i, const TObject &object) : value(i, object) {}
+  pool_type(init i, TObject object) : value{i, object} {}
 
   T value;
 };
 
 template <class T>
-T try_get(...) {
-  static_assert(aux::is_constructible<T>::value,
-                "Type T is not default constructible and has to be provided by the SM constructor");
+struct missing_ctor_parameter {
+  static constexpr auto value = false;
+
+  auto operator()() const { return T{}(); }
+
+  template <class U, __BOOST_SML_REQUIRES(!aux::is_base_of<pool_type_base, U>::value && aux::is_constructible<U>::value)>
+  operator U() {
+    return {};
+  }
+
+  template <class TMissing, __BOOST_SML_REQUIRES(!aux::is_base_of<pool_type_base, TMissing>::value)>
+  operator TMissing &() const {
+    static_assert(missing_ctor_parameter<TMissing>::value,
+                  "State Machine is missing a constructor parameter! Check out the `missing_ctor_parameter` error to see the "
+                  "missing type.");
+  }
+};
+
+template <class T>
+missing_ctor_parameter<T> try_get(...) {
   return {};
 }
 
@@ -187,7 +207,7 @@ struct pool : pool_type<Ts>... {
   explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
 
   template <class... TArgs>
-  pool(init, const pool<TArgs...> &p) : pool_type<Ts>((Ts)try_get<aux::remove_const_t<aux::remove_reference_t<Ts>>>(&p))... {}
+  pool(init, const pool<TArgs...> &p) : pool_type<Ts>(try_get<aux::remove_const_t<aux::remove_reference_t<Ts>>>(&p))... {}
 
   template <class... TArgs>
   pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, p)... {}
