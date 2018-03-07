@@ -87,7 +87,7 @@ doc_%:
 	cd doc && $(MKDOCS) build --clean --theme-dir themes/$* --site-dir $(MKDOCS_SITE)
 
 doc_boost-classic:
-	cd doc && python themes/boost-classic/scripts/update_markdown.py . https://raw.githubusercontent.com/boost-experimental/sml/master
+	cd doc && $(PYTHON) themes/boost-classic/scripts/update_markdown.py . https://raw.githubusercontent.com/boost-experimental/sml/master
 	cd doc && $(MKDOCS) build --clean --theme-dir themes/boost-classic --site-dir $(MKDOCS_SITE)
 
 readme:
