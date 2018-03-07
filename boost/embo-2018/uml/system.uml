@@ -11,9 +11,10 @@ State System {
   }
 
   [*] -> Idle
-  Idle --> Connection: power_up [has_battery and is_healthy] / connect
+  Idle --> Connection: power_up [has_battery and is_healthy] / setup
   Connection --> Suspended: suspend
   Suspended --> Connection: resume
+  Suspended --> Suspended: ping / defer
 
   [H] --> Watchdog
   Watchdog -> Watchdog: tick/resetTimeout
@@ -21,4 +22,3 @@ State System {
 }
 
 @enduml
-

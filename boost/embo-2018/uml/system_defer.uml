@@ -16,9 +16,6 @@ State System {
   Suspended --> Connection: resume
   Suspended --> Suspended: ping / defer
 
-  [H] --> Watchdog
-  Watchdog -> Watchdog: tick/resetTimeout
-  Watchdog --> [*]: timeout
 }
 
 @enduml

@@ -4,6 +4,8 @@
 
 namespace sml = boost::sml;
 
+namespace {
+
 class Sender {
 public:
   template<class TAddress, class TData>
@@ -60,6 +62,8 @@ struct Connection {
     );
   }
 };
+
+}
 
 int main() {
   Context ctx{};

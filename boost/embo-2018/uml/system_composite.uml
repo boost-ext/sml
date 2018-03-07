@@ -2,7 +2,7 @@
 
 State System {
   state Connection {
-    [H] --> Disconnected
+    [*] --> Disconnected
     Disconnected -> Connecting: connect / establish
     Connecting --> Connected: established
     Connected --> Connected: ping [ is_valid ] / resetTimeout
@@ -15,10 +15,6 @@ State System {
   Connection --> Suspended: suspend
   Suspended --> Connection: resume
   Suspended --> Suspended: ping / defer
-
-  [H] --> Watchdog
-  Watchdog -> Watchdog: tick/resetTimeout
-  Watchdog --> [*]: timeout
 }
 
 @enduml

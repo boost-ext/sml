@@ -142,6 +142,7 @@
 
 namespace sml = boost::sml;
 
+namespace {
 struct release {};
 struct ack {};
 struct fin {};
@@ -165,6 +166,7 @@ struct hello_world {
     );
   }
 };
+}
 
 int main() {
   using namespace sml;
@@ -202,6 +204,7 @@ struct hello_world {
     );
   }
 };
+}
 
 int main() {
   using namespace sml;
@@ -233,6 +236,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {
   bool value = true;
@@ -255,6 +259,7 @@ struct events {
     );
   }
 };
+}
 
 int main() {
   sml::sm&lt;events&gt; sm;
@@ -277,6 +282,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -294,6 +300,7 @@ struct states {
     );
   }
 };
+}
 
 int main() {
   sml::sm&lt;states&gt; sm;
@@ -316,6 +323,29 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
+template &lt;class R, class... Ts&gt;
+auto call_impl(R (*f)(Ts...)) {
+  return [f](Ts... args) { return f(args...); };
+}
+template &lt;class T, class R, class... Ts&gt;
+auto call_impl(T* self, R (T::*f)(Ts...)) {
+  return [self, f](Ts... args) { return (self-&gt;*f)(args...); };
+}
+template &lt;class T, class R, class... Ts&gt;
+auto call_impl(const T* self, R (T::*f)(Ts...) const) {
+  return [self, f](Ts... args) { return (self-&gt;*f)(args...); };
+}
+template &lt;class T, class R, class... Ts&gt;
+auto call_impl(const T* self, R (T::*f)(Ts...)) {
+  return [self, f](Ts... args) { return (self-&gt;*f)(args...); };
+}
+/**
+ * Simple wrapper to call free/member functions
+ * @param args function, [optional] this
+ * @return function(args...)
+ */
+auto call = [](auto... args) { return call_impl(args...); };
 
 struct e1 {};
 struct e2 {};
@@ -368,6 +398,7 @@ struct actions_guards {
     std::cout &lt;&lt; &quot;action5&quot; &lt;&lt; std::endl;
   }
 };
+}
 
 int main() {
   sml::sm&lt;actions_guards&gt; sm{42};
@@ -390,6 +421,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -407,6 +439,7 @@ struct transitions {
     );
   }
 };
+}
 
 int main() {
   sml::sm&lt;transitions&gt; sm;
@@ -427,6 +460,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -444,6 +478,7 @@ struct defer_and_process {
     );
   }
 };
+}
 
 int main() {
   using namespace sml;
@@ -471,6 +506,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -487,6 +523,7 @@ struct orthogonal_regions {
     );
   }
 };
+}
 
 int main() {
   sml::sm&lt;orthogonal_regions&gt; sm;
@@ -511,6 +548,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -537,6 +575,7 @@ struct composite {
     );
   }
 };
+}
 
 int main() {
   sml::sm&lt;composite&gt; sm;
@@ -577,6 +616,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct sub {
   auto operator()() const noexcept {
     using namespace sml;
@@ -597,6 +637,7 @@ struct history {
     );
   }
 };
+}
 
 int main() {
   sml::sm&lt;history&gt; sm;
@@ -620,6 +661,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct some_event {};
 
 struct error_handling {
@@ -637,6 +679,7 @@ struct error_handling {
     );
   }
 };
+}
 
 int main() {
   using namespace sml;
@@ -667,6 +710,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct my_logger {
   template &lt;class SM, class TEvent&gt;
   void log_process_event(const TEvent&amp;) {
@@ -710,6 +754,7 @@ struct logging {
     );
   }
 };
+}
 
 int main() {
   my_logger logger;
@@ -732,6 +777,7 @@ int main() {}
 
 namespace sml = boost::sml;
 
+namespace {
 template &lt;class = class Dummy&gt;  // Use a dummy template to delay POI and support nested SM
 class top {
   struct e1 {};
@@ -752,6 +798,7 @@ class top {
  private:
   sml::sm&lt;nested&gt; sm{};
 };
+}
 
 int main() {
   top&lt;&gt; sm{};
@@ -769,6 +816,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -791,6 +839,7 @@ struct testing {
     );
   }
 };
+}
 
 int main() {
   using namespace sml;
@@ -813,6 +862,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct runtime_event {
   int id = 0;
 };
@@ -833,6 +883,7 @@ struct dispatch_table {
     );
   }
 };
+}
 
 int main() {
   sml::sm&lt;dispatch_table&gt; sm;
@@ -862,6 +913,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -914,6 +966,7 @@ template &lt;class TEvent&gt;
 void Action::operator()(euml_emulation&amp; sm, const TEvent&amp; event) {
   sm.call_action(event);
 }
+}
 
 int main() {
   euml_emulation euml;
@@ -938,6 +991,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {
   int i = 0;
 };
@@ -964,6 +1018,7 @@ struct dependencies {
      );
   }
 };
+}
 
 int main() {
   using namespace sml;
@@ -995,6 +1050,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct connect {};
 struct disconnect {};
 
@@ -1023,6 +1079,7 @@ class data {
   std::string address{};
   std::variant&lt;Disconnected, Connected&gt; data_{};
 };
+}
 
 int main() {
   sml::sm&lt;data&gt; sm{data{&quot;127.0.0.1&quot;}};
@@ -1047,7 +1104,9 @@ int main() {}
 #include &lt;iostream&gt;
 
 namespace sml = boost::sml;
+namespace di = boost::di;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -1075,8 +1134,6 @@ struct example {
   }
 };
 
-namespace di = boost::di;
-
 class controller {
  public:
   explicit controller(sml::sm&lt;example&gt;&amp; sm) : sm(sm) {}
@@ -1091,6 +1148,7 @@ class controller {
  private:
   sml::sm&lt;example&gt;&amp; sm;
 };
+}
 
 int main() {
   const auto injector = di::make_injector(
@@ -1115,6 +1173,7 @@ int main() {}
 
 namespace sml = boost::sml;
 
+namespace {
 #if __has_include(&lt;SDL2/SDL_events.h&gt;)
 #include &lt;SDL2/SDL_events.h&gt;
 #else
@@ -1177,6 +1236,7 @@ struct sdl2 {
     );
   }
 };
+}
 
 int main() {
   sml::sm&lt;sdl2&gt; sm;
@@ -1227,6 +1287,7 @@ int main() {
 
 namespace sml = boost::sml;
 
+namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -1300,6 +1361,7 @@ void dump(const SM&amp;) noexcept {
   std::cout &lt;&lt; &quot;@startuml&quot; &lt;&lt; std::endl &lt;&lt; std::endl;
   dump_transitions(typename SM::transitions{});
   std::cout &lt;&lt; std::endl &lt;&lt; &quot;@enduml&quot; &lt;&lt; std::endl;
+}
 }
 
 int main() {
