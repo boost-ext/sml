@@ -288,7 +288,12 @@ https://github.com/boost-experimental/sml
 
 ### [Boost].SML - Design
 
-![design](images/design.png)
+<img style="background:none; border:none; box-shadow:none;" src="images/design.png" width="45%" />
+
+| Component    | Description |
+| ------------ | ----------- |
+| Front-End  | Transition Table Domain Specific Language |
+| Back-End   | State Machine implementation details |
 
 ----
 
@@ -378,7 +383,17 @@ struct connect { };
 
 ----
 
-#### Transition Table is a DSL describing allowed behaviour
+#### Transition Table is a DSL describing the behaviour
+
+![](images/sm_example.png)
+
+```cpp
+* "Disconnected"_s + event<connect> = "Connecting"_s
+```
+
+----
+
+#### State Machine glues the front-end and the back-end
 
 ```cpp
 struct Connection {
@@ -391,87 +406,9 @@ struct Connection {
 };
 ```
 
-----
-
-#### Transition Table - API
-
-```cpp
-template <class T>
-concept transitional = requires(T transition) {
-  typename T::src_state;
-  typename T::dst_state;
-  typename T::event;
-  T::property; // initial, history state, etc.
-  { transition.execute(const typename T::Event&) } -> optional<state_t>;
-};
-```
-<!-- .element: style="width:100%" -->
-
-```cpp
-/**
- * Helper function to make transition_table (C++14)
- * @tparam Ts... transitions (transitional)
- * @return transition_table
- */
-template <class... Ts> requires transitional<Ts>...
-constexpr auto make_transition_table(Ts&&... transitions) noexcept;
-```
-<!-- .element: style="width:100%" -->
-
-----
-
-### Transition Table - Domain Specific Language (DSL)
-
-```cpp
-static_assert(std::is_same<
-  decltype(
-    make_transition_table( // front-end
-      * "Disconnected"_s + connect / establish = "Connecting"_s,
-        "Connecting"_s   + established         = "Connected"_s
-    )
-  ),
-
-  transition_table< // back-end
-    // --------------------------------------------------------------------------------- //
-    //         src_state              dst_state            event        guard   action   //
-    // --------------------------------------------------------------------------------- //
-    transition<state<"Disconnected">, state<"Connecting">, connect,     always, establish>,
-    transition<state<"Connecting">,   state<"Connected">,  established, always, none>
-  >
->{});
-```
-<!-- .element: style="margin-left:-8%; width:115%" -->
-
-----
-
-#### State Machine instantiation
-
 ```cpp
 // Creates a state machine
 sml::sm<Connection> sm;
-```
-
-----
-
-#### State Machine - API
-
-```cpp
-/**
- * State Machine
- *
- * @tparam T Callable object returning transition_table
- * @tparam TPolicies policies to be applied such as
- *                   thread safe, exception safe, etc.
- */
-template<class T, class... TPolicies>
-  requires callable<transition_table, T>
-class sm {
- public:
-   template<class TDeps>
-   constexpr explicit sm(TDeps&&... deps) noexcept;
-
-   // ...
-};
 ```
 
 ----
@@ -486,79 +423,19 @@ sm.process_event(connect{});
 
 ----
 
-#### Process event - API
-
-```cpp
-/**
- * Process event
- * Complexity - O(1)
- * @param TEvent event to be processed
- */
-template<class TEvent>
-constexpr void process_event(const TEvent&);
-```
-
-----
-
-#### Generated at Compile Time Mapping per Event and State
-
-```cpp
-using mappings_t = type_list<
-  pair<connect, type_list<
-    transitions<
-      transition<state<"Disconnected">, state<"Connecting">, connect, always, establish>
-    >,
-    transitions<>, // Connecting (unexpected event)
-    transitions<>  // Connected  (unexpected event)
-  >,
-  pair<established, type_list<
-    transitions<>, // Disconnected (unexpected event)
-    transitions<
-      transition<state<"Connecting">, state<"Connected">,  established, always, none>
-    >,
-    transitions<>  // Connected (unexpected event)
-  >
->;
-```
-<!-- .element: style="margin-left:-8%; width:112%" -->
-
-----
-
-### Back-end
-
-#### Process Event - Jump Table - (Simplified)
-
-```cpp
-template<class TEvent>
-constexpr void process_event(const TEvent& event) {
-  process_event_impl(event, get_mappings_t<TEvent>{});
-}
-
-template<class... Transitions, class TEvent>
-constexpr void process_event_impl(const TEvent& event, type_list<Transitions...>) {
-  const static (*dispatch_table[])(const TEvent&) = {
-    &Transitions::template execute<TEvent>...
-  };
-  dispatch_table[current_state](event); // Complexity: O(1) - jump table
-}
-```
-<!--[> .element: style="width:105%" <]-->
-
-----
-
 #### Hello World - Connection
 
 <iframe class="stretch" data-src="https://godbolt.org/g/94k5gs" />
 
 ==============================================================================
 
-### Transitions
+### Transitions - Connection
 
 ![](images/transition_table.png)
 
 ----
 
-#### Transitions
+#### Transitions - Connection
 
 ```cpp
 * -> Disconnected : connect / establish              -> Connecting
@@ -616,6 +493,44 @@ const auto resetTimeout = [](const auto& event) { };
 
 #### Transitions DSL (Domain Specific language)
 
+<center>![Transition](images/transition.png)</center>
+
+```cpp
+SourceState + event [ guard ] / action = DestinationState
+                                     ^
+                                     |
+                                    1. DestinationState + on_exit
+                                    2. SourceState + on_entry
+```
+
+----
+
+#### Transitions DSL (Domain Specific language)
+
+* Guard is optional and can be combined using logic operations
+  ```cpp
+  [ guard1 and not guard2 ]
+  ```
+
+* Action is optional and can be sequenced using a comma operator
+  ```cpp
+  (action1, action2)
+  ```
+
+* Event is optional - Anonymous transition
+  ```cpp
+  SourceState + [ guard ] / action = DestinationState
+  ```
+
+* DestinationState is optional - Internal transition
+  ```cpp
+  SourceState + [ guard ] / action
+  ```
+
+----
+
+#### Transitions DSL (Domain Specific language) - Connection
+
 <center>![Transition](images/simple_transition.png)</center>
 
 ```cpp
@@ -624,13 +539,13 @@ const auto resetTimeout = [](const auto& event) { };
 
 ----
 
-#### Transitions
+#### Transitions - Connection
 
 <iframe class="stretch" data-src="https://godbolt.org/g/AwzRSw" />
 
 ----
 
-#### Transitions
+#### Transitions - Connection
 
 <iframe class="stretch" data-src="https://wandbox.org/permlink/sKujYtw4WbUx2Wfq" />
 
@@ -893,7 +808,7 @@ assert(sm.is("idle"_s));
 
 ----
 
-#### Runtime Dispatching requires type/data conversion
+#### Runtime Dispatching requires type/data conversion - Connection
 
 ```cpp
 struct connect : sml::utility::id<0> {};
@@ -911,7 +826,7 @@ struct disconnect  : sml::utility::id<4> {};
 
 ----
 
-#### Runtime Dispatching
+#### Runtime Dispatching - Connection
 
 ```cpp
 #include <boost/sml/utility/dispatch_table.hpp>
@@ -937,6 +852,8 @@ int main() {
 
 ----
 
+#### Runtime Dispatching - Connection
+
 <iframe class="stretch" data-src="https://wandbox.org/permlink/s4aMv3Zolj9UGug5" />
 
 ==============================================================================
@@ -954,6 +871,24 @@ sml::sm<Connection, Policies...> sm{};
 
 ----
 
+#### Thread safe policy enables/disabled thread safety
+
+```cpp
+sml::sm<Connection, sml::thread_safe<std::mutex>> sm{};
+```
+
+----
+
+#### Exception handling policy requires a compilation flag
+
+```
+Exception handling is only available if NOT compiled with
+  `-fno-exceptions` or
+  `BOOST_SML_DISABLE_EXCEPTIONS`
+```
+
+----
+
 #### Dispatch policy changes event dispatching strategy
 
 | Name | POLICY |
@@ -967,35 +902,66 @@ sml::sm<Connection, Policies...> sm{};
 sml::sm<Connection, sml::dispatch<sml::back::policies::POLICY>> sm{};
 ```
 
-
 ----
 
-#### Thread safe policy enables/disabled thread safety
+#### Front-End - Transition Table
 
 ```cpp
-sml::sm<Connection, sml::thread_safe<std::mutex>> sm{};
+static_assert(std::is_same<
+  decltype(
+    make_transition_table( // front-end
+      * "Disconnected"_s + connect / establish = "Connecting"_s,
+        "Connecting"_s   + established         = "Connected"_s
+    )
+  ),
+
+  transition_table< // back-end
+    // --------------------------------------------------------------------------------- //
+    //         src_state              dst_state            event        guard   action   //
+    // --------------------------------------------------------------------------------- //
+    transition<state<"Disconnected">, state<"Connecting">, connect,     always, establish>,
+    transition<state<"Connecting">,   state<"Connected">,  established, always, none>
+  >
+>{});
 ```
+<!-- .element: style="margin-left:-8%; width:115%" -->
 
 ----
 
-#### Exception handling policy requires a compilation flag
-
-```
-Only if NOT `-fno-exceptions` or `BOOST_SML_DISABLE_EXCEPTIONS`
-```
-
-----
-
-#### Performance tuning - Process Event
+#### Back-End - Generated at Compile Time Mapping per Event and State
 
 ```cpp
+using mappings_t = type_list<
+  pair<connect, type_list<
+    transitions<
+      transition<state<"Disconnected">, state<"Connecting">, connect, always, establish>
+    >,
+    transitions<>, // Connecting (unexpected event)
+    transitions<>  // Connected  (unexpected event)
+  >,
+  pair<established, type_list<
+    transitions<>, // Disconnected (unexpected event)
+    transitions<
+      transition<state<"Connecting">, state<"Connected">,  established, always, none>
+    >,
+    transitions<>  // Connected (unexpected event)
+  >
+>;
+```
+<!-- .element: style="margin-left:-8%; width:112%" -->
+
+----
+
+#### Dispatch policy - Process Event
+
+```cpp
+template<class TransitionTable>
 class sm {
-  using states_t = type_list<...>; // SM states
-
  public:
   constexpr void process_event(const TEvent& event) {
-    thread_policy::lock();
-    dispatch_policy::dispatch(current_state_, event, states_t{});
+    dispatch_policy::dispatch(current_state_,
+                              event,
+                              typename TransitionTable::states{});
   }
 
  private:
@@ -1005,7 +971,7 @@ class sm {
 
 ----
 
-#### Performance tuning - dispatch - jump table
+#### Dispatch policy - jump table
 
 ```cpp
 struct jump_table {
@@ -1024,13 +990,13 @@ struct jump_table {
 
 ----
 
-#### Performance tuning - dispatch - jump table
+#### Dispatch policy - jump table
 
 <iframe class="stretch" data-src="https://godbolt.org/g/iXquTU" />
 
 ----
 
-#### Performance tuning - dispatch - switch
+#### Dispatch policy - switch
 
 ```cpp
 struct switch_stm {
@@ -1054,13 +1020,13 @@ struct switch_stm {
 
 ----
 
-#### Performance tuning - dispatch - switch
+#### Dispatch policy - switch
 
 <iframe class="stretch" data-src="https://godbolt.org/g/pSMZp9" />
 
 ----
 
-#### Performance tuning - dispatch - if/else
+#### Dispatch policy - if/else
 
 ```cpp
 struct branch_stm {
@@ -1081,13 +1047,13 @@ struct branch_stm {
 
 ----
 
-#### Performance tuning - dispatch - if/else
+#### Dispatch policy - if/else
 
 <iframe class="stretch" data-src="https://godbolt.org/g/gxitRx" />
 
 ----
 
-#### Performance tuning - dispatch - fold expressions
+#### Dispatch policy - fold expressions
 
 ```cpp
 struct fold_expr {
@@ -1107,15 +1073,15 @@ struct fold_expr {
 
 ----
 
-#### Performance tuning - dispatch - fold expressions
+#### Dispatch policy - fold expressions
 
 <iframe class="stretch" data-src="https://godbolt.org/g/CLzFRG" />
 
 ----
 
-#### Performance tuning - dispatch
+#### Performance tuning - Dispatch policy
 
-<iframe class="stretch" data-src="" />
+<iframe class="stretch" data-src="https://godbolt.org/g/xYi6fT" />
 
 ==============================================================================
 
