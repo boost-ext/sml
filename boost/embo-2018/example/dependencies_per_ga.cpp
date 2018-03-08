@@ -19,7 +19,7 @@ public:
 class Context {
 public:
   const char* const ip{};
-  bool valid(int id) const { return true; }
+  bool valid(int id) const { return id; }
   void log(...) {}
 };
 

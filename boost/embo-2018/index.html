@@ -87,6 +87,8 @@ Kris Jusiak, Quantlab Financial
   * Performance tuning
   * Diagrams generation
 
+* Exercise
+
 ----
 
 ### Agenda - Workshop - Advanced
@@ -97,7 +99,7 @@ Kris Jusiak, Quantlab Financial
   * Defer/Process
   * Orthogonal Regions
 
-* Exercises
+* Exercise
 
 ==============================================================================
 
@@ -437,7 +439,7 @@ sm.process_event(connect{});
 
 #### Hello World - Connection
 
-<iframe class="stretch" data-src="https://godbolt.org/g/94k5gs" />
+<iframe class="stretch" data-src="https://godbolt.org/g/4ATTGG" />
 
 ==============================================================================
 
@@ -553,13 +555,13 @@ SourceState + event [ guard ] / action = DestinationState
 
 #### Transitions - Connection
 
-<iframe class="stretch" data-src="https://godbolt.org/g/AwzRSw" />
+<iframe class="stretch" data-src="https://godbolt.org/g/8YP8Ac" />
 
 ----
 
 #### Transitions - Connection
 
-<iframe class="stretch" data-src="https://wandbox.org/permlink/sKujYtw4WbUx2Wfq" />
+<iframe class="stretch" data-src="https://wandbox.org/permlink/dQI7zeVdyLsrvI2t" />
 
 ==============================================================================
 
@@ -606,7 +608,7 @@ int main() {                  /                   ----------------\
 
 #### External dependencies
 
-<iframe class="stretch" data-src="https://godbolt.org/g/mS76mE" />
+<iframe class="stretch" data-src="https://godbolt.org/g/Vhy1kY" />
 
 ----
 
@@ -663,7 +665,7 @@ int main() {
 
 #### Per State machine dependencies
 
-<iframe class="stretch" data-src="https://godbolt.org/g/wAi7ur" />
+<iframe class="stretch" data-src="https://wandbox.org/permlink/mdPk0IS2QNwqcMjH" />
 
 ----
 
@@ -687,7 +689,7 @@ auto establish =
 
 #### Per Guard/Action dependencies
 
-<iframe class="stretch" data-src="https://godbolt.org/g/5zxyXs" />
+<iframe class="stretch" data-src="https://wandbox.org/permlink/VpZdfJngvrl6vNZY" />
 
 ----
 
@@ -737,7 +739,7 @@ struct Connection {
 
 #### Per State dependencies
 
-<iframe class="stretch" data-src="https://godbolt.org/g/BzzPZd" />
+<iframe class="stretch" data-src="https://wandbox.org/permlink/gWjVg0gJTpdhDW4B" />
 
 ----
 
@@ -805,7 +807,7 @@ sml::sm<Connection, sml::logger<my_logger>> sm{logger};
 
 #### Logging - Connection
 
-<iframe class="stretch" data-src="" />
+<iframe class="stretch" data-src="https://wandbox.org/permlink/6aWV4s7TMx2d793e" />
 
 ----
 
@@ -830,7 +832,7 @@ sml::sm<Connection, sml::logger<my_logger>> sm{logger};
 
 #### Debugging - Connection
 
-<iframe class="stretch" data-src="" />
+<iframe class="stretch" data-src="https://wandbox.org/permlink/dpxXjc3NQQ4H0GVz" />
 
 ----
 
@@ -867,7 +869,7 @@ sml::X // sml::terminate_state
 
 #### Error Handling - Connection
 
-<iframe class="stretch" data-src="" />
+<iframe class="stretch" data-src="https://wandbox.org/permlink/hjcypH2KAYhMR1WW" />
 
 ==============================================================================
 
@@ -921,7 +923,7 @@ int main() {
 
 #### Runtime Dispatching - Connection
 
-<iframe class="stretch" data-src="https://wandbox.org/permlink/s4aMv3Zolj9UGug5" />
+<iframe class="stretch" data-src="https://wandbox.org/permlink/gmRFkmGHi9MTnPRh" />
 
 ==============================================================================
 
@@ -1059,7 +1061,7 @@ struct jump_table {
 
 #### Dispatch policy - jump table
 
-<iframe class="stretch" data-src="https://godbolt.org/g/iXquTU" />
+<iframe class="stretch" data-src="https://godbolt.org/g/BKHgh9" />
 
 ----
 
@@ -1089,7 +1091,7 @@ struct switch_stm {
 
 #### Dispatch policy - switch
 
-<iframe class="stretch" data-src="https://godbolt.org/g/pSMZp9" />
+<iframe class="stretch" data-src="https://godbolt.org/g/zFF7LM" />
 
 ----
 
@@ -1116,7 +1118,7 @@ struct branch_stm {
 
 #### Dispatch policy - if/else
 
-<iframe class="stretch" data-src="https://godbolt.org/g/gxitRx" />
+<iframe class="stretch" data-src="https://godbolt.org/g/cJvKYB" />
 
 ----
 
@@ -1142,13 +1144,13 @@ struct fold_expr {
 
 #### Dispatch policy - fold expressions
 
-<iframe class="stretch" data-src="https://godbolt.org/g/CLzFRG" />
+<iframe class="stretch" data-src="https://godbolt.org/g/vzL8w4" />
 
 ----
 
 #### Performance tuning - Dispatch policy
 
-<iframe class="stretch" data-src="https://godbolt.org/g/xYi6fT" />
+<iframe class="stretch" data-src="https://godbolt.org/g/bviBBB" />
 
 ==============================================================================
 
@@ -1199,7 +1201,31 @@ void dump_transition() noexcept {
 
 #### Diagrams generation - Plant UML - Connection
 
-<iframe class="stretch" data-src="" />
+<iframe class="stretch" data-src="https://wandbox.org/permlink/IjvxJCLgAeoBo0GY" />
+
+----
+
+#### Diagrams generation - Plant UML - Connection
+
+![diagrams](images/diagrams.png)
+
+==============================================================================
+
+### Exercise - Parser
+
+![system](images/parser.png)
+
+----
+
+### Exercise - Parser - Problem
+
+<iframe class="stretch" data-src="https://wandbox.org/permlink/wUqf3AFpWN1r4TtA" />
+
+----
+
+### Exercise - Parser - Example Solution
+
+<iframe class="stretch" data-src="https://wandbox.org/permlink/rnAGopy8vvvkamgj" />
 
 ==============================================================================
 
@@ -1267,7 +1293,7 @@ class System {
 
 ### Composite/Sub states - System
 
-<iframe class="stretch" data-src="" />
+<iframe class="stretch" data-src="https://wandbox.org/permlink/B7U26WRnXUeCAvWm" />
 
 ==============================================================================
 
@@ -1325,7 +1351,7 @@ struct System {
 
 ### History - System/Connection
 
-<iframe class="stretch" data-src="https://godbolt.org" />
+<iframe class="stretch" data-src="https://wandbox.org/permlink/pz4xXdZwreWTwVZK" />
 
 ==============================================================================
 
@@ -1386,7 +1412,7 @@ struct System {
 
 ### Defer/Process - System/Connection
 
-<iframe class="stretch" data-src="https://godbolt.org" />
+<iframe class="stretch" data-src="https://wandbox.org/permlink/cdfjEtZYU56KmtPg" />
 
 ==============================================================================
 
@@ -1451,20 +1477,41 @@ struct System {
 
 ### Orthogonal Regions - System
 
-<iframe class="stretch" data-src="https://wandbox.org/permlink/JJyuk7mEev5k0Pds" />
+<iframe class="stretch" data-src="https://wandbox.org/permlink/XsWLNHTaEUPCuPw4" />
 
 ==============================================================================
 
-### Exercises - System State Machine
+### Exercise - System State Machine
 
 ![system](images/system.png)
 
 ----
 
-* Add runtime dispatching
-* Context
-* Multiple state machines
-* Transition change
+### Exercise - System State Machine
+
+* Dynamically convert command line arguments into events
+  based on event id and produce `out` file with names of called actions
+
+* Example
+  ```
+  ./a.out 5 0 2 1
+  ```
+  ```
+  cat out
+  setup
+  establish
+  ```
+----
+
+### Exercise - System State Machine - Problem
+
+<iframe class="stretch" data-src="https://wandbox.org/permlink/eJCpChqZLqKivjCo" />
+
+----
+
+### Exercise - System State Machine - Example Solution
+
+<iframe class="stretch" data-src="https://wandbox.org/permlink/82JwdSBHmLv7koU9" />
 
 ==============================================================================
 
@@ -1495,11 +1542,11 @@ struct System {
 
 ==============================================================================
 
-## Summary
+### Summary
 
 ----
 
-### If you like it or not, your code won't be stateful (most likely)
+### If you like it or not, your code won't be stateless (most likely)
 
 ----
 
@@ -1516,7 +1563,6 @@ struct System {
 ----
 
 ### Leveraging Zero-cost libraries will boost your design and/or performance
-* [[Boost].SML](http://boost-experimental.github.io/sml/) / [Boost.MSM](http://www.boost.org/doc/libs/1_63_0/libs/msm/doc/HTML/index.html)
 
 ==============================================================================
 

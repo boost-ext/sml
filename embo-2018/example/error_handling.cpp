@@ -51,4 +51,3 @@ int main() {
   assert(connection.is(sml::X));      /// terminated
   }
 }
-

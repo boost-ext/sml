@@ -18,7 +18,7 @@ public:
 class Context {
 public:
   const char* const ip{};
-  bool valid(int id) const { return true; }
+  bool valid(int id) const { return id; }
 };
 
 struct connect {};
@@ -73,3 +73,4 @@ int main() {
   connections[2].process_event(ping{42});
   connections[3].process_event(disconnect{});
 }
+

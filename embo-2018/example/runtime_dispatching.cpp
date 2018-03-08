@@ -47,5 +47,4 @@ int main() {
   int data{};
   dispatch((void*)&data, 1); // ping
   dispatch(nullptr, 4);      // disconnect
-};
-
+}

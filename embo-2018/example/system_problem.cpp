@@ -1,6 +1,9 @@
 #include <boost/sml.hpp>
+#include <boost/sml/utility/dispatch_table.hpp>
 #include <cassert>
+#include <fstream>
 #include <cstdio>
+#include <cstdlib>
 #include <queue>
 
 namespace sml = boost::sml;
@@ -33,17 +36,21 @@ struct printf_logger {
 };
 
 /// events
-struct connect {};
-struct ping {
-  bool valid = false;
+struct connect : sml::utility::id<__COUNTER__> {};
+struct ping : sml::utility::id<__COUNTER__> {
+  explicit ping(const void* msg)
+     : valid{msg}
+  { }
+
+  bool valid{};
 };
-struct established {};
-struct timeout {};
-struct disconnect {};
-struct power_up {};
-struct suspend {};
-struct resume {};
-struct tick {};
+struct established : sml::utility::id<__COUNTER__> {};
+struct timeout : sml::utility::id<__COUNTER__> {};
+struct disconnect : sml::utility::id<__COUNTER__> {};
+struct power_up : sml::utility::id<__COUNTER__> {};
+struct suspend : sml::utility::id<__COUNTER__> {};
+struct resume : sml::utility::id<__COUNTER__> {};
+struct tick : sml::utility::id<__COUNTER__> {};
 
 /// guards
 const auto is_valid = [](const auto& event) {
@@ -101,30 +108,19 @@ class System {
 
 }
 
-int main() {
+int main(int argc, char** argv) {
   using namespace sml;
   printf_logger log{};
-  sm<System, logger<printf_logger>, defer_queue<std::queue>, dispatch<back::policies::switch_stm>> system{log};
+  sm<System, logger<printf_logger>, defer_queue<std::queue>> system{log};
 
-  // clang-format off
-  /// start
-  system.process_event(power_up{});
-  system.process_event(connect{});      /// handled by Connection
-  system.process_event(established{});  /// handled by Connection
+  for (auto i = 1; i < argc; ++i) {
+    (void)argc;
+    (void)argv;
+    assert(false); // FIXME
+  }
 
-  /// composite / history
-  system.process_event(suspend{});      /// handled by System
-  system.process_event(resume{});       /// gets back to connected
-  system.process_event(ping{true});     /// handled by Connection
-
-  /// defer
-  system.process_event(suspend{});      /// handled by System
-  system.process_event(ping{true});     /// defer
-  system.process_event(resume{});       /// ping in connected
-  system.process_event(disconnect{});   /// handled by Connection
-
-  /// orthogonal regions
-  system.process_event(timeout{});      /// handled by watchdog
-  assert(system.is(sml::X));            /// true if any state is in terminated state (X)
-  // clang-format on
+  // ./a.out 5 0 2 1
+  // cat out
+  //   setup
+  //   establish
 }

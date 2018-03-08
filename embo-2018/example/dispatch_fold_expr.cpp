@@ -32,9 +32,8 @@ struct Connection {
 }
 
 int main() {
-  sml::sm<Connection> connection{};
-
-  static_assert(2 == sizeof(connection), "SM is too big!");
+  // C++17
+  sml::sm<Connection, sml::dispatch<sml::back::policies::fold_expr>> connection{};
 
   connection.process_event(connect{});
   connection.process_event(established{});

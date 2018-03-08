@@ -63,4 +63,3 @@ int main() {
   connection.process_event(ping{true});
   connection.process_event(disconnect{});
 }
-
