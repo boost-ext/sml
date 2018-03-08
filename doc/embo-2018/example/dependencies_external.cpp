@@ -58,8 +58,8 @@ int main() {
 
   sml::sm<Connection> connection{ctx, sender};
   //sml::sm<Connection> connection{sender, ctx}; // okay
-  sml::sm<Connection> connection{ctx}; // missing_ctor<Sender>
-  sml::sm<Connection> connection{ctx}; // missing_ctor<Context> missing_ctor<Sender>
+  //sml::sm<Connection> connection{ctx}; // missing_ctor<Sender>
+  //sml::sm<Connection> connection{ctx}; // missing_ctor<Context> missing_ctor<Sender>
 
   connection.process_event(connect{});
   connection.process_event(established{});

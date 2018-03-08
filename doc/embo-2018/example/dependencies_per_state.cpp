@@ -21,7 +21,7 @@ public:
 class Context {
 public:
   const char* const ip{};
-  bool valid(int id) const { return true; }
+  bool valid(int id) const { return id; }
   void log(...) {}
 };
 
@@ -59,11 +59,11 @@ struct Connection {
   auto operator()() {
     using namespace sml;
     return make_transition_table(
-      * "Disconnected"_s + event<connect> / establish(address_, data_)       = "Connecting"_s,
-        "Connecting"_s   + event<established>                        = "Connected"_s,
+      * "Disconnected"_s + event<connect> / establish(address_, data_)  = "Connecting"_s,
+        "Connecting"_s   + event<established>                           = "Connected"_s,
         "Connected"_s    + event<ping> [ is_valid ] / resetTimeout,
-        "Connected"_s    + event<timeout> / establish(address_, data_)       = "Connecting"_s,
-        "Connected"_s    + event<disconnect> / close                 = "Disconnected"_s
+        "Connected"_s    + event<timeout> / establish(address_, data_)  = "Connecting"_s,
+        "Connected"_s    + event<disconnect> / close                    = "Disconnected"_s
     );
   }
 

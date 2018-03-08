@@ -16,4 +16,6 @@ struct Connection {
 int main() {
   sml::sm<Connection> sm;
   sm.process_event(connect{});
+
+  static_assert(1 == sizeof(sm), "SM is too big!");
 }
