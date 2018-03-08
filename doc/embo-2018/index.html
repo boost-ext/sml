@@ -82,7 +82,7 @@ Kris Jusiak, Quantlab Financial
   * Transitions
     * Actions/Guards
   * Dependencies
-  * Logging/Testing/Error handling
+  * Logging/Debugging/Testing
   * Runtime dispatching
   * Performance tuning
   * Diagrams generation
@@ -342,6 +342,18 @@ $CXX -std=c++1z -O3 -flto -fno-exceptions -DNDEBUG benchmark.cpp
 ### Hello World - Connection
 
 ![](images/sm_example.png)
+
+----
+
+#### [Boost].SML basic setup
+
+```cpp
+// one header; neither STL nor Boost required
+#include <boost/sml.hpp>
+
+// convenient alias
+namespace sml = boost::sml;
+```
 
 ----
 
@@ -752,7 +764,77 @@ injector.create<sml::sm<Connection>>();
 
 ==============================================================================
 
-### Logging/Testing/Error handling
+### Logging/Debugging/Error handling
+
+----
+
+#### Logging
+
+```cpp
+struct my_logger {
+  template <class SM, class TEvent> void log_process_event(const TEvent&) {
+    printf("[%s][process_event] %s\n", name<SM>(), name<TEvent>());
+  }
+  template <class SM, class TSrcState, class TDstState>
+  void log_state_change(const TSrcState& src, const TDstState& dst) {
+    printf("[%s][transition] %s -> %s\n", name<SM>(), src.c_str(), dst.c_str());
+  }
+  template <class SM, class TGuard, class TEvent>
+  void log_guard(const TGuard&, const TEvent&, bool result) {
+    printf("[%s][guard] %s %s %d\n", name<SM>(), name<TGuard>(), name<TEvent>(), result);
+  }
+  template <class SM, class TAction, class TEvent>
+  void log_action(const TAction&, const TEvent&) {
+    printf("[%s][action] %s %s\n", name<SM>(), name<TAction>(), name<TEvent>());
+  }
+};
+```
+<!-- .element: style="margin-left:-13%; width:125%" -->
+
+----
+
+#### Logging - Connection
+
+```cpp
+my_logger logger{};
+sml::sm<Connection, sml::logger<my_logger>> sm{logger};
+```
+<!-- .element: style="margin-left:-3%; width:115%" -->
+
+----
+
+#### Logging - Connection
+
+<iframe class="stretch" data-src="" />
+
+----
+
+#### Debugging
+
+* Verify the current state
+  ```cpp
+  using namespace sml;
+  assert(connection.is("Connecting"_s));
+  ```
+<!-- .element: style="margin-left:-3%; width:105%" -->
+
+* Visit current states
+  ```cpp
+  connection.visit_current_states([](auto state) {
+    std::cout << state.c_str() << std::endl;
+  });
+  ```
+<!-- .element: style="margin-left:-3%; width:105%" -->
+
+----
+
+#### Debugging - Connection
+
+<iframe class="stretch" data-src="" />
+
+----
+
+### Error handling
 
 ----
 
@@ -760,45 +842,30 @@ injector.create<sml::sm<Connection>>();
 
 ![](images/terminate_state.png)
 
- ```cpp
+```cpp
 sml::X // sml::terminate_state
 ```
 
 ----
 
-#### Unexpected event handles case for an undefined trigger
+#### Error handling
 
-```cpp
-unexpected_event<connect>
-```
+* Unexpected events
+  ```cpp
+  "Disconnected"_s + unexpected_event<_> = X
+  ```
+  <!-- .element: style="margin-left:0%; width:100%" -->
 
-----
-
-#### Exception event handles case when exception has been thrown
-
-```cpp
-// Available only if NOT compiled with `-fno-exceptions`
-exception<std::runtime_error>
-```
-
-----
-
-#### Show current states
-```cpp
-sm.visit_current_states([](auto state) {
-  std::cout << state.c_str() << '\n';
-});
-```
+* Exceptions (only if not compiled with -fno-exceptions)
+  ```cpp
+  "Disconnected"_s + exception<std::runtime_error> / [] { cleanup(); },
+  "Disconnected"_s + exception<_> = X // other exception -> terminate
+  ```
+  <!-- .element: style="margin-left:0%; width:100%" -->
 
 ----
 
-#### Verify current state
-
-```cpp
-assert(sm.is("idle"_s));
-```
-
-----
+#### Error Handling - Connection
 
 <iframe class="stretch" data-src="" />
 
@@ -1089,7 +1156,7 @@ struct fold_expr {
 
 ----
 
-### PlantUML
+#### PlantUML
 
 ```
 @startuml connection.png
@@ -1109,25 +1176,8 @@ http://plantuml.com/state-diagram
 
 ----
 
-### Diagrams generation
-####Dump transitions
-```cpp
-template <class SM>
-void dump(const SM&) noexcept {
-  std::cout << "@startuml\n\n";
-  dump_transitions(typename SM::transitions{});
-  std::cout << "\n@enduml\n";
-}
+#### Diagrams generation - Plant UML
 
-template <template <class...> class T, class... Ts>
-void dump_transitions(const T<Ts...>&) noexcept {
-  (dump_transition<Ts>(), ...);
-}
-```
-
-----
-
-####Dump transition
 ```cpp
 template <class T>
 void dump_transition() noexcept {
@@ -1139,15 +1189,17 @@ void dump_transition() noexcept {
   }
 
   std::cout << src_state << " -> " << dst_state << " : "
-            << typeid(typename T::event) << "["
-            << typeid(typename T::guard) << "] / "
-            << typeid(typename T::action);
+            << name<typename T::event>() << "["
+            << name<typename T::guard>() << "] / "
+            << name<typename T::action>();
 }
 ```
 
 ----
 
-<iframe class="stretch" data-src="https://godbolt.org" />
+#### Diagrams generation - Plant UML - Connection
+
+<iframe class="stretch" data-src="" />
 
 ==============================================================================
 
