@@ -1,0 +1,13 @@
+@startuml
+
+State Parser {
+  [*] -> Idle
+  Idle --> Name: char [ is_letter ] / update_buffer
+  Idle --> Idle: char
+  Name --> Name: char [ is_letter ] / update_buffer
+  Name --> Year: char [ is_char(' ') ]
+  Year --> Year: char [ is_digit ] / update_buffer
+  Year --> [*]: char [ is_char('!') ]
+}
+
+@enduml

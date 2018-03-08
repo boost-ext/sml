@@ -1,74 +1,67 @@
 #include <boost/sml.hpp>
 #include <cstdio>
+#include <string>
+#include <cassert>
 #include <array>
-
-#include <iostream>
 
 namespace sml = boost::sml;
 
 namespace {
 
-using Id_t = std::array<char, 16>;
-using Num_t = int;
-
-struct c {
-  char ch;
+struct char_t {
+  char char_{};
+  operator char() const { return char_; }
 };
 
 const auto is_digit = [](const auto& event) {
-  return event.ch >= '0' and event.ch <= '9';
+  return event >= '0' and event <= '9';
 };
 
 const auto is_letter = [](const auto& event) {
-  return event.ch >= 'a' and event.ch <= 'z';
+  return event >= 'a' and event <= 'z';
 };
 
-const auto is_separator = [](const auto& event) { return event.ch == ' '; };
+const auto is = [](auto c) { return [c](const auto& event) { return event == c; }; };
 
-auto next_id = [n = 0](const auto& event, Id_t& id) mutable {
-  static auto i = 0;
-  //std::clog << id.data() << i++ << std::endl;
-  id[i++] = event.ch;
-};
-
-auto next_num = [](const auto& event, Num_t& id) {
-  id *= 10;
-  id += (event.ch - '0');
+auto update_buffer = [n = 0]() mutable {
+  return [&n](const auto& event, std::array<char, 32>& buffer) {
+    buffer[n++] = event;
+  };
 };
 
 struct Parser {
   auto operator()() {
     using namespace sml;
+    // clang-format off
     return make_transition_table(
-      * "idle"_s + event<c> [ is_digit ] / next_num = "number"_s,
-        "idle"_s + event<c> [ is_letter ] / next_id = "id"_s,
-        "number"_s + event<c> [ is_digit ] / next_num,
-        "number"_s + event<c> [ is_separator ] = "id"_s,
-        "id"_s + event<c> [ is_letter or is_digit ] / next_id,
-        "id"_s + event<c> [ is_separator ] = "number"_s
+      * "Idle"_s + event<char_t> [ is('!') ]                          = "Name"_s,
+        "Name"_s + event<char_t> [ is_letter ]     / update_buffer(),
+        "Name"_s + event<char_t> [ is(' ') ]                          = "Year"_s,
+        "Year"_s + event<char_t> [ is_digit ]      / update_buffer(),
+        "Year"_s + event<char_t> [ is('!') ]                          = X
     );
+    // clang-format on
   }
 };
 
 }
 
 int main() {
-  Num_t num{};
-  Id_t id{};
-  sml::sm<Parser> parser{id, num};
+  std::array<char, 32> buffer{};
+  sml::sm<Parser> parser{buffer};
 
-  parser.process_event(c{'e'});
-  parser.process_event(c{'m'});
-  parser.process_event(c{'b'});
-  parser.process_event(c{'o'});
+  parser.process_event(char_t{'!'});
+  parser.process_event(char_t{'e'});
+  parser.process_event(char_t{'m'});
+  parser.process_event(char_t{'b'});
+  parser.process_event(char_t{'o'});
+  parser.process_event(char_t{' '});
+  parser.process_event(char_t{'2'});
+  parser.process_event(char_t{'0'});
+  parser.process_event(char_t{'1'});
+  parser.process_event(char_t{'8'});
+  parser.process_event(char_t{'!'});
 
-  parser.process_event(c{','});
-
-  parser.process_event(c{'2'});
-  parser.process_event(c{'0'});
-  parser.process_event(c{'1'});
-  parser.process_event(c{'8'});
-
-  std::cout << id.data() << " " << num << std::endl;
+  assert(parser.is(sml::X));
+  assert(std::string{"embo2018"} == buffer.data());
 }
-
