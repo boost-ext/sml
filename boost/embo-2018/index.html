@@ -49,13 +49,11 @@
 
 # 'Embedding' a Meta State Machine
 
-### Workshop
-
 Kris Jusiak, Quantlab Financial
 
 ---
 
-[kris@jusiak.net](mailto:kris@jusiak.net) | [@krisjusiak](https://twitter.com/krisjusiak) | [linkedin.com/in/kris-jusiak](https://www.linkedin.com/in/kris-jusiak)
+#### [kris@jusiak.net](mailto:kris@jusiak.net) | [@krisjusiak](https://twitter.com/krisjusiak) | [linkedin.com/in/kris-jusiak](https://www.linkedin.com/in/kris-jusiak)
 
 ==============================================================================
 
@@ -168,9 +166,8 @@ void handle(int id, const void* message) {
 ### Motivation - hand written state machine
 
 ```cpp
-class Connection {
+struct Connection {
   enum { CONNECT, ESTABLISHED, PING, TIMEOUT, DISCONNECT };
-public:
   void handle(int id, const void* message) {
     switch (state) {
       case Disconnected:
@@ -185,6 +182,7 @@ public:
     }
   }
 ```
+<!-- .element: style="margin-left:0%; width:100%" -->
 
 ```cpp
 private:
@@ -193,6 +191,7 @@ private:
   enum { Disconnected, Connecting, Connected } state = Disconnected;
 };
 ```
+<!-- .element: style="margin-left:0%; width:100%" -->
 
 ----
 
@@ -454,22 +453,27 @@ sm.process_event(connect{});
 ```cpp
 * -> Disconnected : connect / establish              -> Connecting
 ```
+<!-- .element: style="margin-left:0%; width:100%" -->
 
 ```cpp
      Connecting   : established                      -> Connected
 ```
+<!-- .element: style="margin-left:0%; width:100%" -->
 
 ```cpp
      Connected    : ping [ is_valid ] / resetTimeout
 ```
+<!-- .element: style="margin-left:0%; width:100%" -->
 
 ```cpp
      Connected    : timeout                          -> Connecting
 ```
+<!-- .element: style="margin-left:0%; width:100%" -->
 
 ```cpp
      Connected    : disconnect                       -> Disconnected
 ```
+<!-- .element: style="margin-left:0%; width:100%" -->
 
 <center>![Transition](images/transition.png)</center>
 
@@ -516,6 +520,7 @@ SourceState + event [ guard ] / action = DestinationState
                                     1. DestinationState + on_exit
                                     2. SourceState + on_entry
 ```
+<!-- .element: style="margin-left:0%; width:100%" -->
 
 ----
 
@@ -577,9 +582,10 @@ class Context { ... }; // Instance per application
 ```
 
 ```cpp
-const auto is_valid = [](const Context& ctx, const auto& event) {
-  return ctx.valid(event.id);
-};
+const auto is_valid =
+  [](const Context& ctx, const auto& event) {
+    return ctx.valid(event.id);
+  };
 ```
 
 ```cpp
@@ -603,6 +609,7 @@ int main() {                  /                   ----------------\
   sm.process_event(ping{true}); ----------------------------------
 }
 ```
+<!-- .element: style="margin-left:0%; width:100%" -->
 
 ----
 
@@ -646,7 +653,6 @@ struct Connection {
 int main() {
   Context ctx{...};
   Sender sender{...};
-
   std::array connections = {
     sml::sm<Connection>{Connection{"127.0.0.1"}, ctx, sender},
     sml::sm<Connection>{Connection{"127.0.0.2"}, ctx, sender},
@@ -698,7 +704,7 @@ auto establish =
 ```cpp
 auto establish =
   [max_retries = 10](const auto& address, auto& data) mutable {
-    return [&](Sender& sender, Context& ctx, const auto& event) {
+    return [&](Sender& sender, Context& ctx, auto event) {
       max_retries -= sender.send(address, "establish");
 
       if (!max_retries) {
@@ -717,7 +723,6 @@ auto establish =
 
 ```cpp
 struct Connection {
- public:
   explicit Connection(std::string_view address) : address_{address} {}
 
   auto operator()() {
@@ -733,7 +738,7 @@ struct Connection {
   std::variant<int /*etc...*/> data_{}; // Type safe union storage per state
 };
 ```
-<!-- .element: style="margin-left:-3%; width:115%" -->
+<!-- .element: style="margin-left:-12%; width:125%" -->
 
 ----
 
@@ -770,38 +775,47 @@ injector.create<sml::sm<Connection>>();
 
 ----
 
-#### Logging
+#### Logging - my_logger
 
 ```cpp
-struct my_logger {
-  template <class SM, class TEvent> void log_process_event(const TEvent&) {
-    printf("[%s][process_event] %s\n", name<SM>(), name<TEvent>());
-  }
-  template <class SM, class TSrcState, class TDstState>
-  void log_state_change(const TSrcState& src, const TDstState& dst) {
-    printf("[%s][transition] %s -> %s\n", name<SM>(), src.c_str(), dst.c_str());
-  }
-  template <class SM, class TGuard, class TEvent>
-  void log_guard(const TGuard&, const TEvent&, bool result) {
-    printf("[%s][guard] %s %s %d\n", name<SM>(), name<TGuard>(), name<TEvent>(), result);
-  }
-  template <class SM, class TAction, class TEvent>
-  void log_action(const TAction&, const TEvent&) {
-    printf("[%s][action] %s %s\n", name<SM>(), name<TAction>(), name<TEvent>());
-  }
-};
+template <class SM, class TEvent> void log_process_event(const TEvent&) {
+  printf("[%s][process_event] %s\n", name<SM>(), name<TEvent>());
+}
 ```
-<!-- .element: style="margin-left:-13%; width:125%" -->
+<!-- .element: style="margin-left:-11%; width:122%" -->
+
+```cpp
+template <class SM, class TSrcState, class TDstState>
+void log_state_change(const TSrcState& src, const TDstState& dst) {
+  printf("[%s][transition] %s -> %s\n", name<SM>(), src.c_str(), dst.c_str());
+}
+```
+<!-- .element: style="margin-left:-11%; width:122%" -->
+
+```cpp
+template <class SM, class TGuard, class TEvent>
+void log_guard(const TGuard&, const TEvent&, bool result) {
+  printf("[%s][guard] %s %s %d\n", name<SM>(), name<TGuard>(), name<TEvent>(), result);
+}
+```
+<!-- .element: style="margin-left:-11%; width:122%" -->
+
+```cpp
+template <class SM, class TAction, class TEvent>
+void log_action(const TAction&, const TEvent&) {
+  printf("[%s][action] %s %s\n", name<SM>(), name<TAction>(), name<TEvent>());
+}
+```
+<!-- .element: style="margin-left:-11%; width:122%" -->
 
 ----
 
-#### Logging - Connection
+#### Logging - my_logger - Connection
 
 ```cpp
 my_logger logger{};
 sml::sm<Connection, sml::logger<my_logger>> sm{logger};
 ```
-<!-- .element: style="margin-left:-3%; width:115%" -->
 
 ----
 
@@ -970,6 +984,7 @@ Exception handling is only available if NOT compiled with
 ```cpp
 sml::sm<Connection, sml::dispatch<sml::back::policies::POLICY>> sm{};
 ```
+<!-- .element: style="margin-left:0%; width:100%" -->
 
 ----
 
@@ -983,7 +998,6 @@ static_assert(std::is_same<
         "Connecting"_s   + established         = "Connected"_s
     )
   ),
-
   transition_table< // back-end
     // --------------------------------------------------------------------------------- //
     //         src_state              dst_state            event        guard   action   //
@@ -993,31 +1007,38 @@ static_assert(std::is_same<
   >
 >{});
 ```
-<!-- .element: style="margin-left:-8%; width:115%" -->
+<!-- .element: style="margin-left:-13%; width:125%" -->
 
 ----
 
 #### Back-End - Generated at Compile Time Mapping per Event and State
 
+#### mappings_t
 ```cpp
-using mappings_t = type_list<
-  pair<connect, type_list<
+pair<connect,
+  type_list<
     transitions<
       transition<state<"Disconnected">, state<"Connecting">, connect, always, establish>
     >,
     transitions<>, // Connecting (unexpected event)
     transitions<>  // Connected  (unexpected event)
-  >,
-  pair<established, type_list<
+  >
+>
+```
+<!-- .element: style="margin-left:-13%; width:125%" -->
+
+```cpp
+pair<established,
+  type_list<
     transitions<>, // Disconnected (unexpected event)
     transitions<
       transition<state<"Connecting">, state<"Connected">,  established, always, none>
     >,
     transitions<>  // Connected (unexpected event)
   >
->;
+>
 ```
-<!-- .element: style="margin-left:-8%; width:112%" -->
+<!-- .element: style="margin-left:-13%; width:125%" -->
 
 ----
 
@@ -1028,9 +1049,11 @@ template<class TransitionTable>
 class sm {
  public:
   constexpr void process_event(const TEvent& event) {
-    dispatch_policy::dispatch(current_state_,
-                              event,
-                              typename TransitionTable::states{});
+    dispatch_policy::dispatch(
+      current_state_,
+      event,
+      typename TransitionTable::states{}
+    );
   }
 
  private:
@@ -1077,15 +1100,13 @@ struct switch_stm {
                           const TEvent &event,
                           type_list<TState, TStates...>) {
     switch (current_state) {
-      case N:
-        return mappings_t<TState>::template
-          execute<TEvent>(event);
-      default:
-        return dispatch(current_state, type_list<TStates...>{});
+      default: return dispatch(current_state, type_list<TStates...>{});
+      case N: return mappings_t<TState>::template execute<TEvent>(event);
     }
   }
 };
 ```
+<!-- .element: style="margin-left:1%; width:105%" -->
 
 ----
 
@@ -1107,12 +1128,12 @@ struct branch_stm {
                           const TEvent &event,
                           type_list<TState, TStates...>) {
     return current_state == N
-      ? mappings_t<TState>::template
-          execute<TEvent>(event)
+      ? mappings_t<TState>::template execute<TEvent>(event)
       : dispatch(current_state, event, type_list<TStates...>{});
   }
 };
 ```
+<!-- .element: style="margin-left:0%; width:100%" -->
 
 ----
 
@@ -1196,6 +1217,7 @@ void dump_transition() noexcept {
             << name<typename T::action>();
 }
 ```
+<!-- .element: style="margin-left:0%; width:100%" -->
 
 ----
 
@@ -1217,13 +1239,13 @@ void dump_transition() noexcept {
 
 ----
 
-### Exercise - Parser - Problem
+#### Exercise - Parser - Problem
 
 <iframe class="stretch" data-src="https://wandbox.org/permlink/wUqf3AFpWN1r4TtA" />
 
 ----
 
-### Exercise - Parser - Example Solution
+#### Exercise - Parser - Example Solution
 
 <iframe class="stretch" data-src="https://wandbox.org/permlink/rnAGopy8vvvkamgj" />
 
@@ -1287,7 +1309,7 @@ class System {
   }
 };
 ```
-<!-- .element: style="margin-left:-3%; width:115%" -->
+<!-- .element: style="margin-left:-11%; width:121%" -->
 
 ----
 
@@ -1330,7 +1352,7 @@ struct Connection {
   }
 };
 ```
-<!-- .element: style="margin-left:-3%; width:115%" -->
+<!-- .element: style="margin-left:-11%; width:120%" -->
 
 ```cpp
 struct System {
@@ -1345,7 +1367,7 @@ struct System {
   }
 };
 ```
-<!-- .element: style="margin-left:-3%; width:115%" -->
+<!-- .element: style="margin-left:-11%; width:121%" -->
 
 ----
 
@@ -1406,7 +1428,7 @@ struct System {
   }
 };
 ```
-<!-- .element: style="margin-left:-3%; width:115%" -->
+<!-- .element: style="margin-left:-11%; width:121%" -->
 
 ----
 
@@ -1457,7 +1479,6 @@ struct System {
 struct System {
   struct Connection; // Connection State Machine
   auto operator()() const {
-    using namespace sml;
     return make_transition_table(
      * "Idle"_s          + event<power_up> [ has_battery and
                                              is_healthy ] / setup = state<Connection>,
@@ -1471,7 +1492,7 @@ struct System {
   }
 };
 ```
-<!-- .element: style="margin-left:-3%; width:115%" -->
+<!-- .element: style="margin-left:-13%; width:125%" -->
 
 ----
 
@@ -1577,7 +1598,7 @@ struct System {
 
 -
 
-[kris@jusiak.net](mailto:kris@jusiak.net) | [@krisjusiak](https://twitter.com/krisjusiak) | [linkedin.com/in/kris-jusiak](https://www.linkedin.com/in/kris-jusiak)
+#### [kris@jusiak.net](mailto:kris@jusiak.net) | [@krisjusiak](https://twitter.com/krisjusiak) | [linkedin.com/in/kris-jusiak](https://www.linkedin.com/in/kris-jusiak)
 
 
 					</script>
