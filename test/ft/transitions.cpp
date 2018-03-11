@@ -87,6 +87,27 @@ test anonymous_transition = [] {
   expect(static_cast<const c&>(sm).a_called);
 };
 
+test anonymous_transition_recursive = [] {
+  struct c {
+    auto operator()() noexcept {
+      auto is_true = [] { return true; };
+      auto is_false = [] { return false; };
+
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        (*idle)[is_true] = s1,
+         idle [is_false] = s2,
+         s1= X
+      // clang-format on
+      );
+    }
+  };
+
+  sml::sm<c> sm{};
+  expect(sm.is(sml::X));
+};
+
 test self_transition = [] {
   enum class calls { s1_entry, s1_exit, s1_action };
 

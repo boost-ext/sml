@@ -112,7 +112,8 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   template <class TDeps, class TSubs>
   void start(TDeps &deps, TSubs &subs) {
     process_internal_events(on_entry<_, initial>{}, deps, subs);
-    process_internal_events(anonymous{}, deps, subs);
+    while (process_internal_events(anonymous{}, deps, subs))
+      ;
     process_queued_events(deps, subs, aux::type<process_queue_t<initial>>{}, events_t{});
   }
 
