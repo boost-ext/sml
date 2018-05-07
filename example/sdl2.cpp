@@ -12,12 +12,16 @@
 
 namespace sml = boost::sml;
 
-namespace {
 // clang-format off
 #if __has_include(<SDL2/SDL_events.h>)
 #include <SDL2/SDL_events.h>
 // clang-format on
+
+namespace {
+
 #else
+namespace {
+
 enum { SDLK_SPACE = ' ' };
 enum SDL_EventType { SDL_FIRSTEVENT = 0, SDL_QUIT, SDL_KEYUP, SDL_MOUSEBUTTONUP, SDL_LASTEVENT };
 struct SDL_KeyboardEvent {
