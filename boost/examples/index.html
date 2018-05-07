@@ -848,7 +848,7 @@ int main() {
   sm.set_current_states(&quot;s2&quot;_s);
   sm.process_event(e3{});
   assert(sm.is(X));
-  assert(fake_data.value = 42);
+  assert(fake_data.value == 42);
 }
 </code></pre>
 
@@ -1173,10 +1173,14 @@ int main() {}
 
 namespace sml = boost::sml;
 
-namespace {
 #if __has_include(&lt;SDL2/SDL_events.h&gt;)
 #include &lt;SDL2/SDL_events.h&gt;
+
+namespace {
+
 #else
+namespace {
+
 enum { SDLK_SPACE = ' ' };
 enum SDL_EventType { SDL_FIRSTEVENT = 0, SDL_QUIT, SDL_KEYUP, SDL_MOUSEBUTTONUP, SDL_LASTEVENT };
 struct SDL_KeyboardEvent {
