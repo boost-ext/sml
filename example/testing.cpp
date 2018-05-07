@@ -44,5 +44,5 @@ int main() {
   sm.set_current_states("s2"_s);
   sm.process_event(e3{});
   assert(sm.is(X));
-  assert(fake_data.value = 42);
+  assert(fake_data.value == 42);
 }
