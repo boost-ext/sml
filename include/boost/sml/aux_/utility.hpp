@@ -273,6 +273,7 @@ constexpr int max() {
 
 template <class TExpr, class = void>
 struct zero_wrapper : TExpr {
+  using type = TExpr;
   explicit zero_wrapper(const TExpr &expr) : TExpr(expr) {}
   const TExpr &get() const { return *this; }
 };
@@ -289,6 +290,7 @@ struct zero_wrapper_impl<TExpr, type_list<TArgs...>> {
 template <class TExpr>
 struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
     : zero_wrapper_impl<TExpr, function_traits_t<decltype(&TExpr::operator())>> {
+  using type = TExpr;
   template <class... Ts>
   zero_wrapper(Ts &&...) {}
   const TExpr &get() const { return reinterpret_cast<const TExpr &>(*this); }

@@ -13,7 +13,6 @@
 
 namespace sml = boost::sml;
 
-namespace {
 struct e1 {};
 struct e2 {};
 struct e3 {};
@@ -64,15 +63,15 @@ void dump_transition() noexcept {
   }
 
   if (has_event) {
-    std::cout << " " << typeid(typename T::event).name();
+    std::cout << " " << boost::sml::aux::get_type_name<typename T::event>();
   }
 
   if (has_guard) {
-    std::cout << " [" << typeid(typename T::guard).name() << "]";
+    std::cout << " [" << boost::sml::aux::get_type_name<typename T::guard::type>() << "]";
   }
 
   if (has_action) {
-    std::cout << " / " << typeid(typename T::action).name();
+    std::cout << " / " << boost::sml::aux::get_type_name<typename T::action::type>();
   }
 
   std::cout << std::endl;
@@ -89,7 +88,6 @@ void dump(const SM&) noexcept {
   std::cout << "@startuml" << std::endl << std::endl;
   dump_transitions(typename SM::transitions{});
   std::cout << std::endl << "@enduml" << std::endl;
-}
 }
 
 int main() {

@@ -46,11 +46,13 @@ struct get_deps<T<Ts...>, E, aux::enable_if_t<aux::is_base_of<operator_base, T<T
 };
 
 struct always {
+  using type = always;
   bool operator()() const { return true; }
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 
 struct none {
+  using type = none;
   void operator()() {}
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
