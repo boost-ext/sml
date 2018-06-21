@@ -76,7 +76,7 @@ struct switch_stm {
 
 #if defined(__cpp_fold_expressions)  // __pph__
 struct fold_expr {
-  template <class TMappings, auto... Ns, class sm_impl, class State, class TEvent, class TDeps, class TSubs, class... TStates>
+  template <class TMappings, int... Ns, class sm_impl, class State, class TEvent, class TDeps, class TSubs, class... TStates>
   static bool dispatch_impl(sm_impl &self, State &current_state, aux::index_sequence<Ns...>, const TEvent &event, TDeps &deps,
                             TSubs &subs, const aux::type_list<TStates...> &) {
     return ((current_state == Ns
