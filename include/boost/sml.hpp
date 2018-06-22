@@ -1552,6 +1552,11 @@ class sm {
   sm(aux::init, deps_t &deps) : deps_{deps}, sub_sms_{deps} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
   sm(sm &&other) : deps_{other.deps_}, sub_sms_{other.deps_} {}
   sm(const sm &) = delete;
+  sm &operator=(sm &&other) {
+    deps_ = other.deps_;
+    sub_sms_ = other.sub_sms_;
+    return *this;
+  }
   sm &operator=(const sm &) = delete;
   template <class TEvent, __BOOST_SML_REQUIRES(aux::is_base_of<TEvent, events_ids>::value)>
   void process_event(const TEvent &event) {
