@@ -70,6 +70,9 @@ endif ()
 add_executable(test_sizeof sizeof.cpp)
 add_test(test_sizeof test_sizeof)
 
+add_executable(test_constexpr constexpr.cpp)
+add_test(test_constexpr test_constexpr)
+
 # include\boost/sml.hpp(1330): error C3779: 'c::operator ()': a function that returns 'auto' cannot be used before it is defined
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
     add_executable(test_state_machine state_machine.cpp)

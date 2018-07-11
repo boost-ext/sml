@@ -22,7 +22,7 @@ using _ = back::_;
 /// events
 
 template <class TEvent>
-front::event<TEvent> event __BOOST_SML_VT_INIT;
+constexpr front::event<TEvent> event __BOOST_SML_VT_INIT;
 
 template <class TEvent>
 __BOOST_SML_UNUSED front::event<back::on_entry<_, TEvent>> on_entry __BOOST_SML_VT_INIT;
@@ -50,7 +50,7 @@ constexpr auto operator""_s() {
   return front::state<aux::string<T, Chrs...>>{};
 }
 template <class T, T... Chrs>
-auto operator""_e() {
+constexpr auto operator""_e() {
   return event<aux::string<T, Chrs...>>;
 }
 #endif  // __pph__
