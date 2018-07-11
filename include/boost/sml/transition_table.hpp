@@ -42,11 +42,11 @@ using initial = back::initial;
 /// states
 
 template <class T>
-typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
+constexpr typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 
 #if !defined(_MSC_VER)  // __pph__
 template <class T, T... Chrs>
-auto operator""_s() {
+constexpr auto operator""_s() {
   return front::state<aux::string<T, Chrs...>>{};
 }
 template <class T, T... Chrs>

@@ -50,17 +50,17 @@ test transition_sizeof = [] {
   }
 
   {
-    auto t = "state"_s + "event"_e[([i] {})] / [] {};
+    auto t = "state"_s + "event"_e[([i] {(void)i;})] / [] {};
     static_expect(sizeof(i) == sizeof(t));
   }
 
   {
-    auto t = "state"_s + "event"_e[([] {})] / [i] {};
+    auto t = "state"_s + "event"_e[([] {})] / [i] {(void)i;};
     static_expect(sizeof(i) == sizeof(t));
   }
 
   {
-    auto t = "state"_s + "event"_e[([] {})] / [&i] {};
+    auto t = "state"_s + "event"_e[([] {})] / [&i] {(void)i;};
     static_expect(sizeof(&i) == sizeof(t));
   }
 };
