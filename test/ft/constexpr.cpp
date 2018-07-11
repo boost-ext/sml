@@ -16,21 +16,29 @@ namespace sml = boost::sml;
 
 struct e1 {};
 struct e2 {};
-struct e3 {};
+
 
 constexpr auto idle = sml::state<class idle>;
 constexpr auto s1 = sml::front::state<class s1>{};
+
 using namespace sml;
+#if !defined(_MSC_VER)
 constexpr auto s2 = "s2"_s;
+constexpr auto event1 = "e1"_e;
+#else
+constexpr auto s2 = event<e2>;
+constexpr auto event1 = event<e1>;
+#endif
+
+constexpr auto event2 = front::event<e2>{};
 
 test terminate_state = [] {
   struct c {
     auto operator()() noexcept {
-      using namespace sml;
       // clang-format off
       return make_transition_table(
-         *idle + event<e1> = s1
-        , s1 + event<e2> = X
+         *idle + event1 = s1
+        , s1 + event2 = X
       );
       // clang-format on
     }
@@ -38,13 +46,9 @@ test terminate_state = [] {
 
   sml::sm<c> sm;
   expect(sm.is(idle));
-  sm.process_event(e1{});
+  sm.process_event(event1());
   expect(sm.is(s1));
   sm.process_event(e2{});
-  expect(sm.is(sml::X));
-  sm.process_event(e1{});
-  sm.process_event(e2{});
-  sm.process_event(e3{});
   expect(sm.is(sml::X));
 };
 
