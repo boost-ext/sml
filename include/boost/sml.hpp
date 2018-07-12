@@ -2492,8 +2492,12 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
 };
 }
 using _ = back::_;
+#if !defined(_MSC_VER)
 template <class TEvent>
-constexpr front::event<TEvent> event = {};
+constexpr front::event<TEvent> event{};
+#else
+front::event<TEvent> event{};
+#endif
 template <class TEvent>
 __BOOST_SML_UNUSED front::event<back::on_entry<_, TEvent>> on_entry __BOOST_SML_VT_INIT;
 template <class TEvent>
@@ -2504,8 +2508,13 @@ template <class T>
 front::event<back::exception<T>> exception __BOOST_SML_VT_INIT;
 using anonymous = back::anonymous;
 using initial = back::initial;
+#if !defined(_MSC_VER)
 template <class T>
-constexpr typename front::state_sm<T>::type state = {};
+constexpr typename front::state_sm<T>::type state{};
+#else
+template <class T>
+typename front::state_sm<T>::type state{};
+#endif
 #if !defined(_MSC_VER)
 template <class T, T... Chrs>
 constexpr auto operator""_s() {
