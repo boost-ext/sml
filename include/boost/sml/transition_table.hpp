@@ -24,7 +24,7 @@ using _ = back::_;
 #if !defined(_MSC_VER)  // __pph__
 template <class TEvent>
 constexpr front::event<TEvent> event{};
-#else  // __pph__
+#else   // __pph__
 template <class TEvent>
 front::event<TEvent> event __BOOST_SML_VT_INIT;
 #endif  // __pph__
@@ -49,7 +49,7 @@ using initial = back::initial;
 #if !defined(_MSC_VER)  // __pph__
 template <class T>
 constexpr typename front::state_sm<T>::type state{};
-#else  // __pph__
+#else   // __pph__
 template <class T>
 typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #endif  // __pph__

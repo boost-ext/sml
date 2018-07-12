@@ -5,6 +5,9 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+//
+#if !defined(_MSC_VER)
+
 #include <boost/sml.hpp>
 #include <string>
 #include <typeindex>
@@ -21,14 +24,8 @@ constexpr auto idle = sml::state<class idle>;
 constexpr auto s1 = sml::front::state<class s1>{};
 
 using namespace sml;
-#if !defined(_MSC_VER)
 constexpr auto s2 = "s2"_s;
 constexpr auto event1 = "e1"_e;
-#else
-constexpr auto s2 = state<e2>;
-constexpr auto event1 = event<e1>;
-#endif
-
 constexpr auto event2 = front::event<e2>{};
 
 test terminate_state = [] {
@@ -53,3 +50,5 @@ test terminate_state = [] {
   sm.process_event(e2{});
   expect(sm.is(sml::X));
 };
+
+#endif
