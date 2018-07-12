@@ -25,6 +25,7 @@ using _ = back::_;
 template <class TEvent>
 constexpr front::event<TEvent> event{};
 #else  // __pph__
+template <class TEvent>
 front::event<TEvent> event __BOOST_SML_VT_INIT;
 #endif  // __pph__
 
