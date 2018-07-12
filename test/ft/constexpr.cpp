@@ -26,7 +26,7 @@ using namespace sml;
 constexpr auto s2 = "s2"_s;
 constexpr auto event1 = "e1"_e;
 #else
-constexpr auto s2 = event<e2>;
+constexpr auto s2 = state<e2>;
 constexpr auto event1 = event<e1>;
 #endif
 
