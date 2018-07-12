@@ -17,7 +17,6 @@ namespace sml = boost::sml;
 struct e1 {};
 struct e2 {};
 
-
 constexpr auto idle = sml::state<class idle>;
 constexpr auto s1 = sml::front::state<class s1>{};
 
@@ -54,4 +53,3 @@ test terminate_state = [] {
   sm.process_event(e2{});
   expect(sm.is(sml::X));
 };
-
