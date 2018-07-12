@@ -22,7 +22,7 @@ using _ = back::_;
 /// events
 
 template <class TEvent>
-constexpr front::event<TEvent> event{};
+constexpr front::event<TEvent> event = {};
 
 template <class TEvent>
 __BOOST_SML_UNUSED front::event<back::on_entry<_, TEvent>> on_entry __BOOST_SML_VT_INIT;
@@ -42,7 +42,7 @@ using initial = back::initial;
 /// states
 
 template <class T>
-constexpr typename front::state_sm<T>::type state{};
+constexpr typename front::state_sm<T>::type state = {};
 
 #if !defined(_MSC_VER)  // __pph__
 template <class T, T... Chrs>
