@@ -2496,7 +2496,7 @@ using _ = back::_;
 template <class TEvent>
 constexpr front::event<TEvent> event{};
 #else
-front::event<TEvent> event{};
+front::event<TEvent> event __BOOST_SML_VT_INIT;
 #endif
 template <class TEvent>
 __BOOST_SML_UNUSED front::event<back::on_entry<_, TEvent>> on_entry __BOOST_SML_VT_INIT;
@@ -2513,7 +2513,7 @@ template <class T>
 constexpr typename front::state_sm<T>::type state{};
 #else
 template <class T>
-typename front::state_sm<T>::type state{};
+typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #endif
 #if !defined(_MSC_VER)
 template <class T, T... Chrs>

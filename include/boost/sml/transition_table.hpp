@@ -21,12 +21,12 @@ using _ = back::_;
 
 /// events
 
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER)  // __pph__
 template <class TEvent>
 constexpr front::event<TEvent> event{};
-#else
-front::event<TEvent> event{};
-#endif
+#else  // __pph__
+front::event<TEvent> event __BOOST_SML_VT_INIT;
+#endif  // __pph__
 
 template <class TEvent>
 __BOOST_SML_UNUSED front::event<back::on_entry<_, TEvent>> on_entry __BOOST_SML_VT_INIT;
@@ -45,13 +45,13 @@ using initial = back::initial;
 
 /// states
 
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER)  // __pph__
 template <class T>
 constexpr typename front::state_sm<T>::type state{};
-#else
+#else  // __pph__
 template <class T>
-typename front::state_sm<T>::type state{};
-#endif
+typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
+#endif  // __pph__
 
 #if !defined(_MSC_VER)  // __pph__
 template <class T, T... Chrs>
