@@ -38,7 +38,8 @@ test terminate_state = [] {
       // clang-format off
       return make_transition_table(
          *idle + event1 = s1
-        , s1 + event2 = X
+        , s1 + event1 = s2
+        , s2 + event2 = X
       );
       // clang-format on
     }
@@ -48,6 +49,8 @@ test terminate_state = [] {
   expect(sm.is(idle));
   sm.process_event(event1());
   expect(sm.is(s1));
+  sm.process_event(event1());
+  expect(sm.is(s2));
   sm.process_event(e2{});
   expect(sm.is(sml::X));
 };
