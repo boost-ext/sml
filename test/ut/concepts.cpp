@@ -121,4 +121,4 @@ test transitional_concept = [] {
   static_expect(!transitional<transition3>::value);
 };
 
-}  // concepts
+}  // namespace concepts

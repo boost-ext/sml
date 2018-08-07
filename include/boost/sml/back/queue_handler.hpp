@@ -87,6 +87,6 @@ struct queue_handler : queue_event_call<TEvents>... {
   void *queue_{};
 };
 
-}  // back
+}  // namespace back
 
 #endif

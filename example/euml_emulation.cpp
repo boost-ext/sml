@@ -65,7 +65,7 @@ template <class TEvent>
 void Action::operator()(euml_emulation& sm, const TEvent& event) {
   sm.call_action(event);
 }
-}
+}  // namespace
 
 int main() {
   euml_emulation euml;

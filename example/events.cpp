@@ -35,7 +35,7 @@ struct events {
     // clang-format on
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm<events> sm;

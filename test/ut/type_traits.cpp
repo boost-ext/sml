@@ -66,4 +66,4 @@ test is_empty_type = [] {
   static_expect(!is_empty<non_empty>::value);
 };
 
-}  // aux
+}  // namespace aux

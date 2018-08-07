@@ -31,7 +31,7 @@ struct states {
     // clang-format on
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm<states> sm;

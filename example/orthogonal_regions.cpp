@@ -29,7 +29,7 @@ struct orthogonal_regions {
     // clang-format on
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm<orthogonal_regions> sm;

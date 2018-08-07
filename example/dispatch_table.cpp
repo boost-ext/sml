@@ -34,7 +34,7 @@ struct dispatch_table {
     // clang-format on
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm<dispatch_table> sm;

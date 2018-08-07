@@ -196,16 +196,15 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
     const auto lock = thread_safety_.create_lock();
     (void)lock;
 
-    auto handled = false;
 #if defined(__cpp_fold_expressions)  // __pph__
-    return ((handled |= dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, deps, subs, states)),
-            ...);
+    return ((dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, deps, subs, states)), ...);
 #else   // __pph__
+    auto handled = false;
     (void)aux::swallow{
         0,
         (handled |= dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, deps, subs, states), 0)...};
-#endif  // __pph__
     return handled;
+#endif  // __pph__
   }
 
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
@@ -506,6 +505,6 @@ class sm {
   sub_sms_t sub_sms_;
 };
 
-}  // back
+}  // namespace back
 
 #endif

@@ -60,6 +60,6 @@ struct sm_policy {
   using rebind = typename rebind_impl<T, TPolicies...>::type;
 };
 
-}  // back
+}  // namespace back
 
 #endif

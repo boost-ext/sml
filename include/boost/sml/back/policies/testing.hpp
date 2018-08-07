@@ -16,7 +16,7 @@ struct testing_policy__ {};
 
 struct testing : aux::pair<testing_policy__, testing> {};
 
-}  // policies
-}  // back
+}  // namespace policies
+}  // namespace back
 
 #endif

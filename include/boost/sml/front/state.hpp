@@ -122,6 +122,6 @@ struct state_sm<T, aux::enable_if_t<concepts::composable<T>::value>> {
 };
 #endif  // __pph__
 
-}  // front
+}  // namespace front
 
 #endif

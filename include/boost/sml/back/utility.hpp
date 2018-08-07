@@ -171,6 +171,6 @@ struct convert_to_sm<T, aux::type_list<Ts...>> {
   using type = aux::type_list<sm_impl<T>, sm_impl<typename T::template rebind<Ts>>...>;
 };
 
-}  // back
+}  // namespace back
 
 #endif

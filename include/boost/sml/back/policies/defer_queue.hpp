@@ -20,7 +20,7 @@ struct defer_queue : aux::pair<back::policies::defer_queue_policy__, defer_queue
   using rebind = T<U>;
 };
 
-}  // policies
-}  // back
+}  // namespace policies
+}  // namespace back
 
 #endif

@@ -112,5 +112,5 @@ struct transitions_sub<sm<TSM>> {
   }
 };
 
-}  // back
+}  // namespace back
 #endif

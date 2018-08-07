@@ -44,7 +44,7 @@ class data {
   std::string address{};
   std::variant<Disconnected, Connected> data_{};
 };
-}
+}  // namespace
 
 int main() {
   sml::sm<data> sm{data{"127.0.0.1"}};

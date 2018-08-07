@@ -20,7 +20,7 @@ struct process_queue : aux::pair<back::policies::process_queue_policy__, process
   using rebind = T<U>;
 };
 
-}  // policies
-}  // back
+}  // namespace policies
+}  // namespace back
 
 #endif

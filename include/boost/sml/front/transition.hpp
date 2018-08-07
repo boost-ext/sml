@@ -523,6 +523,6 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 
-}  // front
+}  // namespace front
 
 #endif

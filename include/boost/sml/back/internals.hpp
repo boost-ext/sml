@@ -109,6 +109,6 @@ struct defer : queue_handler<TEvents...> {
   using queue_handler<TEvents...>::queue_handler;
 };
 
-}  // back
+}  // namespace back
 
 #endif

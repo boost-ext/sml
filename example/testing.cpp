@@ -35,7 +35,7 @@ struct testing {
     // clang-format on
   }
 };
-}
+}  // namespace
 
 int main() {
   using namespace sml;

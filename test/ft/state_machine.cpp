@@ -56,7 +56,6 @@ test sm_ctor = [] {
 
   sml::sm<c> sm{c{42}};
   (void)sm;
-
 };
 
 test sm_ctor_in_array = [] {
