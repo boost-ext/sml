@@ -18,6 +18,6 @@ auto transitional_impl(T &&t) -> aux::always<typename T::dst_state, typename T::
 template <class T>
 struct transitional : decltype(transitional_impl(aux::declval<T>())) {};
 
-}  // concepts
+}  // namespace concepts
 
 #endif

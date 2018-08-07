@@ -61,7 +61,7 @@ class controller {
  private:
   sml::sm<example>& sm;
 };
-}
+}  // namespace
 
 int main() {
   // clang-format off

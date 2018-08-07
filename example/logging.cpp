@@ -58,7 +58,7 @@ struct logging {
     // clang-format on
   }
 };
-}
+}  // namespace
 
 int main() {
   my_logger logger;

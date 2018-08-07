@@ -19,7 +19,7 @@ struct defer : action_base {
   }
 };
 
-}  // actions
-}  // front::actions
+}  // namespace actions
+}  // namespace front
 
 #endif

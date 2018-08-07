@@ -268,7 +268,7 @@ class not_ : operator_base {
   T g;
 };
 
-}  // front
+}  // namespace front
 
 template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
 auto operator!(const T &t) {

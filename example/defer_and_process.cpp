@@ -31,7 +31,7 @@ struct defer_and_process {
     // clang-format on
   }
 };
-}
+}  // namespace
 
 int main() {
   using namespace sml;

@@ -31,7 +31,7 @@ struct transitions {
     // clang-format on
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm<transitions> sm;

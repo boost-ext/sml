@@ -91,7 +91,7 @@ struct actions_guards {
     std::cout << "action5" << std::endl;
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm<actions_guards> sm{42};

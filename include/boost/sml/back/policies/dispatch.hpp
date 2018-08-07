@@ -95,7 +95,7 @@ struct fold_expr {
 };
 #endif  // __pph__
 
-}  // policies
-}  // back
+}  // namespace policies
+}  // namespace back
 
 #endif

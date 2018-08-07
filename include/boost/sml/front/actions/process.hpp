@@ -33,7 +33,7 @@ struct process {
   }
 };
 
-}  // actions
-}  // front::actions
+}  // namespace actions
+}  // namespace front
 
 #endif

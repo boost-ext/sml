@@ -40,7 +40,7 @@ struct dependencies {
     // clang-format on
   }
 };
-}
+}  // namespace
 
 int main() {
   using namespace sml;

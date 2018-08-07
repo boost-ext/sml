@@ -35,7 +35,7 @@ struct is_dispatchable : decltype(dispatchable_impl<T>(aux::declval<TEvent>())) 
 template <class T, class... TEvents>
 struct dispatchable<T, aux::type_list<TEvents...>>
     : aux::is_same<aux::bool_list<aux::always<TEvents>::value...>, aux::bool_list<is_dispatchable<T, TEvents>::value...>> {};
-}  // concepts
+}  // namespace concepts
 
 namespace detail {
 
@@ -102,7 +102,7 @@ auto make_dispatch_table(SM &fsm, const aux::index_sequence<Ns...> &) {
     dispatch_table[id - EventRangeBegin](fsm, e);
   };
 }
-}  // detail
+}  // namespace detail
 
 template <int... Ids>
 struct id_impl {
@@ -128,6 +128,6 @@ auto make_dispatch_table(SM &fsm) {
 
 BOOST_SML_NAMESPACE_END
 
-}  // utility
+}  // namespace utility
 
 #endif

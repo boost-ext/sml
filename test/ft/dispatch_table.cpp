@@ -159,7 +159,7 @@ struct my_logger {
     printf("[%s][transition] %s -> %s\n", sml::aux::get_type_name<SM>(), src.c_str(), dst.c_str());
   }
 };
-}
+}  // namespace
 
 test dispatch_sm_with_rebind_policies = [] {
   struct c {

@@ -175,6 +175,6 @@ struct remove_reference<T &&> {
 template <class T>
 using remove_reference_t = typename remove_reference<T>::type;
 
-}  // aux
+}  // namespace aux
 
 #endif

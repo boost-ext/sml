@@ -42,7 +42,7 @@ struct composite {
     // clang-format on
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm<composite> sm;

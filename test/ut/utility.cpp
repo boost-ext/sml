@@ -104,4 +104,4 @@ test type_id_basic = [] {
   expect(1 == get_id<int, double>((type_ids*)0));
 };
 
-}  // aux
+}  // namespace aux

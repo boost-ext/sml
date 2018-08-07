@@ -33,6 +33,6 @@ struct event {
   auto operator()() const { return TEvent{}; }
 };
 
-}  // front
+}  // namespace front
 
 #endif

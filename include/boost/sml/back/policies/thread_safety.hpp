@@ -33,7 +33,7 @@ struct thread_safe : aux::pair<thread_safety_policy__, thread_safe<TLock>> {
   TLock lock;
 };
 
-}  // policies
-}  // back
+}  // namespace policies
+}  // namespace back
 
 #endif

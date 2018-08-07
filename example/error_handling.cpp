@@ -32,7 +32,7 @@ struct error_handling {
     // clang-format on
   }
 };
-}
+}  // namespace
 
 int main() {
   using namespace sml;

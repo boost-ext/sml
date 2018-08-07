@@ -302,7 +302,7 @@ auto get_type_name(const char *ptr, index_sequence<Ns...>) {
   static const char str[] = {ptr[N + Ns]..., 0};
   return str;
 }
-}  // detail
+}  // namespace detail
 
 template <class T>
 const char *get_type_name() {
@@ -338,6 +338,6 @@ struct string<T> {
   static auto c_str_impl(...) { return get_type_name<T>(); }
 };
 
-}  // aux
+}  // namespace aux
 
 #endif

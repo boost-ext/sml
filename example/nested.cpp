@@ -35,7 +35,7 @@ class top {
  private:
   sml::sm<nested> sm{};
 };
-}
+}  // namespace
 
 int main() {
   top<> sm{};

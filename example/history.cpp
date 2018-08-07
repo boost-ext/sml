@@ -36,7 +36,7 @@ struct history {
     // clang-format on
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm<history> sm;

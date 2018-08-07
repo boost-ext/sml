@@ -170,6 +170,6 @@ struct get_event_mapping_impl_helper<on_exit<T1, T2>, TMappings>
 template <class T, class TMappings>
 using get_event_mapping_t = get_event_mapping_impl_helper<T, TMappings>;
 
-}  // back
+}  // namespace back
 
 #endif
