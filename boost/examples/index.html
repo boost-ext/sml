@@ -259,7 +259,7 @@ struct events {
     );
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm&lt;events&gt; sm;
@@ -300,7 +300,7 @@ struct states {
     );
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm&lt;states&gt; sm;
@@ -398,7 +398,7 @@ struct actions_guards {
     std::cout &lt;&lt; &quot;action5&quot; &lt;&lt; std::endl;
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm&lt;actions_guards&gt; sm{42};
@@ -439,7 +439,7 @@ struct transitions {
     );
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm&lt;transitions&gt; sm;
@@ -478,7 +478,7 @@ struct defer_and_process {
     );
   }
 };
-}
+}  // namespace
 
 int main() {
   using namespace sml;
@@ -523,7 +523,7 @@ struct orthogonal_regions {
     );
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm&lt;orthogonal_regions&gt; sm;
@@ -575,7 +575,7 @@ struct composite {
     );
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm&lt;composite&gt; sm;
@@ -637,7 +637,7 @@ struct history {
     );
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm&lt;history&gt; sm;
@@ -679,7 +679,7 @@ struct error_handling {
     );
   }
 };
-}
+}  // namespace
 
 int main() {
   using namespace sml;
@@ -754,7 +754,7 @@ struct logging {
     );
   }
 };
-}
+}  // namespace
 
 int main() {
   my_logger logger;
@@ -798,7 +798,7 @@ class top {
  private:
   sml::sm&lt;nested&gt; sm{};
 };
-}
+}  // namespace
 
 int main() {
   top&lt;&gt; sm{};
@@ -839,7 +839,7 @@ struct testing {
     );
   }
 };
-}
+}  // namespace
 
 int main() {
   using namespace sml;
@@ -883,7 +883,7 @@ struct dispatch_table {
     );
   }
 };
-}
+}  // namespace
 
 int main() {
   sml::sm&lt;dispatch_table&gt; sm;
@@ -966,7 +966,7 @@ template &lt;class TEvent&gt;
 void Action::operator()(euml_emulation&amp; sm, const TEvent&amp; event) {
   sm.call_action(event);
 }
-}
+}  // namespace
 
 int main() {
   euml_emulation euml;
@@ -1018,7 +1018,7 @@ struct dependencies {
      );
   }
 };
-}
+}  // namespace
 
 int main() {
   using namespace sml;
@@ -1079,7 +1079,7 @@ class data {
   std::string address{};
   std::variant&lt;Disconnected, Connected&gt; data_{};
 };
-}
+}  // namespace
 
 int main() {
   sml::sm&lt;data&gt; sm{data{&quot;127.0.0.1&quot;}};
@@ -1148,7 +1148,7 @@ class controller {
  private:
   sml::sm&lt;example&gt;&amp; sm;
 };
-}
+}  // namespace
 
 int main() {
   const auto injector = di::make_injector(
