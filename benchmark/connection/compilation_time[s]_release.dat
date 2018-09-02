@@ -1,0 +1,10 @@
+"naive if else" 0.114177862 
+"naive switch" 0.110661359 
+"naive state pattern" 0.541474501 
+"stl variant" 0.051920618 
+"stl coroutine loop" 0.026619752 
+"stl coroutine goto" 0.024941191 
+"stl coroutine fun variant" 0.022814115 
+"boost statechart" 1.051696313 
+"boost msm" 4.437018658 
+"boost sml" 0.110121502 

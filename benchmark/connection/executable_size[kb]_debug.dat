@@ -1,0 +1,10 @@
+"naive if else" 16K
+"naive switch" 16K
+"naive state pattern" 64K
+"stl variant" 172K
+"stl coroutine loop" 60K
+"stl coroutine goto" 60K
+"stl coroutine fun variant" 224K
+"boost statechart" 720K
+"boost msm" 6056K
+"boost sml" 284K
