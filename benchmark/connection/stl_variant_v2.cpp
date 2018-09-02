@@ -18,24 +18,56 @@ struct timeout{};
   constexpr auto reset_timeout = []{ std::puts("reset_timeout"); };
 #endif
 
-#include <boost/sml.hpp>
+#include <variant>
+#include <type_traits>
 
-namespace sml = boost::sml;
+template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
+template<class... Ts> overload(Ts...) -> overload<Ts...>;
 
-struct connection {
-  auto operator()() const {
-    using namespace sml;
-    return make_transition_table(
-      * "Disconnected"_s + event<connect> / establish                = "Connecting"_s,
-        "Connecting"_s   + event<established>                        = "Connected"_s,
-        "Connected"_s    + event<ping> [ is_valid ] / reset_timeout,
-        "Connected"_s    + event<timeout> / establish                = "Connecting"_s,
-        "Connected"_s    + event<disconnect> / close                 = "Disconnected"_s
-    );
+class Connection {
+  struct Disconnected { };
+  struct Connecting { };
+  struct Connected { };
+
+  std::variant<Disconnected, Connecting, Connected> state
+    = Disconnected{};
+
+public:
+  void process_event(connect const&) {
+    state = std::visit(overload{
+      [&](Disconnected&&) { establish(); return Connecting{}; },
+      [&](Connected&&)    { establish(); return Connecting{}; },
+      [](auto&& state)    { return state; }
+    }, std::move(state));
+  }
+
+  void process_event(disconnect const&) {
+    state = std::visit(overload{
+      [&](Connecting&&) { close(); return Disconnected{}; },
+      [&](Connected&&)  { close(); return Disconnected{}; },
+      [](auto&& state)  { return state; }
+    }, std::move(state));
+  }
+
+  void process_event(established const&) {
+    if (std::get_if<Connecting>(&state)) {
+      state = Connected{};
+    }
+  }
+
+  void process_event(ping const& event) {
+    if (std::get_if<Connected>(&state) and is_valid(event)) {
+      reset_timeout();
+    }
+  }
+
+  void process_event(timeout const&) {
+    if (std::get_if<Connected>(&state)) {
+      establish();
+      state = Connecting{};
+    }
   }
 };
-
-using Connection = sml::sm<connection, sml::dispatch<sml::back::policies::fold_expr>>;
 
 #if defined(TEST_ASM)
   int main() {
@@ -79,7 +111,7 @@ using Connection = sml::sm<connection, sml::dispatch<sml::back::policies::fold_e
 #elif defined(TEST_GBENCH)
   #include <benchmark/benchmark.h>
 
-  static void BM_boost_sml(benchmark::State& state) {
+  static void BM_stl_variant_v2(benchmark::State& state) {
     constexpr auto size = 1'000'000;
 
     int dispatch[size]{};
@@ -103,6 +135,6 @@ using Connection = sml::sm<connection, sml::dispatch<sml::back::policies::fold_e
     }
   }
 
-  BENCHMARK(BM_boost_sml);
+  BENCHMARK(BM_stl_variant_v2);
   BENCHMARK_MAIN();
 #endif

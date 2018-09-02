@@ -1,0 +1,10 @@
+"naive if else" 1.99  
+"naive switch" 1.99  
+"naive state pattern" 2.33  
+"stl variant" 2.40  
+"stl coroutine loop" 1.21  
+"stl coroutine goto" 1.19  
+"stl coroutine fun variant" 2.84  
+"boost statechart" 2.55  
+"boost msm" 1.82  
+"boost sml" 1.98  
