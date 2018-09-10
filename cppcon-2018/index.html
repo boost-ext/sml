@@ -33,15 +33,10 @@
                    data-separator="^====+$"
                    data-separator-vertical="^----+$">
 					<script type="text/template">
-
-#### CppCon, 2018
-
----
+#### CppCon 2018
 
 ## State Machines Battlefield
 ## Naive vs STL vs Boost
-
----
 
 Kris Jusiak, Quantlab Financial
 
@@ -49,59 +44,71 @@ Kris Jusiak, Quantlab Financial
 
 ==============================================================================
 
-## Outline
+### Outline
 
-* Motivation
-* Connection example
-* UML-2.5
-  * State Machine
-* Showcase
-   * Naive
-     * If/Else
-     * Switch/Enum
-     * Virtual (design pattern)
-   * STL
-     * std::variant (C++17)
-     * coroutines (C++20)
-   * Boost
-     * Boost.Statechart
-     * Boost.MetaStateMachine (MSM)
-   * [Boost].StateMachineLanguage (SML)
-     * Overview
-     * Performance
-       * Dispatching strategies
-         * Branch / switch / jump table / fold expressions
-* Summary
+* `Problem / Motivation`
+* `State Machine`
+* `Solutions`
+  * `Naive`
+  * `STL`
+  * `Boost`
+* `Benchmarks`
+* `Summary`
+
+==============================================================================
+
+### Problem / Motivation
+
+```gherkin
+Feature: Connection # BDD style
+```
+
+```gherkin
+  Scenario: Establish connection
+    Given I don't have a connection
+     When I receive a request to connect
+     Then I should try to establish the connection
+     When I receive an established acknowledgement
+     Then I should have been connected
+```
+
+```gherkin
+  Scenario: Disconnect
+    Given I've a connection
+     When I receive a request to disconnect
+     Then I should have been connected
+```
+
+```gherkin
+  Scenario: Ping
+    Given I've a connection
+     When I receive a ping
+      And Ping is valid
+     Then I should reset the timeout
+      And I still should be connected
+```
+
+```gherkin
+  ...
+```
 
 ----
 
-### Motivation
+### Problem / Motivation
 
-* SM promotes better design
-  * Compliant with UML documentation
+> What's the most efficient/readable/maintainable way to satisfy/implement `Connection` requirements?
 
-* SM creates easier to maintain code
-  * Declarative approach / Expresses `WHAT`, not `HOW`!
+==============================================================================
 
-* SM creates easy to test code
-  * Can be tested in isolation without trying to reach all conditional branches
+### State Machine
+* Is defined by a list of its states, its initial state, and the condition to change thme
+  * Can be in exactly one of a finite number of states at any given states
+  * Can change from one state to another in response to external inputs
+* The change is called a transition
 
-```gherkin
-Feature: Connection
+----
 
-  Scenario: Establish connection 1/2
-    Given I have a connection handler
-     When I receive a connect request
-     Then I should establish connectivity
-
-  Scenario: Establish connection 2/2
-    Given I have established connectivity
-     When I receive a established ack
-      And The ack is valid
-     Then I'm connected
-```
-
-### Introduction - UML-2.5 - State Machine
+### State Machine - UML-2.5
 
 <img src="images/uml-2.5.png" style="width: 50%; background:none; border:none; box-shadow:none;" />
 
@@ -109,7 +116,7 @@ https://www.omg.org/spec/UML/2.5.1/PDF
 
 ----
 
-### Introduction - UML-2.5 - State Machine
+### State Machine - UML-2.5
 
 ![Connection](images/connection.png)
 
@@ -118,179 +125,640 @@ https://www.omg.org/spec/UML/2.5.1/PDF
 |Transition - Unified Modeling Language (UML)|
 |<center>![Transition](images/transition.png)</center>|
 
----
+==============================================================================
 
-Benchmarks
+### Solutions
 
-#### CXXFLAGS
-```
-$CXX -std=c++1z -O3 -flto -fno-exceptions -DNDEBUG benchmark.cpp
-```
-
-
-----
-
-### Transitions - Connection
-
-![](images/transition_table.png)
+| | | |
+|-|-|-|
+| Naive | STL | Boost |
+| If/Else (C++98)                     | std::variant (C++17)  | Boost.Statechart (C++98) |
+| Switch/Enum (C++98)                 | Coroutines (C++20)    | Boost.MSM (C++98) |
+| Inheritance / State pattern (C++98) |                       | [Boost].SML (C++14) |
 
 ----
 
-#### Transitions - Connection
+### Common - Implementation
+
+#### Events
 
 ```cpp
-* -> Disconnected : connect / establish              -> Connecting
+struct connect{};
+struct established{};
+struct ping{};
+struct disconnect{};
+struct timeout{};
 ```
-<!-- .element: style="margin-left:0%; width:100%" -->
+
+#### Guards
 
 ```cpp
-     Connecting   : established                      -> Connected
+constexpr auto is_valid      = [](auto const& event) { return true; };
 ```
-<!-- .element: style="margin-left:0%; width:100%" -->
+
+#### Actions
 
 ```cpp
-     Connected    : ping [ is_valid ] / resetTimeout
-```
-<!-- .element: style="margin-left:0%; width:100%" -->
-
-```cpp
-     Connected    : timeout                          -> Connecting
-```
-<!-- .element: style="margin-left:0%; width:100%" -->
-
-```cpp
-     Connected    : disconnect                       -> Disconnected
-```
-<!-- .element: style="margin-left:0%; width:100%" -->
-
-<center>![Transition](images/transition.png)</center>
-
-----
-
-
-### Performance tuning
-
-----
-
-#### Policies allow to change State Machine implementation at compile time
-
-```cpp
-// Don't pay for what you don't use!
-sml::sm<Connection, Policies...> sm{};
+constexpr auto establish     = []{ std::puts("establish"); };
+constexpr auto close         = []{ std::puts("close"); };
+constexpr auto reset_timeout = []{ std::puts("reset_timeout"); };
 ```
 
 ----
 
-#### Thread safe policy enables/disabled thread safety
+## Naive
 
-```cpp
-sml::sm<Connection, sml::thread_safe<std::mutex>> sm{};
-```
+>C++98 features
 
 ----
 
-#### Exception handling policy requires a compilation flag
-
-```
-Exception handling is only available if NOT compiled with
-  `-fno-exceptions` or
-  `BOOST_SML_DISABLE_EXCEPTIONS`
-```
-
-----
-
-#### Dispatch policy changes event dispatching strategy
-
-| Name | POLICY |
-| - | - |
-| Jump Table | `jump_table` |
-| Switch | `switch_stm` |
-| If/else | `branch_stm` |
-| Fold expressions | `fold_expr` |
+#### Naive - If/Else - Implementation
 
 ```cpp
-sml::sm<Connection, sml::dispatch<sml::back::policies::POLICY>> sm{};
+class Connection {
+  // Implicit states using booleans
+  bool disconnected = true, connected = false, connecting = false;
 ```
-<!-- .element: style="margin-left:0%; width:100%" -->
-
-----
-
-#### Front-End - Transition Table
 
 ```cpp
-static_assert(std::is_same<
-  decltype(
-    make_transition_table( // front-end
-      * "Disconnected"_s + connect / establish = "Connecting"_s,
-        "Connecting"_s   + established         = "Connected"_s
-    )
-  ),
-  transition_table< // back-end
-    // --------------------------------------------------------------------------------- //
-    //         src_state              dst_state            event        guard   action   //
-    // --------------------------------------------------------------------------------- //
-    transition<state<"Disconnected">, state<"Connecting">, connect,     always, establish>,
-    transition<state<"Connecting">,   state<"Connected">,  established, always, none>
-  >
->{});
-```
-<!-- .element: style="margin-left:-13%; width:125%" -->
-
-----
-
-#### Back-End - Generated at Compile Time Mapping per Event and State
-
-#### mappings_t
-```cpp
-pair<connect,
-  type_list<
-    transitions<
-      transition<state<"Disconnected">, state<"Connecting">, connect, always, establish>
-    >,
-    transitions<>, // Connecting (unexpected event)
-    transitions<>  // Connected  (unexpected event)
-  >
->
-```
-<!-- .element: style="margin-left:-13%; width:125%" -->
-
-```cpp
-pair<established,
-  type_list<
-    transitions<>, // Disconnected (unexpected event)
-    transitions<
-      transition<state<"Connecting">, state<"Connected">,  established, always, none>
-    >,
-    transitions<>  // Connected (unexpected event)
-  >
->
-```
-<!-- .element: style="margin-left:-13%; width:125%" -->
-
-----
-
-#### Dispatch policy - Process Event
-
-```cpp
-template<class TransitionTable>
-class sm {
- public:
-  constexpr void process_event(const TEvent& event) {
-    dispatch_policy::dispatch(
-      current_state_,
-      event,
-      typename TransitionTable::states{}
-    );
+  constexpr void process_event(connect const&) {
+    if (disconnected) {
+      establish();
+      connected = disconnected = false; // Remember to reset all!
+      connecting = true; // Set new state
+    }
   }
+```
 
- private:
-  state_t current_state_{};
+```cpp
+  constexpr void process_event(ping const& event) {
+    if (connected and is_valid(event)) {
+      reset_timeout();
+    } // Stay in the current state
+  }
+```
+
+```cpp
+...
+```
+
+----
+
+##### Naive - If/Else - Full Example
+
+
+<iframe class="stretch" data-src="https://godbolt.org/z/vOxsfs" />
+
+----
+
+#### Naive - If/Else - Summary
+
+* (+) Inlined
+* (+) No heap usage
+* (~) Small-ish memory footprint
+    * ```sizeof(Connection) == 3b```
+* (-) Dispatch O(n)
+* (-) Hard to reuse
+
+----
+
+#### Naive - Switch/Enum - Implementation
+
+```cpp
+class Connection {
+  // Only one state can be active
+  enum class State : std::byte { DISCONNECTED,
+                                 CONNECTING,
+                                 CONNECTED } state = DISCONNECTED;
+```
+
+```cpp
+  constexpr void process_event(connect const&) {
+    switch(state) { // Handle current state
+      default: break;
+      case State::CONNECTED:
+        establish(); state = State::CONNECTING; break;
+                  // Set new state
+    }
+  }
+```
+
+```cpp
+  constexpr void process_event(ping const& event) {
+    if (state == State::CONNECTED and is_valid(event)) {
+      reset_timeout();
+    } // Stay in the current state
+  }
+```
+
+```cpp
+...
+```
+
+----
+
+#### Naive - Switch/Enum - Full Example
+
+<iframe class="stretch" data-src="https://godbolt.org/z/49yxjk" />
+
+----
+
+#### Naive - Switch/Enum - Summary
+
+* (+) Inlined
+* (+) Small memory footprint
+    * ```sizeof(Connection) == 1b```
+* (+) No heap usage
+* (~) Dispatch O(log n)
+* (-) Hard to reuse
+
+----
+
+#### Inheritance / State pattern - Implementation
+
+```cpp
+struct State {
+  virtual ~State() noexcept = default;
+  virtual void process_event(connect const&) = 0;
+  virtual void process_event(ping const&) = 0;
+  virtual void process_event(established const&) = 0;
+  virtual void process_event(timeout const&) = 0;
+  virtual void process_event(disconnect const&) = 0;
 };
 ```
 
 ----
 
-#### Dispatch policy - jump table
+#### Inheritance / State pattern - Implementation
+
+```cpp
+struct Disconnected : State {
+  Connection& connection;
+
+  void process_event(connect const&) override final {
+    establish();
+    connection.change_state<Connecting>();
+  }
+};
+```
+
+```cpp
+struct Connected : State {
+  Connection& connection;
+
+  void process_event(ping const& event) override final {
+    if (is_valid(event)) {
+      reset_timeout();
+    }
+  }
+
+  // ...
+};
+```
+
+```cpp
+...
+```
+
+----
+
+#### Inheritance / State pattern - Full Example
+
+<iframe class="stretch" data-src="https://godbolt.org/z/zYO3Qn" />
+
+----
+
+#### Inheritance / State pattern - Summary
+
+* (+) Easy to extend/reuse
+* (~) High-ish memory footprint
+* (-) Heap usage / dynamic allocations
+* (-) Not a declarative/explicit
+
+----
+
+## STL
+
+> C++17 / C++20 Standard Template Library
+
+----
+
+#### std::variant - Implementation
+
+```cpp
+class Connection {
+  struct Disconnected { };
+  struct Connecting { };
+  struct Connected { };
+
+  // Only one active state
+  std::variant<Disconnected, Connecting, Connected> state
+    = Disconnected{};
+```
+
+```cpp
+  constexpr void process_event(connect const&) {
+    std::visit(overload{ // Choose one of the following...
+      [&](Disconnected) { establish(); state = Connecting{}; },
+       [](auto)         { } // No changes...
+    }, state);
+  }
+```
+
+```cpp
+  void process_event(ping const& event) {
+    if (std::get_if<Connected>(&state) and is_valid(event)) {
+      reset_timeout();
+    } // Stay in the current state
+  }
+```
+
+```cpp
+...
+```
+
+----
+
+#### std::variant - Full Example
+
+<iframe class="stretch" data-src="https://godbolt.org/z/43H3gb" />
+
+----
+
+#### std::variant - Summary
+
+* (+) Small/efficient memory footprint
+  * ```cpp
+    Disconnect { };
+    Connecting { connection_id id{}; };
+    Connected  { connection_id id{};
+                 time last_ping{}; };
+    ```
+* (+) Integrates well with std::expected/static exceptions
+  * ```cpp
+    return Error{"timeout"};
+    ```
+* (+) Inlined
+* (-) Hard to reuse (Similar to switch/enum)
+* (-) Not a declarative/explicit
+
+----
+
+#### Coroutines / loop - Implementation
+
+```cpp
+auto Connection = [](auto& in) -> state {
+  for (;;) { // Wait...
+    // ...until there is a data
+    if (auto [event, data] = co_await in; event == connect) {
+      establish();
+      for (;;) { // Required not to leave the function
+        if (auto [event, data] = co_await in; event == established) {
+          for (;;) {
+            switch (auto [event, data] = co_await in; event) {
+              case ping: if (is_valid(data)) reset_timeout(); continue;
+              case timeout: establish(); break;
+              case disconnect: close(); goto end;
+            }
+          }
+        }
+      }
+      end:;
+    }
+  }
+};
+```
+
+----
+
+#### Coroutines / loop - Full Example
+
+<iframe class="stretch" data-src="https://godbolt.org/z/UxwF76" />
+
+----
+
+#### Coroutines / loop - Summary
+
+* (+) Structured code using C++ features
+* (+) Easily to switch between Async/Sync versions
+* (~) Learning curve (different way of thinking)
+* (~) Requires heap (heap elision / devirtualization)
+* (~) Implicit states (position in the function)
+* (-) Weird usage of infinite loops
+
+----
+
+#### Coroutines / goto - Implementation
+
+```cpp
+auto Connection = [](auto& in) -> state {
+  for (;;) { // Wait...
+    disconnected: // State is represented by a position in the function
+    if (auto [event, data] = co_await in; event == connect) {
+      establish();
+      connecting:
+      if (auto [event, data] = co_await in; event == established) {
+        connected:
+        switch (auto [event, data] = co_await in; event) {
+          case ping:
+            if (is_valid(data)) reset_timeout(); goto connected;
+          case timeout:
+            establish(); goto connecting; // Set new state
+          case disconnect:
+            close(); goto disconnected;
+        }
+      }
+    }
+  }
+};
+```
+
+----
+
+#### Coroutines / goto - Full Example
+
+<iframe class="stretch" data-src="https://godbolt.org/z/UJK84x" />
+
+----
+
+#### Coroutines / goto - Summary
+
+* (~) Explicit states
+* (-) GOTO!
+
+----
+
+#### Coroutines / functions / variant - Implementation
+
+```cpp
+auto disconnected() {
+  for (;;) { // Stay in the current state until...
+    if (auto const event = co_await in; std::get_if<connect>(&event)) {
+      establish();
+      co_return connecting(); // Set new state by changing a function
+    }
+  }
+}
+```
+
+```cpp
+auto connected() {
+  for (;;) {  // Stay in the current state until...
+   auto const event = co_await in;
+   if (std::get_if<ping>(&event) and is_valid(std::get<ping>(event))) {
+     reset_timeout();
+   } else if (std::get_if<timeout>(&event)) {
+     establish();
+     co_return connecting();
+   } else if (std::get_if<disconnect>(&event)) {
+     close();
+     co_return disconnected();
+   }
+  }
+}
+```
+
+----
+
+#### Coroutines / functions / variant - Full Example
+
+<iframe class="stretch" data-src="https://godbolt.org/z/lc8iYf" />
+
+----
+
+#### Coroutines / functions / variant - Summary
+
+* (+) Easier to add/follow new states/behaviour
+* (+) Type safe events
+
+----
+
+## Boost
+
+> Boost.Statechart, Boost.MSM, [Boost].SML
+
+----
+
+| Library     | Boost.MSM       | Boost.Statechart | [Boost].SML |
+| --------    | --------------- | ---------------- | ----------- |
+| Standard    | C++98/03        | C++98/03         | C++14       |
+| Version     | 1.68            | 1.68             | 1.1.0       |
+| License     | Boost 1.0       | Boost 1.0        | Boost 1.0   |
+| Linkage     | header only     | header only      | header only |
+| UML         | 2.0             | 1.5              | 2.5         |
+
+> Disclaimer: [Boost].SML is not an official Boost library
+
+----
+
+#### Boost.Statechart - Implementation
+
+#### Events
+
+```cpp
+struct connect     : sc::event<connect> {};
+struct ping        : sc::event<ping> {};
+struct established : sc::event<established> {};
+struct timeout     : sc::event<timeout> {};
+struct disconnect  : sc::event<disconnect> {};
+```
+
+#### Actions/Guards
+
+```cpp
+struct Connection : sc::state_machine<Connection, Disconnected> {
+  template<class TEvent>
+  void establish(TEvent const&)   { std::puts("establish"); }
+  void reset_timeout(ping const&) { std::puts("reset_timeout"); }
+  void close(disconnect const&)   { std::puts("close"); }
+  bool is_valid(ping const&)      { return true; }
+};
+```
+
+----
+
+#### Boost.Statechart - Implementation
+
+```cpp
+struct Disconnected : sc::simple_state<Disconnected, Connection> {
+  using reactions = mpl::list<
+    sc::transition<connect, Connecting,
+                   Connection, &Connection::establish>>;
+};
+```
+
+```cpp
+struct Connected : sc::simple_state<Connected, Connection> {
+  using reactions = mpl::list<
+    sc::transition<timeout, Connecting,
+                   Connection, &Connection::establish>,
+    sc::transition<disconnect, Disconnected,
+                   Connection, &Connection::close>,
+    sc::custom_reaction<ping>
+  >;
+
+  sc::result react(ping const& event) {
+    if (context<Connection>().is_valid(event)) {
+      context<Connection>().reset_timeout(event);
+    }
+    return discard_event();
+  }
+};
+```
+
+----
+
+#### Boost.Statechart - Full Example
+
+<iframe class="stretch" data-src="https://godbolt.org/z/CSzXYl" />
+
+----
+
+#### Boost.Statechart - Summary
+
+* (+) UML-1.5 features
+* (~) Learning curve (Similar to state pattern)
+* (-) Dynamic allocations
+* (-) Dynamic dispatch
+* (-) High memory footprint
+
+----
+
+#### Boost.MSM - Implementation
+
+#### Events
+
+```cpp
+BOOST_MSM_EUML_EVENT(connect)
+BOOST_MSM_EUML_EVENT(ping)
+BOOST_MSM_EUML_EVENT(established)
+BOOST_MSM_EUML_EVENT(timeout)
+BOOST_MSM_EUML_EVENT(disconnect)
+```
+
+#### States
+
+```cpp
+BOOST_MSM_EUML_STATE((), Disconnected)
+BOOST_MSM_EUML_STATE((), Connecting)
+BOOST_MSM_EUML_STATE((), Connected)
+```
+
+----
+
+#### Boost.MSM - Implementation
+
+#### Actions/Guards
+
+```cpp
+BOOST_MSM_EUML_ACTION(establish){
+  template <class FSM, class EVT, class SourceState, class TargetState>
+  void operator()(EVT const&, FSM &, SourceState &, TargetState &) {
+    std::puts("establish");
+  }
+};
+```
+
+```cpp
+BOOST_MSM_EUML_ACTION(is_valid) {
+  template <class FSM, class EVT, class SourceState, class TargetState>
+  auto operator()(EVT const&, FSM&, SourceState&, TargetState&) {
+    return true;
+  }
+};
+```
+
+```cpp
+...
+```
+
+----
+
+#### Boost.MSM - Implementation
+
+```cpp
+BOOST_MSM_EUML_TRANSITION_TABLE((
+  Connecting   == Disconnected + connect / establish,
+  Connected    == Connecting   + established,
+  Connected                    + ping [ is_valid ] / reset_timeout,
+  Connecting   == Connected    + timeout / establish,
+  Disconnected == Connected    + disconnect / close
+),
+transition_table)
+```
+
+```cpp
+BOOST_MSM_EUML_DECLARE_STATE_MACHINE
+  ((transition_table, init_ << Disconnected), ConnectionImpl)
+```
+
+```cpp
+using Connection = msm::back::state_machine<ConnectionImpl>;
+```
+
+----
+
+#### Boost.MSM - Full Example
+
+<iframe class="stretch" data-src="https://godbolt.org/z/tx5Al6" />
+
+----
+
+#### Boost.MSM - Summary
+
+* (+) Declarative/Expressive (UML transition)
+![transition_table](images/transition_table.png)
+
+----
+
+#### Boost.MSM - Summary
+
+* (+) Dispatch O(1) - jump table
+* (+) UML-2.0 features
+* (+) Small memory footprint
+* (~) Learning curve
+* (~) DSL based
+* (-) Macro based
+* (-) Slow compilation times
+
+----
+
+#### [Boost].SML - Implementation
+
+```cpp
+sml::sm connection = []{
+  using namespace sml;
+  return transition_table{
+    * "Disconnected"_s + event<connect> / establish                = "Connecting"_s,
+      "Connecting"_s   + event<established>                        = "Connected"_s,
+      "Connected"_s    + event<ping> [ is_valid ] / reset_timeout,
+      "Connected"_s    + event<timeout> / establish                = "Connecting"_s,
+      "Connected"_s    + event<disconnect> / close                 = "Disconnected"_s
+  };
+};
+```
+<!-- .element: style="margin-left:-10%; width:125%" -->
+
+----
+
+#### [Boost].SML - performance Tuning
+
+> Don't pay for what you don't use!
+
+----
+
+#### Dispatch policy changes event dispatching strategy
+
+| Name | Policy | Default |
+| - | - |
+| Jump Table | `jump_table` | `gcc <= 8.0` |
+| Nested Switch | `switch` | `gcc >= 8.0` |
+| If/Else | `branch` | `clang` |
+| Fold expressions | `fold_expr` | `gcc/clang with C++17` |
+
+----
+
+#### [Boost].SML / dispatch policy - jump table
 
 ```cpp
 struct jump_table {
@@ -309,13 +777,13 @@ struct jump_table {
 
 ----
 
-#### Dispatch policy - jump table
+#### [Boost].SML / dispatch policy - jump table
 
 <iframe class="stretch" data-src="https://godbolt.org/g/BKHgh9" />
 
 ----
 
-#### Dispatch policy - switch
+#### [Boost].SML / dispatch policy - switch
 
 ```cpp
 struct switch_stm {
@@ -337,13 +805,13 @@ struct switch_stm {
 
 ----
 
-#### Dispatch policy - switch
+#### [Boost].SML / dispatch policy - switch
 
 <iframe class="stretch" data-src="https://godbolt.org/g/zFF7LM" />
 
 ----
 
-#### Dispatch policy - if/else
+#### [Boost].SML / dispatch policy - if/else
 
 ```cpp
 struct branch_stm {
@@ -364,13 +832,13 @@ struct branch_stm {
 
 ----
 
-#### Dispatch policy - if/else
+#### [Boost].SML / dispatch policy - if/else
 
 <iframe class="stretch" data-src="https://godbolt.org/g/cJvKYB" />
 
 ----
 
-#### Dispatch policy - fold expressions
+#### [Boost].SML / dispatch policy - fold expressions
 
 ```cpp
 struct fold_expr {
@@ -390,124 +858,150 @@ struct fold_expr {
 
 ----
 
-#### Dispatch policy - fold expressions
+#### [Boost].SML / dispatch policy - fold expressions
 
 <iframe class="stretch" data-src="https://godbolt.org/g/vzL8w4" />
 
 ----
 
-#### Performance tuning - Dispatch policy
+#### [Boost].SML - Summary
 
-<iframe class="stretch" data-src="https://godbolt.org/g/bviBBB" />
+* (+) Declarative/Expressive (UML transition)
+* (+) Customizable
+* (+) Dispatch O(1)
+* (+) Fast compilation times
+* (+) UML-2.5 features
+* (+) Minimal memory footprint
+  * ```sizeof(Connection) == 1b```
+* (~) Learning curve
+* (~) DSL based
+
+----
+
+#### Solutions - Summary
+
+| Solution                            | State representation |     Transition Table |
+| ----------------------------------- | -------------------- | -------------------- |
+| Naive - If/Else                     | Boolean              | State - implicit |
+| Naive - Switch/Enum                 | Enum                 | State - implicit |
+| Naive - Inheritance                 | Class                | State - implicit |
+| STL - std::variant                  | Union                | State - implicit |
+| STL - coroutines                    | Function             |    Global - implicit |
+| Boost.Statechart                    | Class                | State - semi-explicit |
+| Boost.MSM                           | Class                |    Global - explicit |
+| Boost.SML                           | Type                 |    Global - explicit |
+<!-- .element: style="margin-left:-13%; width:125%" -->
 
 ==============================================================================
 
-## [Boost].SML vs Boost.MSM-eUML vs Boost.Statechart
+### Benchmarks
 
 ----
 
-## Overview
+#### Benchmarks - Setup
+
+
+```cpp
+const auto establish = []{ asm volatile("" : : : "memory"); };
+```
+
+```cpp
+int main() {
+  constexpr auto size = 1'000'000;
+  std::array events = rand_events<size>();
+  Connection connection{};
+  for (auto i = 0; i < size; ++i) {
+    switch(events[i]) {
+      default: break;
+      case 0: connection.process_event(connect{}); break;
+      case 1: connection.process_event(established{}); break;
+      case 2: connection.process_event(ping{}); break;
+      case 3: connection.process_event(disconnect{}); break;
+      case 4: connection.process_event(timeout{}); break;
+    }
+  }
+}
+```
+
+```sh
+$CXX -std=c++2a      # clang-6.0.1/gcc-8.2
+     -stdlib=libc++  # clang-6.0.1
+     -fcoroutines-ts # clang-6.0.1
+     -O3 -march=native -flto -fno-exceptions -DNDEBUG
+     -I boost_1_68_0
+```
 
 ----
 
-| Library     | MSM-lite    | Boost.MSM-eUML  | Boost.Statechart |
-| --------    | ----------- | --------------- | ---------------- |
-| Standard    | C++14       | C++98/03        | C++98/03         |
-| Version     | 1.0.1       | 1.61            | 1.61             |
-| License     | Boost 1.0   | Boost 1.0       | Boost 1.0        |
-| Linkage     | header only | header only     | header only      |
+#### Benchmarks - Lines of code (LOC)
+
+![loc](images/performance_lines-of-code.png)
 
 ----
 
-##Implementation details
+#### Benchmarks - ASM lines
+
+![asm_lines](images/performance_asm-lines.png)
 
 ----
 
-| Library            | MSM-lite    | Boost.MSM-eUML  | Boost.Statechart |
-| ------------------ | ----------- | --------------- | ---------------- |
-| UML                | 2.0         | 2.0             | 1.5              |
-| RTTI               | -           | -               | ✓                |
-| Exceptions         | -           | -               | ✓                |
-| Memory Allocations | -           | -               | ✓                |
+#### Benchmarks - Run-time performance - time / Release
+
+![performance_release](images/performance_time[s]_release.png)
 
 ----
 
+#### Benchmarks - Run-time performance - Instructions per cycle / Release
 
-## Features
-
-----
-
-## UML features
+![performance_instruction-per-cycle_release-misses_release](images/performance_instruction-per-cycle_release.png)
 
 ----
 
-| Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
-| -------------------- | -------- | -------------- | ---------------- |
-| Transition           | ✓        | ✓              | ✓                |
-| Anonymous transition | ✓        | ✓              | ✓                |
-| Internal transition  | ✓        | ✓              | ✓                |
-| Local transitions    | -        | -              | -                |
+#### Benchmarks - Run-time performance - branches / Release
+
+![performance_branches_release](images/performance_branches_release.png)
 
 ----
 
-| Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
-| -------------------- | -------- | -------------- | ---------------- |
-| State entry/exit     | ✓        | ✓              | ✓                |
-| Guard                | ✓        | ✓              | ✓                |
-| Action               | ✓        | ✓              | ✓                |
-| Event defering       | ~        | ✓              | ✓                |
-| Error handling       | ✓        | ✓              | ✓                |
+#### Benchmarks - Run-time performance - branch misses / Release
+
+![performance_branch-misses_release](images/performance_branch-misses_release.png)
 
 ----
 
-| Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
-| -------------------- | -------- | -------------- | ---------------- |
-| Initial state        | ✓        | ✓              | ✓                |
-| Terminate State      | ✓        | ✓              | ✓                |
-| Explicit entry       | ✓        | ✓              | ✓                |
-| Explicit exit        | -        | ✓              | ✓                |
-| Fork                 | -        | ✓              | -                |
+#### Benchmarks - Compilation time / Debug
+
+![compilation_time_debug](images/compilation_time[s]_debug.png)
 
 ----
 
-| Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
-| -------------------- | -------- | -------------- | ---------------- |
-| Orthogonal regions   | ✓        | ✓              | ✓                |
-| Sub / Composite      | ✓        | ✓              | ✓                |
-| Shallow History      | ✓        | ✓              | ✓                |
-| Deep History         | ~        | ~              | ✓                |
+#### Benchmarks - Compilation time / Release
 
+![compilation_time_release](images/compilation_time[s]_release.png)
 
 ----
 
-## Non-UML features
+#### Benchmarks - Executable Size / Debug
+
+![executable_size_debug](images/executable_size[kb]_debug.png)
 
 ----
 
-| Library              | MSM-lite | Boost.MSM-eUML | Boost.Statechart |
-| -------------------- | -------- | -------------- | ---------------- |
-| Any event            | -        | ✓              | -                |
-| Flags                | -        | ✓              | -                |
-| Interrupt state      | -        | ✓              | -                |
-| State Visitor        | ✓        | ✓              | ✓                |
-| Serialization        | -        | ✓              | -                |
-| Dispatcher           | ✓        | -              | -                |
-| Asynchronous SM      | -        | -              | ✓                |
+#### Benchmarks - Executable Size / Release
 
-----
+![executable_size_release](images/executable_size[kb]_release.png)
+
+==============================================================================
 
 ### Summary
 
 ----
 
-### If you like it or not, your code won't be stateless (most likely)
+### State machines are expressive way to represent the application flow
 
 ----
 
-### Implicit/Hand written state machines are hard to
-* Reason about
- * Maintain / Extend
- * Test
+### There are different ways of implementing state machines in C++ with different trade-offs
 
 ----
 
@@ -516,17 +1010,16 @@ struct fold_expr {
 
 ----
 
-### Leveraging Zero-cost libraries will boost your design and/or performance
+### Leveraging Zero-cost libraries can boost the design and/or performance
 
 ==============================================================================
 
 ### Questions?
 
-| [Boost].SML |  |
+| | |
 | ------- | ------------- |
-| Documentation | http://boost-experimental.github.io/sml |
-| Source Code | https://github.com/boost-experimental/sml |
-| Try it online! | http://boost-experimental.github.io/sml/examples |
+| Benchmarks | https://github.com/boost-experimental/benchmarks/connectionn |
+| [Boost].SML | http://boost-experimental.github.io/sml |
 <!-- .element: style="margin-left:-13%; width:125%" -->
 
 -
