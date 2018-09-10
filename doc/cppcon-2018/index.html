@@ -483,6 +483,7 @@ auto Connection = [](auto& in) -> state {
 
 #### Coroutines / goto - Summary
 
+* (+) No infinite loops
 * (~) Explicit states
 * (-) GOTO!
 
@@ -880,17 +881,7 @@ struct fold_expr {
 
 #### Solutions - Summary
 
-| Solution                            | State representation |     Transition Table |
-| ----------------------------------- | -------------------- | -------------------- |
-| Naive - If/Else                     | Boolean              | State - implicit |
-| Naive - Switch/Enum                 | Enum                 | State - implicit |
-| Naive - Inheritance                 | Class                | State - implicit |
-| STL - std::variant                  | Union                | State - implicit |
-| STL - coroutines                    | Function             |    Global - implicit |
-| Boost.Statechart                    | Class                | State - semi-explicit |
-| Boost.MSM                           | Class                |    Global - explicit |
-| Boost.SML                           | Type                 |    Global - explicit |
-<!-- .element: style="margin-left:-13%; width:125%" -->
+![solutions_summary](images/solutions_summary.png)
 
 ==============================================================================
 
@@ -1020,7 +1011,6 @@ $CXX -std=c++2a      # clang-6.0.1/gcc-8.2
 | ------- | ------------- |
 | Benchmarks | https://github.com/boost-experimental/benchmarks/connectionn |
 | [Boost].SML | http://boost-experimental.github.io/sml |
-<!-- .element: style="margin-left:-13%; width:125%" -->
 
 -
 
