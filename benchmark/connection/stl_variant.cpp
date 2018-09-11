@@ -19,7 +19,6 @@ struct timeout{};
 #endif
 
 #include <variant>
-#include <type_traits>
 
 template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
 template<class... Ts> overload(Ts...) -> overload<Ts...>;
