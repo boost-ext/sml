@@ -20,6 +20,16 @@
 			document.getElementsByTagName( 'head' )[0].appendChild( link );
 		</script>
 
+		<script>
+      function set_address(self, remote, local) {
+        if (window.location.search.match("local")) {
+          self.setAttribute('data-src', local);
+        } else {
+          self.setAttribute('data-src', remote);
+        }
+      }
+		</script>
+
 		<meta name="description" content="State Machines Battlefield - Naive vs STL vs Boost">
 		<meta name="author" content="Kris Jusiak">
 		<meta name="apple-mobile-web-app-capable" content="yes">
@@ -96,7 +106,13 @@ Feature: Connection # BDD style
 
 ### Problem / Motivation
 
-> What's the most efficient/readable/maintainable way to satisfy/implement `Connection` requirements?
+> What's the 
+
+* `most readable`
+* `most maintainable` 
+* `most efficient`
+
+> way to satisfy/implement `Connection` requirements?
 
 ==============================================================================
 
@@ -201,10 +217,7 @@ class Connection {
 
 ##### Naive - If/Else - Full Example
 
-
-<iframe class="stretch" data-src="https://godbolt.org/z/APHwnc" />
-
-<!--<iframe class="stretch" data-src="http://localhost:10240/z/iN1lbS" />-->
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/APHwnc', 'http://localhost:10240/z/iN1lbS')" />
 
 ----
 
@@ -256,9 +269,7 @@ class Connection {
 
 #### Naive - Switch/Enum - Full Example
 
-<iframe class="stretch" data-src="https://godbolt.org/z/NM_-oY" />
-
-<!--<iframe class="stretch" data-src="http://localhost:10240/z/v9MUOf" />-->
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/NM_-oY', 'http://localhost:10240/z/v9MUOf')" />
 
 ----
 
@@ -323,9 +334,7 @@ struct Connected : State {
 
 #### Inheritance / State pattern - Full Example
 
-<iframe class="stretch" data-src="https://godbolt.org/z/dui-ar" />
-
-<!--<iframe class="stretch" data-src="http://localhost:10240/z/AjC1wS" />-->
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/dui-ar', 'http://localhost:10240/z/HDRJvV')" />
 
 ----
 
@@ -382,9 +391,7 @@ class Connection {
 
 #### std::variant - Full Example
 
-<iframe class="stretch" data-src="https://godbolt.org/z/oY2FBl" />
-
-<!--<iframe class="stretch" data-src="http://localhost:10240/z/C-G8T4" />-->
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/oY2FBl', 'http://localhost:10240/z/C-G8T4')" />
 
 ----
 
@@ -436,9 +443,7 @@ auto Connection = [](auto& in) {
 
 #### Coroutines / loop - Full Example
 
-<iframe class="stretch" data-src="https://godbolt.org/z/Sg1O6r" />
-
-<!--<iframe class="stretch" data-src="http://localhost:10240/z/ADrxrV" />-->
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/Sg1O6r', 'http://localhost:10240/z/ADrxrV')" />
 
 ----
 
@@ -482,9 +487,7 @@ auto Connection = [](auto& in) {
 
 #### Coroutines / goto - Full Example
 
-<iframe class="stretch" data-src="https://godbolt.org/z/a7EnkL" />
-
-<!--<iframe class="stretch" data-src="http://localhost:10240/z/EETC0c" />-->
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/a7EnkL', 'http://localhost:10240/z/EETC0c')" />
 
 ----
 
@@ -530,9 +533,7 @@ auto connected() {
 
 #### Coroutines / functions / variant - Full Example
 
-<iframe class="stretch" data-src="https://godbolt.org/z/08ZX8T" />
-
-<!--<iframe class="stretch" data-src="http://localhost:10240/z/oChcAr" />-->
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/08ZX8T', 'http://localhost:10240/z/oChcAr')" />
 
 ----
 
@@ -610,9 +611,7 @@ struct Connected : sc::simple_state<Connected, Connection> {
 
 #### Boost.Statechart - Full Example
 
-<iframe class="stretch" data-src="https://godbolt.org/z/NN8UyH" />
-
-<!--<iframe class="stretch" data-src="http://localhost:10240/z/zWE97c" />-->
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/NN8UyH', 'http://localhost:10240/z/zWE97c')" />
 
 ----
 
@@ -702,9 +701,7 @@ using Connection = msm::back::state_machine<ConnectionImpl>;
 
 #### Boost.MSM / eUML - Full Example
 
-<!--<iframe class="stretch" data-src="https://godbolt.org/z/nVTV0J" />-->
-
-<iframe class="stretch" data-src="http://localhost:10240/z/jz2jFW" />
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/nVTV0J', 'http://localhost:10240/z/jz2jFW')" />
 
 ----
 
@@ -785,34 +782,34 @@ struct sm {
 
 ----
 
-#### [Boost].SML / dispatch policy - jump table
+#### [Boost].SML / dispatch policy - If/Else
 
 ```cpp
-struct jump_table {
-  template <class TEvent, class... TStates>
+struct branch_stm {
+  template <class TEvent>
+  constexpr auto dispatch(State &, const TEvent &, type_list<>) { }
+
+  template <class TEvent, class TState, class... TStates>
   constexpr auto dispatch(State &current_state,
                           const TEvent &event,
-                          type_list<TStates...>) {
-    using dispatch_table_t = bool (*)(const TEvent&, State &);
-    constexpr static dispatch_table_t dispatch_table[] = {
-      &mappings_t<TStates>::template execute<TEvent>...
-    };
-    return dispatch_table[current_state](event);
+                          type_list<TState, TStates...>) {
+    return current_state == N
+      ? mappings_t<TState>::template execute<TEvent>(event)
+      : dispatch(current_state, event, type_list<TStates...>{});
   }
 };
 ```
+<!-- .element: style="margin-left:0%; width:100%" -->
 
 ----
 
-#### [Boost].SML / dispatch policy - jump table
+#### [Boost].SML / dispatch policy - If/Else
 
-<iframe class="stretch" data-src="https://godbolt.org/z/lvjiX9" />
-
-<!--<iframe class="stretch" data-src="http://localhost:10240/z/LpQWH8" />-->
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/Dsn1PF', 'http://localhost:10240/z/wyglVl')" />
 
 ----
 
-#### [Boost].SML / dispatch policy - switch
+#### [Boost].SML / dispatch policy - Switch
 
 ```cpp
 struct switch_stm {
@@ -834,44 +831,38 @@ struct switch_stm {
 
 ----
 
-#### [Boost].SML / dispatch policy - switch
+#### [Boost].SML / dispatch policy - Switch
 
-<iframe class="stretch" data-src="https://godbolt.org/z/AKmGiy" />
-
-<!--<iframe class="stretch" data-src="http://localhost:10240/z/-Ev_7A" />-->
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/AKmGiy', 'http://localhost:10240/z/-Ev_7A')" />
 
 ----
 
-#### [Boost].SML / dispatch policy - if/else
+#### [Boost].SML / dispatch policy - Jump Table
 
 ```cpp
-struct branch_stm {
-  template <class TEvent>
-  constexpr auto dispatch(State &, const TEvent &, type_list<>) { }
-
-  template <class TEvent, class TState, class... TStates>
+struct jump_table {
+  template <class TEvent, class... TStates>
   constexpr auto dispatch(State &current_state,
                           const TEvent &event,
-                          type_list<TState, TStates...>) {
-    return current_state == N
-      ? mappings_t<TState>::template execute<TEvent>(event)
-      : dispatch(current_state, event, type_list<TStates...>{});
+                          type_list<TStates...>) {
+    using dispatch_table_t = bool (*)(const TEvent&, State &);
+    constexpr static dispatch_table_t dispatch_table[] = {
+      &mappings_t<TStates>::template execute<TEvent>...
+    };
+    return dispatch_table[current_state](event);
   }
 };
 ```
-<!-- .element: style="margin-left:0%; width:100%" -->
 
 ----
 
-#### [Boost].SML / dispatch policy - if/else
+#### [Boost].SML / dispatch policy - Jump Table
 
-<iframe class="stretch" data-src="https://godbolt.org/z/Dsn1PF" />
-
-<!--<iframe class="stretch" data-src="http://localhost:10240/z/wyglVl" />-->
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/lvjiX9', 'http://localhost:10240/z/LpQWH8')" />
 
 ----
 
-#### [Boost].SML / dispatch policy - fold expressions
+#### [Boost].SML / dispatch policy - Fold Expressions
 
 ```cpp
 struct fold_expr {
@@ -890,11 +881,9 @@ struct fold_expr {
 
 ----
 
-#### [Boost].SML / dispatch policy - fold expressions
+#### [Boost].SML / dispatch policy - Fold Expressions
 
-<iframe class="stretch" data-src="https://godbolt.org/z/V_b7nM" />
-
-<!--<iframe class="stretch" data-src="http://localhost:10240/z/nYeyZk" />-->
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/V_b7nM', 'http://localhost:10240/z/nYeyZk')" />
 
 ----
 
