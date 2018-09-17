@@ -16,16 +16,23 @@
 			var link = document.createElement( 'link' );
 			link.rel = 'stylesheet';
 			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal.js/css/print/pdf.css' : 'reveal.js/css/print/paper.css';
 			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
 
-		<script>
       function set_address(self, remote, local) {
         if (window.location.search.match("local")) {
           self.setAttribute('data-src', local);
         } else {
           self.setAttribute('data-src', remote);
+
+          if (window.location.search.match( /print-pdf/gi ) &&
+             !self.parentNode.getElementsByTagName('a').length) {
+            self.style.display = 'none';
+            var link = document.createElement('a');
+            link.href = remote;
+            link.innerHTML = remote;
+            self.parentNode.appendChild(link);
+          }
         }
       }
 		</script>
