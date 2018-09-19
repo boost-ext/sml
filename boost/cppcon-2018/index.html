@@ -91,14 +91,14 @@ Feature: Connection # BDD style
 
 ```gherkin
   Scenario: Disconnect
-    Given I've a connection
+    Given I have a connection
      When I receive a request to disconnect
      Then I should have been connected
 ```
 
 ```gherkin
   Scenario: Ping
-    Given I've a connection
+    Given I have a connection
      When I receive a ping
       And Ping is valid
      Then I should reset the timeout
@@ -239,9 +239,9 @@ class Connection {
 ```cpp
 class Connection {
   // Only one state can be active
-  enum class State : std::byte { DISCONNECTED,
-                                 CONNECTING,
-                                 CONNECTED } state = DISCONNECTED;
+  enum class State : char { DISCONNECTED,
+                            CONNECTING,
+                            CONNECTED } state = DISCONNECTED;
 ```
 
 ```cpp
@@ -345,7 +345,7 @@ struct Connected : State {
 * (+) Easy to extend/reuse
 * (~) High-ish memory footprint
 * (-) Heap usage / dynamic allocations
-* (-) Not a declarative/explicit
+* (-) Not as declarative/explicit
 
 ----
 
@@ -412,7 +412,7 @@ class Connection {
     ```
 * (~) Inlined (clang only)
 * (-) Hard to reuse (Similar to switch/enum)
-* (-) Not a declarative/explicit
+* (-) Not as declarative/explicit
 
 ----
 
@@ -736,6 +736,8 @@ sml::sm connection = []{
 ```
 <!-- .element: style="margin-left:-7%; width:120%" -->
 
+<img src="images/transition_table_sml.png" style="width: 155%; background:none; border:none; box-shadow:none;" />
+
 ----
 
 #### [Boost].SML - performance Tuning
@@ -892,13 +894,6 @@ struct fold_expr {
 #### [Boost].SML - Summary
 
 * (+) Declarative/Expressive (UML transition)
-<!-- .element: style="margin-left:-13%; width:125%" -->
-<img src="images/transition_table_sml.png" style="width: 155%; background:none; border:none; box-shadow:none;" />
-
-----
-
-#### [Boost].SML - Summary
-
 * (+) Customizable
 * (+) Dispatch O(1)
 * (+) Fast compilation times
@@ -918,6 +913,8 @@ struct fold_expr {
 ==============================================================================
 
 ### Benchmarks
+
+https://github.com/boost-experimental/sml/tree/master/benchmark/connection
 
 ----
 
@@ -942,9 +939,9 @@ int main() {
 ```
 
 ```sh
-$CXX -std=c++2a      # clang-6.0.1/gcc-8.2
-     -stdlib=libc++  # clang-6.0.1
-     -fcoroutines-ts # clang-6.0.1
+$CXX -std=c++2a      # clang-7.0.0/gcc-8.2
+     -stdlib=libc++  # clang-7.0.0
+     -fcoroutines-ts # clang-7.0.0
      -O3 -march=native -flto -fno-exceptions -DNDEBUG
      -I boost_1_68_0
 ```
@@ -1036,7 +1033,7 @@ $CXX -std=c++2a      # clang-6.0.1/gcc-8.2
 
 | | |
 | ------- | ------------- |
-| Benchmarks | https://github.com/boost-experimental/benchmarks/connectionn |
+| Benchmarks | https://github.com/boost-experimental/sml/tree/master/benchmark/connection |
 | [Boost].SML | http://boost-experimental.github.io/sml |
 
 -
