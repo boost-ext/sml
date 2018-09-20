@@ -119,9 +119,14 @@ to avoid it `[Boost].SML` may suit you!
 
 ###Related materials
 
-* [CppNow-2016 - C++14 version of Boost.MSM-eUML](https://www.youtube.com/watch?v=j0J33BnIjnU)
-* [CppNow-2017 - State Machine Language](https://www.youtube.com/watch?v=Lg3tIact5Fw)
-* [Meeting C++ 2016 - Implementing a web game in C++14](https://www.youtube.com/watch?v=8gRHHIjx4oE)
+* [CppCon 2018 - Kris Jusiak - State Machines Battlefield - Naive vs STL vs Boost](http://boost-experimental.github.io/sml/cppcon-2018)
+* [C++Now 2018 - Michael Caisse - “Modern C++ in Embedded Systems”](https://youtu.be/c9Xt6Me3mJ4?t=4378)
+* [EmBO++ 2018 - Kris Jusiak - Workshop - 'Embedding' a Meta State Machine](http://boost-experimental.github.io/sml/embo-2018)
+* [EmBO++ 2018 - Simon Brand - Embedded DSLs for embedded programming](https://youtu.be/YQoXjqm2hiE?t=705)
+* [EmBO++ 2017 - Kris Jusiak - 'Embedding' a Meta State Machine](http://boost-experimental.github.io/sml/embo-2017)
+* [C++Now 2017 - Kris Jusiak - State Machine Language](https://www.youtube.com/watch?v=Lg3tIact5Fw)
+* [C++Now 2016 - Kris Jusiak - C++14 version of Boost.MSM-eUML](https://www.youtube.com/watch?v=j0J33BnIjnU)
+* [Meeting C++ 2016 - Kris Jusiak - Implementing a web game in C++14](https://www.youtube.com/watch?v=8gRHHIjx4oE)
 
 ###Acknowledgements
 * Thanks to [Christophe Henry](https://github.com/henry-ch) for a great [Boost.MSM - eUML](http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html) library

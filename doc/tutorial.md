@@ -485,3 +485,8 @@ sm.process_event(my_event{}); // will call my_logger appropriately
 &nbsp;
 
 ---
+
+## Workshop
+
+<iframe style="width: 100%; height: 600px;" src="http://boost-experimental.github.io/sml/embo-2018/#/" />
+
