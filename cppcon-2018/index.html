@@ -232,6 +232,8 @@ class Connection {
 * (-) Dispatch O(n)
 * (-) Hard to reuse
 
+<img src="images/debug.jpg" style="width: 35%; background:none; border:none; box-shadow:none;" />
+
 ----
 
 #### Naive - Switch/Enum - Implementation
@@ -345,7 +347,10 @@ struct Connected : State {
 * (+) Easy to extend/reuse
 * (~) High-ish memory footprint
 * (-) Heap usage / dynamic allocations
+* (-) Not inlined
 * (-) Not as declarative/explicit
+
+<img src="images/slow.jpg" style="width: 55%; background:none; border:none; box-shadow:none;" />
 
 ----
 
@@ -498,6 +503,8 @@ auto Connection = [](auto& in) {
 * (+) No infinite loops
 * (~) Explicit states
 * (-) GOTO!
+
+![goto](images/goto.png)
 
 ----
 
@@ -744,14 +751,16 @@ sml::sm connection = []{
 
 > Don't pay for what you don't use!
 
+<img src="images/perf.png" style="width: 50%; background:none; border:none; box-shadow:none;" />
+
 ----
 
 #### Dispatch policy changes event dispatching strategy
 
 | Name | Policy | Default |
 | - | - |
-| Jump Table | `jump_table` | `gcc <= 8.0` |
-| Nested Switch | `switch` | `gcc >= 8.0` |
+| Jump Table | `jump_table` | `gcc < 8.0`  |
+| Nested Switch | `switch`  | `gcc >= 8.0` |
 | If/Else | `branch` | `clang` |
 | Fold expressions | `fold_expr` | `gcc/clang with C++17` |
 
@@ -762,23 +771,22 @@ sml::sm connection = []{
 ```cpp
 template<class TransitionTable, class TDispatchPolicy>
 struct sm {
- using mappings_t = map< // Generated at compile time...
-  type_list<       // Per state - Disconnected
-   pair<connect,   // Per event
-    type_list<     // Per state
-     transitions<  //   SrcState               DstState      Event    Guard   Action
-      transition<state<"Disconnected">, state<"Connecting">, connect, always, establish>
-    >,
-    transitions<>, // Connecting (unexpected event)
-    transitions<>  // Connected  (unexpected event)
-   >>, ... // For all available events/states
- >>;
+ // Generated at compile time per events/states...
+ using mappings_t = map<
+   connect< // SrcState               DstState             Event    Guard   Action
+    transition<state<"Disconnected">, state<"Connecting">, connect, always, establish>
+    transition<state<"Connecting">,   none,              , connect, always, unexpected>,
+    transition<state<"Connected">,    none,              , connect, always, unexpected>
+   >, ...
+ >;
 
- template<class TEvent> constexpr void process_event(const TEvent& event) {
+ template<class TEvent>
+ constexpr void process_event(TEvent const& event) {
    TDispatchPolicy::dispatch(
-     current_state_, event, typename TransitionTable::states{} // List of states
+     current_state_, event, typename TransitionTable::states{}
    );
  }
+
  state_t current_state_{};
 };
 ```
@@ -791,11 +799,11 @@ struct sm {
 ```cpp
 struct branch_stm {
   template <class TEvent>
-  constexpr auto dispatch(State &, const TEvent &, type_list<>) { }
+  constexpr auto dispatch(state_t &, TEvent const &, type_list<>) { }
 
   template <class TEvent, class TState, class... TStates>
-  constexpr auto dispatch(State &current_state,
-                          const TEvent &event,
+  constexpr auto dispatch(state_t &current_state,
+                          TEvent const &event,
                           type_list<TState, TStates...>) {
     return current_state == N
       ? mappings_t<TState>::template execute<TEvent>(event)
@@ -818,11 +826,11 @@ struct branch_stm {
 ```cpp
 struct switch_stm {
   template <class TEvent>
-  constexpr auto dispatch(State &, const TEvent &, type_list<>) { }
+  constexpr auto dispatch(state_t &, TEvent const &, type_list<>) { }
 
   template <class TEvent, class TState, class... TStates>
-  constexpr auto dispatch(State &current_state,
-                          const TEvent &event,
+  constexpr auto dispatch(state_t &current_state,
+                          TEvent const &event,
                           type_list<TState, TStates...>) {
     switch (current_state) {
       default: return dispatch(current_state, type_list<TStates...>{});
@@ -846,10 +854,10 @@ struct switch_stm {
 ```cpp
 struct jump_table {
   template <class TEvent, class... TStates>
-  constexpr auto dispatch(State &current_state,
-                          const TEvent &event,
+  constexpr auto dispatch(state_t &current_state,
+                          TEvent const &event,
                           type_list<TStates...>) {
-    using dispatch_table_t = bool (*)(const TEvent&, State &);
+    using dispatch_table_t = bool (*)(TEvent const&, State &);
     constexpr static dispatch_table_t dispatch_table[] = {
       &mappings_t<TStates>::template execute<TEvent>...
     };
@@ -871,9 +879,9 @@ struct jump_table {
 ```cpp
 struct fold_expr {
   template <auto... Ns, class TEvent, class... TStates>
-  constexpr auto dispatch_impl(State &current_state,
+  constexpr auto dispatch_impl(state_t &current_state,
                                std::index_sequence<Ns...>,
-                               const TEvent &event,
+                               TEvent const &event,
                                type_list<TStates...>) {
     return ((current_state == Ns
       ? mappings_t<TStates>::template execute<TEvent>(event)
@@ -922,7 +930,9 @@ https://github.com/boost-experimental/sml/tree/master/benchmark/connection
 
 
 ```cpp
-const auto establish = []{ asm volatile("" : : : "memory"); };
+const auto establish = []{ 
+  asm volatile("" : : : "memory"); 
+};
 // ...
 ```
 
@@ -1035,6 +1045,7 @@ $CXX -std=c++2a      # clang-7.0.0/gcc-8.2
 | ------- | ------------- |
 | Benchmarks | https://github.com/boost-experimental/sml/tree/master/benchmark/connection |
 | [Boost].SML | http://boost-experimental.github.io/sml |
+<!-- .element: style="margin-left:-15%; width:120%" -->
 
 -
 
