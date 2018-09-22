@@ -232,7 +232,7 @@ class Connection {
 * (-) Dispatch O(n)
 * (-) Hard to reuse
 
-<img src="images/debug.jpg" style="width: 35%; background:none; border:none; box-shadow:none;" />
+<img src="images/if.jpg" style="width: 45%; background:none; border:none; box-shadow:none;" />
 
 ----
 
@@ -285,6 +285,8 @@ class Connection {
 * (+) No heap usage
 * (~) Dispatch O(log n)
 * (-) Hard to reuse
+
+<img src="images/debug.jpg" style="width: 35%; background:none; border:none; box-shadow:none;" />
 
 ----
 
@@ -344,10 +346,10 @@ struct Connected : State {
 
 #### Inheritance / State pattern - Summary
 
-* (+) Easy to extend/reuse
+* (+) Easy to extend/reuse (object oriented)
 * (~) High-ish memory footprint
 * (-) Heap usage / dynamic allocations
-* (-) Not inlined
+* (-) Not inlined/devirtualized (even with final)
 * (-) Not as declarative/explicit
 
 <img src="images/slow.jpg" style="width: 55%; background:none; border:none; box-shadow:none;" />
@@ -551,6 +553,8 @@ auto connected() {
 * (+) Easier to add/follow new states/behaviour
 * (+) Type safe events
 
+<img src="images/fancy.jpg" style="width: 45%; background:none; border:none; box-shadow:none;" />
+
 ----
 
 ## Boost
@@ -627,7 +631,7 @@ struct Connected : sc::simple_state<Connected, Connection> {
 #### Boost.Statechart - Summary
 
 * (+) UML-1.5 features
-* (~) Learning curve (Similar to state pattern)
+* (~) Learning curve
 * (-) Dynamic allocations
 * (-) Dynamic dispatch
 * (-) High memory footprint
@@ -886,7 +890,7 @@ struct fold_expr {
     return ((current_state == Ns
       ? mappings_t<TStates>::template execute<TEvent>(event)
       : false
-    ) || ...);
+    ) or ...);
   }
 };
 ```
