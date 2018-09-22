@@ -113,10 +113,10 @@ Feature: Connection # BDD style
 
 ### Problem / Motivation
 
-> What's the 
+> What's the
 
 * `most readable`
-* `most maintainable` 
+* `most maintainable`
 * `most efficient`
 
 > way to satisfy/implement `Connection` requirements?
@@ -248,7 +248,7 @@ class Connection {
 
 ```cpp
   constexpr void process_event(connect const&) {
-    switch(state) { // Handle current state
+    switch (state) { // Handle current state
       default: break;
       case State::CONNECTED:
         establish(); state = State::CONNECTING; break;
@@ -273,7 +273,7 @@ class Connection {
 
 #### Naive - Switch/Enum - Full Example
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/NM_-oY', 'http://localhost:10240/z/v9MUOf')" />
+<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/NM_-oY', 'http://localhost:10240/z/1nAw18')" />
 
 ----
 
@@ -350,7 +350,6 @@ struct Connected : State {
 * (~) High-ish memory footprint
 * (-) Heap usage / dynamic allocations
 * (-) Not inlined/devirtualized (even with final)
-* (-) Not as declarative/explicit
 
 <img src="images/slow.jpg" style="width: 55%; background:none; border:none; box-shadow:none;" />
 
@@ -418,8 +417,7 @@ class Connection {
     return Error{"timeout"};
     ```
 * (~) Inlined (clang only)
-* (-) Hard to reuse (Similar to switch/enum)
-* (-) Not as declarative/explicit
+* (-) Hard to reuse (similar to switch/enum)
 
 ----
 
@@ -427,13 +425,13 @@ class Connection {
 
 ```cpp
 auto Connection = [](auto& in) {
-  for (;;) { // Wait...
+  for (;;) { // Wait... - Disconnected
     // ...until there is a data
     if (auto [event, data] = co_await in; event == connect) {
       establish();
-      for (;;) { // Required not to leave the function
+      for (;;) { // Required not to leave the function - Connecting
         if (auto [event, data] = co_await in; event == established) {
-          for (;;) {
+          for (;;) { // Connected
             switch (auto [event, data] = co_await in; event) {
               case ping: if (is_valid(data)) reset_timeout(); continue;
               case timeout: establish(); break;
@@ -553,7 +551,7 @@ auto connected() {
 * (+) Easier to add/follow new states/behaviour
 * (+) Type safe events
 
-<img src="images/fancy.jpg" style="width: 45%; background:none; border:none; box-shadow:none;" />
+<img src="images/fancy.jpg" style="width: 55%; background:none; border:none; box-shadow:none;" />
 
 ----
 
@@ -755,7 +753,7 @@ sml::sm connection = []{
 
 > Don't pay for what you don't use!
 
-<img src="images/perf.png" style="width: 50%; background:none; border:none; box-shadow:none;" />
+<img src="images/perf.jpg" style="width: 50%; background:none; border:none; box-shadow:none;" />
 
 ----
 
@@ -777,11 +775,11 @@ template<class TransitionTable, class TDispatchPolicy>
 struct sm {
  // Generated at compile time per events/states...
  using mappings_t = map<
-   connect< // SrcState               DstState             Event    Guard   Action
-    transition<state<"Disconnected">, state<"Connecting">, connect, always, establish>
-    transition<state<"Connecting">,   none,              , connect, always, unexpected>,
-    transition<state<"Connected">,    none,              , connect, always, unexpected>
-   >, ...
+  connect< // SrcState               DstState             Event    Guard   Action
+   transition<state<"Disconnected">, state<"Connecting">, connect, always, establish>
+   transition<state<"Connecting">,   none,              , connect, always, unexpected>,
+   transition<state<"Connected">,    none,              , connect, always, unexpected>
+  >, ...
  >;
 
  template<class TEvent>
@@ -794,7 +792,7 @@ struct sm {
  state_t current_state_{};
 };
 ```
-<!-- .element: style="margin-left:-13%; width:125%" -->
+<!-- .element: style="margin-left:-10%; width:119%" -->
 
 ----
 
@@ -934,8 +932,8 @@ https://github.com/boost-experimental/sml/tree/master/benchmark/connection
 
 
 ```cpp
-const auto establish = []{ 
-  asm volatile("" : : : "memory"); 
+const auto establish = []{
+  asm volatile("" : : : "memory");
 };
 // ...
 ```
@@ -1047,9 +1045,8 @@ $CXX -std=c++2a      # clang-7.0.0/gcc-8.2
 
 | | |
 | ------- | ------------- |
-| Benchmarks | https://github.com/boost-experimental/sml/tree/master/benchmark/connection |
+| Benchmarks | <a href="https://github.com/boost-experimental/sml/tree/master/benchmark/connection" >https://github.com/boost-experimental/sml/<br />tree/master/benchmark/connection</a> |
 | [Boost].SML | http://boost-experimental.github.io/sml |
-<!-- .element: style="margin-left:-15%; width:120%" -->
 
 -
 
