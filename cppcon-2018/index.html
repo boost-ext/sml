@@ -126,8 +126,7 @@ Feature: Connection # BDD style
 ### State Machine
 * Is defined by a `list of its states`, its `initial` state, and the `condition` to change them
   * Can be in `exactly one` of a finite number of states at any given states
-  * Can `change` from one state to another in response to external inputs
-* The change is called a `transition`
+  * Can `change` from one state to another in response to external inputs (`transition`)
 
 ----
 
@@ -229,7 +228,6 @@ class Connection {
 * (+) No heap usage
 * (~) Small-ish memory footprint
     * ```sizeof(Connection) == 3b```
-* (-) Dispatch O(n)
 * (-) Hard to reuse
 
 <img src="images/if.jpg" style="width: 45%; background:none; border:none; box-shadow:none;" />
@@ -283,7 +281,6 @@ class Connection {
 * (+) Small memory footprint
     * ```sizeof(Connection) == 1b```
 * (+) No heap usage
-* (~) Dispatch O(log n)
 * (-) Hard to reuse
 
 <img src="images/debug.jpg" style="width: 35%; background:none; border:none; box-shadow:none;" />
@@ -425,13 +422,12 @@ class Connection {
 
 ```cpp
 auto Connection = [](auto& in) {
-  for (;;) { // Wait... - Disconnected
-    // ...until there is a data
+  for (;;) { // Wait for an event... -> Disconnected
     if (auto [event, data] = co_await in; event == connect) {
       establish();
-      for (;;) { // Required not to leave the function - Connecting
+      for (;;) { // -> Connecting
         if (auto [event, data] = co_await in; event == established) {
-          for (;;) { // Connected
+          for (;;) { // -> Connected
             switch (auto [event, data] = co_await in; event) {
               case ping: if (is_valid(data)) reset_timeout(); continue;
               case timeout: establish(); break;
@@ -441,7 +437,7 @@ auto Connection = [](auto& in) {
         }
       }
       end:;
-    }
+    } // Otherwise go back to co_await and suspend...
   }
 };
 ```
@@ -469,7 +465,7 @@ auto Connection = [](auto& in) {
 
 ```cpp
 auto Connection = [](auto& in) {
-  for (;;) { // Wait...
+  for (;;) {
     disconnected: // State is represented by a position in the function
     if (auto [event, data] = co_await in; event == connect) {
       establish();
@@ -512,7 +508,7 @@ auto Connection = [](auto& in) {
 
 ```cpp
 auto disconnected() {
-  for (;;) { // Stay in the current state until...
+  for (;;) { // Wait for the connect event...
     if (auto const event = co_await in; std::get_if<connect>(&event)) {
       establish();
       co_return connecting(); // Set the new state/function
@@ -523,7 +519,7 @@ auto disconnected() {
 
 ```cpp
 auto connected() {
-  for (;;) {  // Stay in the current state until...
+  for (;;) {  // Wait for the ping event...
    auto const event = co_await in;
    if (std::get_if<ping>(&event) and is_valid(std::get<ping>(event))) {
      reset_timeout();
@@ -792,7 +788,7 @@ struct sm {
  state_t current_state_{};
 };
 ```
-<!-- .element: style="margin-left:-10%; width:119%" -->
+<!-- .element: style="margin-left:-10%; width:122%" -->
 
 ----
 
@@ -800,17 +796,16 @@ struct sm {
 
 ```cpp
 struct branch_stm {
-  template <class TEvent>
-  constexpr auto dispatch(state_t &, TEvent const &, type_list<>) { }
-
-  template <class TEvent, class TState, class... TStates>
-  constexpr auto dispatch(state_t &current_state,
-                          TEvent const &event,
-                          type_list<TState, TStates...>) {
-    return current_state == N
-      ? mappings_t<TState>::template execute<TEvent>(event)
-      : dispatch(current_state, event, type_list<TStates...>{});
-  }
+ template <class TEvent, class TState, class... TStates>
+ constexpr auto dispatch(state_t &current_state,
+                         TEvent const &event,
+                         type_list<TState, TStates...>) {
+  if constexpr(sizeof...(TStates...) > 0) {
+   return current_state == N
+    ? mappings_t<TState>::template execute<TEvent>(event)
+    : dispatch(current_state, event, type_list<TStates...>{});
+   }
+ }
 };
 ```
 <!-- .element: style="margin-left:0%; width:100%" -->
@@ -827,18 +822,17 @@ struct branch_stm {
 
 ```cpp
 struct switch_stm {
-  template <class TEvent>
-  constexpr auto dispatch(state_t &, TEvent const &, type_list<>) { }
-
-  template <class TEvent, class TState, class... TStates>
-  constexpr auto dispatch(state_t &current_state,
-                          TEvent const &event,
-                          type_list<TState, TStates...>) {
-    switch (current_state) {
-      default: return dispatch(current_state, type_list<TStates...>{});
-      case N:  return mappings_t<TState>::template execute<TEvent>(event);
-    }
+ template <class TEvent, class TState, class... TStates>
+ constexpr auto dispatch(state_t &current_state,
+                         TEvent const &event,
+                         type_list<TState, TStates...>) {
+  if constexpr(sizeof...(TStates...) > 0) {
+   switch (current_state) {
+    default: return dispatch(current_state, type_list<TStates...>{});
+    case N:  return mappings_t<TState>::template execute<TEvent>(event);
+   }
   }
+ }
 };
 ```
 <!-- .element: style="margin-left:1%; width:105%" -->
@@ -855,16 +849,16 @@ struct switch_stm {
 
 ```cpp
 struct jump_table {
-  template <class TEvent, class... TStates>
-  constexpr auto dispatch(state_t &current_state,
-                          TEvent const &event,
-                          type_list<TStates...>) {
-    using dispatch_table_t = bool (*)(TEvent const&, State &);
-    constexpr static dispatch_table_t dispatch_table[] = {
-      &mappings_t<TStates>::template execute<TEvent>...
-    };
-    return dispatch_table[current_state](event);
-  }
+ template <class TEvent, class... TStates>
+ constexpr auto dispatch(state_t &current_state,
+                         TEvent const &event,
+                         type_list<TStates...>) {
+  using dispatch_table_t = bool (*)(TEvent const&, State &);
+  constexpr static dispatch_table_t dispatch_table[] = {
+   &mappings_t<TStates>::template execute<TEvent>...
+  };
+  return dispatch_table[current_state](event);
+ }
 };
 ```
 
@@ -880,16 +874,17 @@ struct jump_table {
 
 ```cpp
 struct fold_expr {
-  template <auto... Ns, class TEvent, class... TStates>
-  constexpr auto dispatch_impl(state_t &current_state,
-                               std::index_sequence<Ns...>,
-                               TEvent const &event,
-                               type_list<TStates...>) {
-    return ((current_state == Ns
-      ? mappings_t<TStates>::template execute<TEvent>(event)
-      : false
-    ) or ...);
-  }
+ template <auto... Ns, class TEvent, class... TStates>
+ constexpr auto dispatch_impl(state_t &current_state,
+                              std::index_sequence<Ns...>,
+                              TEvent const &event,
+                              type_list<TStates...>) {
+  return ((
+   current_state == Ns
+   ? mappings_t<TStates>::template execute<TEvent>(event)
+   : false
+  ) or ...);
+ }
 };
 ```
 
@@ -1046,7 +1041,7 @@ $CXX -std=c++2a      # clang-7.0.0/gcc-8.2
 | | |
 | ------- | ------------- |
 | Benchmarks | <a href="https://github.com/boost-experimental/sml/tree/master/benchmark/connection" >https://github.com/boost-experimental/sml/<br />tree/master/benchmark/connection</a> |
-| [Boost].SML | http://boost-experimental.github.io/sml |
+| Slides | http://boost-experimental.github.io/sml/cppcon-2018 |
 
 -
 
