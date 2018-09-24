@@ -79,35 +79,47 @@ Kris Jusiak, Quantlab Financial
 ```gherkin
 Feature: Connection # BDD style
 ```
+<!-- .element: class="fragment" -->
+
+---
 
 ```gherkin
   Scenario: Establish connection
+```
+<!-- .element: class="fragment" -->
+
+```gherkin
     Given I don't have a connection
+```
+<!-- .element: class="fragment" -->
+
+```gherkin
      When I receive a request to connect
+```
+<!-- .element: class="fragment" -->
+
+```gherkin
      Then I should try to establish the connection
+```
+<!-- .element: class="fragment" -->
+
+```gherkin
      When I receive an established acknowledgement
+```
+<!-- .element: class="fragment" -->
+
+```gherkin
      Then I should have been connected
 ```
+<!-- .element: class="fragment" -->
+
+---
 
 ```gherkin
   Scenario: Disconnect
-    Given I have a connection
-     When I receive a request to disconnect
-     Then I should have been connected
-```
-
-```gherkin
-  Scenario: Ping
-    Given I have a connection
-     When I receive a ping
-      And Ping is valid
-     Then I should reset the timeout
-      And I still should be connected
-```
-
-```gherkin
   ...
 ```
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -116,43 +128,55 @@ Feature: Connection # BDD style
 > What's the
 
 * `most readable`
+<!-- .element: class="fragment" -->
 * `most maintainable`
+<!-- .element: class="fragment" -->
 * `most efficient`
+<!-- .element: class="fragment" -->
 
 > way to satisfy/implement `Connection` requirements?
 
 ==============================================================================
 
-### State Machine
-* Is defined by a `list of its states`, its `initial` state, and the `condition` to change them
-  * Can be in `exactly one` of a finite number of states at any given states
-  * Can `change` from one state to another in response to external inputs (`transition`)
-
-----
-
 ### State Machine - Unified Modeling Language - 2.5
 
-<img src="images/uml-2.5.png" style="width: 50%; background:none; border:none; box-shadow:none;" />
+> State Machine - Connection
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
-https://www.omg.org/spec/UML/2.5.1/PDF
+<table>
+<tr>
+<td style="vertical-align: middle">
+<pre><code>Feature: Connection
+ Scenario: Connect
+ Scenario: Disconnect
+ Scenario: ...
+</code></pre>
+</td>
+<!-- .element: class="fragment" -->
+<td>
+<img src="images/connection.png" style="width: 100%; background:none; border:none; box-shadow:none;" />
+<!-- .element: class="fragment" -->
+<center><img src="images/transition.png" style="width: 85%; background:none; border:none; box-shadow:none;" /></center>
+<!-- .element: class="fragment" -->
+</td>
+</tr>
+</table>
 
-----
-
-### State Machine - Connection - UML-2.5
-
-![Connection](images/connection.png)
+#### https://www.omg.org/spec/UML/2.5.1/PDF
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ==============================================================================
 
 ### Solutions
 
-![solutiongs](images/solutions.png)
+![solutions](images/solutions.png)
 
 ----
 
 ### Common - Implementation
 
 #### Events
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
 struct connect{};
@@ -161,20 +185,25 @@ struct ping{};
 struct disconnect{};
 struct timeout{};
 ```
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 #### Guards
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 ```cpp
 constexpr auto is_valid      = [](auto const& event) { return true; };
 ```
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 #### Actions
+<!-- .element: class="fragment" data-fragment-index="3" -->
 
 ```cpp
 constexpr auto establish     = []{ std::puts("establish"); };
 constexpr auto close         = []{ std::puts("close"); };
 constexpr auto reset_timeout = []{ std::puts("reset_timeout"); };
 ```
+<!-- .element: class="fragment" data-fragment-index="3" -->
 
 ----
 
@@ -191,6 +220,7 @@ class Connection {
   // Implicit states using booleans
   bool disconnected = true, connected = false, connecting = false;
 ```
+<!-- .element: class="fragment" -->
 
 ```cpp
   constexpr void process_event(connect const&) {
@@ -201,6 +231,7 @@ class Connection {
     }
   }
 ```
+<!-- .element: class="fragment" -->
 
 ```cpp
   constexpr void process_event(ping const& event) {
@@ -209,10 +240,7 @@ class Connection {
     } // Stay in the current state
   }
 ```
-
-```cpp
-...
-```
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -225,12 +253,17 @@ class Connection {
 #### Naive - If/Else - Summary
 
 * (+) Inlined
+<!-- .element: class="fragment" -->
 * (+) No heap usage
+<!-- .element: class="fragment" -->
 * (~) Small-ish memory footprint
+<!-- .element: class="fragment" -->
     * ```sizeof(Connection) == 3b```
 * (-) Hard to reuse
+<!-- .element: class="fragment" -->
 
 <img src="images/if.jpg" style="width: 45%; background:none; border:none; box-shadow:none;" />
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -243,6 +276,7 @@ class Connection {
                             CONNECTING,
                             CONNECTED } state = DISCONNECTED;
 ```
+<!-- .element: class="fragment" -->
 
 ```cpp
   constexpr void process_event(connect const&) {
@@ -254,6 +288,7 @@ class Connection {
     }
   }
 ```
+<!-- .element: class="fragment" -->
 
 ```cpp
   constexpr void process_event(ping const& event) {
@@ -262,10 +297,7 @@ class Connection {
     } // Stay in the current state
   }
 ```
-
-```cpp
-...
-```
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -278,12 +310,17 @@ class Connection {
 #### Naive - Switch/Enum - Summary
 
 * (+) Inlined
+<!-- .element: class="fragment" -->
 * (+) Small memory footprint
+<!-- .element: class="fragment" -->
     * ```sizeof(Connection) == 1b```
 * (+) No heap usage
+<!-- .element: class="fragment" -->
 * (-) Hard to reuse
+<!-- .element: class="fragment" -->
 
-<img src="images/debug.jpg" style="width: 35%; background:none; border:none; box-shadow:none;" />
+<img src="images/debug.jpg" style="width: 40%; background:none; border:none; box-shadow:none;" />
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -314,6 +351,7 @@ struct Disconnected : State {
   }
 };
 ```
+<!-- .element: class="fragment" -->
 
 ```cpp
 struct Connected : State {
@@ -328,10 +366,7 @@ struct Connected : State {
   // ...
 };
 ```
-
-```cpp
-...
-```
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -344,11 +379,16 @@ struct Connected : State {
 #### Inheritance / State pattern - Summary
 
 * (+) Easy to extend/reuse (object oriented)
+<!-- .element: class="fragment" -->
 * (~) High-ish memory footprint
+<!-- .element: class="fragment" -->
 * (-) Heap usage / dynamic allocations
+<!-- .element: class="fragment" -->
 * (-) Not inlined/devirtualized (even with final)
+<!-- .element: class="fragment" -->
 
 <img src="images/slow.jpg" style="width: 55%; background:none; border:none; box-shadow:none;" />
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -370,6 +410,7 @@ class Connection {
   std::variant<Disconnected, Connecting, Connected> state
     = Disconnected{};
 ```
+<!-- .element: class="fragment" -->
 
 ```cpp
   constexpr void process_event(connect const&) {
@@ -379,6 +420,7 @@ class Connection {
     }, state);
   }
 ```
+<!-- .element: class="fragment" -->
 
 ```cpp
   void process_event(ping const& event) {
@@ -387,10 +429,7 @@ class Connection {
     } // Stay in the current state
   }
 ```
-
-```cpp
-...
-```
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -403,6 +442,7 @@ class Connection {
 #### std::variant - Summary
 
 * (+) Small/efficient memory footprint
+<!-- .element: class="fragment" -->
   * ```cpp
     Disconnect { };
     Connecting { connection_id id{}; };
@@ -410,11 +450,14 @@ class Connection {
                  time last_ping{}; };
     ```
 * (+) Integrates well with std::expected/static exceptions
+<!-- .element: class="fragment" -->
   * ```cpp
     return Error{"timeout"};
     ```
 * (~) Inlined (clang only)
+<!-- .element: class="fragment" -->
 * (-) Hard to reuse (similar to switch/enum)
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -425,8 +468,16 @@ auto Connection = [](auto& in) {
   for (;;) { // Wait for an event... -> Disconnected
     if (auto [event, data] = co_await in; event == connect) {
       establish();
+```
+<!-- .element: class="fragment" data-fragment-index="1" -->
+
+```cpp
       for (;;) { // -> Connecting
         if (auto [event, data] = co_await in; event == established) {
+```
+<!-- .element: class="fragment" data-fragment-index="2" -->
+
+```cpp
           for (;;) { // -> Connected
             switch (auto [event, data] = co_await in; event) {
               case ping: if (is_valid(data)) reset_timeout(); continue;
@@ -435,12 +486,20 @@ auto Connection = [](auto& in) {
             }
           }
         }
-      }
-      end:;
+```
+<!-- .element: class="fragment"  -->
+
+```cpp
+      } end:;
+```
+<!-- .element: class="fragment" data-fragment-index="2" -->
+
+```cpp
     } // Otherwise go back to co_await and suspend...
   }
 };
 ```
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ----
 
@@ -453,11 +512,17 @@ auto Connection = [](auto& in) {
 #### Coroutines / loop - Summary
 
 * (+) Structured code using C++ features
+<!-- .element: class="fragment"  -->
 * (+) Easily to switch between Async/Sync versions
+<!-- .element: class="fragment"  -->
 * (~) Learning curve (different way of thinking)
+<!-- .element: class="fragment"  -->
 * (~) Requires heap (heap elision / devirtualization)
+<!-- .element: class="fragment"  -->
 * (~) Implicit states (position in the function)
+<!-- .element: class="fragment"  -->
 * (-) Weird usage of infinite loops
+<!-- .element: class="fragment"  -->
 
 ----
 
@@ -469,8 +534,16 @@ auto Connection = [](auto& in) {
     disconnected: // State is represented by a position in the function
     if (auto [event, data] = co_await in; event == connect) {
       establish();
+```
+<!-- .element: class="fragment" data-fragment-index="1" -->
+
+```cpp
       connecting:
       if (auto [event, data] = co_await in; event == established) {
+```
+<!-- .element: class="fragment" data-fragment-index="2" -->
+
+```cpp
         connected:
         switch (auto [event, data] = co_await in; event) {
           case ping:
@@ -480,11 +553,20 @@ auto Connection = [](auto& in) {
           case disconnect:
             close(); goto disconnected;
         }
+```
+<!-- .element: class="fragment" -->
+
+```cpp
       }
+```
+<!-- .element: class="fragment" data-fragment-index="2" -->
+
+```
     }
   }
 };
 ```
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ----
 
@@ -497,10 +579,14 @@ auto Connection = [](auto& in) {
 #### Coroutines / goto - Summary
 
 * (+) No infinite loops
+<!-- .element: class="fragment" -->
 * (~) Explicit states
+<!-- .element: class="fragment" -->
 * (-) GOTO!
+<!-- .element: class="fragment" -->
 
 ![goto](images/goto.png)
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -516,6 +602,7 @@ auto disconnected() {
   }
 }
 ```
+<!-- .element: class="fragment" -->
 
 ```cpp
 auto connected() {
@@ -533,6 +620,7 @@ auto connected() {
   }
 }
 ```
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -545,9 +633,12 @@ auto connected() {
 #### Coroutines / functions / variant - Summary
 
 * (+) Easier to add/follow new states/behaviour
+<!-- .element: class="fragment" -->
 * (+) Type safe events
+<!-- .element: class="fragment" -->
 
 <img src="images/fancy.jpg" style="width: 55%; background:none; border:none; box-shadow:none;" />
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -562,6 +653,7 @@ auto connected() {
 #### Boost.Statechart - Implementation
 
 #### Events
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
 struct connect     : sc::event<connect> {};
@@ -570,8 +662,10 @@ struct established : sc::event<established> {};
 struct timeout     : sc::event<timeout> {};
 struct disconnect  : sc::event<disconnect> {};
 ```
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 #### Actions/Guards
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 ```cpp
 struct Connection : sc::state_machine<Connection, Disconnected> {
@@ -582,6 +676,7 @@ struct Connection : sc::state_machine<Connection, Disconnected> {
   bool is_valid(ping const&)      { return true; }
 };
 ```
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 ----
 
@@ -594,6 +689,7 @@ struct Disconnected : sc::simple_state<Disconnected, Connection> {
                    Connection, &Connection::establish>>;
 };
 ```
+<!-- .element: class="fragment"  -->
 
 ```cpp
 struct Connected : sc::simple_state<Connected, Connection> {
@@ -604,7 +700,10 @@ struct Connected : sc::simple_state<Connected, Connection> {
                    Connection, &Connection::close>,
     sc::custom_reaction<ping>
   >;
+```
+<!-- .element: class="fragment"  -->
 
+```cpp
   sc::result react(ping const& event) {
     if (context<Connection>().is_valid(event)) {
       context<Connection>().reset_timeout(event);
@@ -613,6 +712,7 @@ struct Connected : sc::simple_state<Connected, Connection> {
   }
 };
 ```
+<!-- .element: class="fragment"  -->
 
 ----
 
@@ -625,16 +725,22 @@ struct Connected : sc::simple_state<Connected, Connection> {
 #### Boost.Statechart - Summary
 
 * (+) UML-1.5 features
+<!-- .element: class="fragment"  -->
 * (~) Learning curve
+<!-- .element: class="fragment"  -->
 * (-) Dynamic allocations
+<!-- .element: class="fragment"  -->
 * (-) Dynamic dispatch
+<!-- .element: class="fragment"  -->
 * (-) High memory footprint
+<!-- .element: class="fragment"  -->
 
 ----
 
 #### Boost.MSM / eUML - Implementation
 
 #### Events
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
 BOOST_MSM_EUML_EVENT(connect)
@@ -643,20 +749,24 @@ BOOST_MSM_EUML_EVENT(established)
 BOOST_MSM_EUML_EVENT(timeout)
 BOOST_MSM_EUML_EVENT(disconnect)
 ```
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 #### States
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 ```cpp
 BOOST_MSM_EUML_STATE((), Disconnected)
 BOOST_MSM_EUML_STATE((), Connecting)
 BOOST_MSM_EUML_STATE((), Connected)
 ```
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 ----
 
 #### Boost.MSM / eUML - Implementation
 
-#### Actions/Guards
+#### Actions
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
 BOOST_MSM_EUML_ACTION(establish){
@@ -666,6 +776,10 @@ BOOST_MSM_EUML_ACTION(establish){
   }
 };
 ```
+<!-- .element: class="fragment" data-fragment-index="1" -->
+
+#### Guards
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 ```cpp
 BOOST_MSM_EUML_ACTION(is_valid) {
@@ -675,10 +789,7 @@ BOOST_MSM_EUML_ACTION(is_valid) {
   }
 };
 ```
-
-```cpp
-...
-```
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 ----
 
@@ -694,15 +805,18 @@ BOOST_MSM_EUML_TRANSITION_TABLE((
 ),
 transition_table)
 ```
+<!-- .element: class="fragment" -->
 
 ```cpp
 BOOST_MSM_EUML_DECLARE_STATE_MACHINE
   ((transition_table, init_ << Disconnected), ConnectionImpl)
 ```
+<!-- .element: class="fragment" -->
 
 ```cpp
 using Connection = msm::back::state_machine<ConnectionImpl>;
 ```
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -715,13 +829,21 @@ using Connection = msm::back::state_machine<ConnectionImpl>;
 #### Boost.MSM / eUML - Summary
 
 * (+) Declarative/Expressive (UML transition)
+<!-- .element: class="fragment" -->
 * (+) Dispatch O(1) - jump table
+<!-- .element: class="fragment" -->
 * (+) UML-2.0 features
+<!-- .element: class="fragment" -->
 * (+) Small memory footprint
+<!-- .element: class="fragment" -->
 * (~) Learning curve
+<!-- .element: class="fragment" -->
 * (~) DSL based
+<!-- .element: class="fragment" -->
 * (-) Macro based
+<!-- .element: class="fragment" -->
 * (-) Slow compilation times
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -739,9 +861,11 @@ sml::sm connection = []{
   };
 };
 ```
+<!-- .element: class="fragment" -->
 <!-- .element: style="margin-left:-7%; width:120%" -->
 
-<img src="images/transition_table_sml.png" style="width: 155%; background:none; border:none; box-shadow:none;" />
+<!--<img src="images/transition_table_sml.png" style="width: 155%; background:none; border:none; box-shadow:none;" />-->
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -764,51 +888,26 @@ sml::sm connection = []{
 
 ----
 
-#### Dispatch policy - implementation details
-
-```cpp
-template<class TransitionTable, class TDispatchPolicy>
-struct sm {
- // Generated at compile time per events/states...
- using mappings_t = map<
-  connect< // SrcState               DstState             Event    Guard   Action
-   transition<state<"Disconnected">, state<"Connecting">, connect, always, establish>
-   transition<state<"Connecting">,   none,              , connect, always, unexpected>,
-   transition<state<"Connected">,    none,              , connect, always, unexpected>
-  >, ...
- >;
-
- template<class TEvent>
- constexpr void process_event(TEvent const& event) {
-   TDispatchPolicy::dispatch(
-     current_state_, event, typename TransitionTable::states{}
-   );
- }
-
- state_t current_state_{};
-};
-```
-<!-- .element: style="margin-left:-10%; width:122%" -->
-
-----
-
 #### [Boost].SML / dispatch policy - If/Else
 
 ```cpp
-struct branch_stm {
- template <class TEvent, class TState, class... TStates>
- constexpr auto dispatch(state_t &current_state,
-                         TEvent const &event,
-                         type_list<TState, TStates...>) {
+template <class TEvent, class TState, class... TStates>
+constexpr auto branch_stm::dispatch(state_t &current_state,
+                                    TEvent const &event,
+                                    type_list<TState, TStates...>) {
+```
+<!-- .element: class="fragment" -->
+
+```cpp
   if constexpr(sizeof...(TStates...) > 0) {
-   return current_state == N
-    ? mappings_t<TState>::template execute<TEvent>(event)
-    : dispatch(current_state, event, type_list<TStates...>{});
+    return current_state == N
+     ? mappings_t<TState>::template execute<TEvent>(event)
+     : dispatch(current_state, event, type_list<TStates...>{});
    }
- }
-};
+}
 ```
 <!-- .element: style="margin-left:0%; width:100%" -->
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -821,21 +920,24 @@ struct branch_stm {
 #### [Boost].SML / dispatch policy - Switch
 
 ```cpp
-struct switch_stm {
- template <class TEvent, class TState, class... TStates>
- constexpr auto dispatch(state_t &current_state,
-                         TEvent const &event,
-                         type_list<TState, TStates...>) {
+template <class TEvent, class TState, class... TStates>
+constexpr auto switch_stm::dispatch(state_t &current_state,
+                                    TEvent const &event,
+                                    type_list<TState, TStates...>) {
+```
+<!-- .element: class="fragment" -->
+
+```cpp
   if constexpr(sizeof...(TStates...) > 0) {
-   switch (current_state) {
-    default: return dispatch(current_state, type_list<TStates...>{});
-    case N:  return mappings_t<TState>::template execute<TEvent>(event);
-   }
+    switch (current_state) {
+      default: return dispatch(current_state, type_list<TStates...>{});
+      case N:  return mappings_t<TState>::template execute<TEvent>(event);
+    }
   }
- }
-};
+}
 ```
 <!-- .element: style="margin-left:1%; width:105%" -->
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -848,19 +950,22 @@ struct switch_stm {
 #### [Boost].SML / dispatch policy - Jump Table
 
 ```cpp
-struct jump_table {
- template <class TEvent, class... TStates>
- constexpr auto dispatch(state_t &current_state,
-                         TEvent const &event,
-                         type_list<TStates...>) {
+template <class TEvent, class... TStates>
+constexpr auto jump_table::dispatch(state_t &current_state,
+                                    TEvent const &event,
+                                    type_list<TStates...>) {
+```
+<!-- .element: class="fragment" -->
+
+```cpp
   using dispatch_table_t = bool (*)(TEvent const&, State &);
   constexpr static dispatch_table_t dispatch_table[] = {
-   &mappings_t<TStates>::template execute<TEvent>...
+    &mappings_t<TStates>::template execute<TEvent>...
   };
   return dispatch_table[current_state](event);
- }
-};
+}
 ```
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -873,20 +978,23 @@ struct jump_table {
 #### [Boost].SML / dispatch policy - Fold Expressions
 
 ```cpp
-struct fold_expr {
- template <auto... Ns, class TEvent, class... TStates>
- constexpr auto dispatch_impl(state_t &current_state,
+template <auto... Ns, class TEvent, class... TStates>
+constexpr auto fold_expr::dispatch_impl(state_t &current_state,
                               std::index_sequence<Ns...>,
                               TEvent const &event,
                               type_list<TStates...>) {
-  return ((
-   current_state == Ns
-   ? mappings_t<TStates>::template execute<TEvent>(event)
-   : false
-  ) or ...);
- }
-};
 ```
+<!-- .element: class="fragment" -->
+
+```cpp
+  return ((
+    current_state == Ns
+    ? mappings_t<TStates>::template execute<TEvent>(event)
+    : false
+  ) or ...);
+}
+```
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -899,14 +1007,23 @@ struct fold_expr {
 #### [Boost].SML - Summary
 
 * (+) Declarative/Expressive (UML transition)
+<!-- .element: class="fragment" -->
 * (+) Customizable
+<!-- .element: class="fragment" -->
 * (+) Dispatch O(1)
+<!-- .element: class="fragment" -->
 * (+) Fast compilation times
+<!-- .element: class="fragment" -->
 * (+) UML-2.5 features
+<!-- .element: class="fragment" -->
+<!-- .element: class="fragment" -->
 * (+) Minimal memory footprint
+<!-- .element: class="fragment" -->
   * ```sizeof(Connection) == 1b```
 * (~) Learning curve
+<!-- .element: class="fragment" -->
 * (~) DSL based
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -919,7 +1036,8 @@ struct fold_expr {
 
 ### Benchmarks
 
-https://github.com/boost-experimental/sml/tree/master/benchmark/connection
+#### https://github.com/boost-experimental/sml/tree/master/benchmark/connection
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -930,8 +1048,8 @@ https://github.com/boost-experimental/sml/tree/master/benchmark/connection
 const auto establish = []{
   asm volatile("" : : : "memory");
 };
-// ...
 ```
+<!-- .element: class="fragment" -->
 
 ```cpp
 int main() {
@@ -944,6 +1062,7 @@ int main() {
   }
 }
 ```
+<!-- .element: class="fragment" -->
 
 ```sh
 $CXX -std=c++2a      # clang-7.0.0/gcc-8.2
@@ -952,6 +1071,7 @@ $CXX -std=c++2a      # clang-7.0.0/gcc-8.2
      -O3 -march=native -flto -fno-exceptions -DNDEBUG
      -I boost_1_68_0
 ```
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -1017,26 +1137,21 @@ $CXX -std=c++2a      # clang-7.0.0/gcc-8.2
 
 ### Summary
 
-----
+* #### State machines are expressive way to represent the application flow
+<!-- .element: class="fragment" -->
 
-### State machines are expressive way to represent the application flow
+* #### There are different ways of implementing state machines in C++ with different trade-offs
+<!-- .element: class="fragment" -->
 
-----
+* #### State Machines are more than just simple transitions [UML-2.5](http://www.omg.org/spec/UML/2.5/)
+<!-- .element: class="fragment" -->
 
-### There are different ways of implementing state machines in C++ with different trade-offs
-
-----
-
-### State Machines are more than just simple transitions
-* [UML-2.5](http://www.omg.org/spec/UML/2.5/)
-
-----
-
-### Leveraging Zero-cost libraries can boost the design and/or performance
+* ##### Leveraging Zero-cost libraries can boost the design and/or performance
+<!-- .element: class="fragment" -->
 
 ==============================================================================
 
-### Questions?
+### Let's embrace State Machines!
 
 | | |
 | ------- | ------------- |
@@ -1092,7 +1207,7 @@ $CXX -std=c++2a      # clang-7.0.0/gcc-8.2
         rtl: false,
 
         // Turns fragments on and off globally
-        fragments: false,
+        fragments: true,
 
         // Flags if the presentation is running in an embedded mode,
         // i.e. contained within a limited portion of the screen
