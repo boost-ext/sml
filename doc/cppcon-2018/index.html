@@ -21,18 +21,9 @@
 
       function set_address(self, remote, local) {
         if (window.location.search.match("local")) {
-          self.setAttribute('data-src', local);
+          self.href = local;
         } else {
-          self.setAttribute('data-src', remote);
-
-          if (window.location.search.match( /print-pdf/gi ) &&
-             !self.parentNode.getElementsByTagName('a').length) {
-            self.style.display = 'none';
-            var link = document.createElement('a');
-            link.href = remote;
-            link.innerHTML = remote;
-            self.parentNode.appendChild(link);
-          }
+          self.href = remote;
         }
       }
 		</script>
@@ -61,18 +52,18 @@ Kris Jusiak, Quantlab Financial
 
 ==============================================================================
 
-### Outline
+<!--### Outline-->
 
-* `Problem / Motivation`
-* `State Machine`
-* `Solutions`
-  * `Naive`
-  * `STL`
-  * `Boost`
-* `Benchmarks`
-* `Summary`
+<!--* `Problem / Motivation`-->
+<!--* `State Machine`-->
+<!--* `Solutions`-->
+  <!--* `Naive`-->
+  <!--* `STL`-->
+  <!--* `Boost`-->
+<!--* `Benchmarks`-->
+<!--* `Summary`-->
 
-==============================================================================
+<!--==============================================================================-->
 
 ### Problem / Motivation
 
@@ -155,8 +146,6 @@ Feature: Connection # BDD style
 <!-- .element: class="fragment" -->
 <td>
 <img src="images/connection.png" style="width: 100%; background:none; border:none; box-shadow:none;" />
-<!-- .element: class="fragment" -->
-<center><img src="images/transition.png" style="width: 85%; background:none; border:none; box-shadow:none;" /></center>
 <!-- .element: class="fragment" -->
 </td>
 </tr>
@@ -246,13 +235,17 @@ class Connection {
 
 ##### Naive - If/Else - Full Example
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/APHwnc', 'http://localhost:10240/z/iN1lbS')" />
+<div style="margin-left:-10%; width:120%">
+![gb_if_else](images/gb_if_else.png)
+</div>
+
+#### https://godbolt.org/z/APHwnc
 
 ----
 
 #### Naive - If/Else - Summary
 
-* (+) Inlined
+* (+) Inlined (gcc/clang)
 <!-- .element: class="fragment" -->
 * (+) No heap usage
 <!-- .element: class="fragment" -->
@@ -262,7 +255,7 @@ class Connection {
 * (-) Hard to reuse
 <!-- .element: class="fragment" -->
 
-<img src="images/if.jpg" style="width: 45%; background:none; border:none; box-shadow:none;" />
+<img src="images/if.jpg" style="width: 50%; background:none; border:none; box-shadow:none;" />
 <!-- .element: class="fragment" -->
 
 ----
@@ -303,13 +296,17 @@ class Connection {
 
 #### Naive - Switch/Enum - Full Example
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/NM_-oY', 'http://localhost:10240/z/1nAw18')" />
+<div style="margin-left:-10%; width:120%">
+![gb](images/gb_switch.png)
+</div>
+
+#### https://godbolt.org/z/NM_-oY
 
 ----
 
 #### Naive - Switch/Enum - Summary
 
-* (+) Inlined
+* (+) Inlined (gcc/clang)
 <!-- .element: class="fragment" -->
 * (+) Small memory footprint
 <!-- .element: class="fragment" -->
@@ -372,7 +369,11 @@ struct Connected : State {
 
 #### Inheritance / State pattern - Full Example
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/dui-ar', 'http://localhost:10240/z/HDRJvV')" />
+<div style="margin-left:-10%; width:120%">
+![gb](images/gb_inheritance.png)
+</div>
+
+#### https://godbolt.org/z/dui-ar
 
 ----
 
@@ -435,7 +436,11 @@ class Connection {
 
 #### std::variant - Full Example
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/oY2FBl', 'http://localhost:10240/z/C-G8T4')" />
+<div style="margin-left:-10%; width:120%">
+![gb](images/gb_variant.png)
+</div>
+
+#### https://godbolt.org/z/oY2FBl
 
 ----
 
@@ -456,7 +461,7 @@ class Connection {
     ```
 * (~) Inlined (clang only)
 <!-- .element: class="fragment" -->
-* (-) Hard to reuse (similar to switch/enum)
+* (-) Hard to reuse (Similar to switch/enum)
 <!-- .element: class="fragment" -->
 
 ----
@@ -480,7 +485,8 @@ auto Connection = [](auto& in) {
 ```cpp
           for (;;) { // -> Connected
             switch (auto [event, data] = co_await in; event) {
-              case ping: if (is_valid(data)) reset_timeout(); continue;
+              case ping:
+                if (is_valid(data)) { reset_timeout(); continue; }
               case timeout: establish(); break;
               case disconnect: close(); goto end;
             }
@@ -505,7 +511,11 @@ auto Connection = [](auto& in) {
 
 #### Coroutines / loop - Full Example
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/Sg1O6r', 'http://localhost:10240/z/ADrxrV')" />
+<div style="margin-left:-10%; width:120%">
+![gb](images/gb_coroutines_loop.png)
+</div>
+
+#### https://godbolt.org/z/Sg1O6r
 
 ----
 
@@ -520,6 +530,8 @@ auto Connection = [](auto& in) {
 * (~) Requires heap (heap elision / devirtualization)
 <!-- .element: class="fragment"  -->
 * (~) Implicit states (position in the function)
+<!-- .element: class="fragment"  -->
+* (-) Events require a common type
 <!-- .element: class="fragment"  -->
 * (-) Weird usage of infinite loops
 <!-- .element: class="fragment"  -->
@@ -547,9 +559,9 @@ auto Connection = [](auto& in) {
         connected:
         switch (auto [event, data] = co_await in; event) {
           case ping:
-            if (is_valid(data)) reset_timeout(); goto connected;
-          case timeout:
-            establish(); goto connecting; // Set the new state
+            if (is_valid(data)) { reset_timeout(); goto connected; }
+          case timeout: establish();
+            goto connecting; // Set the new state
           case disconnect:
             close(); goto disconnected;
         }
@@ -562,9 +574,7 @@ auto Connection = [](auto& in) {
 <!-- .element: class="fragment" data-fragment-index="2" -->
 
 ```
-    }
-  }
-};
+} } };
 ```
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
@@ -572,7 +582,11 @@ auto Connection = [](auto& in) {
 
 #### Coroutines / goto - Full Example
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/a7EnkL', 'http://localhost:10240/z/EETC0c')" />
+<div style="margin-left:-10%; width:120%">
+![gb](images/gb_coroutines_goto.png)
+</div>
+
+#### https://godbolt.org/z/a7EnkL
 
 ----
 
@@ -595,38 +609,53 @@ auto Connection = [](auto& in) {
 ```cpp
 auto disconnected() {
   for (;;) { // Wait for the connect event...
-    if (auto const event = co_await in; std::get_if<connect>(&event)) {
-      establish();
-      co_return connecting(); // Set the new state/function
-    }
-  }
-}
 ```
-<!-- .element: class="fragment" -->
+<!-- .element: class="fragment" data-fragment-index="1" -->
+
+```cpp
+    if (auto const event = co_await in; std::get_if<connect>(&event)) {
+      establish(); co_return connecting(); // Set the new state
+    }
+```
+<!-- .element: class="fragment" data-fragment-index="2" -->
+
+```cpp
+} }
+```
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
 auto connected() {
   for (;;) {  // Wait for the ping event...
    auto const event = co_await in;
+```
+<!-- .element: class="fragment" data-fragment-index="4" -->
+
+```cpp
    if (std::get_if<ping>(&event) and is_valid(std::get<ping>(event))) {
      reset_timeout();
    } else if (std::get_if<timeout>(&event)) {
-     establish();
-     co_return connecting();
+     establish(); co_return connecting();
    } else if (std::get_if<disconnect>(&event)) {
-     close();
-     co_return disconnected();
+     close();     co_return disconnected();
    }
-  }
-}
 ```
-<!-- .element: class="fragment" -->
+<!-- .element: class="fragment" data-fragment-index="5" -->
+
+```cpp
+} }
+```
+<!-- .element: class="fragment" data-fragment-index="4" -->
 
 ----
 
 #### Coroutines / functions / variant - Full Example
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/08ZX8T', 'http://localhost:10240/z/oChcAr')" />
+<div style="margin-left:-10%; width:120%">
+![gb](images/gb_coroutines_variant.png)
+</div>
+
+#### https://godbolt.org/z/08ZX8T
 
 ----
 
@@ -718,7 +747,11 @@ struct Connected : sc::simple_state<Connected, Connection> {
 
 #### Boost.Statechart - Full Example
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/NN8UyH', 'http://localhost:10240/z/zWE97c')" />
+<div style="margin-left:-10%; width:120%">
+![gb](images/gb_boost_statechart.png)
+</div>
+
+#### https://godbolt.org/z/NN8UyH
 
 ----
 
@@ -726,7 +759,7 @@ struct Connected : sc::simple_state<Connected, Connection> {
 
 * (+) UML-1.5 features
 <!-- .element: class="fragment"  -->
-* (~) Learning curve
+* (~) Learning curve (Similar to State Pattern)
 <!-- .element: class="fragment"  -->
 * (-) Dynamic allocations
 <!-- .element: class="fragment"  -->
@@ -822,7 +855,11 @@ using Connection = msm::back::state_machine<ConnectionImpl>;
 
 #### Boost.MSM / eUML - Full Example
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/nVTV0J', 'http://localhost:10240/z/jz2jFW')" />
+<div style="margin-left:-10%; width:120%">
+![gb](images/gb_boost_msm.png)
+</div>
+
+#### https://godbolt.org/z/nVTV0J
 
 ----
 
@@ -844,6 +881,7 @@ using Connection = msm::back::state_machine<ConnectionImpl>;
 <!-- .element: class="fragment" -->
 * (-) Slow compilation times
 <!-- .element: class="fragment" -->
+  * Timeouts in the Compiler-Explorer
 
 ----
 
@@ -872,6 +910,7 @@ sml::sm connection = []{
 #### [Boost].SML - performance Tuning
 
 > Don't pay for what you don't use!
+<!-- .element: class="fragment" -->
 
 <img src="images/perf.jpg" style="width: 50%; background:none; border:none; box-shadow:none;" />
 
@@ -891,116 +930,153 @@ sml::sm connection = []{
 #### [Boost].SML / dispatch policy - If/Else
 
 ```cpp
-template <class TEvent, class TState, class... TStates>
-constexpr auto branch_stm::dispatch(state_t &current_state,
-                                    TEvent const &event,
-                                    type_list<TState, TStates...>) {
+template <class TMappings, // back-end -> generated transitions
+          class TEvent,
+          class TState,
+          class... TStates>
+constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 ```
-<!-- .element: class="fragment" -->
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
   if constexpr(sizeof...(TStates...) > 0) {
     return current_state == N
-     ? mappings_t<TState>::template execute<TEvent>(event)
-     : dispatch(current_state, event, type_list<TStates...>{});
+     ? TMappings<TState>::template execute<TEvent>(event)
+     : dispatch<TStates...>(current_state, event);
    }
+```
+<!-- .element: class="fragment" -->
+
+```cpp
 }
 ```
-<!-- .element: style="margin-left:0%; width:100%" -->
-<!-- .element: class="fragment" -->
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ----
 
 #### [Boost].SML / dispatch policy - If/Else
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/Dsn1PF', 'http://localhost:10240/z/wyglVl')" />
+<div style="margin-left:-10%; width:120%">
+![gb](images/gb_boost_sml_branch.png)
+</div>
+
+#### https://godbolt.org/z/Dsn1PF
 
 ----
 
 #### [Boost].SML / dispatch policy - Switch
 
 ```cpp
-template <class TEvent, class TState, class... TStates>
-constexpr auto switch_stm::dispatch(state_t &current_state,
-                                    TEvent const &event,
-                                    type_list<TState, TStates...>) {
+template <class TMappings, // back-end -> generated transitions
+          class TEvent,
+          class TState,
+          class... TStates>
+constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 ```
-<!-- .element: class="fragment" -->
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
   if constexpr(sizeof...(TStates...) > 0) {
     switch (current_state) {
-      default: return dispatch(current_state, type_list<TStates...>{});
-      case N:  return mappings_t<TState>::template execute<TEvent>(event);
+      default: return dispatch<TStates...>(current_state, event);
+      case N:  return TMappings<TState>::template
+                 execute<TEvent>(event);
     }
   }
+```
+<!-- .element: class="fragment" -->
+
+```cpp
 }
 ```
-<!-- .element: style="margin-left:1%; width:105%" -->
-<!-- .element: class="fragment" -->
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ----
 
 #### [Boost].SML / dispatch policy - Switch
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/AKmGiy', 'http://localhost:10240/z/-Ev_7A')" />
+<div style="margin-left:-10%; width:120%">
+![gb](images/gb_boost_sml_switch.png)
+</div>
+
+#### https://godbolt.org/z/AKmGiy
 
 ----
 
 #### [Boost].SML / dispatch policy - Jump Table
 
 ```cpp
-template <class TEvent, class... TStates>
-constexpr auto jump_table::dispatch(state_t &current_state,
-                                    TEvent const &event,
-                                    type_list<TStates...>) {
+template <class TMappings, // back-end -> generated transitions
+          class TEvent,
+          class... TStates>
+constexpr auto dispatch(state_t &current_state, TEvent const &event) {
+```
+<!-- .element: class="fragment" data-fragment-index="1" -->
+
+```cpp
+  using dispatch_table_t = bool (*)(TEvent const&);
+
+  constexpr static dispatch_table_t dispatch_table[] = {
+    &TMappings<TStates>::template execute<TEvent>...
+  };
+
+  return dispatch_table[current_state](event);
 ```
 <!-- .element: class="fragment" -->
 
 ```cpp
-  using dispatch_table_t = bool (*)(TEvent const&, State &);
-  constexpr static dispatch_table_t dispatch_table[] = {
-    &mappings_t<TStates>::template execute<TEvent>...
-  };
-  return dispatch_table[current_state](event);
 }
 ```
-<!-- .element: class="fragment" -->
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ----
 
 #### [Boost].SML / dispatch policy - Jump Table
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/lvjiX9', 'http://localhost:10240/z/LpQWH8')" />
+<div style="margin-left:-10%; width:120%">
+![gb](images/gb_boost_sml_jump_table.png)
+</div>
+
+#### https://godbolt.org/z/lvjiX9
 
 ----
 
-#### [Boost].SML / dispatch policy - Fold Expressions
+#### [Boost].SML / dispatch policy - Fold Expressions (C++17)
 
 ```cpp
-template <auto... Ns, class TEvent, class... TStates>
-constexpr auto fold_expr::dispatch_impl(state_t &current_state,
-                              std::index_sequence<Ns...>,
-                              TEvent const &event,
-                              type_list<TStates...>) {
+template <class TMappings, // back-end -> generated transitions
+          class... TStates,
+          auto... Ns,
+          class TEvent>
+constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 ```
-<!-- .element: class="fragment" -->
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
+  static_assert(sizeof...(TStates) == sizeof...(Ns));
+
   return ((
     current_state == Ns
-    ? mappings_t<TStates>::template execute<TEvent>(event)
+    ? TMappings<TStates>::template execute<TEvent>(event)
     : false
   ) or ...);
-}
 ```
 <!-- .element: class="fragment" -->
 
+```cpp
+}
+```
+<!-- .element: class="fragment" data-fragment-index="1" -->
+
 ----
 
-#### [Boost].SML / dispatch policy - Fold Expressions
+#### [Boost].SML / dispatch policy - Fold Expressions (C++17)
 
-<iframe class="stretch" onload="set_address(this, 'https://godbolt.org/z/V_b7nM', 'http://localhost:10240/z/nYeyZk')" />
+<div style="margin-left:-10%; width:120%">
+![gb](images/gb_boost_sml_fold_expr.png)
+</div>
+
+#### https://godbolt.org/z/V_b7nM
 
 ----
 
@@ -1036,16 +1112,13 @@ constexpr auto fold_expr::dispatch_impl(state_t &current_state,
 
 ### Benchmarks
 
-#### https://github.com/boost-experimental/sml/tree/master/benchmark/connection
-<!-- .element: class="fragment" -->
-
 ----
 
-#### Benchmarks - Setup
+#### Environment / Setup
 
 
 ```cpp
-const auto establish = []{
+const auto action/guard = []{
   asm volatile("" : : : "memory");
 };
 ```
@@ -1135,23 +1208,23 @@ $CXX -std=c++2a      # clang-7.0.0/gcc-8.2
 
 ==============================================================================
 
-### Summary
+<!--### Summary-->
 
-* #### State machines are expressive way to represent the application flow
-<!-- .element: class="fragment" -->
+<!--* #### State machines are expressive way to represent the application flow-->
+<!--[> .element: class="fragment" <]-->
 
-* #### There are different ways of implementing state machines in C++ with different trade-offs
-<!-- .element: class="fragment" -->
+<!--* #### There are different ways of implementing state machines in C++ with different trade-offs-->
+<!--[> .element: class="fragment" <]-->
 
-* #### State Machines are more than just simple transitions [UML-2.5](http://www.omg.org/spec/UML/2.5/)
-<!-- .element: class="fragment" -->
+<!--* #### State Machines are more than just simple transitions [UML-2.5](http://www.omg.org/spec/UML/2.5/)-->
+<!--[> .element: class="fragment" <]-->
 
-* ##### Leveraging Zero-cost libraries can boost the design and/or performance
-<!-- .element: class="fragment" -->
+<!--* ##### Leveraging Zero-cost libraries can boost the design and/or performance-->
+<!--[> .element: class="fragment" <]-->
 
-==============================================================================
+<!--==============================================================================-->
 
-### Let's embrace State Machines!
+### Embrace zero-cost State Machines libraries!
 
 | | |
 | ------- | ------------- |
@@ -1235,7 +1308,7 @@ $CXX -std=c++2a      # clang-7.0.0/gcc-8.2
         hideAddressBar: true,
 
         // Opens links in an iframe preview overlay
-        previewLinks: false,
+        previewLinks: true,
 
         // Transition style
         transition: 'convex', // none/fade/slide/convex/concave/zoom
