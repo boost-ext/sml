@@ -137,10 +137,15 @@ Feature: Connection # BDD style
 <table>
 <tr>
 <td style="vertical-align: middle">
-<pre><code>Feature: Connection
+<pre><code class="gherkin">Feature: Connection
  Scenario: Connect
+  ...
+
  Scenario: Disconnect
+  ...
+
  Scenario: ...
+  ...
 </code></pre>
 </td>
 <!-- .element: class="fragment" -->
@@ -159,6 +164,7 @@ Feature: Connection # BDD style
 ### Solutions
 
 ![solutions](images/solutions.png)
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -275,7 +281,7 @@ class Connection {
   constexpr void process_event(connect const&) {
     switch (state) { // Handle current state
       default: break;
-      case State::CONNECTED:
+      case State::DISCONNECTED:
         establish(); state = State::CONNECTING; break;
                   // Set the new state
     }
@@ -285,9 +291,12 @@ class Connection {
 
 ```cpp
   constexpr void process_event(ping const& event) {
-    if (state == State::CONNECTED and is_valid(event)) {
-      reset_timeout();
-    } // Stay in the current state
+    switch (state) {
+      default: break;
+      case State::CONNECTED:
+        if (is_valid(event)) { reset_timeout(); }
+        break; // Stay in the current state
+    }
   }
 ```
 <!-- .element: class="fragment" -->
@@ -333,6 +342,7 @@ struct State {
   virtual void process_event(disconnect const&) = 0;
 };
 ```
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -674,8 +684,10 @@ auto connected() {
 ## Boost
 
 ![boost_libraries](images/boost_libraries.png)
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
-> Disclaimer: [Boost].SML is not an official Boost library
+Disclaimer: [Boost].SML is not an official Boost library
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ----
 
@@ -882,6 +894,8 @@ using Connection = msm::back::state_machine<ConnectionImpl>;
 * (-) Slow compilation times
 <!-- .element: class="fragment" -->
   * Timeouts in the Compiler-Explorer
+* (-) Error messages
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -1106,7 +1120,9 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 #### Solutions - Summary
 
 ![solutions_summary](images/solutions_summary.png)
+<!-- .element: class="fragment" data-fragment-index="1" -->
 <img src="images/solutions_summary_legend.png" style="width: 65%; background:none; border:none; box-shadow:none;" />
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ==============================================================================
 
@@ -1224,7 +1240,7 @@ $CXX -std=c++2a      # clang-7.0.0/gcc-8.2
 
 <!--==============================================================================-->
 
-### Embrace zero-cost State Machines libraries!
+### Let's embrace zero-cost State Machine libraries!
 
 | | |
 | ------- | ------------- |
