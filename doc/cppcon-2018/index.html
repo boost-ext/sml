@@ -945,9 +945,10 @@ sml::sm connection = []{
 
 ```cpp
 template <class TMappings, // back-end -> generated transitions
-          class TEvent,
+          auto N,
           class TState,
-          class... TStates>
+          class... TStates,
+          class TEvent>
 constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 ```
 <!-- .element: class="fragment" data-fragment-index="1" -->
@@ -955,8 +956,8 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 ```cpp
   if constexpr(sizeof...(TStates...) > 0) {
     return current_state == N
-     ? TMappings<TState>::template execute<TEvent>(event)
-     : dispatch<TStates...>(current_state, event);
+     ? TMappings<TState>::execute(event)
+     : dispatch<TMappings, N + 1, TStates...>(current_state, event);
    }
 ```
 <!-- .element: class="fragment" -->
@@ -982,9 +983,10 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 
 ```cpp
 template <class TMappings, // back-end -> generated transitions
-          class TEvent,
+          auto N = 0,
           class TState,
-          class... TStates>
+          class... TStates,
+          class TEvent>
 constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 ```
 <!-- .element: class="fragment" data-fragment-index="1" -->
@@ -992,9 +994,9 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 ```cpp
   if constexpr(sizeof...(TStates...) > 0) {
     switch (current_state) {
-      default: return dispatch<TStates...>(current_state, event);
-      case N:  return TMappings<TState>::template
-                 execute<TEvent>(event);
+      default: return dispatch<TMappings, N + 1, TStates...>(
+                        current_state, event);
+      case N:  return TMappings<TState>::execute(event);
     }
   }
 ```
@@ -1021,8 +1023,8 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 
 ```cpp
 template <class TMappings, // back-end -> generated transitions
-          class TEvent,
-          class... TStates>
+          class... TStates,
+          class TEvent>
 constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 ```
 <!-- .element: class="fragment" data-fragment-index="1" -->
@@ -1059,8 +1061,8 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 
 ```cpp
 template <class TMappings, // back-end -> generated transitions
-          class... TStates,
           auto... Ns,
+          class... TStates,
           class TEvent>
 constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 ```
@@ -1071,7 +1073,7 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 
   return ((
     current_state == Ns
-    ? TMappings<TStates>::template execute<TEvent>(event)
+    ? TMappings<TStates>::execute(event)
     : false
   ) or ...);
 ```
@@ -1098,13 +1100,13 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 
 * (+) Declarative/Expressive (UML transition)
 <!-- .element: class="fragment" -->
-* (+) Customizable
+* (+) Customizable (At compile time)
 <!-- .element: class="fragment" -->
-* (+) Dispatch O(1)
+* (+) Inlined / Dispatch O(1)
 <!-- .element: class="fragment" -->
 * (+) Fast compilation times
 <!-- .element: class="fragment" -->
-* (+) UML-2.5 features
+* (+) UML-2.0 features
 <!-- .element: class="fragment" -->
 <!-- .element: class="fragment" -->
 * (+) Minimal memory footprint
