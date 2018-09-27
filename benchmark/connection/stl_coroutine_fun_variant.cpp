@@ -23,13 +23,23 @@ struct disconnect {};
 
 struct state {
   struct promise_type {
-    state get_return_object() { return {}; }
+    state get_return_object() { return {std::experimental::coroutine_handle<promise_type>::from_promise(*this) }; }
     std::experimental::suspend_never initial_suspend() { return {}; }
-    std::experimental::suspend_never final_suspend() { return {}; }
+    std::experimental::suspend_always final_suspend() { return {}; }
     template<class T>
     void return_value(T) {}
     void unhandled_exception() {}
   };
+
+  state(std::experimental::coroutine_handle<promise_type> handle) noexcept
+    : handle_{handle}
+  { }
+
+  state(state&& other) noexcept : handle_(std::exchange(other.handle_, {})) {}
+  ~state() noexcept { if (handle_) { handle_.destroy(); } }
+
+private:
+  std::experimental::coroutine_handle<promise_type> handle_;
 };
 
 template<class... TEvents>
