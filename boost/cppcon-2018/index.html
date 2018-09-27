@@ -241,9 +241,9 @@ class Connection {
 
 ##### Naive - If/Else - Full Example
 
-<div style="margin-left:-10%; width:120%">
+<!--<div style="margin-left:-10%; width:120%">-->
 ![gb_if_else](images/gb_if_else.png)
-</div>
+<!--</div>-->
 
 #### https://godbolt.org/z/APHwnc
 
@@ -305,9 +305,9 @@ class Connection {
 
 #### Naive - Switch/Enum - Full Example
 
-<div style="margin-left:-10%; width:120%">
+<!--<div style="margin-left:-10%; width:120%">-->
 ![gb](images/gb_switch.png)
-</div>
+<!--</div>-->
 
 #### https://godbolt.org/z/NM_-oY
 
@@ -379,9 +379,9 @@ struct Connected : State {
 
 #### Inheritance / State pattern - Full Example
 
-<div style="margin-left:-10%; width:120%">
+<!--<div style="margin-left:-10%; width:120%">-->
 ![gb](images/gb_inheritance.png)
-</div>
+<!--</div>-->
 
 #### https://godbolt.org/z/dui-ar
 
@@ -446,9 +446,9 @@ class Connection {
 
 #### std::variant - Full Example
 
-<div style="margin-left:-10%; width:120%">
+<!--<div style="margin-left:-10%; width:120%">-->
 ![gb](images/gb_variant.png)
-</div>
+<!--</div>-->
 
 #### https://godbolt.org/z/oY2FBl
 
@@ -521,11 +521,11 @@ auto Connection = [](auto& in) {
 
 #### Coroutines / loop - Full Example
 
-<div style="margin-left:-10%; width:120%">
+<!--<div style="margin-left:-10%; width:120%">-->
 ![gb](images/gb_coroutines_loop.png)
-</div>
+<!--</div>-->
 
-#### https://godbolt.org/z/Sg1O6r
+#### https://godbolt.org/z/P3zaNt
 
 ----
 
@@ -592,11 +592,11 @@ auto Connection = [](auto& in) {
 
 #### Coroutines / goto - Full Example
 
-<div style="margin-left:-10%; width:120%">
+<!--<div style="margin-left:-10%; width:120%">-->
 ![gb](images/gb_coroutines_goto.png)
-</div>
+<!--</div>-->
 
-#### https://godbolt.org/z/a7EnkL
+#### https://godbolt.org/z/BjuHL9
 
 ----
 
@@ -661,11 +661,11 @@ auto connected() {
 
 #### Coroutines / functions / variant - Full Example
 
-<div style="margin-left:-10%; width:120%">
+<!--<div style="margin-left:-10%; width:120%">-->
 ![gb](images/gb_coroutines_variant.png)
-</div>
+<!--</div>-->
 
-#### https://godbolt.org/z/08ZX8T
+#### https://godbolt.org/z/tCiWKh
 
 ----
 
@@ -759,9 +759,9 @@ struct Connected : sc::simple_state<Connected, Connection> {
 
 #### Boost.Statechart - Full Example
 
-<div style="margin-left:-10%; width:120%">
+<!--<div style="margin-left:-10%; width:120%">-->
 ![gb](images/gb_boost_statechart.png)
-</div>
+<!--</div>-->
 
 #### https://godbolt.org/z/NN8UyH
 
@@ -844,7 +844,7 @@ BOOST_MSM_EUML_ACTION(is_valid) {
 BOOST_MSM_EUML_TRANSITION_TABLE((
   Connecting   == Disconnected + connect / establish,
   Connected    == Connecting   + established,
-  Connected                    + ping [ is_valid ] / reset_timeout,
+                  Connected    + ping [ is_valid ] / reset_timeout,
   Connecting   == Connected    + timeout / establish,
   Disconnected == Connected    + disconnect / close
 ),
@@ -867,9 +867,9 @@ using Connection = msm::back::state_machine<ConnectionImpl>;
 
 #### Boost.MSM / eUML - Full Example
 
-<div style="margin-left:-10%; width:120%">
+<!--<div style="margin-left:-10%; width:120%">-->
 ![gb](images/gb_boost_msm.png)
-</div>
+<!--</div>-->
 
 #### https://godbolt.org/z/nVTV0J
 
@@ -905,16 +905,15 @@ using Connection = msm::back::state_machine<ConnectionImpl>;
 sml::sm connection = []{
   using namespace sml;
   return transition_table{
-    * "Disconnected"_s + event<connect> / establish                = "Connecting"_s,
-      "Connecting"_s   + event<established>                        = "Connected"_s,
+    * "Disconnected"_s + event<connect> / establish   = "Connecting"_s,
+      "Connecting"_s   + event<established>           = "Connected"_s,
       "Connected"_s    + event<ping> [ is_valid ] / reset_timeout,
-      "Connected"_s    + event<timeout> / establish                = "Connecting"_s,
-      "Connected"_s    + event<disconnect> / close                 = "Disconnected"_s
+      "Connected"_s    + event<timeout> / establish   = "Connecting"_s,
+      "Connected"_s    + event<disconnect> / close    = "Disconnected"_s
   };
 };
 ```
 <!-- .element: class="fragment" -->
-<!-- .element: style="margin-left:-7%; width:120%" -->
 
 <!--<img src="images/transition_table_sml.png" style="width: 155%; background:none; border:none; box-shadow:none;" />-->
 <!-- .element: class="fragment" -->
@@ -971,9 +970,9 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 
 #### [Boost].SML / dispatch policy - If/Else
 
-<div style="margin-left:-10%; width:120%">
+<!--<div style="margin-left:-10%; width:120%">-->
 ![gb](images/gb_boost_sml_branch.png)
-</div>
+<!--</div>-->
 
 #### https://godbolt.org/z/Dsn1PF
 
@@ -1011,9 +1010,9 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 
 #### [Boost].SML / dispatch policy - Switch
 
-<div style="margin-left:-10%; width:120%">
+<!--<div style="margin-left:-10%; width:120%">-->
 ![gb](images/gb_boost_sml_switch.png)
-</div>
+<!--</div>-->
 
 #### https://godbolt.org/z/AKmGiy
 
@@ -1049,9 +1048,9 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 
 #### [Boost].SML / dispatch policy - Jump Table
 
-<div style="margin-left:-10%; width:120%">
+<!--<div style="margin-left:-10%; width:120%">-->
 ![gb](images/gb_boost_sml_jump_table.png)
-</div>
+<!--</div>-->
 
 #### https://godbolt.org/z/lvjiX9
 
@@ -1088,9 +1087,9 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 
 #### [Boost].SML / dispatch policy - Fold Expressions (C++17)
 
-<div style="margin-left:-10%; width:120%">
+<!--<div style="margin-left:-10%; width:120%">-->
 ![gb](images/gb_boost_sml_fold_expr.png)
-</div>
+<!--</div>-->
 
 #### https://godbolt.org/z/V_b7nM
 
@@ -1106,7 +1105,7 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 <!-- .element: class="fragment" -->
 * (+) Fast compilation times
 <!-- .element: class="fragment" -->
-* (+) UML-2.0 features
+* (+) UML-2.5 features
 <!-- .element: class="fragment" -->
 <!-- .element: class="fragment" -->
 * (+) Minimal memory footprint
