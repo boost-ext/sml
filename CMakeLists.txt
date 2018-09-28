@@ -63,6 +63,11 @@ message(STATUS "cmake version: ${CMAKE_VERSION}")
 project(sml LANGUAGES CXX)
 include(CTest)
 
+option(BUILD_BENCHMARKS "Build benchmarks" ON)
+option(BUILD_DOCS       "Build docs"       ON)
+option(BUILD_EXAMPLES   "Build examples"   ON)
+option(BUILD_TESTS      "Build tests"      ON)
+
 # sml use hana library, according to hana documentation GCC >= 6.0.0
 # http://www.boost.org/doc/libs/release/libs/hana/doc/html/index.html#tutorial-installation-requirements
 # https://github.com/boostorg/hana/wiki/General-notes-on-compiler-support
@@ -135,7 +140,15 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
     endif ()
 endif ()
 
-add_subdirectory(benchmark)
-add_subdirectory(doc)
-add_subdirectory(example)
-add_subdirectory(test)
+if (BUILD_BENCHMARKS)
+    add_subdirectory(benchmark)
+endif ()
+if (BUILD_DOCS)
+    add_subdirectory(doc)
+endif ()
+if (BUILD_EXAMPLES)
+    add_subdirectory(example)
+endif ()
+if (BUILD_TESTS)
+    add_subdirectory(test)
+endif ()
