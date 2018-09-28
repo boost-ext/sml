@@ -152,3 +152,7 @@ endif ()
 if (BUILD_TESTS)
     add_subdirectory(test)
 endif ()
+
+include(GNUInstallDirs)
+install(DIRECTORY "include/boost" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+
