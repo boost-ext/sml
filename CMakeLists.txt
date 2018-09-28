@@ -97,13 +97,21 @@ if(NOT (DEFINED CMAKE_CXX_STANDARD) OR CMAKE_CXX_STANDARD STREQUAL "" OR CMAKE_C
     message(FATAL_ERROR "sml requires c++14")
 endif()
 
+include(GNUInstallDirs)
+install(DIRECTORY "include/boost" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+
+if(NOT (BUILD_BENCHMARKS OR BUILD_DOCS OR BUILD_EXAMPLES OR BUILD_TESTS))
+    message(STATUS "No targets will be built")
+    return()
+endif()
+
 set(CXX_STANDARD_REQUIRED ON)
 message(STATUS "CMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}")
 
 # Turn on the .vcproj folder support
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-find_package(Boost          REQUIRED)
+find_package(Boost REQUIRED)
 
 include_directories(AFTER
     ${Boost_INCLUDE_DIR}
@@ -152,7 +160,3 @@ endif ()
 if (BUILD_TESTS)
     add_subdirectory(test)
 endif ()
-
-include(GNUInstallDirs)
-install(DIRECTORY "include/boost" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-
