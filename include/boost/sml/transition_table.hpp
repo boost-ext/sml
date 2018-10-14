@@ -54,6 +54,8 @@ template <class T>
 typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #endif  // __pph__
 
+inline namespace literals {
+
 #if !defined(_MSC_VER)  // __pph__
 template <class T, T... Chrs>
 constexpr auto operator""_s() {
@@ -64,6 +66,8 @@ constexpr auto operator""_e() {
   return event<aux::string<T, Chrs...>>;
 }
 #endif  // __pph__
+
+} // literals
 
 __BOOST_SML_UNUSED static front::state<back::terminate_state> X;
 __BOOST_SML_UNUSED static front::history_state H;
