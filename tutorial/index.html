@@ -402,7 +402,7 @@ our transitions.</p>
 
 make_transition_table(
  *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s
-, &quot;dst_state&quot;_s + &quot;other_event&quot;_t = X
+, &quot;dst_state&quot;_s + &quot;other_event&quot;_e = X
 );
 </code></pre>
 
@@ -411,7 +411,7 @@ make_transition_table(
 
 make_transition_table(
   &quot;dst_state&quot;_s &lt;= *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action
-, X             &lt;= &quot;dst_state&quot;_s  + &quot;other_event&quot;_t
+, X             &lt;= &quot;dst_state&quot;_s  + &quot;other_event&quot;_e
 );
 </code></pre>
 
@@ -548,11 +548,11 @@ dispatch_event(event, event.type); // will call sm.process(game_over{});
 );
 </code></pre>
 
-<p>Any unexpected event might be handled too by using <code>unexpected_event&lt;&gt;</code>.</p>
+<p>Any unexpected event might be handled too by using <code>unexpected_event&lt;_&gt;</code>.</p>
 <pre><code class="cpp">make_transition_table(
  *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s
 , &quot;src_state&quot;_s + unexpected_event&lt;some_event&gt; / [] { std::cout &lt;&lt; &quot;unexpected 'some_event' &lt;&lt; '\n'; &quot;}
-, &quot;src_state&quot;_s + unexpected_event&lt;&gt; = X // any event
+, &quot;src_state&quot;_s + unexpected_event&lt;_&gt; = X // any event
 );
 </code></pre>
 
