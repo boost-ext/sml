@@ -172,7 +172,7 @@ using namespace sml; // Postfix Notation
 
 make_transition_table(
  *"src_state"_s + event<my_event> [ guard ] / action = "dst_state"_s
-, "dst_state"_s + "other_event"_t = X
+, "dst_state"_s + "other_event"_e = X
 );
 ```
 
@@ -183,7 +183,7 @@ using namespace sml; // Prefix Notation
 
 make_transition_table(
   "dst_state"_s <= *"src_state"_s + event<my_event> [ guard ] / action
-, X             <= "dst_state"_s  + "other_event"_t
+, X             <= "dst_state"_s  + "other_event"_e
 );
 ```
 
@@ -358,13 +358,13 @@ make_transition_table(
 );
 ```
 
-Any unexpected event might be handled too by using `unexpected_event<>`.
+Any unexpected event might be handled too by using `unexpected_event<_>`.
 
 ```cpp
 make_transition_table(
  *"src_state"_s + event<my_event> [ guard ] / action = "dst_state"_s
 , "src_state"_s + unexpected_event<some_event> / [] { std::cout << "unexpected 'some_event' << '\n'; "}
-, "src_state"_s + unexpected_event<> = X // any event
+, "src_state"_s + unexpected_event<_> = X // any event
 );
 ```
 

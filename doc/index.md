@@ -119,7 +119,7 @@ to avoid it `[Boost].SML` may suit you!
 
 ###Related materials
 
-* [CppCon 2018 - Kris Jusiak - State Machines Battlefield - Naive vs STL vs Boost](http://boost-experimental.github.io/sml/cppcon-2018)
+* [CppCon 2018 - Kris Jusiak - State Machines Battlefield - Naive vs STL vs Boost](https://www.youtube.com/watch?v=yZVby-PuXM0)
 * [C++Now 2018 - Michael Caisse - “Modern C++ in Embedded Systems”](https://youtu.be/c9Xt6Me3mJ4?t=4378)
 * [EmBO++ 2018 - Kris Jusiak - Workshop - 'Embedding' a Meta State Machine](http://boost-experimental.github.io/sml/embo-2018)
 * [EmBO++ 2018 - Simon Brand - Embedded DSLs for embedded programming](https://youtu.be/YQoXjqm2hiE?t=705)
