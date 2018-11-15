@@ -85,7 +85,8 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
     const auto handled =
         process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
 #endif  // __pph__
-    process_internal_events(anonymous{}, deps, subs);
+    // Repeat internal transition until there is no more to process.
+    while(process_internal_events(anonymous{}, deps, subs)){}
     process_defer_events(deps, subs, handled, aux::type<defer_queue_t<TEvent>>{}, events_t{});
     process_queued_events(deps, subs, aux::type<process_queue_t<TEvent>>{}, events_t{});
 
@@ -111,8 +112,9 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 
   template <class TDeps, class TSubs>
   void start(TDeps &deps, TSubs &subs) {
+    
     process_internal_events(on_entry<_, initial>{}, deps, subs);
-    process_internal_events(anonymous{}, deps, subs);
+    while(process_internal_events(anonymous{}, deps, subs)) {}
     process_queued_events(deps, subs, aux::type<process_queue_t<initial>>{}, events_t{});
   }
 

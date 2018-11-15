@@ -87,6 +87,27 @@ test anonymous_transition = [] {
   expect(static_cast<const c&>(sm).a_called);
 };
 
+test subsequent_anonymous_transitions = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+       *idle / [this] { a_calls.push_back(1); } = s1
+       ,s1 / [this] { a_calls.push_back(2); } = s2
+       ,s2 / [this] { a_calls.push_back(3); } = s3
+      );
+      // clang-format on
+    }
+
+    std::vector<int> a_calls{};
+  };
+
+  sml::sm<c> sm{};
+  expect(sm.is(s3));
+  expect(static_cast<const c&>(sm).a_calls == std::vector<int>{{1, 2, 3}});
+};
+
 test self_transition = [] {
   enum class calls { s1_entry, s1_exit, s1_action };
 
