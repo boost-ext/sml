@@ -846,8 +846,7 @@ template <class TSM>
 struct transitions_sub<sm<TSM>> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent &event, SM &, TDeps &deps, TSubs &subs, typename SM::state_t &) {
-    sub_sm<sm_impl<TSM>>::get(&subs).template process_event<TEvent>(event, deps, subs);
-    return true;
+    return sub_sm<sm_impl<TSM>>::get(&subs).template process_event<TEvent>(event, deps, subs);
   }
 };
 }  // namespace back
@@ -1269,7 +1268,8 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
     const auto handled =
         process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
 #endif
-    process_internal_events(anonymous{}, deps, subs);
+    while (process_internal_events(anonymous{}, deps, subs)) {
+    }
     process_defer_events(deps, subs, handled, aux::type<defer_queue_t<TEvent>>{}, events_t{});
     process_queued_events(deps, subs, aux::type<process_queue_t<TEvent>>{}, events_t{});
     return handled;
@@ -1291,7 +1291,8 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   template <class TDeps, class TSubs>
   void start(TDeps &deps, TSubs &subs) {
     process_internal_events(on_entry<_, initial>{}, deps, subs);
-    process_internal_events(anonymous{}, deps, subs);
+    while (process_internal_events(anonymous{}, deps, subs)) {
+    }
     process_queued_events(deps, subs, aux::type<process_queue_t<initial>>{}, events_t{});
   }
   template <class TEvent, class TDeps, class TSubs, class... Ts,
