@@ -10,6 +10,7 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 namespace sml = boost::sml;
 
@@ -106,6 +107,58 @@ test subsequent_anonymous_transitions = [] {
   sml::sm<c> sm{};
   expect(sm.is(s3));
   expect(static_cast<const c&>(sm).a_calls == std::vector<int>{{1, 2, 3}});
+};
+
+test subsequent_anonymous_transitions_composite = [] {
+  using V = std::string;
+  V calls{};
+
+  using namespace sml;
+
+  struct sub_sub_sm {
+    auto operator()() noexcept {
+      // clang-format off
+      return make_transition_table(
+       *idle / [] (V& v) { v+="ss1|"; } = s1
+       ,s1 / [] (V& v) { v+="ss2|"; } = s2
+       ,s2 / [] (V& v) { v+="ss3|"; } = X
+      );
+      // clang-format on
+    }
+  };
+  struct sub_sm {
+    auto operator()() noexcept {
+      // clang-format off
+      return make_transition_table(
+       *idle / [] (V& v) { v+="s1|"; } = s1
+       ,s1 / [] (V& v) { v+="s2|"; } = s2
+       ,s2 / [] (V& v) { v+="s3|"; } = state<sub_sub_sm>
+       ,state<sub_sub_sm> + sml::on_entry<_> / [] (V& v) { v+="ssen|"; }
+       ,state<sub_sub_sm> + sml::on_exit<_> / [] (V& v) { v+="ssex|"; }
+       ,state<sub_sub_sm> / [] (V& v) { v+="s4|"; } = X
+      );
+      // clang-format on
+    }
+  };
+
+  struct composite_sm {
+    auto operator()() noexcept {
+      // clang-format off
+      return make_transition_table(
+       *idle / [] (V& v) { v+="11|"; } = s1
+       ,s1 / [] (V& v) { v+="12|"; } = state<sub_sm>
+       ,state<sub_sm> / [] (V& v) { v+="13|"; } = s2
+       ,s2 / [] (V& v) { v+="14|"; } = s3
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<composite_sm> sm{calls};
+  expect(sm.is<decltype(state<sub_sm>)>(X));
+  expect(sm.is(s3));
+  std::string expected("11|12|s1|s2|s3|ssen|ss1|ss2|ss3|ssex|s4|13|14|");
+  expect(calls == expected);
 };
 
 test self_transition = [] {
