@@ -131,15 +131,12 @@ test transition_table_types = [] {
          *idle + event<e1> [guard1] / (action1, []{}) = s1
         , s1 + event<e2> / ([] { }) = s2
         , s2 + event<e4> / defer
-        , s1 / [] {}
-        , s1 [guard1 && guard3(42)]
-        , s1 [guard1] / action1
         , s1 + event<e3> / action1
-        , idle = s1
+        , idle [guard3(42)] = s1
         , s3 + event<e4> / [] { }
         , s3 + event<e5> [guard1] / action1
         , s1 [guard1 && guard1 && [] { return true; }] = s2
-        , (*s3) [guard1] = s2
+        , (*s3) [guard1] = s4
         , s2 [guard1 && !guard2] = s3
         , s3 [guard1] / action1 = s4
         , s4 / action1 = s5
@@ -162,10 +159,9 @@ test transition_table_types = [] {
         , s2 <= s1 + event<e2> / ([] { })
         , s1 <= s2 + event<e4> / defer
         , s2 <= s1 [guard1 && guard1 && [] { return true; }]
-        , s2 <= (*s3) [guard1]
-        , s2 <= s3 [guard1 && !guard2]
-        , s3 <= s4 [guard1] / action1
-        , s4 <= s5 / action1
+        , s4 <= (*s3) [guard1]
+        , s4 <= s3 [guard1 && !guard2]
+        , s5 <= s4 [guard1] / action1
         , end <= s5 / (action1, action2)
         , s1 <= idle(H) + event<e1>
         , s1 <= idle(H) + event<e1> [c_guard{} && guard1]
