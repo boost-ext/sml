@@ -492,6 +492,7 @@ template <template <class...> class T>
 struct defer_queue : aux::pair<back::policies::defer_queue_policy__, defer_queue<T>> {
   template <class U>
   using rebind = T<U>;
+  using flag = bool;
 };
 }  // namespace policies
 }  // namespace back
@@ -515,6 +516,7 @@ class queue_event {
   queue_event(queue_event &&other) : id(other.id), dtor(other.dtor), move(other.move) {
     move(data, static_cast<queue_event &&>(other));
   }
+  queue_event &operator=(queue_event &&) = default;
   queue_event(const queue_event &) = delete;
   queue_event &operator=(const queue_event &) = delete;
   template <class T>
@@ -558,6 +560,24 @@ struct queue_handler : queue_event_call<TEvents>... {
     static_cast<TQueue *>(queue)->push(event);
   }
   void *queue_{};
+};
+template <class... TEvents>
+struct deque_handler : queue_event_call<TEvents>... {
+  deque_handler() = default;
+  template <class TDeque, class = typename TDeque::allocator_type>
+  explicit deque_handler(TDeque &deque)
+      : queue_event_call<TEvents>(deque_handler::push_impl<TDeque, TEvents>)..., deque_{&deque} {}
+  template <class TEvent>
+  void operator()(const TEvent &event) {
+    static_cast<queue_event_call<TEvent> *>(this)->call(deque_, event);
+  }
+
+ private:
+  template <class TDeque, class TEvent>
+  static auto push_impl(void *deque, const TEvent &event) {
+    static_cast<TDeque *>(deque)->push_back(event);
+  }
+  void *deque_{};
 };
 }  // namespace back
 namespace back {
@@ -638,8 +658,8 @@ struct process : queue_handler<TEvents...> {
   using queue_handler<TEvents...>::queue_handler;
 };
 template <class... TEvents>
-struct defer : queue_handler<TEvents...> {
-  using queue_handler<TEvents...>::queue_handler;
+struct defer : deque_handler<TEvents...> {
+  using deque_handler<TEvents...>::deque_handler;
 };
 }  // namespace back
 namespace back {
@@ -1156,6 +1176,8 @@ struct no_policy : policies::thread_safety_policy__ {
   using rebind = no_policy;
   template <class...>
   using defer = no_policy;
+  using const_iterator = no_policy;
+  using flag = no_policy;
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 template <class TDefault, class>
@@ -1220,6 +1242,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   using thread_safety_t = typename TSM::thread_safety_policy::type;
   template <class T>
   using defer_queue_t = typename TSM::defer_queue_policy::template rebind<T>;
+  using defer_flag_t = typename TSM::defer_queue_policy::flag;
   template <class T>
   using process_queue_t = typename TSM::process_queue_policy::template rebind<T>;
   using logger_t = typename TSM::logger_policy::type;
@@ -1436,8 +1459,12 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 #else
     const auto handled = process_event_noexcept<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, has_exceptions{});
 #endif
-    if (handled) {
-      defer_.pop();
+    if (handled && defer_again_) {
+      ++defer_it_;
+    } else {
+      defer_.erase(defer_it_);
+      defer_it_ = defer_.begin();
+      defer_end_ = defer_.end();
     }
     return handled;
   }
@@ -1445,12 +1472,18 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   void process_defer_events(TDeps &deps, TSubs &subs, const bool handled, const aux::type<TDeferQueue> &,
                             const aux::type_list<TEvents...> &) {
     if (handled) {
-      auto size = defer_.size();
       using dispatch_table_t = bool (sm_impl::*)(TDeps &, TSubs &, const void *);
       const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
           &sm_impl::process_event_no_defer<TDeps, TSubs, TEvents>...};
-      while (size-- && (this->*dispatch_table[defer_.front().id])(deps, subs, defer_.front().data))
-        ;
+      defer_processing_ = true;
+      defer_again_ = false;
+      defer_it_ = defer_.begin();
+      defer_end_ = defer_.end();
+      while (defer_it_ != defer_end_) {
+        (this->*dispatch_table[defer_it_->id])(deps, subs, defer_it_->data);
+        defer_again_ = false;
+      }
+      defer_processing_ = false;
     }
   }
   template <class TDeps, class TSubs, class... TEvents>
@@ -1518,6 +1551,10 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   thread_safety_t thread_safety_;
   defer_t defer_;
   process_t process_;
+  defer_flag_t defer_processing_ = defer_flag_t{};
+  defer_flag_t defer_again_;
+  typename defer_t::const_iterator defer_it_;
+  typename defer_t::const_iterator defer_end_;
 };
 template <class TSM>
 class sm {
@@ -1893,7 +1930,11 @@ namespace actions {
 struct defer : action_base {
   template <class TEvent, class TSM, class TDeps, class TSubs>
   void operator()(const TEvent &event, TSM &sm, TDeps &, TSubs &) {
-    sm.defer_.push(event);
+    if (sm.defer_processing_) {
+      sm.defer_again_ = true;
+    } else {
+      sm.defer_.push_back(event);
+    }
   }
 };
 }  // namespace actions

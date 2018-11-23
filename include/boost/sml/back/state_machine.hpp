@@ -32,6 +32,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   using thread_safety_t = typename TSM::thread_safety_policy::type;
   template <class T>
   using defer_queue_t = typename TSM::defer_queue_policy::template rebind<T>;
+  using defer_flag_t = typename TSM::defer_queue_policy::flag;
   template <class T>
   using process_queue_t = typename TSM::process_queue_policy::template rebind<T>;
   using logger_t = typename TSM::logger_policy::type;
@@ -112,7 +113,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 
   template <class TDeps, class TSubs>
   void start(TDeps &deps, TSubs &subs) {
-    
+
     process_internal_events(on_entry<_, initial>{}, deps, subs);
     while(process_internal_events(anonymous{}, deps, subs)) {}
     process_queued_events(deps, subs, aux::type<process_queue_t<initial>>{}, events_t{});
@@ -276,23 +277,34 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 #else   // __pph__
     const auto handled = process_event_noexcept<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, has_exceptions{});
 #endif  // __pph__
-    if (handled) {
-      defer_.pop();
+    if (handled && defer_again_) {
+      ++defer_it_;
     }
-    return handled;
+    else {
+      defer_.erase(defer_it_);
+      defer_it_ = defer_.begin();
+      defer_end_ = defer_.end();
+    }
+     return handled;
   }
 
   template <class TDeps, class TSubs, class TDeferQueue, class... TEvents>
   void process_defer_events(TDeps &deps, TSubs &subs, const bool handled, const aux::type<TDeferQueue> &,
                             const aux::type_list<TEvents...> &) {
     if (handled) {
-      auto size = defer_.size();
       using dispatch_table_t = bool (sm_impl::*)(TDeps &, TSubs &, const void *);
       const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
           &sm_impl::process_event_no_defer<TDeps, TSubs, TEvents>...};
-      while (size-- && (this->*dispatch_table[defer_.front().id])(deps, subs, defer_.front().data))
-        ;
-    }
+      defer_processing_ = true;
+      defer_again_ = false;
+      defer_it_ = defer_.begin();
+      defer_end_ = defer_.end();
+      while (defer_it_ != defer_end_) {
+        (this->*dispatch_table[defer_it_->id])(deps, subs, defer_it_->data);
+        defer_again_ = false;
+      }
+      defer_processing_ = false;
+     }
   }
 
   template <class TDeps, class TSubs, class... TEvents>
@@ -367,6 +379,10 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   thread_safety_t thread_safety_;
   defer_t defer_;
   process_t process_;
+  defer_flag_t defer_processing_ = defer_flag_t{};
+  defer_flag_t defer_again_;
+   typename defer_t::const_iterator defer_it_;
+  typename defer_t::const_iterator defer_end_;
 };
 
 template <class TSM>

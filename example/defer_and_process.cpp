@@ -7,6 +7,7 @@
 //
 #include <boost/sml.hpp>
 #include <cassert>
+#include <deque>
 #include <queue>
 
 namespace sml = boost::sml;
@@ -35,7 +36,7 @@ struct defer_and_process {
 
 int main() {
   using namespace sml;
-  sm<defer_and_process, sml::defer_queue<std::queue>, sml::process_queue<std::queue>>
+  sm<defer_and_process, sml::defer_queue<std::deque>, sml::process_queue<std::queue>>
       sm;  /// defer_queue policy to enable deferred events using std::queue
   assert(sm.is("idle"_s));
 

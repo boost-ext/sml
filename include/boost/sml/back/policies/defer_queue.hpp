@@ -18,6 +18,7 @@ template <template <class...> class T>
 struct defer_queue : aux::pair<back::policies::defer_queue_policy__, defer_queue<T>> {
   template <class U>
   using rebind = T<U>;
+  using flag = bool;
 };
 
 }  // namespace policies

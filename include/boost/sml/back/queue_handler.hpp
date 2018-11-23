@@ -33,6 +33,7 @@ class queue_event {
   queue_event(queue_event &&other) : id(other.id), dtor(other.dtor), move(other.move) {
     move(data, static_cast<queue_event &&>(other));
   }
+  queue_event &operator=(queue_event &&) = default;
 
   queue_event(const queue_event &) = delete;
   queue_event &operator=(const queue_event &) = delete;
@@ -85,6 +86,28 @@ struct queue_handler : queue_event_call<TEvents>... {
   }
 
   void *queue_{};
+};
+
+template <class... TEvents>
+struct deque_handler : queue_event_call<TEvents>... {
+  deque_handler() = default;
+
+  template <class TDeque, class = typename TDeque::allocator_type>
+  explicit deque_handler(TDeque &deque)
+      : queue_event_call<TEvents>(deque_handler::push_impl<TDeque, TEvents>)..., deque_{&deque} {}
+
+  template <class TEvent>
+  void operator()(const TEvent &event) {
+    static_cast<queue_event_call<TEvent> *>(this)->call(deque_, event);
+  }
+
+ private:
+  template <class TDeque, class TEvent>
+  static auto push_impl(void *deque, const TEvent &event) {
+    static_cast<TDeque *>(deque)->push_back(event);
+  }
+
+  void *deque_{};
 };
 
 }  // namespace back

@@ -105,8 +105,8 @@ struct process : queue_handler<TEvents...> {
 };
 
 template <class... TEvents>
-struct defer : queue_handler<TEvents...> {
-  using queue_handler<TEvents...>::queue_handler;
+struct defer : deque_handler<TEvents...> {
+  using deque_handler<TEvents...>::deque_handler;
 };
 
 }  // namespace back

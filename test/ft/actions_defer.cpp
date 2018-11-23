@@ -6,7 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <boost/sml.hpp>
-#include <queue>
+#include <deque>
 #include <string>
 #include <vector>
 
@@ -15,6 +15,7 @@ namespace sml = boost::sml;
 struct event1 {};
 struct event2 {};
 struct event3 {};
+struct event4 {};
 
 const auto state1 = sml::state<class state1>;
 const auto state2 = sml::state<class state2>;
@@ -35,7 +36,7 @@ test defer_minimal = [] {
       // clang-format off
   };
 
-  sml::sm<decltype(c), sml::defer_queue<std::queue>> sm{c};
+  sml::sm<decltype(c), sml::defer_queue<std::deque>> sm{c};
   sm.process_event(event1());
   sm.process_event(event2());
   expect(sm.is(sml::X));
@@ -57,7 +58,7 @@ test defer_queue_check = [] {
       // clang-format off
   };
 
-  sml::sm<decltype(c), sml::defer_queue<std::queue>> sm{c};
+  sml::sm<decltype(c), sml::defer_queue<std::deque>> sm{c};
   sm.process_event(event1());
   sm.process_event(event2());
   expect(sm.is(sml::state<A>));
@@ -74,7 +75,7 @@ test defer_transition = [] {
       // clang-format off
   };
 
-  sml::sm<decltype(c), sml::defer_queue<std::queue>> sm{c};
+  sml::sm<decltype(c), sml::defer_queue<std::deque>> sm{c};
   sm.process_event(event1());
   expect(sm.is(sml::X));
 };
@@ -105,7 +106,7 @@ test defer_and_transitions = [] {
     std::vector<int> entries;
   };
 
-  sml::sm<c, sml::defer_queue<std::queue>> sm;
+  sml::sm<c, sml::defer_queue<std::deque>> sm;
   const c& c_ = sm;
   sm.process_event(event1());
   sm.process_event(event1());
@@ -145,7 +146,7 @@ test defer_and_anonymous = [] {
     std::vector<int> entries;
   };
 
-  sml::sm<c, sml::defer_queue<std::queue>> sm{c{}};
+  sml::sm<c, sml::defer_queue<std::deque>> sm{c{}};
   const c& c_ = sm;
   sm.process_event(event1());
   sm.process_event(event2());
@@ -179,11 +180,43 @@ test defer_reaction = [] {
     std::string calls{};
   };
 
-  sml::sm<c, sml::defer_queue<std::queue>> sm{};
+  sml::sm<c, sml::defer_queue<std::deque>> sm{};
 
   sm.process_event(event1());
   expect(sm.is(sml::X));
 
   const c& c_ = sm;
   expect("s1e|a1.begin|a1.end|a2|a3|" == c_.calls);
+};
+
+test defer_order = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        * state1 + event<event1> / defer
+        , state1 + event<event2> / defer
+        , state1 + event<event3> / defer
+        , state1 + event<event4> = state2
+        , state2 + event<event1> / defer
+        , state2 + event<event3> / defer
+        , state2 + event<event2> = state3
+        , state3 + event<event1> = state4
+        , state3 + event<event3> = state5
+        , state4 + event<event4> = state6
+        , state6 + event<event3> / [] { expect(false); } // event3 should be disposed
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c, sml::defer_queue<std::deque>> sm{};
+
+  sm.process_event(event1());
+  sm.process_event(event2());
+  sm.process_event(event3());
+  sm.process_event(event4());
+  sm.process_event(event4());
+  expect(sm.is(state6));
 };
