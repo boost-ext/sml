@@ -15,7 +15,12 @@ namespace actions {
 struct defer : action_base {
   template <class TEvent, class TSM, class TDeps, class TSubs>
   void operator()(const TEvent &event, TSM &sm, TDeps &, TSubs &) {
-    sm.defer_.push(event);
+    if (sm.defer_processing_) {
+      sm.defer_again_ = true;
+    }
+    else {
+      sm.defer_.push_back(event);
+    }
   }
 };
 

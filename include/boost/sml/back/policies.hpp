@@ -24,6 +24,8 @@ struct no_policy : policies::thread_safety_policy__ {
   using rebind = no_policy;
   template <class...>
   using defer = no_policy;
+  using const_iterator = no_policy;
+  using flag = no_policy;
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
 
