@@ -1398,7 +1398,7 @@ struct System {
 * If deferred event can't be handled it stays in the queue
 * [Boost].SML requires defer_queue policy
   ```cpp
-  sml::sm<System, sml::defer_queue<std::queue>> sm{};
+  sml::sm<System, sml::defer_queue<std::deque>> sm{};
   ```
 
 ----
