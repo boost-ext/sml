@@ -456,6 +456,7 @@ int main() {
 <h3 id="deferprocess">Defer/Process</h3>
 <pre><code class="cpp">#include &lt;boost/sml.hpp&gt;
 #include &lt;cassert&gt;
+#include &lt;deque&gt;
 #include &lt;queue&gt;
 
 namespace sml = boost::sml;
@@ -482,7 +483,7 @@ struct defer_and_process {
 
 int main() {
   using namespace sml;
-  sm&lt;defer_and_process, sml::defer_queue&lt;std::queue&gt;, sml::process_queue&lt;std::queue&gt;&gt;
+  sm&lt;defer_and_process, sml::defer_queue&lt;std::deque&gt;, sml::process_queue&lt;std::queue&gt;&gt;
       sm;  /// defer_queue policy to enable deferred events using std::queue
   assert(sm.is(&quot;idle&quot;_s));
 
