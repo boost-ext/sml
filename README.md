@@ -138,7 +138,7 @@ int main() {
   </tr>
 
   <tr>
-    <td>ASM x86-64 - <br/>https://godbolt.org/g/sNfLzn</td>
+    <td>ASM x86-64 - <br/>https://godbolt.org/z/y99L50</td>
     <td colspan="3">
       <pre><code>
 main: # @main
@@ -163,7 +163,7 @@ main: # @main
 </p>
 
 #### Run
-> Output (https://wandbox.org/permlink/GAbyDnNNxXmAR7Ah)
+> Output (https://wandbox.org/permlink/WbvV9HsIyiPkCFw7)
 ```sh
 send: 0
 send: 42
