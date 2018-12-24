@@ -497,7 +497,7 @@ class sm {
     using sm_impl_t = sm_impl<typename TSM::template rebind<type>>;
     using states_ids_t = typename sm_impl_t::states_ids_t;
     using state_t = typename sm_impl_t::state_t;
-    auto &sm = aux::get<sm_impl<TSM>>(sub_sms_);
+    auto &sm = aux::get<sm_impl_t>(sub_sms_);
     auto region = 0;
 
 #if defined(__cpp_fold_expressions)  // __pph__
