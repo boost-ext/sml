@@ -102,6 +102,37 @@ test sm_testing = [] {
   }
 };
 
+test sm_testing_composite = [] {
+  struct inner {
+    auto operator()() const noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *idle + event<e1> = s1
+      );
+      // clang-format on
+    }
+  };
+
+  struct outer {
+    auto operator()() const noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *idle2 + event<e2> = sml::state<inner>
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<outer, sml::testing> sm;
+  expect(sm.is(idle2));
+  sm.set_current_states(sml::state<inner>);
+  sm.set_current_states<decltype(sml::state<inner>)>(s1);
+  expect(sm.is(sml::state<inner>));
+  expect(sm.is<decltype(sml::state<inner>)>(s1));
+};
+
 test sm_testing_orthogonal_regions = [] {
   struct c {
     auto operator()() noexcept {
