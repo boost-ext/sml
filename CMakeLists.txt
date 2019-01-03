@@ -59,14 +59,13 @@
 
 ###########################################################################################
 cmake_minimum_required(VERSION 3.10)
-message(STATUS "cmake version: ${CMAKE_VERSION}")
 project(sml LANGUAGES CXX)
 include(CTest)
 
-option(BUILD_BENCHMARKS "Build benchmarks" ON)
-option(BUILD_DOCS       "Build docs"       ON)
-option(BUILD_EXAMPLES   "Build examples"   ON)
-option(BUILD_TESTS      "Build tests"      ON)
+option(SML_BUILD_BENCHMARKS "Build benchmarks" ON)
+option(SML_BUILD_DOCS       "Build docs"       ON)
+option(SML_BUILD_EXAMPLES   "Build examples"   ON)
+option(SML_BUILD_TESTS      "Build tests"      ON)
 
 # sml use hana library, according to hana documentation GCC >= 6.0.0
 # http://www.boost.org/doc/libs/release/libs/hana/doc/html/index.html#tutorial-installation-requirements
@@ -100,63 +99,68 @@ endif()
 include(GNUInstallDirs)
 install(DIRECTORY "include/boost" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
-if(NOT (BUILD_BENCHMARKS OR BUILD_DOCS OR BUILD_EXAMPLES OR BUILD_TESTS))
-    message(STATUS "No targets will be built")
-    return()
-endif()
+#if(NOT (BUILD_BENCHMARKS OR BUILD_DOCS OR BUILD_EXAMPLES OR BUILD_TESTS))
+#    message(STATUS "No targets will be built")
+#    return()
+#endif()
 
 set(CXX_STANDARD_REQUIRED ON)
-message(STATUS "CMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}")
+#message(STATUS "CMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}")
 
 # Turn on the .vcproj folder support
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 find_package(Boost REQUIRED)
 
-include_directories(AFTER
-    ${Boost_INCLUDE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_library(sml INTERFACE)
+
+target_include_directories(sml
+    INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+target_link_libraries(sml
+    INTERFACE Boost::boost)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    add_definitions(
-      -DNOMINMAX # avoid Win macro definition of min/max, use std one
-      -D_SCL_SECURE_NO_WARNINGS # disable security-paranoia warning
-      -D_CRT_SECURE_NO_WARNINGS)
-    add_compile_options(
-      "/W3" # waring level
-      "/WX") # warning as error
+    target_compile_definitions(sml
+      INTERFACE NOMINMAX # avoid Win macro definition of min/max, use std one
+      INTERFACE _SCL_SECURE_NO_WARNINGS # disable security-paranoia warning
+      INTERFACE _CRT_SECURE_NO_WARNINGS)
+    #target_compile_options(sml
+    #  INTERFACE "/W3" # waring level
+    #  INTERFACE "/WX") # warning as error
     if(CMAKE_CXX_STANDARD GREATER_EQUAL 17)
       # benchmark\complex\sc.cpp(18): warning C4996: 'std::allocator<void>': warning STL4009: std::allocator<void> is deprecated in C++1
-      add_definitions(
-        -D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)
+      target_compile_definitions(sml
+        INTERFACE _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)
     endif()
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
     # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
-    add_compile_options(
-      "-Wfatal-errors" # stops on first error
-      "-Wall" # enables all the warnings about constructions
-      "-Wextra" # Print extra warning messages"
-      "-Werror" # Make all warnings into errors.
-      "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
-      "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings
-      "-fno-exceptions" # compiles without exception support
+    target_compile_options(sml
+      INTERFACE "-Wfatal-errors" # stops on first error
+      INTERFACE "-Wall" # enables all the warnings about constructions
+      INTERFACE "-Wextra" # Print extra warning messages"
+      INTERFACE "-Werror" # Make all warnings into errors.
+      INTERFACE "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
+      INTERFACE "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings
+      INTERFACE "-fno-exceptions" # compiles without exception support
       )
 
     if ("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER 4.7)
         # http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
-        add_compile_options("-ftrack-macro-expansion=0;-fno-diagnostics-show-caret")
+        target_compile_options(sml
+          INTERFACE "-ftrack-macro-expansion=0;-fno-diagnostics-show-caret")
     endif ()
 endif ()
 
-if (BUILD_BENCHMARKS)
+if (SML_BUILD_BENCHMARKS)
     add_subdirectory(benchmark)
 endif ()
-if (BUILD_DOCS)
+if (SML_BUILD_DOCS)
     add_subdirectory(doc)
 endif ()
-if (BUILD_EXAMPLES)
+if (SML_BUILD_EXAMPLES)
     add_subdirectory(example)
 endif ()
-if (BUILD_TESTS)
+if (SML_BUILD_TESTS)
     add_subdirectory(test)
 endif ()
