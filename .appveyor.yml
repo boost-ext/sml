@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2018 Kris Jusiak (kris at jusiak dot net)
+# Copyright (c) 2016-2019 Kris Jusiak (kris at jusiak dot net)
 #
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -33,6 +33,13 @@ environment:
     VSPATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
     CMAKE_GENERATOR: Visual Studio 15 2017
     CXX: cl
+    MEMCHECK: DRMEMORY
+    PLATFORM: amd64
+
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017 Preview
+    VSPATH: C:\Program Files (x86)\Microsoft Visual Studio\Preview\Community\VC\Auxiliary\Build
+    BS: cmake
+    CMAKE_GENERATOR: Visual Studio 15 2017
     MEMCHECK: DRMEMORY
     PLATFORM: amd64
 

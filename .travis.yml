@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2018 Kris Jusiak (kris at jusiak dot net)
+# Copyright (c) 2016-2019 Kris Jusiak (kris at jusiak dot net)
 #
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -31,7 +31,7 @@ matrix:
 # Style
 #
   - os: linux
-    dist: precise
+    dist: trusty
     env: CHECK=ON CLANG_FORMAT=clang-format-4.0 CLANG_TIDY=clang-tidy-4.0
     addons: { apt: { packages: ["clang-format-4.0", "clang-tidy-4.0", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
 
@@ -43,37 +43,52 @@ matrix:
     addons: { apt: { packages: ["clang-3.7", "libstdc++-5-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"] } }
 
   - os: linux
-    dist: precise
+    dist: trusty
     env: CXX=clang++-3.8 MEMCHECK=VALGRIND
     addons: { apt: { packages: ["clang-3.8", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"] } }
 
   - os: linux
-    dist: precise
+    dist: trusty
     env: CXX=clang++-3.9 MEMCHECK=VALGRIND
-    addons: { apt: { packages: ["clang-3.9", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.9"] } }
+    addons: { apt: { packages: ["clang-3.9", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-3.9"] } }
 
   - os: linux
-    dist: precise
+    dist: trusty
     env: CXX=clang++-4.0 MEMCHECK=VALGRIND
     addons: { apt: { packages: ["clang-4.0", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
 
   - os: linux
-    dist: precise
-    env: CXX=clang++-4.0 LIBCXX=ON MEMCHECK=VALGRIND
-    addons: { apt: { packages: ["clang-4.0", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
+    dist: trusty
+    env: CXX=clang++-5.0 MEMCHECK=VALGRIND
+    addons: { apt: { packages: ["clang-5.0", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-5.0"] } }
 
   - os: linux
-    dist: precise
-    env: CXX=clang++-4.0 CXXSTD=c++1z LIBCXX=ON MEMCHECK=VALGRIND
-    addons: { apt: { packages: ["clang-4.0", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
+    dist: trusty
+    env: CXX=clang++-6.0 MEMCHECK=VALGRIND
+    addons: { apt: { packages: ["clang-6.0", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-6.0"] } }
 
   - os: linux
-    dist: precise
+    dist: trusty
+    env: CXX=clang++-7 MEMCHECK=VALGRIND
+    addons: { apt: { packages: ["clang-7", "libstdc++-7-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-7"] } }
+
+  - os: linux
+    dist: trusty
+    env: CXX=clang++-7 LIBCXX=ON MEMCHECK=VALGRIND
+    addons: { apt: { packages: ["clang-7", "libstdc++-7-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-7"] } }
+
+  - os: linux
+    dist: trusty
+    env: CXX=clang++-7 CXXSTD=c++1z LIBCXX=ON MEMCHECK=VALGRIND
+    addons: { apt: { packages: ["clang-7", "libstdc++-7-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-7"] } }
+
+  - os: linux
+    dist: trusty
     env: CXX=g++-5 MEMCHECK=VALGRIND
     addons: { apt: { packages: ["g++-5", "libstdc++-5-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
 
   - os: linux
-    dist: precise
+    dist: trusty
     env: CXX=g++-6 MEMCHECK=VALGRIND
     addons: { apt: { packages: ["g++-6", "libstdc++-6-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
 
@@ -84,8 +99,13 @@ matrix:
 
   - os: linux
     dist: trusty
-    env: CXX=g++-7 CXXSTD=c++1z MEMCHECK=VALGRIND
-    addons: { apt: { packages: ["g++-7", "libstdc++-7-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
+    env: CXX=g++-8 MEMCHECK=VALGRIND
+    addons: { apt: { packages: ["g++-8", "libstdc++-8-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
+
+  - os: linux
+    dist: trusty
+    env: CXX=g++-8 CXXSTD=c++1z MEMCHECK=VALGRIND
+    addons: { apt: { packages: ["g++-8", "libstdc++-8-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
 
   - os: osx
     osx_image: xcode7.3
@@ -99,13 +119,21 @@ matrix:
     osx_image: xcode9.1
     env: CXX=clang++
 
+  - os: osx
+    osx_image: xcode10
+    env: XX=clang++
+
+  - os: osx
+    osx_image: xcode10.1
+    env: CXX=clang++
+
 #
 # Coverage
 #
   - os: linux
     dist: trusty
-    env: COVERAGE=GCOV CXX=g++-7
-    addons: { apt: { packages: ["g++-7", "libstdc++-7-dev"], sources: ["ubuntu-toolchain-r-test"] } }
+    env: COVERAGE=GCOV CXX=g++-8
+    addons: { apt: { packages: ["g++-8", "libstdc++-8-dev"], sources: ["ubuntu-toolchain-r-test"] } }
 
 before_install:
   - git config --global user.name "Continuous Integration"

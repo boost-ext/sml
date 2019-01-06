@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 Kris Jusiak (kris at jusiak dot net)
+// Copyright (c) 2016-2019 Kris Jusiak (kris at jusiak dot net)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -277,8 +277,9 @@ void process_internal_transitions(TDeps &, TSubs &, const TDstState &) {}
 
 template <class TDeps, class TSubs, class T>
 void process_internal_transitions(TDeps &deps, TSubs &subs, const state<back::sm<T>> &) {
-  auto& sm = back::sub_sm<back::sm_impl<T>>::get(&subs);
-  while(sm.process_internal_events(back::anonymous{}, deps, subs)) {}
+  auto &sm = back::sub_sm<back::sm_impl<T>>::get(&subs);
+  while (sm.process_internal_events(back::anonymous{}, deps, subs)) {
+  }
 }
 
 template <class S1, class S2, class E, class G, class A>
