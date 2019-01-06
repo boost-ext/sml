@@ -277,8 +277,9 @@ void process_internal_transitions(TDeps &, TSubs &, const TDstState &) {}
 
 template <class TDeps, class TSubs, class T>
 void process_internal_transitions(TDeps &deps, TSubs &subs, const state<back::sm<T>> &) {
-  auto& sm = back::sub_sm<back::sm_impl<T>>::get(&subs);
-  while(sm.process_internal_events(back::anonymous{}, deps, subs)) {}
+  auto &sm = back::sub_sm<back::sm_impl<T>>::get(&subs);
+  while (sm.process_internal_events(back::anonymous{}, deps, subs)) {
+  }
 }
 
 template <class S1, class S2, class E, class G, class A>

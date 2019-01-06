@@ -6,11 +6,11 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <boost/sml.hpp>
+#include <iostream>
 #include <string>
 #include <type_traits>
 #include <utility>
 #include <vector>
-#include <iostream>
 
 namespace sml = boost::sml;
 

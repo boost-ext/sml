@@ -17,8 +17,7 @@ struct defer : action_base {
   void operator()(const TEvent &event, TSM &sm, TDeps &, TSubs &) {
     if (sm.defer_processing_) {
       sm.defer_again_ = true;
-    }
-    else {
+    } else {
       sm.defer_.push_back(event);
     }
   }
