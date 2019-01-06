@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 Kris Jusiak (kris at jusiak dot net)
+// Copyright (c) 2016-2019 Kris Jusiak (kris at jusiak dot net)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -87,7 +87,8 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
         process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
 #endif  // __pph__
     // Repeat internal transition until there is no more to process.
-    while(process_internal_events(anonymous{}, deps, subs)){}
+    while (process_internal_events(anonymous{}, deps, subs)) {
+    }
     process_defer_events(deps, subs, handled, aux::type<defer_queue_t<TEvent>>{}, events_t{});
     process_queued_events(deps, subs, aux::type<process_queue_t<TEvent>>{}, events_t{});
 
@@ -113,9 +114,9 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 
   template <class TDeps, class TSubs>
   void start(TDeps &deps, TSubs &subs) {
-
     process_internal_events(on_entry<_, initial>{}, deps, subs);
-    while(process_internal_events(anonymous{}, deps, subs)) {}
+    while (process_internal_events(anonymous{}, deps, subs)) {
+    }
     process_queued_events(deps, subs, aux::type<process_queue_t<initial>>{}, events_t{});
   }
 
@@ -279,13 +280,12 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 #endif  // __pph__
     if (handled && defer_again_) {
       ++defer_it_;
-    }
-    else {
+    } else {
       defer_.erase(defer_it_);
       defer_it_ = defer_.begin();
       defer_end_ = defer_.end();
     }
-     return handled;
+    return handled;
   }
 
   template <class TDeps, class TSubs, class TDeferQueue, class... TEvents>
@@ -304,7 +304,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
         defer_again_ = false;
       }
       defer_processing_ = false;
-     }
+    }
   }
 
   template <class TDeps, class TSubs, class... TEvents>
@@ -381,7 +381,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   process_t process_;
   defer_flag_t defer_processing_ = defer_flag_t{};
   defer_flag_t defer_again_;
-   typename defer_t::const_iterator defer_it_;
+  typename defer_t::const_iterator defer_it_;
   typename defer_t::const_iterator defer_end_;
 };
 

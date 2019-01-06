@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 Kris Jusiak (kris at jusiak dot net)
+// Copyright (c) 2016-2019 Kris Jusiak (kris at jusiak dot net)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -17,8 +17,7 @@ struct defer : action_base {
   void operator()(const TEvent &event, TSM &sm, TDeps &, TSubs &) {
     if (sm.defer_processing_) {
       sm.defer_again_ = true;
-    }
-    else {
+    } else {
       sm.defer_.push_back(event);
     }
   }

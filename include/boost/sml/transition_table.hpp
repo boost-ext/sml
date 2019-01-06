@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 Kris Jusiak (kris at jusiak dot net)
+// Copyright (c) 2016-2019 Kris Jusiak (kris at jusiak dot net)
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -55,7 +55,6 @@ typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #endif  // __pph__
 
 inline namespace literals {
-
 #if !defined(_MSC_VER)  // __pph__
 template <class T, T... Chrs>
 constexpr auto operator""_s() {
@@ -67,7 +66,7 @@ constexpr auto operator""_e() {
 }
 #endif  // __pph__
 
-} // literals
+}  // literals
 
 __BOOST_SML_UNUSED static front::state<back::terminate_state> X;
 __BOOST_SML_UNUSED static front::history_state H;
