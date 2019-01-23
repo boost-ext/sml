@@ -114,6 +114,8 @@ find_package(Boost REQUIRED)
 
 add_library(sml INTERFACE)
 
+include_directories(INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
 target_include_directories(sml
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
