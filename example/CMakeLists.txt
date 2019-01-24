@@ -13,23 +13,20 @@ source_group(example)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_executable(actions_guards actions_guards.cpp)
+    target_link_libraries(actions_guards PUBLIC sml) 
     add_test(example_actions_guards actions_guards)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         target_compile_options(actions_guards PRIVATE
             "-Wno-unused-parameter")
     endif()
 
-    add_executable(composite composite.cpp)
-    add_test(example_composite composite)
+    add_example(composite example_composite composite.cpp)
 
-    add_executable(data data.cpp)
-    add_test(example_data data)
+    add_example(data example_data data.cpp)
 
-    add_executable(defer_and_process defer_and_process.cpp)
-    add_test(example_defer_and_process defer_and_process)
+    add_example(defer_and_process example_defer_and_process defer_and_process.cpp)
 
-    add_executable(dependencies dependencies.cpp)
-    add_test(example_dependencies dependencies)
+    add_example(dependencies example_dependencies dependencies.cpp)
 endif()
 
 if (NOT IS_MSVC_2015)
@@ -38,22 +35,24 @@ if (NOT IS_MSVC_2015)
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    add_executable(dispatch_table dispatch_table.cpp)
-    add_test(example_dispatch_table dispatch_table)
+    add_example(dispatch_table example_dispatch_table dispatch_table.cpp)
 
-    add_executable(error_handling error_handling.cpp)
-    add_test(example_error_handling error_handling)
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        target_compile_options(error_handling PRIVATE
-            "-fexceptions") # Enable exception handling
+    if (${SML_USE_EXCEPTIONS})
+	add_executable(error_handling error_handling.cpp)
+	target_link_libraries(error_handling PUBLIC sml) 
+	add_test(example_error_handling error_handling)
+	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	    target_compile_options(error_handling PRIVATE
+		"-fexceptions") # Enable exception handling
+	endif()
     endif()
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    add_executable(euml_emulation euml_emulation.cpp)
-    add_test(example_euml_emulation euml_emulation)
+    add_example(euml_emulation example_euml_emulation euml_emulation.cpp)
 
     add_executable(events events.cpp)
+    target_link_libraries(events PUBLIC sml) 
     add_test(example_events events)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         target_compile_options(events PRIVATE
@@ -62,35 +61,25 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 if (NOT IS_MSVC_2015)
-    add_executable(hello_world hello_world.cpp)
-    add_test(example_hello_world hello_world)
+    add_example(hello_world example_hello_world hello_world.cpp)
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    add_executable(history history.cpp)
-    add_test(example_history history)
+    add_example(history example_history history.cpp)
 
-    add_executable(logging logging.cpp)
-    add_test(example_logging logging)
+    add_example(logging example_logging logging.cpp)
 
-    add_executable(nested nested.cpp)
-    add_test(example_nested nested)
+    add_example(nested example_nested nested.cpp)
 
-    add_executable(orthogonal_regions orthogonal_regions.cpp)
-    add_test(example_orthogonal_regions orthogonal_regions)
+    add_example(orthogonal_regions example_orthogonal_regions orthogonal_regions.cpp)
 
-    add_executable(plant_uml plant_uml.cpp)
-    add_test(example_plant_uml plant_uml)
+    add_example(plant_uml example_plant_uml plant_uml.cpp)
 
-    add_executable(sdl2 sdl2.cpp)
-    add_test(example_sdl2 sdl2)
+    add_example(sdl2 example_sdl2 sdl2.cpp)
 
-    add_executable(states states.cpp)
-    add_test(example_states states)
+    add_example(states example_states states.cpp)
 
-    add_executable(testing testing.cpp)
-    add_test(example_testing testing)
+    add_example(testing example_testing testing.cpp)
 
-    add_executable(transitions transitions.cpp)
-    add_test(example_transitions transitions)
+    add_example(transitions example_transitions transitions.cpp)
 endif()
