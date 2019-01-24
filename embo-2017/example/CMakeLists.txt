@@ -9,8 +9,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   target_compile_options(connection_v2 PRIVATE
       "-Wno-uninitialized")
 
-  add_executable(connection_v4 connection_v4.cpp)
-  add_test(doc_embo_2017_connection_v4 connection_v4)
+  add_example(connection_v4 doc_embo_2017_connection_v4 connection_v4.cpp)
 endif()
 
 if(${CMAKE_CXX_STANDARD} GREATER_EQUAL 17)
