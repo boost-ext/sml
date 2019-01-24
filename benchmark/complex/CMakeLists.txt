@@ -6,21 +6,19 @@
 #
 # Visual Studio 15 2017 failure:
 # boost_1_65_1\boost/proto/transform/call.hpp(230): fatal error C1202: recursive type or function dependency context too complex
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  add_executable(complex_euml euml.cpp)
-  add_test(benchmark_complex_euml complex_euml)
+  add_example(complex_euml benchmark_complex_euml euml.cpp)
 endif()
 
 # sml/benchmark/complex/euml2.cpp:14:10: fatal error: boost/msm/front/euml2/euml2.hpp: No such file or directory
 # add_executable(complex_euml2 euml2.cpp)
 
-add_executable(complex_sc sc.cpp)
-add_test(benchmark_complex_sc complex_sc)
+add_example(complex_sc benchmark_complex_sc sc.cpp)
 
 # sml\include\boost/sml.hpp(1671): error C2039: 'state_machine': is not a member of 'boost::sml::v1_1_0::back::sm<boost::sml::v1_1_0::back::sm_policy<T>>'
 if (NOT IS_MSVC_2015)
-    add_executable(complex_sml sml.cpp)
-    add_test(benchmark_complex_sml complex_sml)
+    add_example(complex_sml benchmark_complex_sml sml.cpp)
     #[[In file included from /mnt/c/dev/sml/benchmark/composite/sml.cpp:9:0:
     /mnt/c/dev/sml/include/boost/sml.hpp: In instantiation of ‘struct boost::sml::v1_1_0::concepts::composable<playing>’:
     /mnt/c/dev/sml/include/boost/sml.hpp:2242:35:   recursively required by substitution of

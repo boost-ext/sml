@@ -66,6 +66,7 @@ option(SML_BUILD_BENCHMARKS "Build benchmarks" ON)
 option(SML_BUILD_DOCS       "Build docs"       ON)
 option(SML_BUILD_EXAMPLES   "Build examples"   ON)
 option(SML_BUILD_TESTS      "Build tests"      ON)
+option(SML_USE_EXCEPTIONS   "Do not disable exceptions" ON)
 
 # sml use hana library, according to hana documentation GCC >= 6.0.0
 # http://www.boost.org/doc/libs/release/libs/hana/doc/html/index.html#tutorial-installation-requirements
@@ -114,8 +115,6 @@ find_package(Boost REQUIRED)
 
 add_library(sml INTERFACE)
 
-include_directories(INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-
 target_include_directories(sml
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
@@ -144,15 +143,27 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
       INTERFACE "-Werror" # Make all warnings into errors.
       INTERFACE "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
       INTERFACE "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings
-      INTERFACE "-fno-exceptions" # compiles without exception support
       )
 
+    if (NOT ${SML_USE_EXCEPTIONS})
+      target_compile_options(sml
+        INTERFACE "-fno-exceptions" # compiles without exception support
+        )
+    endif()
     if ("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER 4.7)
         # http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
         target_compile_options(sml
           INTERFACE "-ftrack-macro-expansion=0;-fno-diagnostics-show-caret")
     endif ()
 endif ()
+
+include_directories(INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+function(add_example exe_name bm_name src_name)
+  add_executable(${exe_name} ${src_name})
+  target_link_libraries(${exe_name} PUBLIC sml) 
+  add_test(${bm_name} ${exe_name})
+endfunction()
 
 if (SML_BUILD_BENCHMARKS)
     add_subdirectory(benchmark)
