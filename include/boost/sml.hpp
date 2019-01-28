@@ -1582,15 +1582,19 @@ class sm {
 
  public:
   sm() : deps_{aux::init{}, aux::pool<>{}}, sub_sms_{aux::pool<>{}} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
-  template <class... TDeps, __BOOST_SML_REQUIRES((sizeof...(TDeps) > 0) && aux::is_unique_t<TDeps...>::value)>
+  template <class TDeps, __BOOST_SML_REQUIRES(!aux::is_same<aux::remove_reference_t<TDeps>, sm>::value)>
+  explicit sm(TDeps &&deps) : deps_{aux::init{}, aux::pool<TDeps>{deps}}, sub_sms_{aux::pool<TDeps>{deps}} {
+    aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
+  }
+  template <class... TDeps, __BOOST_SML_REQUIRES((sizeof...(TDeps) > 1) && aux::is_unique_t<TDeps...>::value)>
   explicit sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
   }
   sm(aux::init, deps_t &deps) : deps_{deps}, sub_sms_{deps} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
-  sm(sm &&other) = default;
-  sm(const sm &) = delete;
-  sm &operator=(sm &&other) = default;
-  sm &operator=(const sm &) = delete;
+  sm(const sm &) = default;
+  sm(sm &&) = default;
+  sm &operator=(const sm &) = default;
+  sm &operator=(sm &&) = default;
   template <class TEvent, __BOOST_SML_REQUIRES(aux::is_base_of<TEvent, events_ids>::value)>
   void process_event(const TEvent &event) {
     aux::get<sm_impl<TSM>>(sub_sms_).process_event(event, deps_, sub_sms_);
