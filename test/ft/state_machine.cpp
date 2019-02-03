@@ -71,6 +71,78 @@ test sm_ctor_in_array = [] {
 };
 
 #if !defined(_MSC_VER)
+test sm_copy_ctor = [] {
+  using namespace sml;
+
+  struct c {
+    auto operator()() noexcept {
+      // clang-format off
+      return make_transition_table(
+        *"A"_s + "e1"_e = "B"_s
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c> sm1{};
+  sm1.process_event("e1"_e());
+  expect(sm1.is("B"_s));
+
+  sml::sm<c> sm2{sm1};
+  expect(sm1.is("B"_s));
+  expect(sm2.is("B"_s));
+};
+
+test sm_move_ctor = [] {
+  using namespace sml;
+
+  struct c {
+    auto operator()() noexcept {
+      // clang-format off
+      return make_transition_table(
+        *"A"_s + "e1"_e = "B"_s
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c> sm1{};
+  sm1.process_event("e1"_e());
+  expect(sm1.is("B"_s));
+
+  sml::sm<c> sm2{std::move(sm1)};
+  expect(sm1.is("B"_s));
+  expect(sm2.is("B"_s));
+};
+
+test sm_copy_assignment = [] {
+  using namespace sml;
+
+  struct c {
+    auto operator()() noexcept {
+      // clang-format off
+      return make_transition_table(
+        *"A"_s + "e1"_e = "B"_s
+        ,"B"_s + "e2"_e = "C"_s
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c> sm1{};
+  sm1.process_event("e1"_e());
+  expect(sm1.is("B"_s));
+
+  sml::sm<c> sm2{};
+  sm2.process_event("e1"_e());
+  sm2.process_event("e2"_e());
+  expect(sm2.is("C"_s));
+
+  sm2 = sm1;
+  expect(sm1.is("B"_s));
+  expect(sm2.is("B"_s));
+};
+
 test sm_move_assignment = [] {
   using namespace sml;
 
@@ -98,7 +170,6 @@ test sm_move_assignment = [] {
   expect(sm1.is("B"_s));
   expect(sm2.is("B"_s));
 };
-#endif
 
 test sm_events = [] {
   struct c {
@@ -110,6 +181,7 @@ test sm_events = [] {
 
   static_expect(std::is_same<sml::aux::type_list<e1>, typename sml::sm<c>::events>::value);
 };
+#endif
 
 test sm_events_sub = [] {
   struct sub {
