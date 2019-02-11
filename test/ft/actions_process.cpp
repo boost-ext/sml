@@ -138,6 +138,28 @@ test queue_process_events = [] {
   expect(2 == c_.calls[2]);
 };
 
+test queue_and_internal_process_events = [] {
+  struct c {
+    auto operator()() {
+      using namespace sml;
+
+      // clang-format off
+      return make_transition_table(
+        * idle + on_entry<sml::initial> / process(e1())
+        , s1 <= idle + event<e1>
+        , s2 <= s1
+        , s2 + on_entry<_> / process(e2())
+        , s3 <= s2 + event<e2>
+        , X <= s3
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c, sml::process_queue<std::queue>> sm{};
+  expect(sm.is(sml::X));
+};
+
 test queue_process_reaction = [] {
   struct c {
     auto operator()() noexcept {
@@ -168,4 +190,24 @@ test queue_process_reaction = [] {
 
   const c& c_ = sm;
   expect("s1e|a1.begin|a1.end|a2|err|" == c_.calls);
+};
+
+test mix_process_and_internal = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        * s1 + event<e1> / process(e2{})
+        , s1 + event<e2> = s2
+        , s2 = X
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c, sml::process_queue<std::queue>> sm{};
+
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
 };

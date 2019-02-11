@@ -12,6 +12,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
     add_executable(test_actions_process actions_process.cpp)
     add_test(test_actions_process test_actions_process)
 
+    add_executable(test_actions_process_n_defer actions_process_n_defer.cpp)
+    add_test(test_actions_process_n_defer test_actions_process_n_defer)
+
     add_executable(test_composite composite.cpp)
     add_test(test_composite test_composite)
 

@@ -1291,10 +1291,12 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
     const auto handled =
         process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
 #endif
-    while (process_internal_events(anonymous{}, deps, subs)) {
-    }
-    process_defer_events(deps, subs, handled, aux::type<defer_queue_t<TEvent>>{}, events_t{});
-    process_queued_events(deps, subs, aux::type<process_queue_t<TEvent>>{}, events_t{});
+    do {
+      while (process_internal_events(anonymous{}, deps, subs)) {
+      }
+      process_defer_events(deps, subs, handled, aux::type<defer_queue_t<TEvent>>{}, events_t{});
+    } while (process_queued_events(deps, subs, aux::type<process_queue_t<TEvent>>{}, events_t{}) ||
+             process_internal_events(anonymous{}, deps, subs));
     return handled;
   }
   void initialize(const aux::type_list<> &) {}
@@ -1314,9 +1316,12 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   template <class TDeps, class TSubs>
   void start(TDeps &deps, TSubs &subs) {
     process_internal_events(on_entry<_, initial>{}, deps, subs);
-    while (process_internal_events(anonymous{}, deps, subs)) {
-    }
-    process_queued_events(deps, subs, aux::type<process_queue_t<initial>>{}, events_t{});
+    do {
+      while (process_internal_events(anonymous{}, deps, subs)) {
+      }
+      process_defer_events(deps, subs, true, aux::type<defer_queue_t<initial>>{}, events_t{});
+    } while (process_queued_events(deps, subs, aux::type<process_queue_t<initial>>{}, events_t{}) ||
+             process_internal_events(anonymous{}, deps, subs));
   }
   template <class TEvent, class TDeps, class TSubs, class... Ts,
             __BOOST_SML_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
@@ -1448,7 +1453,9 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   }
 #endif
   template <class TDeps, class TSubs, class... TEvents>
-  void process_defer_events(TDeps &, TSubs &, const bool, const aux::type<no_policy> &, const aux::type_list<TEvents...> &) {}
+  bool process_defer_events(TDeps &, TSubs &, const bool, const aux::type<no_policy> &, const aux::type_list<TEvents...> &) {
+    return false;
+  }
   template <class TDeps, class TSubs, class TEvent>
   bool process_event_no_defer(TDeps &deps, TSubs &subs, const void *data) {
     const auto &event = *static_cast<const TEvent *>(data);
@@ -1469,8 +1476,9 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
     return handled;
   }
   template <class TDeps, class TSubs, class TDeferQueue, class... TEvents>
-  void process_defer_events(TDeps &deps, TSubs &subs, const bool handled, const aux::type<TDeferQueue> &,
+  bool process_defer_events(TDeps &deps, TSubs &subs, const bool handled, const aux::type<TDeferQueue> &,
                             const aux::type_list<TEvents...> &) {
+    bool processed_events = false;
     if (handled) {
       using dispatch_table_t = bool (sm_impl::*)(TDeps &, TSubs &, const void *);
       const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
@@ -1479,15 +1487,19 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
       defer_again_ = false;
       defer_it_ = defer_.begin();
       defer_end_ = defer_.end();
+      processed_events = defer_it_ != defer_end_;
       while (defer_it_ != defer_end_) {
         (this->*dispatch_table[defer_it_->id])(deps, subs, defer_it_->data);
         defer_again_ = false;
       }
       defer_processing_ = false;
     }
+    return processed_events;
   }
   template <class TDeps, class TSubs, class... TEvents>
-  void process_queued_events(TDeps &, TSubs &, const aux::type<no_policy> &, const aux::type_list<TEvents...> &) {}
+  bool process_queued_events(TDeps &, TSubs &, const aux::type<no_policy> &, const aux::type_list<TEvents...> &) {
+    return false;
+  }
   template <class TDeps, class TSubs, class TEvent>
   bool process_event_no_queue(TDeps &deps, TSubs &subs, const void *data) {
     const auto &event = *static_cast<const TEvent *>(data);
@@ -1500,14 +1512,16 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 #endif
   }
   template <class TDeps, class TSubs, class TDeferQueue, class... TEvents>
-  void process_queued_events(TDeps &deps, TSubs &subs, const aux::type<TDeferQueue> &, const aux::type_list<TEvents...> &) {
+  bool process_queued_events(TDeps &deps, TSubs &subs, const aux::type<TDeferQueue> &, const aux::type_list<TEvents...> &) {
     using dispatch_table_t = bool (sm_impl::*)(TDeps &, TSubs &, const void *);
     const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
         &sm_impl::process_event_no_queue<TDeps, TSubs, TEvents>...};
+    bool wasnt_empty = !process_.empty();
     while (!process_.empty()) {
       (this->*dispatch_table[process_.front().id])(deps, subs, process_.front().data);
       process_.pop();
     }
+    return wasnt_empty;
   }
   template <class TVisitor, class... TStates>
   void visit_current_states(const TVisitor &visitor, const aux::type_list<TStates...> &, aux::index_sequence<0>) const {
