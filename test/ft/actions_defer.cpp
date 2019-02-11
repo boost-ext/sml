@@ -220,3 +220,27 @@ test defer_order = [] {
   sm.process_event(event4());
   expect(sm.is(state6));
 };
+
+
+
+test defer_and_internal_process_events = [] {
+  struct c {
+    std::vector<int> calls;
+
+    auto operator()() {
+      using namespace sml;
+
+      // clang-format off
+      return make_transition_table(
+        * state1 + event<event1> / defer = state2
+        , state3 <= state2 + event<event1>
+        , X <= state3
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c, sml::defer_queue<std::deque>> sm{};
+  sm.process_event(event1{});
+  expect(sm.is(sml::X));
+};
