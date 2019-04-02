@@ -81,7 +81,6 @@ endif()
 
 # c++14 required
 include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)
 check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
 check_cxx_compiler_flag(-std=c++17 HAS_CXX17_FLAG)
 
