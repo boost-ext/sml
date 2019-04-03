@@ -81,11 +81,13 @@ endif()
 
 # c++14 required
 include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)
 check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
 check_cxx_compiler_flag(-std=c++17 HAS_CXX17_FLAG)
+check_cxx_compiler_flag(-std=c++2a HAS_CXX20_FLAG)
 
-if(HAS_CXX17_FLAG)
+if(HAS_CXX20_FLAG)
+  set(CMAKE_CXX_STANDARD 20)
+elseif(HAS_CXX17_FLAG)
   set(CMAKE_CXX_STANDARD 17)
 elseif(HAS_CXX14_FLAG)
   set(CMAKE_CXX_STANDARD 14)
