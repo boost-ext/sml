@@ -28,7 +28,7 @@
       }
 		</script>
 
-		<meta name="description" content="State Machines Battlefield - Naive vs STL vs Boost">
+		<meta name="description" content="Rise of the State Machines">
 		<meta name="author" content="Kris Jusiak">
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -51,18 +51,26 @@ Kris Jusiak, Quantlab Financial
 
 ==============================================================================
 
-<!--### Outline-->
+### Outline
 
-<!--* `Problem / Motivation`-->
-<!--* `State Machine`-->
-<!--* `Solutions`-->
-  <!--* `Naive`-->
-  <!--* `STL`-->
-  <!--* `Boost`-->
-<!--* `Benchmarks`-->
-<!--* `Summary`-->
+* `Problem / Motivation`
+<!-- .element: class="fragment" -->
+* `State Machine`
+<!-- .element: class="fragment" -->
+* `Solutions`
+<!-- .element: class="fragment" -->
+  * `Naive`
+<!-- .element: class="fragment" -->
+  * `STL`
+<!-- .element: class="fragment" -->
+  * `Boost`
+<!-- .element: class="fragment" -->
+* `Benchmarks`
+<!-- .element: class="fragment" -->
+* `Summary`
+<!-- .element: class="fragment" -->
 
-<!--==============================================================================-->
+==============================================================================
 
 ### Problem / Motivation
 
@@ -193,9 +201,9 @@ constexpr auto is_valid      = [](auto const& event) { return true; };
 <!-- .element: class="fragment" data-fragment-index="3" -->
 
 ```cpp
-constexpr auto establish     = []{ std::puts("establish"); };
-constexpr auto close         = []{ std::puts("close"); };
-constexpr auto reset_timeout = []{ std::puts("reset_timeout"); };
+constexpr auto establish     = [] { std::puts("establish"); };
+constexpr auto close         = [] { std::puts("close"); };
+constexpr auto reset_timeout = [] { std::puts("reset_timeout"); };
 ```
 <!-- .element: class="fragment" data-fragment-index="3" -->
 
@@ -244,7 +252,7 @@ class Connection {
 ![gb_if_else](images/gb_if_else.png)
 <!--</div>-->
 
-#### https://godbolt.org/z/APHwnc
+https://godbolt.org/z/APHwnc
 
 ----
 
@@ -270,9 +278,9 @@ class Connection {
 ```cpp
 class Connection {
   // Only one state can be active
-  enum class State : char { DISCONNECTED,
-                            CONNECTING,
-                            CONNECTED } state = DISCONNECTED;
+  enum class State : std::uint8_t { DISCONNECTED,
+                                    CONNECTING,
+                                    CONNECTED } state = DISCONNECTED;
 ```
 <!-- .element: class="fragment" -->
 
@@ -308,7 +316,7 @@ class Connection {
 ![gb](images/gb_switch.png)
 <!--</div>-->
 
-#### https://godbolt.org/z/NM_-oY
+https://godbolt.org/z/NM_-oY
 
 ----
 
@@ -382,7 +390,7 @@ struct Connected : State {
 ![gb](images/gb_inheritance.png)
 <!--</div>-->
 
-#### https://godbolt.org/z/dui-ar
+https://godbolt.org/z/dui-ar
 
 ----
 
@@ -449,7 +457,7 @@ class Connection {
 ![gb](images/gb_variant.png)
 <!--</div>-->
 
-#### https://godbolt.org/z/oY2FBl
+https://godbolt.org/z/oY2FBl
 
 ----
 
@@ -511,8 +519,7 @@ auto Connection = [](auto& in) {
 
 ```cpp
     } // Otherwise go back to co_await and suspend...
-  }
-};
+ }};
 ```
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
@@ -524,7 +531,7 @@ auto Connection = [](auto& in) {
 ![gb](images/gb_coroutines_loop.png)
 <!--</div>-->
 
-#### https://godbolt.org/z/P3zaNt
+https://godbolt.org/z/P3zaNt
 
 ----
 
@@ -595,7 +602,7 @@ auto Connection = [](auto& in) {
 ![gb](images/gb_coroutines_goto.png)
 <!--</div>-->
 
-#### https://godbolt.org/z/BjuHL9
+https://godbolt.org/z/BjuHL9
 
 ----
 
@@ -664,7 +671,7 @@ auto connected() {
 ![gb](images/gb_coroutines_variant.png)
 <!--</div>-->
 
-#### https://godbolt.org/z/tCiWKh
+https://godbolt.org/z/tCiWKh
 
 ----
 
@@ -675,7 +682,7 @@ auto connected() {
 * (+) Type safe events
 <!-- .element: class="fragment" -->
 
-<img src="images/fancy.jpg" style="width: 55%; background:none; border:none; box-shadow:none;" />
+<img src="images/why.jpg" style="width: 40%; background:none; border:none; box-shadow:none;" />
 <!-- .element: class="fragment" -->
 
 ----
@@ -762,7 +769,7 @@ struct Connected : sc::simple_state<Connected, Connection> {
 ![gb](images/gb_boost_statechart.png)
 <!--</div>-->
 
-#### https://godbolt.org/z/NN8UyH
+https://godbolt.org/z/NN8UyH
 
 ----
 
@@ -813,7 +820,7 @@ BOOST_MSM_EUML_STATE((), Connected)
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
-BOOST_MSM_EUML_ACTION(establish){
+BOOST_MSM_EUML_ACTION(establish) {
   template <class FSM, class EVT, class SourceState, class TargetState>
   void operator()(EVT const&, FSM &, SourceState &, TargetState &) {
     std::puts("establish");
@@ -870,7 +877,7 @@ using Connection = msm::back::state_machine<ConnectionImpl>;
 ![gb](images/gb_boost_msm.png)
 <!--</div>-->
 
-#### https://godbolt.org/z/nVTV0J
+https://godbolt.org/z/nVTV0J
 
 ----
 
@@ -898,17 +905,42 @@ using Connection = msm::back::state_machine<ConnectionImpl>;
 
 ----
 
+#### [Boost].SML - Overview
+
+* One header / [sml.hpp](https://raw.githubusercontent.com/boost-experimental/sml/master/include/boost/sml.hpp) / 2k LOC
+<!-- .element: class="fragment" -->
+
+* Neither Boost nor STL is required
+<!-- .element: class="fragment" -->
+
+* No 'virtual's (-fno-rtti)
+<!-- .element: class="fragment" -->
+
+* No exceptions required (-fno-exceptions)
+<!-- .element: class="fragment" -->
+
+* Supported compilers (C++14)
+<!-- .element: class="fragment" -->
+
+* [Clang-3.4+](https://travis-ci.org/boost-experimental/sml),
+  [XCode-6.1+](https://travis-ci.org/boost-experimental/sml),
+  [GCC-5.2+](https://travis-ci.org/boost-experimental/sml),
+  [MSVC-2015+](https://ci.appveyor.com/project/krzysztof-jusiak/sml)
+<!-- .element: class="fragment" -->
+
+----
+
 #### [Boost].SML - Implementation
 
 ```cpp
-sml::sm connection = []{
+sml::sm connection = [] {
   using namespace sml;
   return transition_table{
-    * "Disconnected"_s + event<connect> / establish   = "Connecting"_s,
-      "Connecting"_s   + event<established>           = "Connected"_s,
+    * "Disconnected"_s + event<connect> / establish  = "Connecting"_s,
+      "Connecting"_s   + event<established>          = "Connected"_s,
       "Connected"_s    + event<ping> [ is_valid ] / reset_timeout,
-      "Connected"_s    + event<timeout> / establish   = "Connecting"_s,
-      "Connected"_s    + event<disconnect> / close    = "Disconnected"_s
+      "Connected"_s    + event<timeout> / establish  = "Connecting"_s,
+      "Connected"_s    + event<disconnect> / close   = "Disconnected"_s
   };
 };
 ```
@@ -919,7 +951,7 @@ sml::sm connection = []{
 
 ----
 
-#### [Boost].SML - performance Tuning
+#### [Boost].SML - Performance Tuning
 
 > Don't pay for what you don't use!
 <!-- .element: class="fragment" -->
@@ -931,7 +963,7 @@ sml::sm connection = []{
 #### Dispatch policy changes event dispatching strategy
 
 | Name | Policy | Default |
-| - | - |
+| ---- | ------ | ------- |
 | Jump Table | `jump_table` | `gcc < 8.0`  |
 | Nested Switch | `switch`  | `gcc >= 8.0` |
 | If/Else | `branch` | `clang` |
@@ -973,7 +1005,7 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 ![gb](images/gb_boost_sml_branch.png)
 <!--</div>-->
 
-#### https://godbolt.org/z/Dsn1PF
+https://godbolt.org/z/Dsn1PF
 
 ----
 
@@ -1013,7 +1045,7 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 ![gb](images/gb_boost_sml_switch.png)
 <!--</div>-->
 
-#### https://godbolt.org/z/AKmGiy
+https://godbolt.org/z/AKmGiy
 
 ----
 
@@ -1051,7 +1083,7 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 ![gb](images/gb_boost_sml_jump_table.png)
 <!--</div>-->
 
-#### https://godbolt.org/z/lvjiX9
+https://godbolt.org/z/lvjiX9
 
 ----
 
@@ -1090,7 +1122,7 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 ![gb](images/gb_boost_sml_fold_expr.png)
 <!--</div>-->
 
-#### https://godbolt.org/z/V_b7nM
+https://godbolt.org/z/V_b7nM
 
 ----
 
@@ -1105,7 +1137,6 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 * (+) Fast compilation times
 <!-- .element: class="fragment" -->
 * (+) UML-2.5 features
-<!-- .element: class="fragment" -->
 <!-- .element: class="fragment" -->
 * (+) Minimal memory footprint
 <!-- .element: class="fragment" -->
@@ -1134,7 +1165,7 @@ constexpr auto dispatch(state_t &current_state, TEvent const &event) {
 
 
 ```cpp
-const auto action/guard = []{
+const auto action/guard = [] {
   asm volatile("" : : : "memory");
 };
 ```
@@ -1154,11 +1185,11 @@ int main() {
 <!-- .element: class="fragment" -->
 
 ```sh
-$CXX -std=c++2a      # clang-7.0.0/gcc-8.2
-     -stdlib=libc++  # clang-7.0.0
-     -fcoroutines-ts # clang-7.0.0
+$CXX -std=c++2a      # clang-8.0.0/gcc-8.3
+     -stdlib=libc++  # clang-8.0.0
+     -fcoroutines-ts # clang-8.0.0
      -O3 -march=native -flto -fno-exceptions -DNDEBUG
-     -I boost_1_68_0
+     -I boost_1_70_0
 ```
 <!-- .element: class="fragment" -->
 
@@ -1224,21 +1255,21 @@ $CXX -std=c++2a      # clang-7.0.0/gcc-8.2
 
 ==============================================================================
 
-<!--### Summary-->
+### Summary
 
-<!--* #### State machines are expressive way to represent the application flow-->
-<!--[> .element: class="fragment" <]-->
+* State machines are expressive way to represent the application flow
+<!-- .element: class="fragment" -->
 
-<!--* #### There are different ways of implementing state machines in C++ with different trade-offs-->
-<!--[> .element: class="fragment" <]-->
+* There are different ways of implementing state machines in C++ with different trade-offs
+<!-- .element: class="fragment" -->
 
-<!--* #### State Machines are more than just simple transitions [UML-2.5](http://www.omg.org/spec/UML/2.5/)-->
-<!--[> .element: class="fragment" <]-->
+* State Machines are more than just simple transitions [UML-2.5](http://www.omg.org/spec/UML/2.5/)
+<!-- .element: class="fragment" -->
 
-<!--* ##### Leveraging Zero-cost libraries can boost the design and/or performance-->
-<!--[> .element: class="fragment" <]-->
+* Leveraging Zero-cost libraries can boost the design and/or performance
+<!-- .element: class="fragment" -->
 
-<!--==============================================================================-->
+==============================================================================
 
 ### Let's embrace zero-cost State Machine libraries!
 
