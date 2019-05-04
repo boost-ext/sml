@@ -543,7 +543,7 @@ https://godbolt.org/z/P3zaNt
 <!-- .element: class="fragment"  -->
 * (~) Learning curve (different way of thinking)
 <!-- .element: class="fragment"  -->
-* (~) Requires heap (heap elision / devirtualization)
+* (~) Requires heap (heap elision / devirtualization / no control)
 <!-- .element: class="fragment"  -->
 * (~) Implicit states (position in the function)
 <!-- .element: class="fragment"  -->
@@ -558,8 +558,8 @@ https://godbolt.org/z/P3zaNt
 
 ```cpp
 auto Connection = [](auto& in) {
-  for (;;) {
-    disconnected: // State is represented by a position in the function
+  for (;;) {      // State is represented by
+    disconnected: // a position in the function
     if (auto [event, data] = co_await in; event == connect) {
       establish();
 ```
@@ -629,9 +629,9 @@ auto disconnected() {
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
-    if (auto const event = co_await in; std::get_if<connect>(&event)) {
-      establish(); co_return connecting(); // Set the new state
-    }
+   if (auto const event = co_await in; std::get_if<connect>(&event)) {
+     establish(); co_return connecting(); // Set the new state
+   }
 ```
 <!-- .element: class="fragment" data-fragment-index="2" -->
 
@@ -648,13 +648,13 @@ auto connected() {
 <!-- .element: class="fragment" data-fragment-index="4" -->
 
 ```cpp
-   if (std::get_if<ping>(&event) and is_valid(std::get<ping>(event))) {
-     reset_timeout();
-   } else if (std::get_if<timeout>(&event)) {
-     establish(); co_return connecting();
-   } else if (std::get_if<disconnect>(&event)) {
-     close();     co_return disconnected();
-   }
+  if (std::get_if<ping>(&event) and is_valid(std::get<ping>(event))) {
+    reset_timeout();
+  } else if (std::get_if<timeout>(&event)) {
+    establish(); co_return connecting();
+  } else if (std::get_if<disconnect>(&event)) {
+    close();     co_return disconnected();
+  }
 ```
 <!-- .element: class="fragment" data-fragment-index="5" -->
 
@@ -681,6 +681,8 @@ https://godbolt.org/z/tCiWKh
 <!-- .element: class="fragment" -->
 * (+) Type safe events
 <!-- .element: class="fragment" -->
+* (-) Dynamic allocations
+<!-- .element: class="fragment"  -->
 
 <img src="images/why.jpg" style="width: 40%; background:none; border:none; box-shadow:none;" />
 <!-- .element: class="fragment" -->
@@ -693,7 +695,7 @@ https://godbolt.org/z/tCiWKh
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 Disclaimer: [Boost].SML is not an official Boost library
-<!-- .element: class="fragment" data-fragment-index="1" -->
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 ----
 
@@ -821,10 +823,10 @@ BOOST_MSM_EUML_STATE((), Connected)
 
 ```cpp
 BOOST_MSM_EUML_ACTION(establish) {
-  template <class FSM, class EVT, class SourceState, class TargetState>
-  void operator()(EVT const&, FSM &, SourceState &, TargetState &) {
-    std::puts("establish");
-  }
+ template <class FSM, class EVT, class SourceState, class TargetState>
+ void operator()(EVT const&, FSM &, SourceState &, TargetState &) {
+   std::puts("establish");
+ }
 };
 ```
 <!-- .element: class="fragment" data-fragment-index="1" -->
@@ -834,10 +836,10 @@ BOOST_MSM_EUML_ACTION(establish) {
 
 ```cpp
 BOOST_MSM_EUML_ACTION(is_valid) {
-  template <class FSM, class EVT, class SourceState, class TargetState>
-  auto operator()(EVT const&, FSM&, SourceState&, TargetState&) {
-    return true;
-  }
+ template <class FSM, class EVT, class SourceState, class TargetState>
+ auto operator()(EVT const&, FSM&, SourceState&, TargetState&) {
+   return true;
+ }
 };
 ```
 <!-- .element: class="fragment" data-fragment-index="2" -->
@@ -848,11 +850,11 @@ BOOST_MSM_EUML_ACTION(is_valid) {
 
 ```cpp
 BOOST_MSM_EUML_TRANSITION_TABLE((
-  Connecting   == Disconnected + connect / establish,
-  Connected    == Connecting   + established,
-                  Connected    + ping [ is_valid ] / reset_timeout,
-  Connecting   == Connected    + timeout / establish,
-  Disconnected == Connected    + disconnect / close
+ Connecting   == Disconnected + connect / establish,
+ Connected    == Connecting   + established,
+                 Connected    + ping [ is_valid ] / reset_timeout,
+ Connecting   == Connected    + timeout / establish,
+ Disconnected == Connected    + disconnect / close
 ),
 transition_table)
 ```
@@ -860,7 +862,7 @@ transition_table)
 
 ```cpp
 BOOST_MSM_EUML_DECLARE_STATE_MACHINE
-  ((transition_table, init_ << Disconnected), ConnectionImpl)
+ ((transition_table, init_ << Disconnected), ConnectionImpl)
 ```
 <!-- .element: class="fragment" -->
 
@@ -907,7 +909,7 @@ https://godbolt.org/z/nVTV0J
 
 #### [Boost].SML - Overview
 
-* One header / [sml.hpp](https://raw.githubusercontent.com/boost-experimental/sml/master/include/boost/sml.hpp) / 2k LOC
+* Single header / [sml.hpp](https://raw.githubusercontent.com/boost-experimental/sml/master/include/boost/sml.hpp) / 2k LOC
 <!-- .element: class="fragment" -->
 
 * Neither Boost nor STL is required
@@ -936,11 +938,11 @@ https://godbolt.org/z/nVTV0J
 sml::sm connection = [] {
   using namespace sml;
   return transition_table{
-    * "Disconnected"_s + event<connect> / establish  = "Connecting"_s,
-      "Connecting"_s   + event<established>          = "Connected"_s,
-      "Connected"_s    + event<ping> [ is_valid ] / reset_timeout,
-      "Connected"_s    + event<timeout> / establish  = "Connecting"_s,
-      "Connected"_s    + event<disconnect> / close   = "Disconnected"_s
+   * "Disconnected"_s + event<connect> / establish  = "Connecting"_s,
+     "Connecting"_s   + event<established>          = "Connected"_s,
+     "Connected"_s    + event<ping> [ is_valid ] / reset_timeout,
+     "Connected"_s    + event<timeout> / establish  = "Connecting"_s,
+     "Connected"_s    + event<disconnect> / close   = "Disconnected"_s
   };
 };
 ```
