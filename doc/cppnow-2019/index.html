@@ -1203,9 +1203,29 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 ----
 
+### Lines of code (LOC)
+
+* Express What, Not how!
+<!-- .element: class="fragment" -->
+
+* Declarative design 👍
+<!-- .element: class="fragment" -->
+
+----
+
 #### Benchmarks - ASM lines
 
 ![asm_lines](images/performance_asm-lines.png)
+
+----
+
+### ASM lines
+
+* Less Assembly is a good sign 👍
+<!-- .element: class="fragment" -->
+
+* Not all ASM instructions have the same execution time
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -1215,9 +1235,38 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 ----
 
+### Run-time performance
+
+* Inlining is usually a good sign 👍
+<!-- .element: class="fragment" -->
+
+* Depends on the architecture
+<!-- .element: class="fragment" -->
+
+* Optimizations: `-O3` `-march=` `-flto` `-fno-exceptions` `-DNDEBUG`
+<!-- .element: class="fragment" -->
+
+* Always measure!
+<!-- .element: class="fragment" -->
+
+----
+
 #### Benchmarks - Run-time performance - Instructions per cycle / Release
 
 ![performance_instruction-per-cycle_release-misses_release](images/performance_instruction-per-cycle_release.png)
+
+----
+
+### Instructions per cycle (IPC)
+
+* An average number of instructions executed for each clock cycle
+<!-- .element: class="fragment" -->
+
+* The higher the IPC the better (~2.0 is a good sign)
+<!-- .element: class="fragment" -->
+
+* Depends on the architecture
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -1227,9 +1276,29 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 ----
 
+### Branches
+
+* Usually is better to avoid branches 👍
+<!-- .element: class="fragment" -->
+
+* Modern Branch predictors are really good
+<!-- .element: class="fragment" -->
+
+----
+
 #### Benchmarks - Run-time performance - branch misses / Release
 
 ![performance_branch-misses_release](images/performance_branch-misses_release.png)
+
+----
+
+### Branch misses
+
+* Branch mispredicition affects performance
+<!-- .element: class="fragment" -->
+
+* Cache misses have negative performance impact
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -1239,9 +1308,29 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 ----
 
+### Compilation time / Debug
+
+* Template Meta Programming (TMP) is slow to compile before C++11
+<!-- .element: class="fragment" -->
+
+* Debug symbols (aka string comparison) may compile slowly
+<!-- .element: class="fragment" -->
+
+----
+
 #### Benchmarks - Compilation time / Release
 
 ![compilation_time_release](images/compilation_time[s]_release.png)
+
+----
+
+### Compilation time / Release
+
+* TMP is slow to compile before C++11
+<!-- .element: class="fragment" -->
+
+* Turned on optimizations may speed up compilation times
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -1251,9 +1340,30 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 ----
 
+### Executable size / Debug
+
+* Debug symbols for templated code might be huge (GB's)
+<!-- .element: class="fragment" -->
+
+----
+
 #### Benchmarks - Executable Size / Release
 
 ![executable_size_release](images/executable_size[kb]_release.png)
+
+----
+
+### Executable size / Release
+
+* Usually the smaller size the better performance 👍
+<!-- .element: class="fragment" -->
+
+* Code layout may have impact on the performance
+<!-- .element: class="fragment" -->
+
+----
+
+## Always measure in the production like environment!
 
 ==============================================================================
 
