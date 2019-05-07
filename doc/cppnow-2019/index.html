@@ -51,9 +51,23 @@ Kris Jusiak, Quantlab Financial
 
 ==============================================================================
 
+### Motivation
+
+----
+
+### Rise of the...
+
+<img src="images/rise.jpg" style="width: 120%; background:none; border:none; box-shadow:none;" />
+<!-- .element: class="fragment" -->
+
+### State Machines
+<!-- .element: class="fragment" -->
+
+==============================================================================
+
 ### Outline
 
-* `Problem / Motivation`
+* `Problem`
 <!-- .element: class="fragment" -->
 * `State Machine`
 <!-- .element: class="fragment" -->
@@ -70,9 +84,14 @@ Kris Jusiak, Quantlab Financial
 * `Summary`
 <!-- .element: class="fragment" -->
 
+---
+
+##### <p style="background-color:darkblue">`darkblue background - something to remember ✓`</p>
+<!-- .element: class="fragment" -->
+
 ==============================================================================
 
-### Problem / Motivation
+### Problem
 
 ```gherkin
 Feature: Connection # BDD style
@@ -121,7 +140,7 @@ Feature: Connection # BDD style
 
 ----
 
-### Problem / Motivation
+### Problem
 
 > What's the
 
@@ -138,33 +157,55 @@ Feature: Connection # BDD style
 
 ### State Machine - Unified Modeling Language - 2.5
 
-> State Machine - Connection
-<!-- .element: class="fragment" data-fragment-index="1" -->
+<img src="images/uml-2.5.png" style="width: 50%; background:none; border:none; box-shadow:none;" />
+<!-- .element: class="fragment" -->
+
+#### https://www.omg.org/spec/UML/2.5.1/PDF
+<!-- .element: class="fragment" -->
+
+----
+
+### State Machine - Unified Modeling Language - 2.5
 
 <table>
 <tr>
 <td style="vertical-align: middle">
 <pre><code class="gherkin">Feature: Connection
  Scenario: Connect
-  ...
-
  Scenario: Disconnect
-  ...
-
  Scenario: ...
-  ...
 </code></pre>
 </td>
 <!-- .element: class="fragment" -->
 <td>
-<img src="images/connection.png" style="width: 100%; background:none; border:none; box-shadow:none;" />
+<img src="images/connection_raw.png" style="width: 150%; background:none; border:none; box-shadow:none;" />
 <!-- .element: class="fragment" -->
 </td>
 </tr>
 </table>
 
-#### https://www.omg.org/spec/UML/2.5.1/PDF
-<!-- .element: class="fragment" data-fragment-index="1" -->
+----
+
+### State Machine - Unified Modeling Language - 2.5
+
+<img src="images/connection.png" style="width: 150%; background:none; border:none; box-shadow:none;" />
+<!-- .element: class="fragment" -->
+
+| |
+|-|
+|<center>Transition - UML</center>|
+|<center>![Transition](images/transition.png)</center>|
+
+<!-- .element: class="fragment" -->
+
+----
+
+### State Machines are more than just simple transitions
+
+<img src="images/system.png" style="width: 80%; background:none; border:none; box-shadow:none;" />
+<!-- .element: class="fragment" -->
+
+<!-- .slide: data-background="darkblue" -->
 
 ==============================================================================
 
@@ -273,6 +314,17 @@ https://godbolt.org/z/APHwnc
 
 ----
 
+### 👍 State machine might be easily identified by implicit states
+
+```cpp
+bool disconnected = true, connected = false, connecting = false; // 👎
+```
+<!-- .element: class="fragment" -->
+
+<!-- .slide: data-background="darkblue" -->
+
+----
+
 #### Naive - Switch/Enum - Implementation
 
 ```cpp
@@ -334,6 +386,8 @@ https://godbolt.org/z/NM_-oY
 
 <img src="images/debug.jpg" style="width: 40%; background:none; border:none; box-shadow:none;" />
 <!-- .element: class="fragment" -->
+
+> Fusilli code (A spin to make bad code look good)
 
 ----
 
@@ -406,6 +460,17 @@ https://godbolt.org/z/dui-ar
 <!-- .element: class="fragment" -->
 
 <img src="images/slow.jpg" style="width: 55%; background:none; border:none; box-shadow:none;" />
+<!-- .element: class="fragment" -->
+
+----
+
+### Inheritance Is The Base Class of Evil, Sean Parent
+
+<center>
+  <a href="https://channel9.msdn.com/Events/GoingNative/2013/Inheritance-Is-The-Base-Class-of-Evil">
+    <img src="images/runtime_polymorphism.png" style="width: 80%; background:none; border:none; box-shadow:none;" />
+  </a>
+</center>
 <!-- .element: class="fragment" -->
 
 ----
@@ -948,8 +1013,123 @@ sml::sm connection = [] {
 ```
 <!-- .element: class="fragment" -->
 
-<!--<img src="images/transition_table_sml.png" style="width: 155%; background:none; border:none; box-shadow:none;" />-->
+----
+
+#### [Boost].SML - DSL
+
+<img src="images/transition_table.png" style="width: 100%; background:none; border:none; box-shadow:none;" />
+
+----
+
+#### [Boost].SML - DSL
+
+```cpp
+* -> Disconnected : connect / establish              -> Connecting
+```
 <!-- .element: class="fragment" -->
+
+```cpp
+     Connecting   : established                      -> Connected
+```
+<!-- .element: class="fragment" -->
+
+```cpp
+     Connected    : ping [ is_valid ] / reset_timeout
+```
+<!-- .element: class="fragment" -->
+
+```cpp
+     Connected    : timeout                          -> Connecting
+```
+<!-- .element: class="fragment" -->
+
+```cpp
+     Connected    : disconnect                       -> Disconnected
+```
+<!-- .element: class="fragment" -->
+
+---
+
+```cpp
+sml::sm connection = [] {
+  using namespace sml;
+  return transition_table{
+   * "Disconnected"_s + event<connect> / establish  = "Connecting"_s,
+     "Connecting"_s   + event<established>          = "Connected"_s,
+     "Connected"_s    + event<ping> [ is_valid ] / reset_timeout,
+     "Connected"_s    + event<timeout> / establish  = "Connecting"_s,
+     "Connected"_s    + event<disconnect> / close   = "Disconnected"_s
+  };
+};
+```
+<!-- .element: class="fragment" -->
+
+----
+
+### The power of declarative design 👍
+
+---
+
+Express What, Not how!
+<!-- .element: class="fragment" -->
+
+<!-- .slide: data-background="darkblue" -->
+
+----
+
+#### [Boost].SML - Diagrams generation / Connection
+
+```
+@startuml connection.png
+title Connection
+
+  [*]          -> Disconnected
+  Disconnected -> Connecting    : connect / establish
+  Connecting   -> Connected     : established
+  Connected    -> Connected     : ping [ is_valid ] / resetTimeout
+  Connected    -> Connecting    : timeout
+  Connected    -> Disconnected  : disconnect
+
+@enduml
+```
+<!-- .element: class="fragment" -->
+
+#### http://plantuml.com/state-diagram
+<!-- .element: class="fragment" -->
+
+----
+
+#### [Boost].SML - Diagrams generation / Connection
+
+```cpp
+template <class TSM>
+void plant_uml() {
+```
+<!-- .element: class="fragment" data-fragment-index="1" -->
+
+```cpp
+  if (T::initial) {
+    std::cout << "[*] -> " << src_state << std::endl;
+  }
+```
+<!-- .element: class="fragment" data-fragment-index="2" -->
+
+```cpp
+  std::cout << name<typename TSM::src_state> << " -> "
+            << name<typneame TSM::dst_state> << " : "
+            << name<typename TSM::event> << "["
+            << name<typename TSM::guard> << "] / "
+            << name<typename TSM::action>;
+```
+<!-- .element: class="fragment" data-fragment-index="3" -->
+
+```cpp
+}
+```
+<!-- .element: class="fragment" data-fragment-index="1" -->
+
+<img src="images/diagrams.png" style="width: 35%; background:none; border:none; box-shadow:none;" />
+<!-- .element: class="fragment" data-fragment-index="4" -->
 
 ----
 
@@ -1128,6 +1308,71 @@ https://godbolt.org/z/V_b7nM
 
 ----
 
+### 👍 Policies allow to tweak the performance
+
+<!-- .slide: data-background="darkblue" -->
+
+----
+
+#### State Machines are more than just simple transitions
+
+<img src="images/system.png" style="width: 80%; background:none; border:none; box-shadow:none;" />
+<!-- .element: class="fragment" -->
+
+----
+
+#### [Boost].SML - State Machines are more than just simple transitions
+
+```cpp
+class System {
+```
+<!-- .element: class="fragment" -->
+
+```cpp
+ struct Connection {
+  auto operator()() const {
+   using namespace sml;
+   return make_transition_table(
+    "Disconnected"_s(H) + event<connect> / establish = "Connecting"_s,
+    "Connecting"_s      + event<established>         = "Connected"_s,
+    "Connected"_s       + event<ping> [ is_valid ] / reset_timeout,
+    "Connected"_s       + event<timeout> / establish = "Connecting"_s,
+    "Connected"_s       + event<disconnect> / close  = "Disconnected"_s
+   );
+  }
+ };
+```
+<!-- .element: class="fragment" -->
+
+----
+
+#### [Boost].SML - State Machines are more than just simple transitions
+
+```cpp
+ public:
+  auto operator()() const {
+   using namespace sml;
+   return make_transition_table(
+    * "Idle"_s          + event<power_up>
+                          [ has_battery and is_healthy ] / setup
+                                                  = state<Connection>,
+      state<Connection> + event<suspend>          = "Suspended"_s,
+      "Suspended"_s     + event<resume>           = state<Connection>,
+      "Suspended"_s     + event<ping> / defer,
+    // ------------------------------------------------------------ //
+    * "Watchdog"_s      + event<tick> / reset_timeout,
+      "Watchdog"_s      + event<timeout>          = X
+   );
+  }
+};
+```
+<!-- .element: class="fragment" -->
+
+#### https://wandbox.org/permlink/82JwdSBHmLv7koU9
+<!-- .element: class="fragment" -->
+
+----
+
 #### [Boost].SML - Summary
 
 * (+) Declarative/Expressive (UML transition)
@@ -1198,7 +1443,7 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 #### Perf Tools
 
-* [Linux Perf](https://perf.wiki.kernel.org/index.php/Main_Page) 
+* [Linux Perf](https://perf.wiki.kernel.org/index.php/Main_Page)
 <!-- .element: class="fragment" -->
 
 * [Callgrind](http://valgrind.org/docs/manual/cl-manual.html)
@@ -1239,10 +1484,10 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 #### ASM lines
 
-* Less Assembly is a good sign
+* Less Assembly is a good sign 👍
 <!-- .element: class="fragment" -->
 
-* Not all ASM instructions have the same execution time
+* Not all ASM instructions have the same execution time (ex. vectorization)
 <!-- .element: class="fragment" -->
 
 ----
@@ -1255,10 +1500,10 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 #### Run-time performance
 
-* Inlining is usually a good sign
+* Inlining is `usually` a good sign 👍
 <!-- .element: class="fragment" -->
 
-* Code bloat might be bad (or inlining the cold path)
+* Code bloat might be bad (inlining the cold path) 👎
 <!-- .element: class="fragment" -->
 
 * Likely/Unlikely (C++20), Profile-guided optimization can improve performance ([Bolt](https://github.com/facebookincubator/BOLT))
@@ -1267,7 +1512,7 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 * Depends on the architecture
 <!-- .element: class="fragment" -->
 
-* Optimizations: `-O3` `-march=` `-flto` `-fno-exceptions` `-DNDEBUG` (No debug builds)
+* Optimizations: `-O3` `-march=` `-flto` `-fno-exceptions` `-DNDEBUG` (no debug builds)
 <!-- .element: class="fragment" -->
 
 ----
@@ -1283,7 +1528,7 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 * An average number of instructions executed for each clock cycle
 <!-- .element: class="fragment" -->
 
-* The higher the IPC the better (~2.0 is a good sign)
+* The higher the IPC the better (~2.0 is a good sign) 👍
 <!-- .element: class="fragment" -->
 
 * Depends on the architecture
@@ -1299,10 +1544,10 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 #### Branches
 
-* Is better to avoid too many branches
+* Is better to avoid too many branches 👍
 <!-- .element: class="fragment" -->
 
-* Modern Branch predictors are really good with learning patterns
+* Modern branch predictors are really good with learning patterns 👍
 <!-- .element: class="fragment" -->
 
 ----
@@ -1315,10 +1560,10 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 #### Branch misses
 
-* Branch mispredicition affects performance
+* Branch mispredicition affects performance 👎
 <!-- .element: class="fragment" -->
 
-* Cache misses have negative performance impact
+* Cache misses have negative performance impact 👎
 <!-- .element: class="fragment" -->
 
 ----
@@ -1331,10 +1576,10 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 #### Compilation time / Debug
 
-* Template Meta Programming (TMP) is slow to compile before C++11
+* Template Meta Programming (TMP) is slow to compile before C++11 👎
 <!-- .element: class="fragment" -->
 
-* Debug symbols (aka string comparison) may compile slowly
+* Debug symbols (aka string comparison) may compile slowly 👎
 <!-- .element: class="fragment" -->
 
 ----
@@ -1347,10 +1592,10 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 #### Compilation time / Release
 
-* TMP is slow to compile before C++11
+* TMP is slow to compile before C++11 👎
 <!-- .element: class="fragment" -->
 
-* Turned on optimizations may speed up compilation times
+* Turning on optimizations may speed up compilation times 👍
 <!-- .element: class="fragment" -->
 
 ----
@@ -1363,7 +1608,7 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 #### Executable size / Debug
 
-* Debug symbols for templated code might be huge (GB's)
+* Debug symbols for templated code might be huge (GB's) 👎
 <!-- .element: class="fragment" -->
 
 ----
@@ -1376,10 +1621,10 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 #### Executable size / Release
 
-* Usually the smaller size the better performance
+* Usually the smaller size the better performance 👍
 <!-- .element: class="fragment" -->
 
-* Code layout may have impact on the performance
+* Code layout may have impact on the performance 👎
 <!-- .element: class="fragment" -->
 
 ----
@@ -1388,6 +1633,8 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 * There is no sliver bullet - keeping all options open via policies is the best bet
 <!-- .element: class="fragment" -->
+
+<!-- .slide: data-background="darkblue" -->
 
 ==============================================================================
 
