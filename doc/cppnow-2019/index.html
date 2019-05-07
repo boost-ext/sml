@@ -57,11 +57,19 @@ Kris Jusiak, Quantlab Financial
 
 ### Rise of the...
 
-<img src="images/rise.jpg" style="width: 120%; background:none; border:none; box-shadow:none;" />
+----
+
+# State Machines
+
+---
 <!-- .element: class="fragment" -->
 
-### State Machines
+* ### Skynet: Just a software glitch
 <!-- .element: class="fragment" -->
+  * #### Because it wasn't implemented using Declarative State Machines?
+<!-- .element: class="fragment" -->
+
+<!-- .slide: data-background="images/rise.jpg" -->
 
 ==============================================================================
 
@@ -94,7 +102,7 @@ Kris Jusiak, Quantlab Financial
 ### Problem
 
 ```gherkin
-Feature: Connection # BDD style
+Feature: Connection
 ```
 <!-- .element: class="fragment" -->
 
@@ -548,6 +556,31 @@ https://godbolt.org/z/oY2FBl
 
 ----
 
+#### Coroutines (C++20)
+
+> Resumable Functions / Functions on steroids
+<!-- .element: class="fragment" data-fragment-index="1" -->
+
+---
+
+```cpp
+/**
+ * @param event - a common event type
+ * @coroutine   - coroutine_handle (implementation detail)
+ */
+```
+<!-- .element: class="fragment" data-fragment-index="3" -->
+
+```cpp
+void process_event(const TEvent& event) {
+  this->event = event;
+  coroutine.resume();
+}
+```
+<!-- .element: class="fragment" data-fragment-index="2" -->
+
+----
+
 #### Coroutines / loop - Implementation
 
 ```cpp
@@ -664,7 +697,7 @@ auto Connection = [](auto& in) {
 #### Coroutines / goto - Full Example
 
 <!--<div style="margin-left:-10%; width:120%">-->
-![gb](images/gb_coroutines_goto.png)
+<img src="images/gb_coroutines_goto.png" style="width: 100%; background:none; border:none; box-shadow:none;" />
 <!--</div>-->
 
 https://godbolt.org/z/BjuHL9
@@ -681,6 +714,31 @@ https://godbolt.org/z/BjuHL9
 <!-- .element: class="fragment" -->
 
 ![goto](images/goto.png)
+<!-- .element: class="fragment" -->
+
+----
+
+#### Coroutines / functions / variant
+
+```cpp
+/**
+ * State -> function
+ */
+auto disconnected();
+auto connecting();
+auto connected();
+```
+<!-- .element: class="fragment" -->
+
+```cpp
+/**
+ * Event - std::variant
+ */
+std::variant<connect, established, ping, timeout, disconnect> event{};
+```
+<!-- .element: class="fragment" -->
+
+> Interestingly, so far, states have been first-class citizens, not events
 <!-- .element: class="fragment" -->
 
 ----
@@ -708,7 +766,7 @@ auto disconnected() {
 ```cpp
 auto connected() {
   for (;;) {  // Wait for the ping event...
-   auto const event = co_await in;
+   auto const event = co_await in; // `in` - a member variable
 ```
 <!-- .element: class="fragment" data-fragment-index="4" -->
 
@@ -960,7 +1018,7 @@ https://godbolt.org/z/nVTV0J
 <!-- .element: class="fragment" -->
 * (~) Learning curve
 <!-- .element: class="fragment" -->
-* (~) DSL based
+* (~) Domain Specific Language (DSL) based
 <!-- .element: class="fragment" -->
 * (-) Macro based
 <!-- .element: class="fragment" -->
@@ -1015,9 +1073,16 @@ sml::sm connection = [] {
 
 ----
 
-#### [Boost].SML - DSL
+#### [Boost].SML - Domain Specific Language (DSL)
 
 <img src="images/transition_table.png" style="width: 100%; background:none; border:none; box-shadow:none;" />
+
+| |
+|-|
+|<center>Transition - UML</center>|
+|<center>![Transition](images/transition.png)</center>|
+
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -1066,7 +1131,7 @@ sml::sm connection = [] {
 
 ----
 
-### The power of declarative design 👍
+### 👍 The power of declarative design
 
 ---
 
@@ -1109,14 +1174,14 @@ void plant_uml() {
 
 ```cpp
   if (T::initial) {
-    std::cout << "[*] -> " << src_state << std::endl;
+    std::cout << "[*] -> " << src_state << '\n';
   }
 ```
 <!-- .element: class="fragment" data-fragment-index="2" -->
 
 ```cpp
   std::cout << name<typename TSM::src_state> << " -> "
-            << name<typneame TSM::dst_state> << " : "
+            << name<typename TSM::dst_state> << " : "
             << name<typename TSM::event> << "["
             << name<typename TSM::guard> << "] / "
             << name<typename TSM::action>;
@@ -1135,14 +1200,14 @@ void plant_uml() {
 
 #### [Boost].SML - Performance Tuning
 
-> Don't pay for what you don't use!
+<img src="images/perf.jpg" style="width: 50%; background:none; border:none; box-shadow:none;" />
 <!-- .element: class="fragment" -->
 
-<img src="images/perf.jpg" style="width: 50%; background:none; border:none; box-shadow:none;" />
-
+> Don't pay for what you don't use!
+<!-- .element: class="fragment" -->
 ----
 
-#### Dispatch policy changes event dispatching strategy
+#### Dispatch policy
 
 | Name | Policy | Default |
 | ---- | ------ | ------- |
@@ -1310,6 +1375,9 @@ https://godbolt.org/z/V_b7nM
 
 ### 👍 Policies allow to tweak the performance
 
+> Always measure!
+<!-- .element: class="fragment" -->
+
 <!-- .slide: data-background="darkblue" -->
 
 ----
@@ -1392,15 +1460,6 @@ class System {
 <!-- .element: class="fragment" -->
 * (~) DSL based
 <!-- .element: class="fragment" -->
-
-----
-
-#### Solutions - Summary
-
-![solutions_summary](images/solutions_summary.png)
-<!-- .element: class="fragment" data-fragment-index="1" -->
-<img src="images/solutions_summary_legend.png" style="width: 65%; background:none; border:none; box-shadow:none;" />
-<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ==============================================================================
 
@@ -1550,6 +1609,9 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 * Modern branch predictors are really good with learning patterns 👍
 <!-- .element: class="fragment" -->
 
+* Branches may lead into branch <u>misses</u> 👎
+<!-- .element: class="fragment" -->
+
 ----
 
 #### Benchmarks - Run-time performance - branch misses / Release
@@ -1579,7 +1641,10 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 * Template Meta Programming (TMP) is slow to compile before C++11 👎
 <!-- .element: class="fragment" -->
 
-* Debug symbols (aka string comparison) may compile slowly 👎
+* TMP may compile really fast since >= C++11 👍
+<!-- .element: class="fragment" -->
+
+* Creating long debug symbols may slow down compilation times 👎
 <!-- .element: class="fragment" -->
 
 ----
@@ -1592,7 +1657,7 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 #### Compilation time / Release
 
-* TMP is slow to compile before C++11 👎
+* `C++98 < TMP >>>>> C++11`
 <!-- .element: class="fragment" -->
 
 * Turning on optimizations may speed up compilation times 👍
@@ -1621,7 +1686,7 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 #### Executable size / Release
 
-* Usually the smaller size the better performance 👍
+* Usually the smaller size the better the performance 👍
 <!-- .element: class="fragment" -->
 
 * Code layout may have impact on the performance 👎
@@ -1631,7 +1696,7 @@ $CXX -std=c++2a      # clang-8.0.0/gcc-8.3
 
 ### Always measure in the production 'like' environment!
 
-* There is no sliver bullet - keeping all options open via policies is the best bet
+* There is no sliver bullet - keeping all options open via policies is the best bet 👍
 <!-- .element: class="fragment" -->
 
 <!-- .slide: data-background="darkblue" -->
