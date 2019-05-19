@@ -33,7 +33,15 @@ class queue_event {
   queue_event(queue_event &&other) : id(other.id), dtor(other.dtor), move(other.move) {
     move(data, static_cast<queue_event &&>(other));
   }
-  queue_event &operator=(queue_event &&) = default;
+  queue_event &operator=(queue_event &&other) {
+    dtor(data);
+
+    id = other.id;
+    dtor = other.dtor;
+    move = other.move;
+    move(data, static_cast<queue_event &&>(other));
+    return *this;
+  }
 
   queue_event(const queue_event &) = delete;
   queue_event &operator=(const queue_event &) = delete;
