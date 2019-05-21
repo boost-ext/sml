@@ -7,6 +7,7 @@
 //
 #include <boost/sml.hpp>
 #include <deque>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -241,4 +242,51 @@ test defer_and_internal_process_events = [] {
   sml::sm<c, sml::defer_queue<std::deque>> sm{};
   sm.process_event(event1{});
   expect(sm.is(sml::X));
+};
+
+test defer_queue_event_move_dtor = [] {
+  struct e1 {
+   std::shared_ptr<int> data;
+  };
+
+  struct c {
+    auto operator()() {
+      using namespace sml;
+
+      // clang-format off
+      return make_transition_table(
+        * state1 + event<e1> / defer
+        , state1 + event<event1> / defer
+        , state1 + event<event2> = state2
+        , state2 + event<e1> = state2
+        , state2 + event<event1> / defer
+      );
+      // clang-format on
+    }
+  };
+
+  auto e1data1 = std::make_shared<int>(1);
+  auto e1data2 = std::make_shared<int>(2);
+  auto e1data3 = std::make_shared<int>(3);
+  auto e1data4 = std::make_shared<int>(4);
+
+  sml::sm<c, sml::defer_queue<std::deque>> sm{};
+
+  // place defer events on front and back halves of deque
+  sm.process_event(e1{e1data1});
+  sm.process_event(e1{e1data2});
+  sm.process_event(event1{});
+  sm.process_event(event1{});
+  sm.process_event(event1{});
+  sm.process_event(event1{});
+  sm.process_event(e1{e1data3});
+  sm.process_event(e1{e1data4});
+  sm.process_event(event2{});
+
+  expect(sm.is(state2));
+  expect(e1data1.use_count() == 1);
+  expect(e1data2.use_count() == 1);
+  expect(e1data3.use_count() == 1);
+  expect(e1data4.use_count() == 1);
+
 };
