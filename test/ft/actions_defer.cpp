@@ -246,7 +246,7 @@ test defer_and_internal_process_events = [] {
 
 test defer_queue_event_move_dtor = [] {
   struct e1 {
-   std::shared_ptr<int> data;
+    std::shared_ptr<int> data;
   };
 
   struct c {
