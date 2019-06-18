@@ -729,6 +729,37 @@ test composite_entry_exit_sub_sm = [] {
   expect(std::vector<calls>{calls::ls2_1_exit, calls::sub2_exit, calls::sub1_entry, calls::ls1_1_entry} == c_);
 };
 
+#include <cstdio>
+
+test composite_entry_exit_sub_sm_only_dst = [] {
+  using namespace sml;
+
+  struct inner {
+    auto operator()() noexcept {
+      // clang-format off
+      return make_transition_table(
+        *state<struct inner1> + on_entry<_> / [](std::vector<bool>& entered) { entered.push_back(true); }
+      );
+      // clang-format on
+    }
+  };
+
+  struct outer {
+    auto operator()() noexcept {
+      // clang-format off
+      return make_transition_table(
+        *state<struct outer1> + event<e1> = state<inner>
+      );
+      // clang-format on
+    }
+  };
+
+  std::vector<bool> entered = {};
+  sm<outer> sm{entered};
+  sm.process_event(e1{});
+  expect(std::vector<bool>{true} == entered);
+};
+
 test composite_anonymous_transition_from_outer_state = [] {
   struct sub {
     auto operator()() const noexcept {
