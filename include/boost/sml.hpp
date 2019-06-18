@@ -712,7 +712,8 @@ using get_all_events =
     aux::join_t<typename get_all_events_impl<typename Ts::src_state, typename Ts::dst_state, typename Ts::event>::type...>;
 template <class... Ts>
 using get_sub_internal_events =
-    aux::join_t<typename get_sub_internal_events_impl<typename Ts::src_state, typename Ts::event>::type...>;
+    aux::join_t<typename get_sub_internal_events_impl<typename Ts::src_state, typename Ts::event>::type...,
+                typename get_sub_internal_events_impl<typename Ts::dst_state, typename Ts::event>::type...>;
 template <class... Ts>
 using get_events = aux::type_list<typename Ts::event...>;
 template <class T>
