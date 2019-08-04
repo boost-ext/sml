@@ -3,7 +3,7 @@ add_test(doc_embo_2017_connection_v1 connection_v1)
 
 # doc\embo-2017\example\connection_v4.cpp(21): error C3688: invalid literal suffix '_s'; literal operator or literal operator template 'operator ""_s' not found
 # Visual Studio 15 2017 failure
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if (IS_COMPILER_GCC_LIKE)
   add_executable(connection_v2 connection_v2.cpp)
   add_test(doc_embo_2017_connection_v2 connection_v2)
   target_compile_options(connection_v2 PRIVATE

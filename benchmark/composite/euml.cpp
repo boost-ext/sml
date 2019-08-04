@@ -63,7 +63,7 @@ BOOST_MSM_EUML_ACTION(stopped_again){
     template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &,
                                                                                           TargetState &){}};
 
-BOOST_MSM_EUML_ACTION(Log_No_Transition){template <class FSM, class Event> void operator()(Event const &e, FSM &, int state){}};
+BOOST_MSM_EUML_ACTION(Log_No_Transition){template <class FSM, class Event> void operator()(Event const &, FSM &, int){}};
 
 BOOST_MSM_EUML_STATE((), Song1)
 BOOST_MSM_EUML_STATE((), Song2)
@@ -130,12 +130,12 @@ int main() {
   sm.start();
 
   benchmark_execution_speed([&] {
-    for (auto i = 0; i < 1'000; ++i) {
+    for (auto i = 0; i < 1000; ++i) {
       sm.process_event(open_close);
       sm.process_event(open_close);
       sm.process_event(cd_detected);
       sm.process_event(play);
-      for (auto j = 0; j < 1'000; ++j) {
+      for (auto j = 0; j < 1000; ++j) {
         sm.process_event(next_song);
         sm.process_event(next_song);
         sm.process_event(previous_song);

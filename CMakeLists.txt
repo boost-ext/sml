@@ -99,6 +99,14 @@ if(NOT (DEFINED CMAKE_CXX_STANDARD) OR CMAKE_CXX_STANDARD STREQUAL "" OR CMAKE_C
     message(FATAL_ERROR "sml requires c++14")
 endif()
 
+set(IS_COMPILER_GCC_LIKE FALSE)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
+    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR
+    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
+
+    set(IS_COMPILER_GCC_LIKE TRUE)
+endif()
+
 include(GNUInstallDirs)
 install(DIRECTORY "include/boost" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
@@ -136,7 +144,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       target_compile_definitions(sml
         INTERFACE _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)
     endif()
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
+elseif (IS_COMPILER_GCC_LIKE) # gcc
     # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
     target_compile_options(sml
       INTERFACE "-Wfatal-errors" # stops on first error
@@ -145,10 +153,15 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
       INTERFACE "-Werror" # Make all warnings into errors.
       INTERFACE "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
       INTERFACE "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings
-      # http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
-      INTERFACE "-ftrack-macro-expansion=0"
-      INTERFACE "-fno-diagnostics-show-caret"
       )
+
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(sml
+            # http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
+            INTERFACE "-ftrack-macro-expansion=0"
+            INTERFACE "-fno-diagnostics-show-caret"
+            )
+    endif()
 
     if (NOT ${SML_USE_EXCEPTIONS})
       target_compile_options(sml
@@ -157,7 +170,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # gcc
     endif()
 endif ()
 
-include_directories(INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+include_directories($<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 function(add_example exe_name bm_name src_name)
   add_executable(${exe_name} ${src_name})

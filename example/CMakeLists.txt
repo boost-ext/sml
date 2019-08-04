@@ -11,11 +11,12 @@ include_directories(AFTER
 
 source_group(example)
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if (IS_COMPILER_GCC_LIKE)
     add_executable(actions_guards actions_guards.cpp)
     target_link_libraries(actions_guards PUBLIC sml) 
     add_test(example_actions_guards actions_guards)
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+
+    if (IS_COMPILER_GCC_LIKE)
         target_compile_options(actions_guards PRIVATE
             "-Wno-unused-parameter")
     endif()
@@ -34,27 +35,28 @@ if (NOT IS_MSVC_2015)
     add_test(example_dependency_injection dependency_injection)
 endif()
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if (IS_COMPILER_GCC_LIKE)
     add_example(dispatch_table example_dispatch_table dispatch_table.cpp)
 
     if (${SML_USE_EXCEPTIONS})
-	add_executable(error_handling error_handling.cpp)
-	target_link_libraries(error_handling PUBLIC sml) 
-	add_test(example_error_handling error_handling)
-	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-	    target_compile_options(error_handling PRIVATE
-		"-fexceptions") # Enable exception handling
-	endif()
+    add_executable(error_handling error_handling.cpp)
+    target_link_libraries(error_handling PUBLIC sml)
+    add_test(example_error_handling error_handling)
+    if (IS_COMPILER_GCC_LIKE)
+        target_compile_options(error_handling PRIVATE
+        "-fexceptions") # Enable exception handling
+    endif()
     endif()
 endif()
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if (IS_COMPILER_GCC_LIKE)
     add_example(euml_emulation example_euml_emulation euml_emulation.cpp)
 
     add_executable(events events.cpp)
     target_link_libraries(events PUBLIC sml) 
     add_test(example_events events)
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+
+    if (IS_COMPILER_GCC_LIKE)
         target_compile_options(events PRIVATE
             "-Wno-unused-parameter")
     endif()
@@ -64,7 +66,7 @@ if (NOT IS_MSVC_2015)
     add_example(hello_world example_hello_world hello_world.cpp)
 endif()
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if (IS_COMPILER_GCC_LIKE)
     add_example(history example_history history.cpp)
 
     add_example(logging example_logging logging.cpp)

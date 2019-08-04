@@ -7,8 +7,11 @@
 # Visual Studio 15 2017 failure:
 # boost_1_65_1\boost/proto/transform/call.hpp(230): fatal error C1202: recursive type or function dependency context too complex
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  add_example(complex_euml benchmark_complex_euml euml.cpp)
+if (IS_COMPILER_GCC_LIKE)
+    set(CURRENT_CXX_STANDARD ${CMAKE_CXX_STANDARD})
+    set(CMAKE_CXX_STANDARD 11)
+    add_example(complex_euml benchmark_complex_euml euml.cpp)
+    set(CMAKE_CXX_STANDARD ${CURRENT_CXX_STANDARD})
 endif()
 
 # sml/benchmark/complex/euml2.cpp:14:10: fatal error: boost/msm/front/euml2/euml2.hpp: No such file or directory
@@ -35,6 +38,7 @@ endif()
 
 add_executable(switch switch.cpp)
 add_test(benchmark_switch switch)
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options(switch PRIVATE
         "-Wno-maybe-uninitialized")
