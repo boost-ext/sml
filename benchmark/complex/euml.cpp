@@ -190,7 +190,7 @@ BOOST_MSM_EUML_TRANSITION_TABLE(
     transition_table)
 // clang-format on
 
-BOOST_MSM_EUML_ACTION(Log_No_Transition){template <class FSM, class Event> void operator()(Event const &, FSM &, int state){}};
+BOOST_MSM_EUML_ACTION(Log_No_Transition){template <class FSM, class Event> void operator()(Event const &, FSM &, int){}};
 
 // create a state machine "on the fly"
 BOOST_MSM_EUML_DECLARE_STATE_MACHINE((transition_table,                            // STT
@@ -210,7 +210,7 @@ int main() {
   sm.start();
 
   benchmark_execution_speed([&] {
-    for (auto i = 0; i < 1'000'000; ++i) {
+    for (auto i = 0; i < 1000000; ++i) {
       if (rand() % 2) sm.process_event(e1);
       if (rand() % 2) sm.process_event(e2);
       if (rand() % 2) sm.process_event(e3);

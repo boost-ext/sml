@@ -37,7 +37,7 @@ struct Paused;
 struct player : sc::state_machine<player, Empty> {
   void open_drawer(open_close const&) { /*std::cout << "player::open_drawer\n";*/
   }
-  void store_cd_info(cd_detected const& cd) { /*std::cout << "player::store_cd_info\n";*/
+  void store_cd_info(cd_detected const& cd) { (void)cd; /*std::cout << "player::store_cd_info\n";*/
   }
   void close_drawer(open_close const&) { /*std::cout << "player::close_drawer\n";*/
   }

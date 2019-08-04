@@ -35,7 +35,7 @@ BOOST_MSM_EUML_ACTION(close_drawer){
     template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &,
                                                                                           TargetState &){}};
 BOOST_MSM_EUML_ACTION(store_cd_info){
-    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &fsm, SourceState &,
+    template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &,
                                                                                           TargetState &){}};
 BOOST_MSM_EUML_ACTION(stop_playback){
     template <class FSM, class EVT, class SourceState, class TargetState> void operator()(EVT const &, FSM &, SourceState &,
@@ -78,7 +78,7 @@ BOOST_MSM_EUML_TRANSITION_TABLE(
     transition_table)
 // clang-format on
 
-BOOST_MSM_EUML_ACTION(Log_No_Transition){template <class FSM, class Event> void operator()(Event const &, FSM &, int state){}};
+BOOST_MSM_EUML_ACTION(Log_No_Transition){template <class FSM, class Event> void operator()(Event const &, FSM &, int){}};
 
 // create a state machine "on the fly"
 BOOST_MSM_EUML_DECLARE_STATE_MACHINE((transition_table,                            // STT
@@ -98,7 +98,7 @@ int main() {
   sm.start();
 
   benchmark_execution_speed([&] {
-    for (auto i = 0; i < 1'000'000; ++i) {
+    for (auto i = 0; i < 1000000; ++i) {
       sm.process_event(open_close);
       sm.process_event(open_close);
       sm.process_event(cd_detected);
