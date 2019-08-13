@@ -6,6 +6,9 @@
 //
 #ifndef BOOST_SML_HPP
 #define BOOST_SML_HPP
+#if defined(_MSC_VER) && !defined(__clang__)
+#define COMPILING_WITH_MSVC
+#endif
 #if (__cplusplus < 201305L && _MSC_VER < 1900)
 #error "[Boost].SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
@@ -40,14 +43,14 @@
 #define __BOOST_SML_TEMPLATE_KEYWORD template
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
-#elif defined(_MSC_VER)
+#elif defined(COMPILING_WITH_MSVC)
 #define __has_builtin(...) __has_builtin##__VA_ARGS__
 #define __has_builtin__make_integer_seq(...) 1
 #define __BOOST_SML_UNUSED
 #define __BOOST_SML_VT_INIT
 #define __BOOST_SML_ZERO_SIZE_ARRAY(...)
 #define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
-#if (_MSC_VER >= 1910)  // MSVC 2017
+#if (defined(COMPILING_WITH_MSVC) && _MSC_VER >= 1910)  // MSVC 2017
 #define __BOOST_SML_TEMPLATE_KEYWORD template
 #else
 #define __BOOST_SML_TEMPLATE_KEYWORD
@@ -120,7 +123,7 @@ struct is_same : false_type {};
 template <class T>
 struct is_same<T, T> : true_type {};
 template <class T, class U>
-#if defined(_MSC_VER)
+#if defined(COMPILING_WITH_MSVC)
 struct is_base_of : integral_constant<bool, __is_base_of(T, U)> {
 };
 #else
@@ -131,7 +134,7 @@ decltype(T(declval<TArgs>()...), true_type{}) test_is_constructible(int);
 template <class, class...>
 false_type test_is_constructible(...);
 template <class T, class... TArgs>
-#if defined(_MSC_VER)
+#if defined(COMPILING_WITH_MSVC)
 struct is_constructible : decltype(test_is_constructible<T, TArgs...>(0)) {
 };
 #else
@@ -336,7 +339,7 @@ struct missing_ctor_parameter {
   operator U() {
     return {};
   }
-#if !defined(_MSC_VER)
+#if !defined(COMPILING_WITH_MSVC)
   template <class TMissing, __BOOST_SML_REQUIRES(!aux::is_base_of<pool_type_base, TMissing>::value)>
   operator TMissing &() const {
     static_assert(missing_ctor_parameter<TMissing>::value,
@@ -409,7 +412,7 @@ template <template <class...> class T, class... Ts>
 struct size<T<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
-#if defined(_MSC_VER)
+#if defined(COMPILING_WITH_MSVC)
 constexpr int max_impl() { return 0; }
 constexpr int max_impl(int r) { return r; }
 constexpr int max_impl(int r, int i) { return r > i ? r : i; }
@@ -456,7 +459,7 @@ auto get_type_name(const char *ptr, index_sequence<Ns...>) {
 }
 template <class T>
 const char *get_type_name() {
-#if defined(_MSC_VER)
+#if defined(COMPILING_WITH_MSVC)
   return detail::get_type_name<T, 34>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 34 - 8>{});
 #elif defined(__clang__)
   return detail::get_type_name<T, 58>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 58 - 2>{});
@@ -1196,7 +1199,7 @@ TPolicy get_policy(aux::pair<T, TPolicy> *);
 template <class SM, class... TPolicies>
 struct sm_policy {
   static_assert(aux::is_same<aux::remove_reference_t<SM>, SM>::value, "SM type can't have qualifiers");
-#if defined(_MSC_VER)
+#if defined(COMPILING_WITH_MSVC)
   using default_dispatch_policy = policies::jump_table;
 #elif defined(__clang__)
   using default_dispatch_policy = policies::jump_table;
@@ -1973,7 +1976,7 @@ template <template <class...> class T>
 using defer_queue = back::policies::defer_queue<T>;
 template <template <class...> class T>
 using process_queue = back::policies::process_queue<T>;
-#if defined(_MSC_VER)
+#if defined(COMPILING_WITH_MSVC)
 template <class T, class... TPolicies, class T__ = aux::remove_reference_t<decltype(aux::declval<T>())>>
 using sm = back::sm<back::sm_policy<T__, TPolicies...>>;
 #else
@@ -2101,7 +2104,7 @@ struct state<TState(history_state)> : state_impl<state<TState(history_state)>> {
     return transition<T, state>{t, *this};
   }
 };
-#if defined(_MSC_VER)
+#if defined(COMPILING_WITH_MSVC)
 template <class T, class T__ = aux::remove_reference_t<decltype(aux::declval<T>())>, class = void>
 struct state_sm {
   using type = state<T>;
@@ -2572,7 +2575,7 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
 };
 }
 using _ = back::_;
-#if !defined(_MSC_VER)
+#if !defined(COMPILING_WITH_MSVC)
 template <class TEvent>
 constexpr front::event<TEvent> event{};
 #else
@@ -2589,7 +2592,7 @@ template <class T>
 front::event<back::exception<T>> exception __BOOST_SML_VT_INIT;
 using anonymous = back::anonymous;
 using initial = back::initial;
-#if !defined(_MSC_VER)
+#if !defined(COMPILING_WITH_MSVC)
 template <class T>
 constexpr typename front::state_sm<T>::type state{};
 #else
@@ -2597,7 +2600,7 @@ template <class T>
 typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #endif
 inline namespace literals {
-#if !defined(_MSC_VER)
+#if !defined(COMPILING_WITH_MSVC)
 template <class T, T... Chrs>
 constexpr auto operator""_s() {
   return front::state<aux::string<T, Chrs...>>{};
@@ -2628,7 +2631,7 @@ BOOST_SML_NAMESPACE_END
 #elif defined(__GNUC__)
 #undef __has_builtin
 #pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
+#elif defined(COMPILING_WITH_MSVC)
 #undef __has_builtin
 #undef __has_builtin__make_integer_seq
 #endif
