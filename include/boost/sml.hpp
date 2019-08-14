@@ -2635,5 +2635,6 @@ BOOST_SML_NAMESPACE_END
 #undef __has_builtin
 #undef __has_builtin__make_integer_seq
 #endif
+#undef COMPILING_WITH_MSVC
 #endif
 #endif
