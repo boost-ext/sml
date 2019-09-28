@@ -21,12 +21,12 @@ struct transitions {
     using namespace sml;
     // clang-format off
     return make_transition_table(
-       *"idle"_s                  / [] { std::cout << "anonymous transition" << std::endl; } = "s1"_s
-      , "s1"_s + event<e1>        / [] { std::cout << "internal transition" << std::endl; }
-      , "s1"_s + event<e2>        / [] { std::cout << "self transition" << std::endl; } = "s1"_s
-      , "s1"_s + sml::on_entry<_> / [] { std::cout << "s1 entry" << std::endl; }
-      , "s1"_s + sml::on_exit<_>  / [] { std::cout << "s1 exit" << std::endl; }
-      , "s1"_s + event<e3>        / [] { std::cout << "external transition" << std::endl; } = X
+       *"idle"_s             / [] { std::cout << "anonymous transition" << std::endl; } = "s1"_s
+      , "s1"_s + event<e1>   / [] { std::cout << "internal transition" << std::endl; }
+      , "s1"_s + event<e2>   / [] { std::cout << "self transition" << std::endl; } = "s1"_s
+      , "s1"_s + on_entry<_> / [] { std::cout << "s1 entry" << std::endl; }
+      , "s1"_s + on_exit<_>  / [] { std::cout << "s1 exit" << std::endl; }
+      , "s1"_s + event<e3>   / [] { std::cout << "external transition" << std::endl; } = X
     );
     // clang-format on
   }
