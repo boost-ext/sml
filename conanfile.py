@@ -15,4 +15,3 @@ class SmlConan(ConanFile):
 
     def package(self):
         self.copy("*", src="include", dst="include")
-

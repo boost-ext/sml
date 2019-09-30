@@ -86,16 +86,15 @@ static_analysis:
 
 doc: readme doc_$(MKDOCS_THEME)
 
-doc_%:
-	cd doc && $(MKDOCS) build --clean --theme-dir themes/$* --site-dir $(MKDOCS_SITE)
+doc_boost-experimental:
+	MKDOCS_THEME_DIR='doc/themes/boost-experimental' $(MKDOCS) build --quiet --config-file .$(MKDOCS).yml --clean --site-dir $(MKDOCS_SITE)
 
 doc_boost-classic:
-	cd doc && $(PYTHON) themes/boost-classic/scripts/update_markdown.py . https://raw.githubusercontent.com/boost-experimental/sml/master
-	cd doc && $(MKDOCS) build --clean --theme-dir themes/boost-classic --site-dir $(MKDOCS_SITE)
+	$(PYTHON) doc/themes/boost-classic/scripts/update_markdown.py . https://raw.githubusercontent.com/boost-experimental/sml/master
+	MKDOCS_THEME_DIR='doc/themes/boost-classic' $(MKDOCS) build --quiet --config-file .$(MKDOCS).yml --clean --site-dir $(MKDOCS_SITE)
 
 readme:
-	cd doc && $(PYTHON) scripts/update_readme_toc.py mkdocs.yml ../README.md http://boost-experimental.github.io/sml
+	$(PYTHON) doc/scripts/update_readme_toc.py doc .$(MKDOCS).yml README.md http://boost-experimental.github.io/sml
 
 clean:
 	find example test -iname "*.out" -or -iname "*.obj" | xargs rm -f
-

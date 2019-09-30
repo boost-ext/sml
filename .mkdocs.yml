@@ -1,18 +1,19 @@
-copyright: Copyright &copy; 2016-2017
-
+copyright: Copyright &copy; 2016-2019
 site_name: "[Boost].SML"
 site_url: http://boost-experimental.github.io/sml
 site_author: Kris Jusiak
 repo_url: https://github.com/boost-experimental/sml
 repo_name: sml
-docs_dir: .
+docs_dir: doc
 use_directory_urls: false
-theme_dir: themes/boost-experimental
+theme:
+  name: null
+  custom_dir: !!python/object/apply:os.getenv ["MKDOCS_THEME_DIR"]
 google_analytics: ['UA-73083568-1', 'auto']
 extra_javascript: []
 extra_css: []
 
-pages:
+nav:
 - Introduction: index.md
 - Overview: overview.md
 - Features/Benchmarks: benchmarks.md
