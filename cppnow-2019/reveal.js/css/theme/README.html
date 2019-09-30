@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Kris Jusiak">
+  
+  <title>Home - [Boost].SML</title>
+  
+
+  <link rel="shortcut icon" href="../../../../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../css/codemirror.css">
+  <link rel="stylesheet" href="../../../../css/highlight.css">
+  <link rel="stylesheet" href="../../../../css/mdn-like.css">
+
+  
+  <script src="../../../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../../../js/highlight.pack.js"></script>
+  <script src="../../../../js/theme.js"></script>
+
+  <script src="../../../../js/codemirror/codemirror.js"></script>
+  <script src="../../../../js/codemirror/clike.js"></script>
+  <script src="../../../../js/codemirror/active-line.js"></script>
+
+  <script src="../../../../js/cpp.js"></script>
+  <script src="../../../../js/gitter.js"></script>
+  <script src="../../../../js/utility.js"></script> 
+  <script src="../../../../search/main.js"></script>
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+	
+	<nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+
+      <img src="../../../../img/boost.png" />
+      <a href="" class="icon icon-home" style="font-weight:bold;text-align:left;padding:0.809em;color:#fcfcfc;margin-bottom:0.809em"> [Boost].SML</a>
+
+      <div class="wy-side-nav-search">
+		<div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="index.html">Introduction</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="overview.html">Overview</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="benchmarks.html">Features/Benchmarks</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="tutorial.html">Tutorial/Workshop</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="uml_vs_sml.html">UML vs SML</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="user_guide.html">User Guide</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="examples.html">Examples</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="faq.html">FAQ</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="CHANGELOG.html">CHANGELOG</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="">[Boost].SML</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="">Docs</a> &raquo;</li>
+    
+    
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h2 id="dependencies">Dependencies</h2>
+<p>Themes are written using Sass to keep things modular and reduce the need for repeated selectors across files. Make sure that you have the reveal.js development environment including the Grunt dependencies installed before proceeding: https://github.com/hakimel/reveal.js#full-setup</p>
+<h2 id="creating-a-theme">Creating a Theme</h2>
+<p>To create your own theme, start by duplicating a <code>.scss</code> file in <a href="https://github.com/hakimel/reveal.js/blob/master/css/theme/source">/css/theme/source</a>. It will be automatically compiled by Grunt from Sass to CSS (see the <a href="https://github.com/hakimel/reveal.js/blob/master/Gruntfile.js">Gruntfile</a>) when you run <code>npm run build -- css-themes</code>.</p>
+<p>Each theme file does four things in the following order:</p>
+<ol>
+<li>
+<p><strong>Include <a href="https://github.com/hakimel/reveal.js/blob/master/css/theme/template/mixins.scss">/css/theme/template/mixins.scss</a></strong>
+Shared utility functions.</p>
+</li>
+<li>
+<p><strong>Include <a href="https://github.com/hakimel/reveal.js/blob/master/css/theme/template/settings.scss">/css/theme/template/settings.scss</a></strong>
+Declares a set of custom variables that the template file (step 4) expects. Can be overridden in step 3.</p>
+</li>
+<li>
+<p><strong>Override</strong>
+This is where you override the default theme. Either by specifying variables (see <a href="https://github.com/hakimel/reveal.js/blob/master/css/theme/template/settings.scss">settings.scss</a> for reference) or by adding any selectors and styles you please.</p>
+</li>
+<li>
+<p><strong>Include <a href="https://github.com/hakimel/reveal.js/blob/master/css/theme/template/theme.scss">/css/theme/template/theme.scss</a></strong>
+The template theme file which will generate final CSS output based on the currently defined variables.</p>
+</li>
+</ol>
+              
+            </div>
+          </div>
+          <footer>
+
+  <select onChange="window.location.href=this.value" style="position: absolute; top: 20px; right: 30px; z-index: 10;">
+    <option value="https://boost-experimental.github.io/sml" selected>Theme: Boost Experimental</option>
+    <option value="https://boost-experimental.github.io/sml/boost">Theme: Boost Classic</option>
+  </select>
+
+  
+
+  <hr/>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+  /* * * CONFIGURATION VARIABLES * * */
+  var disqus_shortname = 'boost-sml';
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a> | Powered by <a href="http://melpon.org/wandbox">Wandbox</a>
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+    </span>
+</div>
+
+<script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Kris Jusiak">
+  
+  <title>Features/Benchmarks - [Boost].SML</title>
+  
+
+  <link rel="shortcut icon" href="./img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="./css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="./css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="./css/codemirror.css">
+  <link rel="stylesheet" href="./css/highlight.css">
+  <link rel="stylesheet" href="./css/mdn-like.css">
+
+  
+  <script src="./js/jquery-2.1.1.min.js"></script>
+  <script src="./js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="./js/highlight.pack.js"></script>
+  <script src="./js/theme.js"></script>
+
+  <script src="./js/codemirror/codemirror.js"></script>
+  <script src="./js/codemirror/clike.js"></script>
+  <script src="./js/codemirror/active-line.js"></script>
+
+  <script src="./js/cpp.js"></script>
+  <script src="./js/gitter.js"></script>
+  <script src="./js/utility.js"></script> 
+  <script src="search/main.js"></script>
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+	
+	<nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+
+      <img src="./img/boost.png" />
+      <a href="" class="icon icon-home" style="font-weight:bold;text-align:left;padding:0.809em;color:#fcfcfc;margin-bottom:0.809em"> [Boost].SML</a>
+
+      <div class="wy-side-nav-search">
+		<div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="index.html">Introduction</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="overview.html">Overview</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 current">
+        <a class="current" href="benchmarks.html">Features/Benchmarks</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="tutorial.html">Tutorial/Workshop</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="uml_vs_sml.html">UML vs SML</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="user_guide.html">User Guide</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="examples.html">Examples</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="faq.html">FAQ</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="CHANGELOG.html">CHANGELOG</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="">[Boost].SML</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="">Docs</a> &raquo;</li>
+    
+    
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p><strong>[Boost].SML vs Boost.MSM-eUML vs Boost.Statechart</strong></p>
+<hr />
+<h2 id="features">Features</h2>
+<p><em>Overview</em></p>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>[Boost].SML</th>
+<th>Boost.MSM-eUML</th>
+<th>Boost.Statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Standard</td>
+<td>C++14</td>
+<td>C++98/03</td>
+<td>C++98/03</td>
+</tr>
+<tr>
+<td>Version</td>
+<td>1.0.1</td>
+<td>1.61</td>
+<td>1.61</td>
+</tr>
+<tr>
+<td>License</td>
+<td>Boost 1.0</td>
+<td>Boost 1.0</td>
+<td>Boost 1.0</td>
+</tr>
+<tr>
+<td>Linkage</td>
+<td>header only</td>
+<td>header only</td>
+<td>header only</td>
+</tr>
+</tbody>
+</table>
+<p><em>Details</em></p>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>[Boost].SML</th>
+<th>Boost.MSM-eUML</th>
+<th>Boost.Statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UML</td>
+<td>2.0</td>
+<td>2.0</td>
+<td>1.5</td>
+</tr>
+<tr>
+<td>RTTI</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Exceptions</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Memory Allocations</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<p><em>UML features</em></p>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>[Boost].SML</th>
+<th>Boost.MSM-eUML</th>
+<th>Boost.Statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Transition</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Anonymous transition</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Internal transition</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Local transitions</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>State entry/exit</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Guard</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Action</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Event defering</td>
+<td>~</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Error handling</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Initial state</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Terminate State</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Explicit entry</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Explicit exit</td>
+<td>-</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Fork</td>
+<td>-</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Orthogonal regions</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Sub / Composite</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Shallow History</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Deep History</td>
+<td>~</td>
+<td>~</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<p><em>Non-UML features</em></p>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>[Boost].SML</th>
+<th>Boost.MSM-eUML</th>
+<th>Boost.Statechart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Any event</td>
+<td>-</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Flags</td>
+<td>-</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Interrupt state</td>
+<td>-</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>State Visitor</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Serialization</td>
+<td>-</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Dispatcher</td>
+<td>✓</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Asynchronous SM</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="benchmarks">Benchmarks</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>CXXFLAGS</th>
+<th>Events</th>
+<th>States</th>
+<th>Transitions</th>
+<th>Process Events</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/boost-experimental/sml/tree/master/benchmark/simple">Simple Test</a></td>
+<td>-O2 -s, /Ox</td>
+<td>6</td>
+<td>5</td>
+<td>12</td>
+<td>1'000'000</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Clang-3.7</th>
+<th>[Boost].SML</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.144s</td>
+<td>3.855s</td>
+<td>8.699s</td>
+<td>1.028s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>15ms</td>
+<td>17ms</td>
+<td>17ms</td>
+<td>1232ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>1b</td>
+<td>32b</td>
+<td>28b</td>
+<td>200b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>11K</td>
+<td>91K</td>
+<td>15K + boost_system</td>
+<td>59K</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>GCC-5.2</th>
+<th>[Boost].SML</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.175s</td>
+<td>7.879s</td>
+<td>17.101s</td>
+<td>1.790s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>15ms</td>
+<td>19ms</td>
+<td>21ms</td>
+<td>929ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>1b</td>
+<td>32b</td>
+<td>28b</td>
+<td>224b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>11K</td>
+<td>67K</td>
+<td>15K + boost_system</td>
+<td>63K</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>MSVC-2015</th>
+<th>[Boost].SML</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.450s</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>27ms</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>16b</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>206K</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>CXXFLAGS</th>
+<th>Events</th>
+<th>States</th>
+<th>Transitions</th>
+<th>Process Events</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/boost-experimental/sml/tree/master/benchmark/composite">Composite Test</a></td>
+<td>-O2 -s, /Ox</td>
+<td>8</td>
+<td>5 + 3</td>
+<td>12 + 4</td>
+<td>1'000 * 1'000</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Clang-3.7</th>
+<th>[Boost].SML</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.184s</td>
+<td>4.526s</td>
+<td>10.599s</td>
+<td>1.293s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>10ms</td>
+<td>14ms</td>
+<td>10ms</td>
+<td>491ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>2b</td>
+<td>60b</td>
+<td>52b</td>
+<td>200b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>15K</td>
+<td>111K</td>
+<td>15K + boost_system</td>
+<td>83K</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>GCC-5.2</th>
+<th>[Boost].SML</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.248s</td>
+<td>9.363s</td>
+<td>23.404s</td>
+<td>2.037s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>9ms</td>
+<td>13ms</td>
+<td>12ms</td>
+<td>404ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>2b</td>
+<td>60b</td>
+<td>52b</td>
+<td>224b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>12K</td>
+<td>91K</td>
+<td>15K + boost_system</td>
+<td>83K</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>MSVC-2015</th>
+<th>[Boost].SML</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.599s</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>21ms</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>23b</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>224K</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>CXXFLAGS</th>
+<th>Events</th>
+<th>States</th>
+<th>Transitions</th>
+<th>Process Events</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/boost-experimental/sml/tree/master/benchmark/complex">Complex Test</a></td>
+<td>-O2 -s, /Ox</td>
+<td>50</td>
+<td>50</td>
+<td>50</td>
+<td>1'000'000</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Clang-3.7</th>
+<th>[Boost].SML</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.582s</td>
+<td>1m15.935s</td>
+<td>43.341s</td>
+<td>3.661s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>69ms</td>
+<td>81ms</td>
+<td>78ms</td>
+<td>6221ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>1b</td>
+<td>120b</td>
+<td>72b</td>
+<td>200b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>35K</td>
+<td>611K</td>
+<td>31K + boost_system</td>
+<td>343K</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>GCC-5.2</th>
+<th>[Boost].SML</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.816s</td>
+<td>52.238s</td>
+<td>1m41.045s</td>
+<td>4.997s</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>72ms</td>
+<td>77ms</td>
+<td>91ms</td>
+<td>5520ms</td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>1b</td>
+<td>120b</td>
+<td>72b</td>
+<td>224b</td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>35K</td>
+<td>271K</td>
+<td>47K + boost_system</td>
+<td>215K</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>MSVC-2015</th>
+<th>[Boost].SML</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>1.891s</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>166ms</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Memory usage</td>
+<td>104b</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Executable size</td>
+<td>224K</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<table>
+<thead>
+<tr>
+<th>Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/boost-experimental/sml/tree/master/benchmark/header">Header Test</a></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Clang-3.7</th>
+<th>[Boost].SML</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.060s</td>
+<td>2.072s</td>
+<td>2.504s</td>
+<td>0.552s</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>GCC-5.2</th>
+<th>[Boost].SML</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.073s</td>
+<td>3.197s</td>
+<td>3.986s</td>
+<td>0.704s</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>MSVC-2015</th>
+<th>[Boost].SML</th>
+<th>[Boost.MSM-eUML]</th>
+<th>[Boost.MSM3-eUML2]</th>
+<th>[Boost.Statechart]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilation time</td>
+<td>0.182s</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>To run benchmarks</li>
+</ul>
+<pre><code class="sh">cd benchmark &amp;&amp; make # make benchmark_simple benchmark_composite benchmark_complex
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+
+  <select onChange="window.location.href=this.value" style="position: absolute; top: 20px; right: 30px; z-index: 10;">
+    <option value="https://boost-experimental.github.io/sml" selected>Theme: Boost Experimental</option>
+    <option value="https://boost-experimental.github.io/sml/boost">Theme: Boost Classic</option>
+  </select>
+
+  
+
+  <hr/>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+  /* * * CONFIGURATION VARIABLES * * */
+  var disqus_shortname = 'boost-sml';
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a> | Powered by <a href="http://melpon.org/wandbox">Wandbox</a>
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+    </span>
+</div>
+
+<script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+
+</body>
+</html>

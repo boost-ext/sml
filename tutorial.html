@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Kris Jusiak">
+  
+  <title>Tutorial/Workshop - [Boost].SML</title>
+  
+
+  <link rel="shortcut icon" href="./img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="./css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="./css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="./css/codemirror.css">
+  <link rel="stylesheet" href="./css/highlight.css">
+  <link rel="stylesheet" href="./css/mdn-like.css">
+
+  
+  <script src="./js/jquery-2.1.1.min.js"></script>
+  <script src="./js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="./js/highlight.pack.js"></script>
+  <script src="./js/theme.js"></script>
+
+  <script src="./js/codemirror/codemirror.js"></script>
+  <script src="./js/codemirror/clike.js"></script>
+  <script src="./js/codemirror/active-line.js"></script>
+
+  <script src="./js/cpp.js"></script>
+  <script src="./js/gitter.js"></script>
+  <script src="./js/utility.js"></script> 
+  <script src="search/main.js"></script>
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+	
+	<nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+
+      <img src="./img/boost.png" />
+      <a href="" class="icon icon-home" style="font-weight:bold;text-align:left;padding:0.809em;color:#fcfcfc;margin-bottom:0.809em"> [Boost].SML</a>
+
+      <div class="wy-side-nav-search">
+		<div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="index.html">Introduction</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="overview.html">Overview</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="benchmarks.html">Features/Benchmarks</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 current">
+        <a class="current" href="tutorial.html">Tutorial/Workshop</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="uml_vs_sml.html">UML vs SML</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="user_guide.html">User Guide</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="examples.html">Examples</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="faq.html">FAQ</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="CHANGELOG.html">CHANGELOG</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="">[Boost].SML</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="">Docs</a> &raquo;</li>
+    
+    
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p>All code examples include <code>boost/sml.hpp</code> as well as declare a convienent <code>sml</code> namespace alias.</p>
+<pre><code class="cpp">#include &lt;boost/sml.hpp&gt;
+namespace sml = boost::sml;
+</code></pre>
+
+<h3 id="0-read-boostmsm-euml-documentation">0. Read Boost.MSM - eUML documentation</h3>
+<ul>
+<li><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch02.html">Boost.MSM - UML Short Guide</a></li>
+<li><a href="http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html">Boost.MSM - eUML Documentation</a></li>
+</ul>
+<h3 id="1-create-events-and-states">1. Create events and states</h3>
+<p>State machine is composed of finite number of states and transitions which are triggered via events.</p>
+<p>An Event is just a unique type, which will be processed by the state machine.</p>
+<pre><code class="cpp">struct my_event { ... };
+</code></pre>
+
+<p>You can also create event instance in order to simplify transition table notation.</p>
+<pre><code class="cpp">auto event = sml::event&lt;my_event&gt;;
+</code></pre>
+
+<p>If you happen to have a Clang/GCC compiler, you can create an Event on the fly.</p>
+<pre><code class="cpp">using namespace sml;
+auto event  = &quot;event&quot;_e;
+</code></pre>
+
+<p>However, such event will not store any data.</p>
+<hr />
+<p>A State can have entry/exit behaviour executed whenever machine enters/leaves State and
+represents current location of the state machine flow.</p>
+<p>To create a state below snippet might be used.</p>
+<pre><code class="cpp">auto idle = sml::state&lt;class idle&gt;;
+</code></pre>
+
+<p>If you happen to have a Clang/GCC compiler, you can create a State on the fly.</p>
+<pre><code class="cpp">using namespace sml;
+auto state  = &quot;idle&quot;_s;
+</code></pre>
+
+<p>However, please notice that above solution is a non-standard extension for Clang/GCC.</p>
+<p><code>SML</code> states cannot have data as data is injected directly into guards/actions instead.</p>
+<p>A state machine might be a State itself.</p>
+<pre><code class="cpp">sml::state&lt;state_machine&gt; composite;
+</code></pre>
+
+<p><code>SML</code> supports <code>terminate</code> state, which stops events to be processed. It defined by <code>X</code>.</p>
+<pre><code class="cpp">&quot;state&quot;_s = X;
+</code></pre>
+
+<p>States are printable too.</p>
+<pre><code class="cpp">assert(string(&quot;idle&quot;) == &quot;idle&quot;_s.c_str());
+</code></pre>
+
+<p><img alt="CPP(BTN)" src="Run_Events_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/events.cpp" />
+<img alt="CPP(BTN)" src="Run_States_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/states.cpp" />
+<img alt="CPP(BTN)" src="Run_Composite_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/composite.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
+<h3 id="2-create-guards-and-actions">2. Create guards and actions</h3>
+<p>Guards and actions are callable objects which will be executed by the state machine in order to verify whether a transition, followed by an action should take place.</p>
+<p>Guard MUST return boolean value.</p>
+<pre><code class="cpp">auto guard1 = [] {
+  return true;
+};
+
+auto guard2 = [](int, double) { // guard with dependencies
+  return true;
+};
+
+auto guard3 = [](int, auto event, double) { // guard with an event and dependencies
+  return true;
+};
+
+struct guard4 {
+    bool operator()() const noexcept {
+        return true;
+    }
+};
+</code></pre>
+
+<p>Action MUST not return.</p>
+<pre><code class="cpp">auto action1 = [] { };
+auto action2 = [](int, double) { }; // action with dependencies
+auto action3 = [](int, auto event, double) { }; // action with an event and dependencies
+struct action4 {
+    void operator()() noexcept { }
+};
+</code></pre>
+
+<p><img alt="CPP(BTN)" src="Run_Actions_Guards_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/actions_guards.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
+<h3 id="3-create-a-transition-table">3. Create a transition table</h3>
+<p>When we have states and events handy we can finally create a transition table which represents
+our transitions.</p>
+<p><code>SML</code> is using eUML-like DSL in order to be as close as possible to UML design.</p>
+<ul>
+<li>
+<p>Transition Table DSL</p>
+<ul>
+<li>Postfix Notation</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Expression</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>state + event<e> [ guard ]</td>
+<td>internal transition on event e when guard</td>
+</tr>
+<tr>
+<td>src_state / [] {} = dst_state</td>
+<td>anonymous transition with action</td>
+</tr>
+<tr>
+<td>src_state / [] {} = src_state</td>
+<td>self transition (calls on_exit/on_entry)</td>
+</tr>
+<tr>
+<td>src_state + event<e> = dst_state</td>
+<td>external transition on event e without guard or action</td>
+</tr>
+<tr>
+<td>src_state + event<e> [ guard ] / action = dst_state</td>
+<td>transition from src_state to dst_state on event e with guard and action</td>
+</tr>
+<tr>
+<td>src_state + event<e> [ guard &amp;&amp; (![]{return true;} &amp;&amp; guard2) ] / (action, action2, []{}) = dst_state</td>
+<td>transition from src_state to dst_state on event e with guard and action</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Prefix Notation</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Expression</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>state + event<e> [ guard ]</td>
+<td>internal transition on event e when guard</td>
+</tr>
+<tr>
+<td>dst_state &lt;= src_state / [] {}</td>
+<td>anonymous transition with action</td>
+</tr>
+<tr>
+<td>src_state &lt;= src_state / [] {}</td>
+<td>self transition (calls on_exit/on_entry)</td>
+</tr>
+<tr>
+<td>dst_state &lt;= src_state + event<e></td>
+<td>external transition on event e without guard or action</td>
+</tr>
+<tr>
+<td>dst_state &lt;= src_state + event<e> [ guard ] / action</td>
+<td>transition from src_state to dst_state on event e with guard and action</td>
+</tr>
+<tr>
+<td>dst_state &lt;= src_state + event<e> [ guard &amp;&amp; (![]{return true;} &amp;&amp; guard2) ] / (action, action2, []{})</td>
+<td>transition from src_state to dst_state on event e with guard and action</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Transition flow</p>
+</li>
+</ul>
+<pre><code>src_state + event [ guard ] / action = dst_state
+                                     ^
+                                     |
+                                     |
+                                    1. src_state + on_exit
+                                    2. dst_state + on_entry
+</code></pre>
+
+<p>To create a transition table <a href="user_guide.html#make_transition_table-state-machine"><code>make_transition_table</code></a> is provided.</p>
+<pre><code class="cpp">using namespace sml; // Postfix Notation
+
+make_transition_table(
+ *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s
+, &quot;dst_state&quot;_s + &quot;other_event&quot;_e = X
+);
+</code></pre>
+
+<p>or</p>
+<pre><code class="cpp">using namespace sml; // Prefix Notation
+
+make_transition_table(
+  &quot;dst_state&quot;_s &lt;= *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action
+, X             &lt;= &quot;dst_state&quot;_s  + &quot;other_event&quot;_e
+);
+</code></pre>
+
+<p><img alt="CPP(BTN)" src="Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/transitions.cpp" />
+<img alt="CPP(BTN)" src="Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/euml_emulation.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
+<h3 id="4-set-initial-states">4. Set initial states</h3>
+<p>Initial state tells the state machine where to start. It can be set by prefixing a State with <code>*</code>.</p>
+<pre><code class="cpp">using namespace sml;
+make_transition_table(
+ *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s,
+  &quot;dst_state&quot;_s + event&lt;game_over&gt; = X
+);
+</code></pre>
+
+<p>Initial/Current state might be remembered by the State Machine so that whenever it will reentered
+the last active state will reactivated. In order to enable history you just have
+to replace <code>*</code> with postfixed <code>(H)</code> when declaring the initial state.</p>
+<pre><code class="cpp">using namespace sml;
+make_transition_table(
+  &quot;src_state&quot;_s(H) + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s,
+  &quot;dst_state&quot;_s    + event&lt;game_over&gt;                   = X
+);
+</code></pre>
+
+<p>You can have more than one initial state. All initial states will be executed in pseudo-parallel way
+. Such states are called <code>Orthogonal regions</code>.</p>
+<pre><code class="cpp">using namespace sml;
+make_transition_table(
+ *&quot;region_1&quot;_s   + event&lt;my_event1&gt; [ guard ] / action = &quot;dst_state1&quot;_s,
+  &quot;dst_state1&quot;_s + event&lt;game_over&gt; = X,
+
+ *&quot;region_2&quot;_s   + event&lt;my_event2&gt; [ guard ] / action = &quot;dst_state2&quot;_s,
+  &quot;dst_state2&quot;_s + event&lt;game_over&gt; = X
+);
+</code></pre>
+
+<p><img alt="CPP(BTN)" src="Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/orthogonal_regions.cpp" />
+<img alt="CPP(BTN)" src="Run_History_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/history.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
+<h3 id="5-create-a-state-machine">5. Create a state machine</h3>
+<p>State machine is an abstraction for transition table holding current states and processing events.
+To create a state machine, we have to add a transition table.</p>
+<pre><code class="cpp">class example {
+public:
+  auto opeartor()() {
+    using namespace sml;
+    return make_transition_table(
+     *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s,
+      &quot;dst_state&quot;_s + event&lt;game_over&gt; = X
+    );
+  }
+};
+</code></pre>
+
+<p>Having transition table configured we can create a state machine.</p>
+<pre><code class="cpp">sml::sm&lt;example&gt; sm;
+</code></pre>
+
+<p>State machine constructor provides required dependencies for actions and guards.</p>
+<pre><code class="cpp">                            /---- event (injected from process_event)
+                            |
+auto guard = [](double d, auto event) { return true; }
+                   |
+                   \-------\
+                           |
+auto action = [](int i){}  |
+                 |         |
+                 |         |
+                 \-\   /---/
+                   |   |
+sml::sm&lt;exmple&gt; s{42, 87.0};
+
+sml::sm&lt;exmple&gt; s{87.0, 42}; // order in which parameters have to passed is not specificied
+</code></pre>
+
+<p>Passing and maintaining a lot of dependencies might be tedious and requires huge amount of boilerplate code.
+In order to avoid it, Dependency Injection Library might be used to automate this process.
+For example, we can use <a href="https://github.com/boost-experimental/di">Experimental Boost.DI</a>.</p>
+<pre><code class="cpp">auto injector = di::make_injector(
+    di::bind&lt;&gt;.to(42)
+  , di::bind&lt;interface&gt;.to&lt;implementation&gt;()
+);
+
+auto sm = injector.create&lt;sm&lt;example&gt;&gt;();
+sm.process_event(e1{});
+</code></pre>
+
+<p><img alt="CPP(BTN)" src="Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/hello_world.cpp" />
+<img alt="CPP(BTN)" src="Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/dependency_injection.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
+<h3 id="6-process-events">6. Process events</h3>
+<p>State machine is a simple creature. Its main purpose is to process events.
+In order to do it, <code>process_event</code> method might be used.</p>
+<pre><code class="cpp">sml::sm&lt;example&gt; sm;
+
+sm.process_event(my_event{}); // handled
+sm.process_event(int{}); // not handled -&gt; unexpected_event&lt;int&gt;
+</code></pre>
+
+<p>Process event might be also triggered on transition table.</p>
+<pre><code>using namespace sml;
+return make_transition_table(
+ *&quot;s1&quot;_s + event&lt;my_event&gt; / process_event(other_event{}) = &quot;s2&quot;_s,
+  &quot;s2&quot;_s + event&lt;other_event&gt; = X
+);
+</code></pre>
+
+<p><code>SML</code> also provides a way to dispatch dynamically created events into the state machine.</p>
+<pre><code class="cpp">struct game_over {
+  static constexpr auto id = SDL_QUIT;
+  // explicit game_over(const SDL_Event&amp;) noexcept; // optional, when defined runtime event will be passed
+};
+enum SDL_EventType { SDL_FIRSTEVENT = 0, SDL_QUIT, SDL_KEYUP, SDL_MOUSEBUTTONUP, SDL_LASTEVENT };
+//create dispatcher from state machine and range of events
+auto dispatch_event = sml::utility::make_dispatch_table&lt;SDL_Event, SDL_FIRSTEVENT, SDL_LASTEVENT&gt;(sm);
+SDL_Event event{SDL_QUIT};
+dispatch_event(event, event.type); // will call sm.process(game_over{});
+</code></pre>
+
+<p><img alt="CPP(BTN)" src="Run_Hello_World_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/hello_world.cpp" />
+<img alt="CPP(BTN)" src="Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/dispatch_table.cpp" />
+<img alt="CPP(BTN)" src="Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/sdl2.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
+<h3 id="8-handle-errors">8. Handle errors</h3>
+<p>In case when a State Machine can't handle given event an <code>unexpected_event</code> is fired.</p>
+<pre><code class="cpp">make_transition_table(
+ *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s
+, &quot;src_state&quot;_s + unexpected_event&lt;some_event&gt; = X
+);
+</code></pre>
+
+<p>Any unexpected event might be handled too by using <code>unexpected_event&lt;_&gt;</code>.</p>
+<pre><code class="cpp">make_transition_table(
+ *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s
+, &quot;src_state&quot;_s + unexpected_event&lt;some_event&gt; / [] { std::cout &lt;&lt; &quot;unexpected 'some_event' &lt;&lt; '\n'; &quot;}
+, &quot;src_state&quot;_s + unexpected_event&lt;_&gt; = X // any event
+);
+</code></pre>
+
+<p>In such case...</p>
+<p>sm.process_event(some_event{}); // "unexpected 'some_event'
+sm.process_event(int{}); // terminate
+assert(sm.is(X));</p>
+<pre><code>
+Usually, it's handy to create additional `Orthogonal region` to cover this scenario,
+This way State causing unexpected event does not matter.
+
+```cpp
+make_transition_table(
+ *&quot;idle&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;s1&quot;_s
+, &quot;s1&quot;_s + event&lt;other_event&gt; [ guard ] / action = &quot;s2&quot;_s
+, &quot;s2&quot;_s + event&lt;yet_another_event&gt; [ guard ] / action = X
+// terminate (=X) the Machine or reset to another state
+,*&quot;error_handler&quot;_s + unexpected_event&lt;some_event&gt; = X
+);
+</code></pre>
+
+<p>We can always check whether a State Machine is in terminate state by.</p>
+<pre><code class="cpp">assert(sm.is(sml::X)); // doesn't matter how many regions there are
+</code></pre>
+
+<p>When exceptions are enabled (project is NOT compiled with <code>-fno-exceptions</code>) they
+can be caught using <code>exception&lt;name&gt;</code> syntax. Exception handlers will be processed
+in the order they were defined, and <code>exception&lt;&gt;</code> might be used to catch anything (equivalent to <code>catch (...)</code>).
+Please, notice that when there is no exception handler defined in the Transition Table, exception will not be handled by the State Machine.</p>
+<pre><code class="cpp">make_transition_table(
+ *&quot;idle&quot;_s + event&lt;event&gt; / [] { throw std::runtime_error{&quot;error&quot;}; }
+,*&quot;error_handler&quot;_s + exception&lt;std::runtime_error&gt; = X
+, &quot;error_handler&quot;_s + exception&lt;std::logic_error&gt; = X
+, &quot;error_handler&quot;_s + exception&lt;&gt; / [] { cleanup...; } = X // any exception
+);
+</code></pre>
+
+<p><img alt="CPP(BTN)" src="Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/error_handling.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
+<h3 id="9-test-it">9. Test it</h3>
+<p>Sometimes it's useful to verify whether a state machine is in a specific state, for example, if
+we are in a terminate state or not. We can do it with <code>SML</code> using <code>is</code> or <code>visit_current_states</code>
+functionality.</p>
+<pre><code class="cpp">sml::sm&lt;example&gt; sm;
+sm.process_event(my_event{});
+assert(sm.is(X)); // is(X, s1, ...) when you have orthogonal regions
+
+//or
+
+sm.visit_current_states([](auto state) { std::cout &lt;&lt; state.c_str() &lt;&lt; std::endl; });
+</code></pre>
+
+<p>On top of that, <code>SML</code> provides testing facilities to check state machine as a whole.
+<code>set_current_states</code> method is available from <code>testing::sm</code> in order to set state machine
+in a requested state.</p>
+<pre><code class="cpp">testing::sm&lt;example&gt; sm{fake_data...};
+sm.set_current_states(&quot;s3&quot;_s); // set_current_states(&quot;s3&quot;_s, &quot;s1&quot;_s, ...) for orthogonal regions
+sm.process_event(event{});
+assert(sm.is(X));
+</code></pre>
+
+<p><img alt="CPP(BTN)" src="Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/testing.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
+<h3 id="10-debug-it">10. Debug it</h3>
+<p><code>SML</code> provides logging capabilities in order to inspect state machine flow.
+To enable logging you can use (Logger Policy)(user_guide.md#policies)</p>
+<pre><code class="cpp">struct my_logger {
+  template &lt;class SM, class TEvent&gt;
+  void log_process_event(const TEvent&amp;) {
+    printf(&quot;[%s][process_event] %s\n&quot;, typeid(SM).name(), typeid(TEvent).name());
+  }
+
+  template &lt;class SM, class TGuard, class TEvent&gt;
+  void log_guard(const TGuard&amp;, const TEvent&amp;, bool result) {
+    printf(&quot;[%s][guard] %s %s %s\n&quot;, typeid(SM).name(), typeid(TGuard).name(), typeid(TEvent).name(),
+           (result ? &quot;[OK]&quot; : &quot;[Reject]&quot;));
+  }
+
+  template &lt;class SM, class TAction, class TEvent&gt;
+  void log_action(const TAction&amp;, const TEvent&amp;) {
+    printf(&quot;[%s][action] %s %s\n&quot;, typeid(SM).name(), typeid(TAction).name(), typeid(TEvent).name());
+  }
+
+  template &lt;class SM, class TSrcState, class TDstState&gt;
+  void log_state_change(const TSrcState&amp; src, const TDstState&amp; dst) {
+    printf(&quot;[%s][transition] %s -&gt; %s\n&quot;, typeid(SM).name(), src.c_str(), dst.c_str());
+  }
+};
+
+sml::sm&lt;logging, sml::logger&lt;my_logger&gt;&gt; sm;
+sm.process_event(my_event{}); // will call my_logger appropriately
+</code></pre>
+
+<p><img alt="CPP(BTN)" src="Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/logging.cpp" />
+<img alt="CPP(BTN)" src="Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/plant_uml.cpp" /></p>
+<p>&nbsp;</p>
+<hr />
+<h2 id="workshop">Workshop</h2>
+<iframe style="width: 100%; height: 600px;" src="http://boost-experimental.github.io/sml/embo-2018/#/" />
+              
+            </div>
+          </div>
+          <footer>
+
+  <select onChange="window.location.href=this.value" style="position: absolute; top: 20px; right: 30px; z-index: 10;">
+    <option value="https://boost-experimental.github.io/sml" selected>Theme: Boost Experimental</option>
+    <option value="https://boost-experimental.github.io/sml/boost">Theme: Boost Classic</option>
+  </select>
+
+  
+
+  <hr/>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+  /* * * CONFIGURATION VARIABLES * * */
+  var disqus_shortname = 'boost-sml';
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a> | Powered by <a href="http://melpon.org/wandbox">Wandbox</a>
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+    </span>
+</div>
+
+<script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+
+</body>
+</html>

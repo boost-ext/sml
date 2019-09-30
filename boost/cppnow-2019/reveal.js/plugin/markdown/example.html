@@ -1,134 +1,116 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 
-	<head>
-		<meta charset="utf-8">
 
-		<title>reveal.js - Markdown Demo</title>
 
-		<link rel="stylesheet" href="../../css/reveal.css">
-		<link rel="stylesheet" href="../../css/theme/white.css" id="theme">
+<title>Markdown Demo - [Boost].SML</title>
 
-        <link rel="stylesheet" href="../../lib/css/monokai.css">
-	</head>
+<link href="../../../../css/boostbook.css" rel="stylesheet">
+<link href="../../../../css/github.css" rel="stylesheet">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 
-	<body>
+<div width="100%">
+<a href="http://www.boost.org/"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../images/boost.png"></a>
+</div>
 
-		<div class="reveal">
+<hr>
+<div class="spirit-nav">
+<a accesskey="p"  ><img src="../../../../images/prev.png" alt="Prev"></a><a accesskey="u" href=""><img src="../../../../images/up.png" alt="Up"></a><a accesskey="h" href=""><img src="../../../../images/home.png" alt="Home"></a><a accesskey="n"  ><img src="../../../../images/next.png" alt="Next"></a>
+</div>
 
-			<div class="slides">
+<div class="chapter">
 
-                <!-- Use external markdown resource, separate slides by three newlines; vertical slides by two newlines -->
-                <section data-markdown="example.md" data-separator="^\n\n\n" data-separator-vertical="^\n\n"></section>
 
-                <!-- Slides are separated by three dashes (quick 'n dirty regular expression) -->
-                <section data-markdown data-separator="---">
-                    <script type="text/template">
-                        ## Demo 1
-                        Slide 1
-                        ---
-                        ## Demo 1
-                        Slide 2
-                        ---
-                        ## Demo 1
-                        Slide 3
-                    </script>
-                </section>
+<div class="toc">
+<dl class="toc">
 
-                <!-- Slides are separated by newline + three dashes + newline, vertical slides identical but two dashes -->
-                <section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$">
-                    <script type="text/template">
-                        ## Demo 2
-                        Slide 1.1
+    
+        <dt><span class="section"><a href="index.html">Introduction</a></span></dt>
+    
 
-                        --
+    
+        <dt><span class="section"><a href="overview.html">Overview</a></span></dt>
+    
 
-                        ## Demo 2
-                        Slide 1.2
+    
+        <dt><span class="section"><a href="benchmarks.html">Features/Benchmarks</a></span></dt>
+    
 
-                        ---
+    
+        <dt><span class="section"><a href="tutorial.html">Tutorial/Workshop</a></span></dt>
+    
 
-                        ## Demo 2
-                        Slide 2
-                    </script>
-                </section>
+    
+        <dt><span class="section"><a href="uml_vs_sml.html">UML vs SML</a></span></dt>
+    
 
-                <!-- No "extra" slides, since there are no separators defined (so they'll become horizontal rulers) -->
-                <section data-markdown>
-                    <script type="text/template">
-                        A
+    
+        <dt><span class="section"><a href="user_guide.html">User Guide</a></span></dt>
+    
 
-                        ---
+    
+        <dt><span class="section"><a href="examples.html">Examples</a></span></dt>
+    
 
-                        B
+    
+        <dt><span class="section"><a href="faq.html">FAQ</a></span></dt>
+    
 
-                        ---
+    
+        <dt><span class="section"><a href="CHANGELOG.html">CHANGELOG</a></span></dt>
+    
 
-                        C
-                    </script>
-                </section>
+</dl>
+</div>
 
-                <!-- Slide attributes -->
-                <section data-markdown>
-                    <script type="text/template">
-                        <!-- .slide: data-background="#000000" -->
-                        ## Slide attributes
-                    </script>
-                </section>
 
-                <!-- Element attributes -->
-                <section data-markdown>
-                    <script type="text/template">
-                        ## Element attributes
-                        - Item 1 <!-- .element: class="fragment" data-fragment-index="2" -->
-                        - Item 2 <!-- .element: class="fragment" data-fragment-index="1" -->
-                    </script>
-                </section>
 
-                <!-- Code -->
-                <section data-markdown>
-                    <script type="text/template">
-                        ```php
-                        public function foo()
-                        {
-                            $foo = array(
-                                'bar' => 'bar'
-                            )
-                        }
-                        ```
-                    </script>
-                </section>
+<div class="section">
+<h1 id="markdown-demo">Markdown Demo</h1>
+<h2 id="external-11">External 1.1</h2>
+<p>Content 1.1</p>
+<p>Note: This will only appear in the speaker notes window.</p>
+<h2 id="external-12">External 1.2</h2>
+<p>Content 1.2</p>
+<h2 id="external-2">External 2</h2>
+<p>Content 2.1</p>
+<h2 id="external-31">External 3.1</h2>
+<p>Content 3.1</p>
+<h2 id="external-32">External 3.2</h2>
+<p>Content 3.2</p>
+<h2 id="external-33">External 3.3</h2>
+<p><img alt="External Image" src="https://s3.amazonaws.com/static.slid.es/logo/v2/slides-symbol-512x512.png" /></p>
+</div>
 
-                <!-- Images -->
-                <section data-markdown>
-                    <script type="text/template">
-                        ![Sample image](https://s3.amazonaws.com/static.slid.es/logo/v2/slides-symbol-512x512.png)
-                    </script>
-                </section>
+<script src="../../../../js/highlight.pack.js"></script>
 
-            </div>
-		</div>
+<script>
+hljs.configure({languages:['cpp']});
+hljs.initHighlightingOnLoad();
+</script>
+<script src="../../../../search/main.js"></script>
 
-		<script src="../../js/reveal.js"></script>
+<div class="copyright-footer">
+      <p>Distributed under the Boost Software License, Version 1.0.
+      (See accompanying file <code class="filename">LICENSE_1_0.txt</code> or copy at
+      <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div>
 
-		<script>
+</div>
 
-			Reveal.initialize({
-				controls: true,
-				progress: true,
-				history: true,
-				center: true,
+<hr>
+<div class="spirit-nav">
+<a accesskey="p"  ><img src="../../../../images/prev.png" alt="Prev"></a><a accesskey="u" href=""><img src="../../../../images/up.png" alt="Up"></a><a accesskey="h" href=""><img src="../../../../images/home.png" alt="Home"></a><a accesskey="n"  ><img src="../../../../images/next.png" alt="Next"></a>
+</div>
 
-				// Optional libraries used to extend on reveal.js
-				dependencies: [
-					{ src: 'marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-                    { src: 'markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-                    { src: '../highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-					{ src: '../notes/notes.js' }
-				]
-			});
-
-		</script>
-
-	</body>
+<script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+<select onChange="window.location.href=this.value" style="position: absolute; top: 20px; right: 30px; z-index: 10;">
+    <option value="https://boost-experimental.github.io/sml">Theme: Boost Experimental</option>
+    <option value="https://boost-experimental.github.io/sml/boost" selected>Theme: Boost Classic</option>
+</select>
+</body>
 </html>

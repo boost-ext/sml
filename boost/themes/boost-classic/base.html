@@ -5,7 +5,7 @@
 {% if page_description %}<meta name="description" content="{{ page_description }}">{% endif %}
 {% if site_author %}<meta name="author" content="{{ site_author }}">{% endif %}
 {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
-<title>{% if page_title %}{{ page_title }} - {% endif %}{{ site_name }}</title>
+<title>{% if page.title %}{{ page.title }} - {% endif %}{{ config.site_name }}</title>
 
 <link href="{{ base_url }}/css/boostbook.css" rel="stylesheet">
 <link href="{{ base_url }}/css/github.css" rel="stylesheet">
@@ -31,9 +31,9 @@
 <div class="chapter">
 <div class="titlepage"><div>
 <div><h2 class="title">
-<a></a>{{ site_name }}</h2></div>
+<a></a>{{ config.site_name }}</h2></div>
 <div><div class="author"><h3 class="author">
-{{ site_author }}
+{{ config.site_author }}
 </h3></div></div>
 <div><p class="copyright">{% if copyright %}{{ copyright }}{% endif %}</p></div>
 <div><div class="legalnotice">
@@ -53,7 +53,7 @@
 {% endif %}
 
 <div class="section">
-{{ content }}
+{{ page.content }}
 </div>
 
 <script src="{{ base_url }}/js/highlight.pack.js"></script>

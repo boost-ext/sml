@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#update_md.py . http://boost-experimental.github.io/di/cpp14
+#update_md.py . http://boost-experimental.github.io/sml/master
 
 import fileinput, sys, os, glob
 
@@ -21,7 +21,7 @@ def print_cpp(filename):
 
 def update_md(filename):
   for line in fileinput.input(filename, inplace=True):
-    if line.find("[CPP]") != -1:
+    if line.find("[CPP]") != -1 or line.find("[CPP*]") != -1:
       print_cpp("../" + line.split("(")[1][len(sys.argv[2])+1:].split(")")[0])
       href = line.split("(")[1].split(")")[0]
       print "* [" + href + "](" + href + ")"
@@ -34,6 +34,9 @@ def update_md(filename):
     elif line.find("[CPP(SPLIT)]") != -1:
       print_cpp("../" + line.split("(")[2][len(sys.argv[2])+1:].split(")")[0])
     elif line.find("[IFRAME]") != -1:
+      src = line.split("(")[1].split(")")[0]
+      print "[" + src + "](" + src + ")"
+    elif line.find("[YOUTUBE]") != -1:
       src = line.split("(")[1].split(")")[0]
       print "[" + src + "](" + src + ")"
     else:
