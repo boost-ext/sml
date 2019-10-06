@@ -24,7 +24,6 @@
     - [Camille Bordignon](https://github.com/kamibo)
     - [William.Wu](https://github.com/justwillim)
     - [Samuel Debionne](https://github.com/sdebionne)
-    - [Samuel Debionne](https://github.com/sdebionne)
     - [Adam Mizerski](https://github.com/etam)
     - [Paul M. Bendixen](https://github.com/paulbendixen)
     - [Christopher Motl](https://github.com/cmotl)
