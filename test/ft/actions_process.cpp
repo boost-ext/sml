@@ -42,10 +42,11 @@ test process_event = [] {
   sml::sm<c, sml::process_queue<std::queue>> sm{};
   c& c_ = sm;
   expect(sm.is(idle));
-  sm.process_event(e1{});
+  expect(!sm.process_event(e4{}));
+  expect(sm.process_event(e1{}));
   expect(sm.is(s1));
   expect(!c_.a_called);
-  sm.process_event(e2{});  // + process(e3{})
+  expect(sm.process_event(e2{}));  // + process(e3{})
   expect(1 == c_.a_called);
   expect(sm.is(sml::X));
 };
