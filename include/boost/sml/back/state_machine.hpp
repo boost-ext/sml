@@ -462,13 +462,13 @@ class sm {
   sm &operator=(sm &&) = default;
 
   template <class TEvent, __BOOST_SML_REQUIRES(aux::is_base_of<TEvent, events_ids>::value)>
-  void process_event(const TEvent &event) {
-    aux::get<sm_impl<TSM>>(sub_sms_).process_event(event, deps_, sub_sms_);
+  bool process_event(const TEvent &event) {
+    return aux::get<sm_impl<TSM>>(sub_sms_).process_event(event, deps_, sub_sms_);
   }
 
   template <class TEvent, __BOOST_SML_REQUIRES(!aux::is_base_of<TEvent, events_ids>::value)>
-  void process_event(const TEvent &event) {
-    aux::get<sm_impl<TSM>>(sub_sms_).process_event(unexpected_event<_, TEvent>{event}, deps_, sub_sms_);
+  bool process_event(const TEvent &event) {
+    return aux::get<sm_impl<TSM>>(sub_sms_).process_event(unexpected_event<_, TEvent>{event}, deps_, sub_sms_);
   }
 
   template <class T = aux::identity<sm_t>, class TVisitor, __BOOST_SML_REQUIRES(concepts::callable<void, TVisitor>::value)>
