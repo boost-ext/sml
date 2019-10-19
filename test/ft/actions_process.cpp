@@ -211,3 +211,123 @@ test mix_process_and_internal = [] {
   sm.process_event(e1{});
   expect(sm.is(sml::X));
 };
+
+test process_event_sent_from_substate = [] {
+  struct sub {
+    auto operator()() const noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *s1 + event<e1> / process(e2{}) = X
+      );
+      // clang-format on
+    }
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *idle + event<e1> = state<sub>
+        , state<sub> + event<e2> = X
+        ,*s2 + event<e2> = X
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c, sml::process_queue<std::queue>> sm;
+  expect(sm.is(idle, s2));
+  expect(sm.is<decltype(sml::state<sub>)>(s1));
+
+  sm.process_event(e1{});
+  expect(sm.is(sml::state<sub>, s2));
+  expect(sm.is<decltype(sml::state<sub>)>(s1));
+
+  sm.process_event(e1{});  // + process(e2{})
+  expect(sm.is(sml::X, sml::X));
+  expect(sm.is<decltype(sml::state<sub>)>(sml::X));
+};
+
+test process_event_of_substate = [] {
+  struct sub {
+    auto operator()() const noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *s1 + event<e3> = X
+      );
+      // clang-format on
+    }
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *idle + event<e1> = state<sub>
+        , state<sub> + event<e2> / process(e3{})
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c, sml::process_queue<std::queue>> sm;
+  expect(sm.is(idle));
+  expect(sm.is<decltype(sml::state<sub>)>(s1));
+
+  sm.process_event(e1{});
+  expect(sm.is(sml::state<sub>));
+
+  sm.process_event(e2{});  // + process(e2{})
+  expect(sm.is(sml::state<sub>));
+  expect(sm.is<decltype(sml::state<sub>)>(sml::X));
+};
+
+test process_between_substates = [] {
+  struct sub1 {
+    auto operator()() const noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *s1 + event<e1> / process(e2{}) = X
+      );
+      // clang-format on
+    }
+  };
+
+  struct sub2 {
+    auto operator()() const noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *s2 + event<e2> / process(e3{}) = X
+      );
+      // clang-format on
+    }
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *state<sub1> + event<e3> / process(e4{}) = X,
+         *state<sub2> + event<e4> = X
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c, sml::process_queue<std::queue>> sm;
+  expect(sm.is(sml::state<sub1>, sml::state<sub2>));
+  expect(sm.is<decltype(sml::state<sub1>)>(s1));
+  expect(sm.is<decltype(sml::state<sub2>)>(s2));
+
+  sm.process_event(e1{});
+  expect(sm.is(sml::X, sml::X));
+  expect(sm.is<decltype(sml::state<sub1>)>(sml::X));
+  expect(sm.is<decltype(sml::state<sub2>)>(sml::X));
+};
