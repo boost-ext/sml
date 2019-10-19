@@ -16,6 +16,12 @@ namespace front {
 struct operator_base {};
 struct action_base {};
 
+template <class TRootSM, class... TSubSMs>
+TRootSM get_root_sm_impl(aux::pool<TRootSM, TSubSMs...> *);
+
+template <class TSubs>
+using get_root_sm_t = decltype(get_root_sm_impl((TSubs *)0));
+
 template <class, class>
 aux::type_list<action_base> args1__(...);
 template <class T, class E>

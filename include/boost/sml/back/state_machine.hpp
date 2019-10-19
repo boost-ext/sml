@@ -46,7 +46,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   using has_history_states =
       aux::integral_constant<bool, aux::size<initial_states_t>::value != aux::size<history_states_t>::value>;
   using sub_internal_events_t = aux::apply_t<get_sub_internal_events, transitions_t>;
-  using events_t = aux::apply_t<aux::unique_t, aux::join_t<sub_internal_events_t, aux::apply_t<get_events, transitions_t>>>;
+  using events_t = aux::apply_t<aux::unique_t, aux::join_t<sub_internal_events_t, aux::apply_t<get_all_events, transitions_t>>>;
   using events_ids_t = aux::apply_t<aux::inherit, events_t>;
   using has_unexpected_events = typename aux::is_base_of<unexpected, aux::apply_t<aux::inherit, events_t>>::type;
   using has_entry_exits = typename aux::is_base_of<entry_exit, aux::apply_t<aux::inherit, events_t>>::type;
@@ -417,7 +417,9 @@ class sm {
 
  private:
   using sm_all_t = aux::apply_t<get_non_empty_t, aux::join_t<aux::type_list<sm_t>, aux::apply_t<get_sm_t, state_machines>>>;
-  using sub_sms_t = aux::apply_t<aux::pool, typename convert_to_sm<TSM, aux::apply_t<get_sub_sms, states>>::type>;
+  using sub_sms_t =
+      aux::apply_t<aux::pool,
+                   typename convert_to_sm<TSM, aux::apply_t<aux::unique_t, aux::apply_t<get_sub_sms, states>>>::type>;
   using deps = aux::apply_t<merge_deps, transitions_t>;
   using deps_t =
       aux::apply_t<aux::pool,
