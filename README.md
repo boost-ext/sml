@@ -9,7 +9,7 @@
 
 # [Boost].SML (State Machine Language)
 
-> Your scalable C++14 **one header only** State Machine Library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world))
+> Your scalable C++14 **one header only** State Machine Library with no dependencies ([__Try it online!__](https://godbolt.org/z/y99L50))
 
 <p align="center">
   <br />
