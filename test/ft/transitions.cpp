@@ -544,6 +544,50 @@ test initial_entry = [] {
   expect(1 == c_.entry_calls);
 };
 
+test initial_nontrivial_entry = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *idle + sml::on_entry<e2> / [] {}
+         ,idle + event<e2> = s1
+         ,s1 + on_entry<_> / [this] { ++entry_calls; }
+      );
+      // clang-format on
+    }
+
+    int entry_calls = 0;
+  };
+
+  sml::sm<c> sm{};
+  const c& c_ = sm;
+  sm.process_event(e2{});
+  expect(1 == c_.entry_calls);
+};
+
+test initial_nontrivial_exit = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *idle + sml::on_exit<_> / [this] { ++entry_calls; }
+         ,idle + event<e1> = s1
+         ,s1 + sml::on_exit<e1> / [] {}
+      );
+      // clang-format on
+    }
+
+    int entry_calls = 0;
+  };
+
+  sml::sm<c> sm{};
+  const c& c_ = sm;
+  sm.process_event(e1{});
+  expect(1 == c_.entry_calls);
+};
+
 #if !defined(_MSC_VER)
 test general_transition_overload = [] {
   struct c {

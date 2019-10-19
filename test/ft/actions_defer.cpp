@@ -288,5 +288,4 @@ test defer_queue_event_move_dtor = [] {
   expect(e1data2.use_count() == 1);
   expect(e1data3.use_count() == 1);
   expect(e1data4.use_count() == 1);
-
 };
