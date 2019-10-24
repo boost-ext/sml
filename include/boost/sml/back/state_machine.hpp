@@ -406,7 +406,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   defer_t defer_;
   process_t process_;
   defer_flag_t defer_processing_ = defer_flag_t{};
-  defer_flag_t defer_again_;
+  defer_flag_t defer_again_ = defer_flag_t{};
   typename defer_t::const_iterator defer_it_;
   typename defer_t::const_iterator defer_end_;
 };
