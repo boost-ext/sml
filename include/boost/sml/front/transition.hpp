@@ -272,16 +272,6 @@ void update_current_state(SM &, TDeps &deps, TSubs &subs, typename SM::state_t &
                                             typename back::sm_impl<T>::history_states_t{});
 }
 
-template <class TDeps, class TSubs, class TDstState>
-void process_internal_transitions(TDeps &, TSubs &, const TDstState &) {}
-
-template <class TDeps, class TSubs, class T>
-void process_internal_transitions(TDeps &deps, TSubs &subs, const state<back::sm<T>> &) {
-  auto &sm = back::sub_sm<back::sm_impl<T>>::get(&subs);
-  while (sm.process_internal_events(back::anonymous{}, deps, subs)) {
-  }
-}
-
 template <class S1, class S2, class E, class G, class A>
 struct transition<state<S1>, state<S2>, front::event<E>, G, A> {
   static constexpr auto initial = state<S2>::initial;
@@ -305,7 +295,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, A> {
                            state<dst_state>{});
       call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
       sm.process_internal_event(back::on_entry<back::_, TEvent>{event}, deps, subs, current_state);
-      process_internal_transitions(deps, subs, state<dst_state>{});
       return true;
     }
     return false;
@@ -318,7 +307,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, A> {
                            aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                            state<dst_state>{});
       call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
-      process_internal_transitions(deps, subs, state<dst_state>{});
       return true;
     }
     return false;
@@ -377,7 +365,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, A> {
                          state<dst_state>{});
     call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
     sm.process_internal_event(back::on_entry<back::_, TEvent>{event}, deps, subs, current_state);
-    process_internal_transitions(deps, subs, state<dst_state>{});
     return true;
   }
 
@@ -387,7 +374,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, A> {
                          aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                          state<dst_state>{});
     call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
-    process_internal_transitions(deps, subs, state<dst_state>{});
     return true;
   }
 
@@ -439,7 +425,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, none> {
                            aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                            state<dst_state>{});
       sm.process_internal_event(back::on_entry<back::_, TEvent>{event}, deps, subs, current_state);
-      process_internal_transitions(deps, subs, state<dst_state>{});
       return true;
     }
     return false;
@@ -451,7 +436,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, none> {
       update_current_state(sm, deps, subs, current_state,
                            aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                            state<dst_state>{});
-      process_internal_transitions(deps, subs, state<dst_state>{});
       return true;
     }
     return false;
@@ -503,7 +487,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, none> {
                          aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                          state<dst_state>{});
     sm.process_internal_event(back::on_entry<back::_, TEvent>{event}, deps, subs, current_state);
-    process_internal_transitions(deps, subs, state<dst_state>{});
     return true;
   }
 
@@ -512,7 +495,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, none> {
     update_current_state(sm, deps, subs, current_state,
                          aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                          state<dst_state>{});
-    process_internal_transitions(deps, subs, state<dst_state>{});
     return true;
   }
 
