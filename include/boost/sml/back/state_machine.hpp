@@ -88,11 +88,11 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 #endif  // __pph__
     // Repeat internal transition until there is no more to process.
     do {
-      while (process_internal_events(anonymous{}, deps, subs)) {
-      }
-      process_defer_events(deps, subs, handled, aux::type<defer_queue_t<TEvent>>{}, events_t{});
-    } while (process_queued_events(deps, subs, aux::type<process_queue_t<TEvent>>{}, events_t{}) ||
-             process_internal_events(anonymous{}, deps, subs));
+      do {
+        while (process_internal_events(anonymous{}, deps, subs)) {
+        }
+      } while (process_defer_events(deps, subs, handled, aux::type<defer_queue_t<TEvent>>{}, events_t{}));
+    } while (process_queued_events(deps, subs, aux::type<process_queue_t<TEvent>>{}, events_t{}));
 
     return handled;
   }
@@ -299,6 +299,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 #endif  // __pph__
     if (handled && defer_again_) {
       ++defer_it_;
+      return false;
     } else {
       defer_.erase(defer_it_);
       defer_it_ = defer_.begin();
@@ -319,9 +320,8 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
       defer_again_ = false;
       defer_it_ = defer_.begin();
       defer_end_ = defer_.end();
-      processed_events = defer_it_ != defer_end_;
       while (defer_it_ != defer_end_) {
-        (this->*dispatch_table[defer_it_->id])(deps, subs, defer_it_->data);
+        processed_events |= (this->*dispatch_table[defer_it_->id])(deps, subs, defer_it_->data);
         defer_again_ = false;
       }
       defer_processing_ = false;
