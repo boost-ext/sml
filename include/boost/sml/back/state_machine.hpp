@@ -77,15 +77,8 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 
   template <class TEvent, class TDeps, class TSubs>
   bool process_event(const TEvent &event, TDeps &deps, TSubs &subs) {
-    policies::log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
+    bool handled = process_internal_events(event, deps, subs);
 
-#if BOOST_SML_DISABLE_EXCEPTIONS  // __pph__
-    const auto handled = process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(
-        event, deps, subs, states_t{}, aux::make_index_sequence<regions>{});
-#else   // __pph__
-    const auto handled =
-        process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
-#endif  // __pph__
     // Repeat internal transition until there is no more to process.
     do {
       do {
@@ -116,13 +109,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 
   template <class TDeps, class TSubs>
   void start(TDeps &deps, TSubs &subs) {
-    process_internal_events(on_entry<_, initial>{}, deps, subs);
-    do {
-      while (process_internal_events(anonymous{}, deps, subs)) {
-      }
-      process_defer_events(deps, subs, true, aux::type<defer_queue_t<initial>>{}, events_t{});
-    } while (process_queued_events(deps, subs, aux::type<process_queue_t<initial>>{}, events_t{}) ||
-             process_internal_events(anonymous{}, deps, subs));
+    process_event(on_entry<_, initial>{}, deps, subs);
   }
 
   template <class TEvent, class TDeps, class TSubs, class... Ts,
@@ -217,15 +204,15 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
     const auto lock = thread_safety_.create_lock();
     (void)lock;
 
-#if defined(__cpp_fold_expressions)  // __pph__
-    return ((dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, deps, subs, states)), ...);
-#else   // __pph__
     auto handled = false;
+#if defined(__cpp_fold_expressions)  // __pph__
+    ((handled |= dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, deps, subs, states)), ...);
+#else   // __pph__
     (void)aux::swallow{
         0,
         (handled |= dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, deps, subs, states), 0)...};
-    return handled;
 #endif  // __pph__
+    return handled;
   }
 
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
@@ -290,13 +277,8 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   template <class TDeps, class TSubs, class TEvent>
   bool process_event_no_defer(TDeps &deps, TSubs &subs, const void *data) {
     const auto &event = *static_cast<const TEvent *>(data);
-    policies::log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
-#if BOOST_SML_DISABLE_EXCEPTIONS  // __pph__
-    const auto handled = process_event_impl<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, states_t{},
-                                                                                   aux::make_index_sequence<regions>{});
-#else   // __pph__
-    const auto handled = process_event_noexcept<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, has_exceptions{});
-#endif  // __pph__
+    bool handled = process_internal_events(event, deps, subs);
+
     if (handled && defer_again_) {
       ++defer_it_;
       return false;

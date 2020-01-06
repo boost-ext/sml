@@ -915,7 +915,11 @@ template <class TSM>
 struct transitions_sub<sm<TSM>> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent &event, SM &, TDeps &deps, TSubs &subs, typename SM::state_t &) {
-    return sub_sm<sm_impl<TSM>>::get(&subs).template process_event<TEvent>(event, deps, subs);
+    return sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
+  }
+  template <class, class SM, class TDeps, class TSubs>
+  static bool execute(const anonymous &, SM &, TDeps &, TSubs &, typename SM::state_t &) {
+    return false;
   }
 };
 }  // namespace back
@@ -1336,14 +1340,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   }
   template <class TEvent, class TDeps, class TSubs>
   bool process_event(const TEvent &event, TDeps &deps, TSubs &subs) {
-    policies::log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
-#if BOOST_SML_DISABLE_EXCEPTIONS
-    const auto handled = process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(
-        event, deps, subs, states_t{}, aux::make_index_sequence<regions>{});
-#else
-    const auto handled =
-        process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
-#endif
+    bool handled = process_internal_events(event, deps, subs);
     do {
       do {
         while (process_internal_events(anonymous{}, deps, subs)) {
@@ -1368,13 +1365,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   }
   template <class TDeps, class TSubs>
   void start(TDeps &deps, TSubs &subs) {
-    process_internal_events(on_entry<_, initial>{}, deps, subs);
-    do {
-      while (process_internal_events(anonymous{}, deps, subs)) {
-      }
-      process_defer_events(deps, subs, true, aux::type<defer_queue_t<initial>>{}, events_t{});
-    } while (process_queued_events(deps, subs, aux::type<process_queue_t<initial>>{}, events_t{}) ||
-             process_internal_events(anonymous{}, deps, subs));
+    process_event(on_entry<_, initial>{}, deps, subs);
   }
   template <class TEvent, class TDeps, class TSubs, class... Ts,
             __BOOST_SML_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
@@ -1458,15 +1449,15 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
                           aux::index_sequence<Ns...>) {
     const auto lock = thread_safety_.create_lock();
     (void)lock;
-#if defined(__cpp_fold_expressions)
-    return ((dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, deps, subs, states)), ...);
-#else
     auto handled = false;
+#if defined(__cpp_fold_expressions)
+    ((handled |= dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, deps, subs, states)), ...);
+#else
     (void)aux::swallow{
         0,
         (handled |= dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, deps, subs, states), 0)...};
-    return handled;
 #endif
+    return handled;
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &states,
@@ -1522,13 +1513,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   template <class TDeps, class TSubs, class TEvent>
   bool process_event_no_defer(TDeps &deps, TSubs &subs, const void *data) {
     const auto &event = *static_cast<const TEvent *>(data);
-    policies::log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
-#if BOOST_SML_DISABLE_EXCEPTIONS
-    const auto handled = process_event_impl<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, states_t{},
-                                                                                   aux::make_index_sequence<regions>{});
-#else
-    const auto handled = process_event_noexcept<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, has_exceptions{});
-#endif
+    bool handled = process_internal_events(event, deps, subs);
     if (handled && defer_again_) {
       ++defer_it_;
       return false;
@@ -2404,14 +2389,6 @@ void update_current_state(SM &, TDeps &deps, TSubs &subs, typename SM::state_t &
   update_composite_states<back::sm_impl<T>>(subs, typename back::sm_impl<T>::has_history_states{},
                                             typename back::sm_impl<T>::history_states_t{});
 }
-template <class TDeps, class TSubs, class TDstState>
-void process_internal_transitions(TDeps &, TSubs &, const TDstState &) {}
-template <class TDeps, class TSubs, class T>
-void process_internal_transitions(TDeps &deps, TSubs &subs, const state<back::sm<T>> &) {
-  auto &sm = back::sub_sm<back::sm_impl<T>>::get(&subs);
-  while (sm.process_internal_events(back::anonymous{}, deps, subs)) {
-  }
-}
 template <class S1, class S2, class E, class G, class A>
 struct transition<state<S1>, state<S2>, front::event<E>, G, A> {
   static constexpr auto initial = state<S2>::initial;
@@ -2432,7 +2409,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, A> {
                            state<dst_state>{});
       call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
       sm.process_internal_event(back::on_entry<back::_, TEvent>{event}, deps, subs, current_state);
-      process_internal_transitions(deps, subs, state<dst_state>{});
       return true;
     }
     return false;
@@ -2444,7 +2420,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, A> {
                            aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                            state<dst_state>{});
       call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
-      process_internal_transitions(deps, subs, state<dst_state>{});
       return true;
     }
     return false;
@@ -2493,7 +2468,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, A> {
                          state<dst_state>{});
     call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
     sm.process_internal_event(back::on_entry<back::_, TEvent>{event}, deps, subs, current_state);
-    process_internal_transitions(deps, subs, state<dst_state>{});
     return true;
   }
   template <class TEvent, class SM, class TDeps, class TSubs>
@@ -2502,7 +2476,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, A> {
                          aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                          state<dst_state>{});
     call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
-    process_internal_transitions(deps, subs, state<dst_state>{});
     return true;
   }
   A a;
@@ -2544,7 +2517,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, none> {
                            aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                            state<dst_state>{});
       sm.process_internal_event(back::on_entry<back::_, TEvent>{event}, deps, subs, current_state);
-      process_internal_transitions(deps, subs, state<dst_state>{});
       return true;
     }
     return false;
@@ -2555,7 +2527,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, none> {
       update_current_state(sm, deps, subs, current_state,
                            aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                            state<dst_state>{});
-      process_internal_transitions(deps, subs, state<dst_state>{});
       return true;
     }
     return false;
@@ -2597,7 +2568,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, none> {
                          aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                          state<dst_state>{});
     sm.process_internal_event(back::on_entry<back::_, TEvent>{event}, deps, subs, current_state);
-    process_internal_transitions(deps, subs, state<dst_state>{});
     return true;
   }
   template <class TEvent, class SM, class TDeps, class TSubs>
@@ -2605,7 +2575,6 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, none> {
     update_current_state(sm, deps, subs, current_state,
                          aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                          state<dst_state>{});
-    process_internal_transitions(deps, subs, state<dst_state>{});
     return true;
   }
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);

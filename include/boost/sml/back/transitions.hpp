@@ -72,6 +72,7 @@ struct transitions<aux::false_type> {
   }
 };
 
+/// @brief Event executor on a sub state machine with transition in parent state machine.
 template <class TSM, class T, class... Ts>
 struct transitions_sub<sm<TSM>, T, Ts...> {
   template <class TEvent, class SM, class TDeps, class TSubs>
@@ -103,11 +104,19 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
   }
 };
 
+/// @brief Event executor on a sub state machine without transition in parent state machine.
 template <class TSM>
 struct transitions_sub<sm<TSM>> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent& event, SM&, TDeps& deps, TSubs& subs, typename SM::state_t&) {
-    return sub_sm<sm_impl<TSM>>::get(&subs).template process_event<TEvent>(event, deps, subs);
+    return sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
+  }
+
+  template <class, class SM, class TDeps, class TSubs>
+  static bool execute(const anonymous&, SM&, TDeps&, TSubs&, typename SM::state_t&) {
+    // Do not propagate anonymous events to sub state machine
+    // Anonymous events will be generated inside sub-statemachine by initial process_event.
+    return false;
   }
 };
 
