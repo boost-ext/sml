@@ -22,6 +22,8 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
     add_test(test_dependencies test_dependencies)
 endif()
 
+add_executable(test_deep_sm deep_sm.cpp)
+
 add_executable(test_di di.cpp)
 add_test(test_di test_di)
 
