@@ -1308,7 +1308,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   using history_states_t = aux::apply_t<get_history_states, transitions_t>;
   using has_history_states =
       aux::integral_constant<bool, aux::size<initial_states_t>::value != aux::size<history_states_t>::value>;
-  using sub_internal_events_t = aux::apply_t<get_sub_internal_events, transitions_t>;
+  using sub_internal_events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_sub_internal_events, transitions_t>>;
   using events_t = aux::apply_t<aux::unique_t, aux::join_t<sub_internal_events_t, aux::apply_t<get_all_events, transitions_t>>>;
   using events_ids_t = aux::apply_t<aux::inherit, events_t>;
   using has_unexpected_events = typename aux::is_base_of<unexpected, aux::apply_t<aux::inherit, events_t>>::type;
