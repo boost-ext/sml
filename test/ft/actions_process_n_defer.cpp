@@ -1,6 +1,8 @@
 #include <boost/sml.hpp>
 #include <deque>
+#include <iostream>
 #include <queue>
+#include <string>
 
 namespace sml = boost::sml;
 
@@ -60,8 +62,48 @@ test mix_process_n_defer = [] {
       // clang-format on
     }
   };  // internal, defer, process, defer, internal, process, internal
-
   sml::sm<c, sml::process_queue<std::queue>, sml::defer_queue<std::deque>> sm{};
   sm.process_event(e1{});
   expect(sm.is(sml::X));
+};
+
+test process_n_defer_again = [] {
+  struct sub {
+    auto operator()() {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        * s2 + event<e1> / defer
+        , s2 + event<e3> / defer
+        , s2 + event<e2> = s3
+        , s3 + on_entry<_> / [](std::string & calls){calls+="|s3_entry";}
+        , s3 + event<e1> / [](std::string & calls){calls+="|e1";}
+      );
+      // clang-format on
+    }
+  };
+
+  struct c {
+    auto operator()() {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        * s1 = state<sub>
+        // Check that deferred events are only propagated inside sub state machine.
+        , state<sub> + event<e3> / [](std::string & calls){calls+="|e3";}
+      );
+      // clang-format on
+    }
+  };
+
+  std::string calls;
+  sml::sm<c, sml::process_queue<std::queue>, sml::defer_queue<std::deque>> sm{calls};
+  sm.process_event(e1{});
+  sm.process_event(e1{});
+  sm.process_event(e1{});
+  sm.process_event(e3{});
+  expect(calls == "");
+  sm.process_event(e2{});
+  std::cout << calls << "\n";
+  expect(calls == "|s3_entry|e1|e1|e1");
 };
