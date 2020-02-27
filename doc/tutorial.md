@@ -270,16 +270,16 @@ State machine constructor provides required dependencies for actions and guards.
                             |
 auto guard = [](double d, auto event) { return true; }
                    |
-                   \-------\
-                           |
-auto action = [](int i){}  |
-                 |         |
-                 |         |
-                 \-\   /---/
-                   |   |
-sml::sm<exmple> s{42, 87.0};
+                   \--------\
+                            |
+auto action = [](int i){}   |
+                  |         |
+                  |         |
+                  \-\   /---/
+                    |   |
+sml::sm<example> s{42, 87.0};
 
-sml::sm<exmple> s{87.0, 42}; // order in which parameters have to passed is not specificied
+sml::sm<example> s{87.0, 42}; // order in which parameters have to passed is not specificied
 ```
 
 Passing and maintaining a lot of dependencies might be tedious and requires huge amount of boilerplate code.
