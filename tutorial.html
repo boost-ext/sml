@@ -421,16 +421,16 @@ public:
                             |
 auto guard = [](double d, auto event) { return true; }
                    |
-                   \-------\
-                           |
-auto action = [](int i){}  |
-                 |         |
-                 |         |
-                 \-\   /---/
-                   |   |
-sml::sm&lt;exmple&gt; s{42, 87.0};
+                   \--------\
+                            |
+auto action = [](int i){}   |
+                  |         |
+                  |         |
+                  \-\   /---/
+                    |   |
+sml::sm&lt;example&gt; s{42, 87.0};
 
-sml::sm&lt;exmple&gt; s{87.0, 42}; // order in which parameters have to passed is not specificied
+sml::sm&lt;example&gt; s{87.0, 42}; // order in which parameters have to passed is not specificied
 </code></pre>
 
 <p>Passing and maintaining a lot of dependencies might be tedious and requires huge amount of boilerplate code.
