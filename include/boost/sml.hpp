@@ -458,13 +458,13 @@ auto get_type_name(const char *ptr, index_sequence<Ns...>) {
 }
 }
 template <class T>
-const char *get_type_name() {
+constexpr auto get_type_name() {
 #if defined(COMPILING_WITH_MSVC)
-  return detail::get_type_name<T, 34>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 34 - 8>{});
+  return detail::get_type_name<T, 37>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 37 - 8>{});
 #elif defined(__clang__)
-  return detail::get_type_name<T, 58>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 58 - 2>{});
+  return detail::get_type_name<T, 51>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 51 - 2>{});
 #elif defined(__GNUC__)
-  return detail::get_type_name<T, 63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
+  return detail::get_type_name<T, 66>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 66 - 2>{});
 #endif
 }
 template <class T, T...>
@@ -472,20 +472,20 @@ struct string;
 template <char... Chrs>
 struct string<char, Chrs...> {
   using type = string;
-  static auto c_str() {
-    static constexpr char str[] = {Chrs..., 0};
+  static constexpr const char str[] = {Chrs..., 0};
+  static constexpr auto c_str() {
     return str;
   }
 };
 template <class T>
 struct string<T> {
   using type = T;
-  static auto c_str() { return c_str_impl((T *)0); }
+  static constexpr auto c_str() { return c_str_impl((T *)0); }
   template <class U>
-  static decltype(U::c_str()) c_str_impl(U *) {
+  static constexpr decltype(U::c_str()) c_str_impl(U *) {
     return U::c_str();
   }
-  static auto c_str_impl(...) { return get_type_name<T>(); }
+  static constexpr auto c_str_impl(...) { return get_type_name<T>(); }
 };
 }
 namespace back {
@@ -597,23 +597,23 @@ struct initial {};
 struct unexpected {};
 struct entry_exit {};
 struct terminate_state {
-  static auto c_str() { return "terminate"; }
+  static constexpr auto c_str() { return "terminate"; }
 };
 struct internal_event {
-  static auto c_str() { return "internal_event"; }
+  static constexpr auto c_str() { return "internal_event"; }
 };
 struct anonymous : internal_event {
-  static auto c_str() { return "anonymous"; }
+  static constexpr auto c_str() { return "anonymous"; }
 };
 template <class T, class TEvent = T>
 struct on_entry : internal_event, entry_exit {
-  static auto c_str() { return "on_entry"; }
+  static constexpr auto c_str() { return "on_entry"; }
   explicit on_entry(const TEvent &event = {}) : event_(event) {}
   const TEvent &event_;
 };
 template <class T, class TEvent = T>
 struct on_exit : internal_event, entry_exit {
-  static auto c_str() { return "on_exit"; }
+  static constexpr auto c_str() { return "on_exit"; }
   explicit on_exit(const TEvent &event = {}) : event_(event) {}
   const TEvent &event_;
 };
