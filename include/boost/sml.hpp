@@ -455,6 +455,12 @@ struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
   const TExpr &get() const { return reinterpret_cast<const TExpr &>(*this); }
 };
 namespace detail {
+struct stview {
+  const char *str;
+  unsigned usize;
+  constexpr const char *data() const { return str; }
+  constexpr unsigned size() const { return usize; }
+};
 template <class, int N, int... Ns>
 auto get_type_name(const char *ptr, index_sequence<Ns...>) {
   static const char str[] = {ptr[N + Ns]..., 0};
@@ -471,6 +477,16 @@ constexpr auto get_type_name() {
   return detail::get_type_name<T, 66>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 66 - 2>{});
 #endif
 }
+template <class T>
+constexpr auto  get_type_name_sv() {
+#if defined(COMPILING_WITH_MSVC)
+  return detail::stview{__FUNCSIG__ + 40, sizeof(__FUNCSIG__) - 40 - 8};
+#elif defined(__clang__)
+  return detail::stview{__PRETTY_FUNCTION__ + 54, sizeof(__PRETTY_FUNCTION__) - 54 - 2};
+#elif defined(__GNUC__)
+  return detail::stview{__PRETTY_FUNCTION__ + 69, sizeof(__PRETTY_FUNCTION__) - 69 - 2};
+#endif
+}
 template <class T, T...>
 struct string;
 template <char... Chrs>
@@ -480,8 +496,8 @@ struct string<char, Chrs...> {
   static constexpr auto c_str() {
     return str;
   }
-  template<typename U>
-  constexpr operator std::basic_string_view<char, U>() const {
+  template<typename SU>
+  constexpr operator std::basic_string_view<char, SU>() const {
     return {str, sizeof(str) - 1};
   }
 };
@@ -495,10 +511,18 @@ struct string<T> {
   }
   static constexpr auto c_str_impl(...) { return get_type_name<T>(); }
 
-  template<typename U>
-  constexpr operator std::basic_string_view<char, U>() const {
-    return {c_str()};
+  template<class SU>
+  constexpr operator std::basic_string_view<char, SU>() const {
+    auto s = strv_impl<SU>((T *)0, (const char *)0);
+    return {s.data(), s.size()};
   }
+
+  template <class SU, class U>
+  static constexpr auto strv_impl(U *, decltype(U::c_str())) {
+     return std::basic_string_view<char, SU>{U::c_str()};
+  }
+  template <class SU>
+  static constexpr auto strv_impl(...) { return get_type_name_sv<T>(); }
 };
 }
 namespace back {
