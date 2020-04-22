@@ -58,6 +58,10 @@
 #pragma warning(disable : 4503)
 #pragma warning(disable : 4200)
 #endif
+namespace std {
+template<typename T, typename U>
+class basic_string_view;
+}
 BOOST_SML_NAMESPACE_BEGIN
 #define __BOOST_SML_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0
 namespace aux {
@@ -476,6 +480,10 @@ struct string<char, Chrs...> {
   static constexpr auto c_str() {
     return str;
   }
+  template<typename U>
+  constexpr operator std::basic_string_view<char, U>() const {
+    return {str, sizeof(str) - 1};
+  }
 };
 template <class T>
 struct string<T> {
@@ -486,6 +494,11 @@ struct string<T> {
     return U::c_str();
   }
   static constexpr auto c_str_impl(...) { return get_type_name<T>(); }
+
+  template<typename U>
+  constexpr operator std::basic_string_view<char, U>() const {
+    return {c_str()};
+  }
 };
 }
 namespace back {
