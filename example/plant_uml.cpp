@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <typeinfo>
+#include <set>
 
 namespace sml = boost::sml;
 
@@ -17,6 +18,7 @@ struct e1 {};
 struct e2 {};
 struct e3 {};
 struct e4 {};
+struct e5 {};
 
 struct guard {
   bool operator()() const { return true; }
@@ -26,30 +28,71 @@ struct action {
   void operator()() {}
 } action;
 
-struct plant_uml {
+
+struct sub {
   auto operator()() const noexcept {
     using namespace sml;
     // clang-format off
     return make_transition_table(
-       *"idle"_s + event<e1> = "s1"_s
-      , "s1"_s + event<e2> [ guard ] / action = "s2"_s
-      , "s2"_s + event<e3> [ guard ] = "s1"_s
-      , "s2"_s + event<e4> / action = X
+        *"idle"_s + event<e3> /action = "s1"_s
+        , "s1"_s + event<e4> / action = X
     );
     // clang-format on
   }
 };
 
+struct plant_uml {
+  auto operator()() const noexcept {
+    using namespace sml;
+    // clang-format off
+    return make_transition_table(
+        *"idle"_s + event<e1> = state<sub>
+        , "idle"_s + event<e5> = state<sub>
+        , state<sub> + event<e2> [ guard ] / action = "s2"_s
+        , "s2"_s + event<e3> [ guard ] = "s1"_s
+        , "s2"_s + event<e4> / action = X
+
+        ,*"idle2"_s + event<e2> = "s17"_s
+        , "s17"_s + event<e3> = X
+    );
+    // clang-format on
+  }
+};
+
+
+template <typename>
+struct is_sub_state_machine : std::false_type
+{};
+
+template <class T, class... Ts>
+struct is_sub_state_machine<boost::sml::back::sm<boost::sml::back::sm_policy<T, Ts...>>>
+    : std::true_type
+{};
+
+using strset_t = std::set<std::string>;
+
 template <class T>
-void dump_transition() noexcept {
+void dump_transition(strset_t& substates_handled, int& starts) noexcept {
   auto src_state = std::string{sml::aux::string<typename T::src_state>{}.c_str()};
   auto dst_state = std::string{sml::aux::string<typename T::dst_state>{}.c_str()};
-  if (dst_state == "X") {
+  if (dst_state == "terminate") {
     dst_state = "[*]";
   }
 
   if (T::initial) {
-    std::cout << "[*] --> " << src_state << std::endl;
+    std::cout <<  (starts++ ? "--\n" : "") <<"[*] --> " << src_state << std::endl;
+  }
+
+  if constexpr (is_sub_state_machine<typename T::dst_state>::value) {
+
+    auto [loc, suc] = substates_handled.insert(dst_state);
+
+    if (suc) {
+      std::cout << "\nstate " << dst_state << " {\n";
+      int new_starts{0};
+      dump_transitions(substates_handled, new_starts, typename T::dst_state::transitions{});
+      std::cout << "}\n";
+    }
   }
 
   std::cout << src_state << " --> " << dst_state;
@@ -78,15 +121,18 @@ void dump_transition() noexcept {
 }
 
 template <template <class...> class T, class... Ts>
-void dump_transitions(const T<Ts...>&) noexcept {
-  int _[]{0, (dump_transition<Ts>(), 0)...};
+void dump_transitions(strset_t& substates_handled, int& starts, const T<Ts...>&) noexcept {
+  int _[]{0, (dump_transition<Ts>(substates_handled, starts), 0)...};
   (void)_;
 }
 
 template <class SM>
 void dump(const SM&) noexcept {
+  std::set<std::string> substates_handled;  // guarantee only one dump per sub-machine
+  int starts{0};                            // '--' is required between ortho states
+
   std::cout << "@startuml" << std::endl << std::endl;
-  dump_transitions(typename SM::transitions{});
+  dump_transitions(substates_handled, starts, typename SM::transitions{});
   std::cout << std::endl << "@enduml" << std::endl;
 }
 
