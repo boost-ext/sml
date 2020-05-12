@@ -33,6 +33,7 @@
 #pragma clang diagnostic ignored "-Wzero-length-array"
 #elif defined(__GNUC__)
 #if !defined(__has_builtin)
+#define __BOOST_SML_DEFINED_HAS_BUILTIN
 #define __has_builtin(...) 0
 #endif
 #define __BOOST_SML_UNUSED __attribute__((unused))
@@ -44,6 +45,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #elif defined(COMPILING_WITH_MSVC)
+#define __BOOST_SML_DEFINED_HAS_BUILTIN
 #define __has_builtin(...) __has_builtin##__VA_ARGS__
 #define __has_builtin__make_integer_seq(...) 1
 #define __BOOST_SML_UNUSED
@@ -2644,10 +2646,10 @@ BOOST_SML_NAMESPACE_END
 #undef __BOOST_SML_TEMPLATE_KEYWORD
 #if defined(__clang__)
 #pragma clang diagnostic pop
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) && defined(__BOOST_SML_DEFINED_HAS_BUILTIN)
 #undef __has_builtin
 #pragma GCC diagnostic pop
-#elif defined(COMPILING_WITH_MSVC)
+#elif defined(COMPILING_WITH_MSVC) && defined(__BOOST_SML_DEFINED_HAS_BUILTIN)
 #undef __has_builtin
 #undef __has_builtin__make_integer_seq
 #endif
