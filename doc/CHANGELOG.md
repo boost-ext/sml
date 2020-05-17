@@ -1,3 +1,25 @@
+## [1.1.1] - 2020-05-17
+- **Additions**
+    - Support for Clang-8.0/9.0/10.0
+    - Support for GCC-8/9/10
+    - Support for MSVC-2019/MSVC-2019 Preview
+>
+- **Bug Fixes**
+    - [Issues](https://github.com/boost-experimental/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2019-01-08..2020-05-17+)
+>
+- **Contributions**
+    - [Dale Lukas Peterson](https://github.com/hazelnusse)
+    - [ooxi](https://github.com/ooxi)
+    - [erikzenkerLogmein](https://github.com/erikzenkerLogmein)
+    - [Takatoshi Kondo](https://github.com/redboltz)
+    - [Dror Speiser](https://github.com/drorspei)
+    - [Benjamin Worpitz](https://github.com/BenjaminW3)
+    - [Richard Szabo]()
+    - [Patrick Larson](https://github.com/palarson)
+    - [Joseph Loser](https://github.com/JoeLoser)
+    - [Maximilian Riemensberger]()
+    - [Andrey](https://github.com/JoyIfBam5)
+
 ## [1.1.0] - 2019-01-08
 - **Additions**
     - Support for Clang-5.0/6.0/7.0
@@ -36,6 +58,7 @@
 ##[1.0.0] - 2016-01-28
 - Initial version
 
+[1.1.1]: https://github.com/boost-experimental/sml/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/boost-experimental/sml/compare/v1.0.0...v1.1.0
 [1.0.1]: https://github.com/boost-experimental/sml/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/boost-experimental/sml/tree/v1.0.0

@@ -263,6 +263,7 @@ send: 42
     * [Plant UML Integration](http://boost-experimental.github.io/sml/examples/index.html#plant-uml-integration)
 * [FAQ](http://boost-experimental.github.io/sml/faq/index.html)
 * [CHANGELOG](http://boost-experimental.github.io/sml/CHANGELOG/index.html)
+    * [ [1.1.1] - 2020-05-17](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-111-2020-05-17)
     * [ [1.1.0] - 2019-01-08](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-110-2019-01-08)
     * [ [1.0.1] - 2016-05-06](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-101-2016-05-06)
     * [[1.0.0] - 2016-01-28](http://boost-experimental.github.io/sml/CHANGELOG/index.html#100-2016-01-28)
