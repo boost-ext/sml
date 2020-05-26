@@ -160,7 +160,7 @@ struct missing_ctor_parameter {
     return {};
   }
 
-#if !defined(_MSC_VER) && !defined(__clang__)  // __pph__
+#if !(defined(_MSC_VER) && !defined(__clang__))  // __pph__
   template <class TMissing, __BOOST_SML_REQUIRES(!aux::is_base_of<pool_type_base, TMissing>::value)>
   operator TMissing &() const {
     static_assert(missing_ctor_parameter<TMissing>::value,

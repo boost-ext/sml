@@ -21,7 +21,7 @@ using _ = back::_;
 
 /// events
 
-#if !defined(_MSC_VER) && !defined(__clang__)  // __pph__
+#if !(defined(_MSC_VER) && !defined(__clang__))  // __pph__
 template <class TEvent>
 constexpr front::event<TEvent> event{};
 #else   // __pph__
@@ -46,7 +46,7 @@ using initial = back::initial;
 
 /// states
 
-#if !defined(_MSC_VER) && !defined(__clang__)  // __pph__
+#if !(defined(_MSC_VER) && !defined(__clang__))  // __pph__
 template <class T>
 constexpr typename front::state_sm<T>::type state{};
 #else   // __pph__
@@ -55,7 +55,7 @@ typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #endif  // __pph__
 
 inline namespace literals {
-#if !defined(_MSC_VER) && !defined(__clang__)  // __pph__
+#if !(defined(_MSC_VER) && !defined(__clang__))  // __pph__
 template <class T, T... Chrs>
 constexpr auto operator""_s() {
   return front::state<aux::string<T, Chrs...>>{};
