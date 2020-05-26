@@ -338,7 +338,7 @@ struct missing_ctor_parameter {
   operator U() {
     return {};
   }
-#if !defined(_MSC_VER) && !defined(__clang__)
+#if !(defined(_MSC_VER) && !defined(__clang__))
   template <class TMissing, __BOOST_SML_REQUIRES(!aux::is_base_of<pool_type_base, TMissing>::value)>
   operator TMissing &() const {
     static_assert(missing_ctor_parameter<TMissing>::value,
@@ -2589,7 +2589,7 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
 };
 }
 using _ = back::_;
-#if !defined(_MSC_VER) && !defined(__clang__)
+#if !(defined(_MSC_VER) && !defined(__clang__))
 template <class TEvent>
 constexpr front::event<TEvent> event{};
 #else
@@ -2606,7 +2606,7 @@ template <class T>
 front::event<back::exception<T>> exception __BOOST_SML_VT_INIT;
 using anonymous = back::anonymous;
 using initial = back::initial;
-#if !defined(_MSC_VER) && !defined(__clang__)
+#if !(defined(_MSC_VER) && !defined(__clang__))
 template <class T>
 constexpr typename front::state_sm<T>::type state{};
 #else
@@ -2614,7 +2614,7 @@ template <class T>
 typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #endif
 inline namespace literals {
-#if !defined(_MSC_VER) && !defined(__clang__)
+#if !(defined(_MSC_VER) && !defined(__clang__))
 template <class T, T... Chrs>
 constexpr auto operator""_s() {
   return front::state<aux::string<T, Chrs...>>{};

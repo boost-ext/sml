@@ -84,4 +84,6 @@ if (IS_COMPILER_GCC_LIKE)
     add_example(testing example_testing testing.cpp)
 
     add_example(transitions example_transitions transitions.cpp)
+
+    add_example(visitor example_visitor visitor.cpp)
 endif()
