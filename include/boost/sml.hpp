@@ -60,6 +60,10 @@
 #pragma warning(disable : 4503)
 #pragma warning(disable : 4200)
 #endif
+namespace std {
+template<typename T, typename U>
+class basic_string_view;
+}
 BOOST_SML_NAMESPACE_BEGIN
 #define __BOOST_SML_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0
 namespace aux {
@@ -453,6 +457,12 @@ struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
   const TExpr &get() const { return reinterpret_cast<const TExpr &>(*this); }
 };
 namespace detail {
+struct stview {
+  const char *str;
+  unsigned usize;
+  constexpr const char *data() const { return str; }
+  constexpr unsigned size() const { return usize; }
+};
 template <class, int N, int... Ns>
 auto get_type_name(const char *ptr, index_sequence<Ns...>) {
   static const char str[] = {ptr[N + Ns]..., 0};
@@ -460,13 +470,23 @@ auto get_type_name(const char *ptr, index_sequence<Ns...>) {
 }
 }
 template <class T>
-const char *get_type_name() {
+constexpr auto get_type_name() {
 #if defined(COMPILING_WITH_MSVC)
-  return detail::get_type_name<T, 34>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 34 - 8>{});
+  return detail::get_type_name<T, 37>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 37 - 8>{});
 #elif defined(__clang__)
-  return detail::get_type_name<T, 58>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 58 - 2>{});
+  return detail::get_type_name<T, 51>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 51 - 2>{});
 #elif defined(__GNUC__)
-  return detail::get_type_name<T, 63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
+  return detail::get_type_name<T, 66>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 66 - 2>{});
+#endif
+}
+template <class T>
+constexpr auto  get_type_name_sv() {
+#if defined(COMPILING_WITH_MSVC)
+  return detail::stview{__FUNCSIG__ + 40, sizeof(__FUNCSIG__) - 40 - 8};
+#elif defined(__clang__)
+  return detail::stview{__PRETTY_FUNCTION__ + 54, sizeof(__PRETTY_FUNCTION__) - 54 - 2};
+#elif defined(__GNUC__)
+  return detail::stview{__PRETTY_FUNCTION__ + 69, sizeof(__PRETTY_FUNCTION__) - 69 - 2};
 #endif
 }
 template <class T, T...>
@@ -474,20 +494,37 @@ struct string;
 template <char... Chrs>
 struct string<char, Chrs...> {
   using type = string;
-  static auto c_str() {
-    static constexpr char str[] = {Chrs..., 0};
+  static constexpr const char str[] = {Chrs..., 0};
+  static constexpr auto c_str() {
     return str;
+  }
+  template<typename SU>
+  constexpr operator std::basic_string_view<char, SU>() const {
+    return {str, sizeof(str) - 1};
   }
 };
 template <class T>
 struct string<T> {
   using type = T;
-  static auto c_str() { return c_str_impl((T *)0); }
+  static constexpr auto c_str() { return c_str_impl((T *)0); }
   template <class U>
-  static decltype(U::c_str()) c_str_impl(U *) {
+  static constexpr decltype(U::c_str()) c_str_impl(U *) {
     return U::c_str();
   }
-  static auto c_str_impl(...) { return get_type_name<T>(); }
+  static constexpr auto c_str_impl(...) { return get_type_name<T>(); }
+
+  template<class SU>
+  constexpr operator std::basic_string_view<char, SU>() const {
+    auto s = strv_impl<SU>((T *)0, (const char *)0);
+    return {s.data(), s.size()};
+  }
+
+  template <class SU, class U>
+  static constexpr auto strv_impl(U *, decltype(U::c_str())) {
+     return std::basic_string_view<char, SU>{U::c_str()};
+  }
+  template <class SU>
+  static constexpr auto strv_impl(...) { return get_type_name_sv<T>(); }
 };
 }
 namespace back {
@@ -599,23 +636,23 @@ struct initial {};
 struct unexpected {};
 struct entry_exit {};
 struct terminate_state {
-  static auto c_str() { return "terminate"; }
+  static constexpr auto c_str() { return "terminate"; }
 };
 struct internal_event {
-  static auto c_str() { return "internal_event"; }
+  static constexpr auto c_str() { return "internal_event"; }
 };
 struct anonymous : internal_event {
-  static auto c_str() { return "anonymous"; }
+  static constexpr auto c_str() { return "anonymous"; }
 };
 template <class T, class TEvent = T>
 struct on_entry : internal_event, entry_exit {
-  static auto c_str() { return "on_entry"; }
+  static constexpr auto c_str() { return "on_entry"; }
   explicit on_entry(const TEvent &event = {}) : event_(event) {}
   const TEvent &event_;
 };
 template <class T, class TEvent = T>
 struct on_exit : internal_event, entry_exit {
-  static auto c_str() { return "on_exit"; }
+  static constexpr auto c_str() { return "on_exit"; }
   explicit on_exit(const TEvent &event = {}) : event_(event) {}
   const TEvent &event_;
 };
