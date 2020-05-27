@@ -39,7 +39,7 @@ template <class SM, class... TPolicies>
 struct sm_policy {
   static_assert(aux::is_same<aux::remove_reference_t<SM>, SM>::value, "SM type can't have qualifiers");
 
-#if defined(_MSC_VER)  // __pph__
+#if defined(_MSC_VER) && !defined(__clang__)  // __pph__
   using default_dispatch_policy = policies::jump_table;
 #elif defined(__clang__)  // __pph__
   using default_dispatch_policy = policies::jump_table;
