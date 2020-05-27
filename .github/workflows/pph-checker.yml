@@ -1,4 +1,4 @@
-name: Pph Checker
+name: PPH checker
 
 on:
   push:
@@ -8,9 +8,17 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        name: [
+          ubuntu-18.04-clang-4.0
+        ]
+        include:
+          - name: ubuntu-18.04-clang-4.0
+            os: ubuntu-18.04
+            compiler: clang
+            version: "4.0"
     steps:
     - uses: actions/checkout@v2
     - name: Run pph

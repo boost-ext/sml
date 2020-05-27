@@ -24,4 +24,3 @@ endif()
 
 add_subdirectory(ft)
 add_subdirectory(ut)
-

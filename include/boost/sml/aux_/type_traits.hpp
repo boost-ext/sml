@@ -83,7 +83,7 @@ template <class T>
 struct is_same<T, T> : true_type {};
 
 template <class T, class U>
-#if defined(_MSC_VER)  // __pph__
+#if defined(_MSC_VER) && !defined(__clang__)  // __pph__
 struct is_base_of : integral_constant<bool, __is_base_of(T, U)> {
 };
 #else   // __pph__
@@ -95,7 +95,7 @@ decltype(T(declval<TArgs>()...), true_type{}) test_is_constructible(int);
 template <class, class...>
 false_type test_is_constructible(...);
 template <class T, class... TArgs>
-#if defined(_MSC_VER)  // __pph__
+#if defined(_MSC_VER) && !defined(__clang__)  // __pph__
 struct is_constructible : decltype(test_is_constructible<T, TArgs...>(0)) {
 };
 #else   // __pph__

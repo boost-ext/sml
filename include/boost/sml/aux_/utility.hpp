@@ -160,7 +160,7 @@ struct missing_ctor_parameter {
     return {};
   }
 
-#if !defined(_MSC_VER)  // __pph__
+#if !defined(_MSC_VER) && !defined(__clang__)  // __pph__
   template <class TMissing, __BOOST_SML_REQUIRES(!aux::is_base_of<pool_type_base, TMissing>::value)>
   operator TMissing &() const {
     static_assert(missing_ctor_parameter<TMissing>::value,
@@ -253,7 +253,7 @@ struct size<T<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
 
-#if defined(_MSC_VER)  // __pph__
+#if defined(_MSC_VER) && !defined(__clang__)  // __pph__
 constexpr int max_impl() { return 0; }
 constexpr int max_impl(int r) { return r; }
 constexpr int max_impl(int r, int i) { return r > i ? r : i; }
@@ -306,7 +306,7 @@ auto get_type_name(const char *ptr, index_sequence<Ns...>) {
 
 template <class T>
 const char *get_type_name() {
-#if defined(_MSC_VER)  // __pph__
+#if defined(_MSC_VER) && !defined(__clang__)  // __pph__
   return detail::get_type_name<T, 34>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 34 - 8>{});
 #elif defined(__clang__)  // __pph__
   return detail::get_type_name<T, 58>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 58 - 2>{});

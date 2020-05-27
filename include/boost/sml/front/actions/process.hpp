@@ -19,7 +19,7 @@ struct process {
     explicit process_impl(const TEvent& event) : event(event) {}
 
     template <class T, class TSM, class TDeps, class TSubs>
-    void operator()(const T&, TSM&, TDeps&, TSubs&) {
+    void operator()(const T&, TSM&, TDeps&, TSubs& subs) {
       aux::get<get_root_sm_t<TSubs>>(subs).process_.push(event);
     }
 

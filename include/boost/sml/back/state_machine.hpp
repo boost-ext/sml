@@ -174,13 +174,13 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
             __BOOST_SML_REQUIRES(aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value)>
   bool process_internal_generic_event(const TEvent &event, TDeps &deps, TSubs &subs, state_t &current_state) {
     policies::log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
-#if BOOST_SML_DISABLE_EXCEPTIONS
+#if BOOST_SML_DISABLE_EXCEPTIONS  // __pph__
     return process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, states_t{},
                                                                                     current_state);
-#else
+#else   // __pph__
     return process_event_noexcept<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, current_state,
                                                                                         has_exceptions{});
-#endif
+#endif  // __pph__
   }
 
   template <class TEvent, class TDeps, class TSubs,

@@ -27,7 +27,7 @@ using process_queue = back::policies::process_queue<T>;
 
 /// state machine
 
-#if defined(_MSC_VER)  // __pph__
+#if defined(_MSC_VER) && !defined(__clang__)  // __pph__
 template <class T, class... TPolicies, class T__ = aux::remove_reference_t<decltype(aux::declval<T>())>>
 using sm = back::sm<back::sm_policy<T__, TPolicies...>>;
 #else   // __pph__
