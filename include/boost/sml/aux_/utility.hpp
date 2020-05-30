@@ -315,6 +315,22 @@ const char *get_type_name() {
 #endif                    // __pph__
 }
 
+#if defined(__cpp_nontype_template_parameter_class)  // __pph__
+template <auto N>
+struct fixed_string {
+  static constexpr auto size = N;
+  char data[N + 1]{};
+
+  constexpr fixed_string(char const *str) {
+    for (auto i = 0; i < N; ++i) {
+      data[i] = str[i];
+    }
+  }
+};
+template <auto N>
+fixed_string(char const (&)[N]) -> fixed_string<N - 1>;
+#endif  // __pph__
+
 template <class T, T...>
 struct string;
 

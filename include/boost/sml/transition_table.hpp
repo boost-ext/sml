@@ -55,7 +55,18 @@ typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #endif  // __pph__
 
 inline namespace literals {
-#if !(defined(_MSC_VER) && !defined(__clang__))  // __pph__
+#if defined(__cpp_nontype_template_parameter_class)  // __pph__
+template <aux::fixed_string Str>
+constexpr auto operator""_s() {
+  return []<auto... Ns>(aux::index_sequence<Ns...>) { return front::state<aux::string<char, Str.data[Ns]...>>{}; }
+  (aux::make_index_sequence<Str.size>{});
+}
+template <aux::fixed_string Str>
+constexpr auto operator""_e() {
+  return []<auto... Ns>(aux::index_sequence<Ns...>) { return event<aux::string<char, Str.data[Ns]...>>; }
+  (aux::make_index_sequence<Str.size>{});
+}
+#elif !(defined(_MSC_VER) && !defined(__clang__))  // __pph__
 template <class T, T... Chrs>
 constexpr auto operator""_s() {
   return front::state<aux::string<T, Chrs...>>{};
@@ -64,8 +75,7 @@ template <class T, T... Chrs>
 constexpr auto operator""_e() {
   return event<aux::string<T, Chrs...>>;
 }
-#endif  // __pph__
-
+#endif                                             // __pph__
 }  // literals
 
 __BOOST_SML_UNUSED static front::state<back::terminate_state> X;
