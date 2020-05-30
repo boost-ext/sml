@@ -466,6 +466,20 @@ const char *get_type_name() {
   return detail::get_type_name<T, 63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
 #endif
 }
+#if defined(__cpp_nontype_template_parameter_class)
+template <auto N>
+struct fixed_string {
+  static constexpr auto size = N;
+  char data[N + 1]{};
+  constexpr fixed_string(char const *str) {
+    for (auto i = 0; i < N; ++i) {
+      data[i] = str[i];
+    }
+  }
+};
+template <auto N>
+fixed_string(char const (&)[N]) -> fixed_string<N - 1>;
+#endif
 template <class T, T...>
 struct string;
 template <char... Chrs>
@@ -2614,7 +2628,18 @@ template <class T>
 typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #endif
 inline namespace literals {
-#if !(defined(_MSC_VER) && !defined(__clang__))
+#if defined(__cpp_nontype_template_parameter_class)
+template <aux::fixed_string Str>
+constexpr auto operator""_s() {
+  return []<auto... Ns>(aux::index_sequence<Ns...>) { return front::state<aux::string<char, Str.data[Ns]...>>{}; }
+  (aux::make_index_sequence<Str.size>{});
+}
+template <aux::fixed_string Str>
+constexpr auto operator""_e() {
+  return []<auto... Ns>(aux::index_sequence<Ns...>) { return event<aux::string<char, Str.data[Ns]...>>; }
+  (aux::make_index_sequence<Str.size>{});
+}
+#elif !(defined(_MSC_VER) && !defined(__clang__))
 template <class T, T... Chrs>
 constexpr auto operator""_s() {
   return front::state<aux::string<T, Chrs...>>{};
