@@ -207,6 +207,16 @@ struct remove_reference<T &&> {
 };
 template <class T>
 using remove_reference_t = typename remove_reference<T>::type;
+template <class T>
+struct remove_pointer {
+  using type = T;
+};
+template <class T>
+struct remove_pointer<T *> {
+  using type = T;
+};
+template <class T>
+using remove_pointer_t = typename remove_pointer<T>::type;
 }
 namespace aux {
 using swallow = int[];
@@ -363,6 +373,14 @@ template <class T>
 T &try_get(const pool_type<T &> *object) {
   return object->value;
 }
+template <class T>
+const T *try_get(const pool_type<const T *> *object) {
+  return object->value;
+}
+template <class T>
+T *try_get(const pool_type<T *> *object) {
+  return object->value;
+}
 template <class T, class TPool>
 T &get(TPool &p) {
   return static_cast<pool_type<T> &>(p).value;
@@ -371,13 +389,21 @@ template <class T, class TPool>
 const T &cget(const TPool &p) {
   return static_cast<const pool_type<T> &>(p).value;
 }
+template <class T, class TPool>
+T *get(TPool *p) {
+  return static_cast<pool_type<T> &>(p).value;
+}
+template <class T, class TPool>
+const T *cget(const TPool *p) {
+  return static_cast<const pool_type<T> &>(p).value;
+}
 template <class... Ts>
 struct pool : pool_type<Ts>... {
   using boost_di_inject__ = type_list<Ts...>;
   pool() = default;
   explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
   template <class... TArgs>
-  pool(init, const pool<TArgs...> &p) : pool_type<Ts>(try_get<aux::remove_const_t<aux::remove_reference_t<Ts>>>(&p))... {}
+  pool(init, const pool<TArgs...> &p) : pool_type<Ts>(try_get<aux::remove_const_t<aux::remove_reference_t<aux::remove_pointer_t<Ts>>>>(&p))... {}
   template <class... TArgs>
   pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, p)... {}
 };
