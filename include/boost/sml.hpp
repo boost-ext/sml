@@ -36,7 +36,7 @@
 #define __BOOST_SML_UNUSED __attribute__((unused))
 #define __BOOST_SML_VT_INIT \
   {}
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...)
 #define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
 #define __BOOST_SML_TEMPLATE_KEYWORD template
 #pragma GCC diagnostic push
