@@ -9,11 +9,11 @@
 #if (__cplusplus < 201305L && _MSC_VER < 1900)
 #error "[Boost].SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
-#define BOOST_SML_VERSION 1'1'1
+#define BOOST_SML_VERSION 1'1'2
 #define BOOST_SML_NAMESPACE_BEGIN \
   namespace boost {               \
   namespace sml {                 \
-  inline namespace v1_1_1 {
+  inline namespace v1_1_2 {
 #define BOOST_SML_NAMESPACE_END \
   }                             \
   }                             \
@@ -36,7 +36,11 @@
 #define __BOOST_SML_UNUSED __attribute__((unused))
 #define __BOOST_SML_VT_INIT \
   {}
+#if (__GNUC__ < 10)
 #define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
+#else
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...)
+#endif
 #define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
 #define __BOOST_SML_TEMPLATE_KEYWORD template
 #pragma GCC diagnostic push
