@@ -117,6 +117,11 @@ matrix:
     env: CXX=g++-9 CXXSTD=c++1z MEMCHECK=VALGRIND
     addons: { apt: { packages: ["g++-9", "libstdc++-9-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
 
+  - os: linux
+    dist: bionic
+    env: CXX=g++-10 CXXSTD=c++17 MEMCHECK=VALGRIND
+    addons: { apt: { packages: ["g++-10", "libstdc++-10-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
+
   - os: osx
     osx_image: xcode7.3
     env: CXX=clang++
