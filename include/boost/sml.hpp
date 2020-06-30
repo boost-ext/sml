@@ -1712,8 +1712,11 @@ class sm {
     auto result = false;
     visit_current_states<T>([&](auto state) {
       (void)state;
-      result |= (aux::get_id<state_t, typename TState::type>((states_ids_t *)0) ==
-                 aux::get_id<state_t, typename decltype(state)::type>((states_ids_t *)0));
+      if ((aux::get_id<state_t, typename TState::type>((states_ids_t *)0) ==
+                 aux::get_id<state_t, typename decltype(state)::type>((states_ids_t *)0))) {
+        result = true;
+        return;
+      }
     });
     return result;
   }
