@@ -1,8 +1,8 @@
 ###Quick Start
 
-* Get [boost/sml.hpp](https://raw.githubusercontent.com/boost-experimental/sml/master/include/boost/sml.hpp) header
+* Get [boost/sml.hpp](https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml.hpp) header
 ```sh
-wget https://raw.githubusercontent.com/boost-experimental/sml/master/include/boost/sml.hpp
+wget https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml.hpp
 ```
 
 * Include the header and define `sml` namespace alias
@@ -18,7 +18,7 @@ $CXX -std=c++14 ... | cl /std:c++14 ...
 
 * To run tests
 ```sh
-git clone https://github.com/boost-experimental/sml && cd sml && make test
+git clone https://github.com/boost-ext/sml && cd sml && make test
 ```
 
 ###Dependencies
@@ -27,8 +27,8 @@ git clone https://github.com/boost-experimental/sml && cd sml && make test
 
 ###Supported/Tested compilers
 
-* [Clang-3.4+](https://travis-ci.org/boost-experimental/sml)
-* [GCC-5.2+](https://travis-ci.org/boost-experimental/sml)
+* [Clang-3.4+](https://travis-ci.org/boost-ext/sml)
+* [GCC-5.2+](https://travis-ci.org/boost-ext/sml)
 * [MSVC-2015](https://ci.appveyor.com/project/krzysztof-jusiak/sml)
     * Known limitations
 
@@ -82,16 +82,16 @@ sm.process_event(event{}); // thread safe call
 ###Error messages
 
 ***Not configurable***
-![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/test/ft/errors/not_configurable.cpp)
+![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_configurable.cpp)
 
 ***Not callable***
-![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/test/ft/errors/not_callable.cpp)
+![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_callable.cpp)
 
 ***Not transitional***
-![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/test/ft/errors/not_transitional.cpp)
+![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_transitional.cpp)
 
 ***Not dispatchable***
-![CPP](https://raw.githubusercontent.com/boost-experimental/sml/master/test/ft/errors/not_dispatchable.cpp)
+![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_dispatchable.cpp)
 
 [Boost.MSM-eUML]: http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html
 [Boost.MSM3-eUML2]: https://htmlpreview.github.io/?https://raw.githubusercontent.com/boostorg/msm/msm3/doc/HTML/ch03s05.html

@@ -1,13 +1,13 @@
 <a href="http://www.boost.org/LICENSE_1_0.txt" target="_blank">![Boost Licence](http://img.shields.io/badge/license-boost-blue.svg)</a>
-<a href="https://github.com/boost-experimental/sml/releases" target="_blank">![Version](https://badge.fury.io/gh/boost-experimental%2Fsml.svg)</a>
-<a href="https://travis-ci.org/boost-experimental/sml" target="_blank">![Build Status](https://img.shields.io/travis/boost-experimental/sml/master.svg?label=linux/osx)</a>
-<a href="https://ci.appveyor.com/project/krzysztof-jusiak/sml" target="_blank">![Build Status](https://img.shields.io/appveyor/ci/krzysztof-jusiak/sml/master.svg?label=windows)</a>
-<a href="https://codecov.io/gh/boost-experimental/sml" target="_blank">![Codecov](https://codecov.io/gh/boost-experimental/sml/branch/master/graph/badge.svg)</a>
-<a href="http://github.com/boost-experimental/sml/issues" target="_blank">![Github Issues](https://img.shields.io/github/issues/boost-experimental/sml.svg)</a>
+<a href="https://github.com/boost-ext/sml/releases" target="_blank">![Version](https://badge.fury.io/gh/boost-ext%2Fsml.svg)</a>
+<a href="https://travis-ci.org/boost-ext/sml" target="_blank">![Build Status](https://img.shields.io/travis/boost-ext/sml/master.svg?label=linux/osx)</a>
+<a href="https://ci.appveyor.com/project/boost-ext/sml" target="_blank">![Build Status](https://img.shields.io/appveyor/ci/boost-ext/sml/master.svg?label=windows)</a>
+<a href="https://codecov.io/gh/boost-ext/sml" target="_blank">![Codecov](https://codecov.io/gh/boost-ext/sml/branch/master/graph/badge.svg)</a>
+<a href="http://github.com/boost-ext/sml/issues" target="_blank">![Github Issues](https://img.shields.io/github/issues/boost-ext/sml.svg)</a>
 
 ---------------------------------------
 
-# [Boost].SML (State Machine Language)
+# [Boost::ext].SML (State Machine Language)
 
 > Your scalable C++14 **one header only** State Machine Library with no dependencies ([__Try it online!__](https://godbolt.org/z/y99L50))
 
@@ -22,7 +22,7 @@
 ### Quick start
 
 #### Download
-> [Boost].SML requires only one file. Get the latest header [here!](https://raw.githubusercontent.com/boost-experimental/sml/master/include/boost/sml.hpp)
+> [Boost::ext].SML requires only one file. Get the latest header [here!](https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml.hpp)
 
 #### Include
 ```cpp
@@ -99,7 +99,7 @@ int main() {
 }
 ```
 
-> MSVC-2015 ([Example](http://boost-experimental.github.io/sml/examples/index.html#hello-world))
+> MSVC-2015 ([Example](http://boost-ext.github.io/sml/examples/index.html#hello-world))
 
   * use `state<class state_name>` instead of `"state_name"_s`
   * expliclty state a lambda's result type `auto action = [] -> void {}`
@@ -171,9 +171,9 @@ send: 42
 
 ### Benchmark
 
-> [Complex Test](https://github.com/boost-experimental/sml/tree/master/benchmark/complex)
+> [Complex Test](https://github.com/boost-ext/sml/tree/master/benchmark/complex)
 
-|                  |[Enum/Switch](https://github.com/boost-experimental/sml/blob/master/benchmark/complex/switch.cpp) | [Variant](https://github.com/boost-experimental/sml/blob/master/benchmark/complex/variant.cpp) | [[Boost].SML - 1.1.0](https://github.com/boost-experimental/sml/blob/master/benchmark/complex/sml.cpp)    | [Boost-1.65.MSM-eUML](https://github.com/boost-experimental/sml/blob/master/benchmark/complex/euml.cpp)   | [Boost-1.65.Statechart](https://github.com/boost-experimental/sml/blob/master/benchmark/complex/sc.cpp)   |
+|                  |[Enum/Switch](https://github.com/boost-ext/sml/blob/master/benchmark/complex/switch.cpp) | [Variant](https://github.com/boost-ext/sml/blob/master/benchmark/complex/variant.cpp) | [[Boost::ext].SML - 1.1.0](https://github.com/boost-ext/sml/blob/master/benchmark/complex/sml.cpp)    | [Boost-1.65.MSM-eUML](https://github.com/boost-ext/sml/blob/master/benchmark/complex/euml.cpp)   | [Boost-1.65.Statechart](https://github.com/boost-ext/sml/blob/master/benchmark/complex/sc.cpp)   |
 |------------------|------------|---------|--------------|------------------|--------------------|
 | **Compilation time** |  0.132s    | 15.321s |       0.582s |        1m15.935s |             5.671s |
 | **Execution time**   |   679ms    | 827ms   |        622ms |        664ms     |             2282ms |
@@ -186,90 +186,90 @@ send: 42
 
 [](GENERATE_TOC_BEGIN)
 
-* [Introduction](http://boost-experimental.github.io/sml/index.html)
-    * [UML State Machine](http://boost-experimental.github.io/sml/index.html#uml-state-machine)
-    * [Do I need a State Machine?](http://boost-experimental.github.io/sml/index.html#do-i-need-a-state-machine)
-    * [Real Life examples?](http://boost-experimental.github.io/sml/index.html#real-life-examples)
-    * [Why [Boost].SML?](http://boost-experimental.github.io/sml/index.html#why-boostsml)
-    * [Problems with Boost.MSM - eUML](http://boost-experimental.github.io/sml/index.html#problems-with-boostmsm-euml)
-    * [[Boost].SML design goals](http://boost-experimental.github.io/sml/index.html#boostsml-design-goals)
-    * [What 'lite' implies?](http://boost-experimental.github.io/sml/index.html#what-lite-implies)
-    * [*Supported* UML features](http://boost-experimental.github.io/sml/index.html#supported-uml-features)
-    * [*Additional* features](http://boost-experimental.github.io/sml/index.html#additional-features)
-    * [Related materials](http://boost-experimental.github.io/sml/index.html#related-materials)
-    * [Acknowledgements](http://boost-experimental.github.io/sml/index.html#acknowledgements)
-* [Overview](http://boost-experimental.github.io/sml/overview/index.html)
-    * [Quick Start](http://boost-experimental.github.io/sml/overview/index.html#quick-start)
-    * [Dependencies](http://boost-experimental.github.io/sml/overview/index.html#dependencies)
-    * [Supported/Tested compilers](http://boost-experimental.github.io/sml/overview/index.html#supportedtested-compilers)
-    * [Configuration](http://boost-experimental.github.io/sml/overview/index.html#configuration)
-    * [Exception Safety](http://boost-experimental.github.io/sml/overview/index.html#exception-safety)
-    * [Thread Safety](http://boost-experimental.github.io/sml/overview/index.html#thread-safety)
-    * [Design](http://boost-experimental.github.io/sml/overview/index.html#design)
-    * [Error messages](http://boost-experimental.github.io/sml/overview/index.html#error-messages)
-* [Features/Benchmarks](http://boost-experimental.github.io/sml/benchmarks/index.html)
-    * [Features](http://boost-experimental.github.io/sml/benchmarks/index.html#features)
-    * [Benchmarks](http://boost-experimental.github.io/sml/benchmarks/index.html#benchmarks)
-* [Tutorial/Workshop](http://boost-experimental.github.io/sml/tutorial/index.html)
-    * [0. Read Boost.MSM - eUML documentation](http://boost-experimental.github.io/sml/tutorial/index.html#0-read-boostmsm-euml-documentation)
-    * [1. Create events and states](http://boost-experimental.github.io/sml/tutorial/index.html#1-create-events-and-states)
-    * [2. Create guards and actions](http://boost-experimental.github.io/sml/tutorial/index.html#2-create-guards-and-actions)
-    * [3. Create a transition table](http://boost-experimental.github.io/sml/tutorial/index.html#3-create-a-transition-table)
-    * [4. Set initial states](http://boost-experimental.github.io/sml/tutorial/index.html#4-set-initial-states)
-    * [5. Create a state machine](http://boost-experimental.github.io/sml/tutorial/index.html#5-create-a-state-machine)
-    * [6. Process events](http://boost-experimental.github.io/sml/tutorial/index.html#6-process-events)
-    * [8. Handle errors](http://boost-experimental.github.io/sml/tutorial/index.html#8-handle-errors)
-    * [9. Test it](http://boost-experimental.github.io/sml/tutorial/index.html#9-test-it)
-    * [10. Debug it](http://boost-experimental.github.io/sml/tutorial/index.html#10-debug-it)
-    * [ Workshop](http://boost-experimental.github.io/sml/tutorial/index.html#-workshop)
-* [UML vs SML](http://boost-experimental.github.io/sml/uml_vs_sml/index.html)
-    * [Unified Modeling Language™ (UML®) Version 2.5](http://boost-experimental.github.io/sml/uml_vs_sml/index.html#unified-modeling-language-uml-version-25)
-    * [Initial Pseudostate](http://boost-experimental.github.io/sml/uml_vs_sml/index.html#initial-pseudostate)
-    * [Terminate Pseudostate](http://boost-experimental.github.io/sml/uml_vs_sml/index.html#terminate-pseudostate)
-    * [External transition](http://boost-experimental.github.io/sml/uml_vs_sml/index.html#external-transition)
-    * [Anonymous transition](http://boost-experimental.github.io/sml/uml_vs_sml/index.html#anonymous-transition)
-* [User Guide](http://boost-experimental.github.io/sml/user_guide/index.html)
-    * [transitional [concept]](http://boost-experimental.github.io/sml/user_guide/index.html#transitional-concept)
-    * [configurable [concept]](http://boost-experimental.github.io/sml/user_guide/index.html#configurable-concept)
-    * [callable [concept]](http://boost-experimental.github.io/sml/user_guide/index.html#callable-concept)
-    * [dispatchable [concept]](http://boost-experimental.github.io/sml/user_guide/index.html#dispatchable-concept)
-    * [state [core]](http://boost-experimental.github.io/sml/user_guide/index.html#state-core)
-    * [event [core]](http://boost-experimental.github.io/sml/user_guide/index.html#event-core)
-    * [make_transition_table [state machine]](http://boost-experimental.github.io/sml/user_guide/index.html#make_transition_table-state-machine)
-    * [sm [state machine]](http://boost-experimental.github.io/sml/user_guide/index.html#sm-state-machine)
-    * [policies [state machine]](http://boost-experimental.github.io/sml/user_guide/index.html#policies-state-machine)
-    * [testing::sm [testing]](http://boost-experimental.github.io/sml/user_guide/index.html#testingsm-testing)
-    * [make_dispatch_table [utility]](http://boost-experimental.github.io/sml/user_guide/index.html#make_dispatch_table-utility)
-* [Examples](http://boost-experimental.github.io/sml/examples/index.html)
-    * [Hello World](http://boost-experimental.github.io/sml/examples/index.html#hello-world)
-    * [Events](http://boost-experimental.github.io/sml/examples/index.html#events)
-    * [States](http://boost-experimental.github.io/sml/examples/index.html#states)
-    * [Actions Guards](http://boost-experimental.github.io/sml/examples/index.html#actions-guards)
-    * [Transitions](http://boost-experimental.github.io/sml/examples/index.html#transitions)
-    * [Defer/Process](http://boost-experimental.github.io/sml/examples/index.html#deferprocess)
-    * [Orthogonal Regions](http://boost-experimental.github.io/sml/examples/index.html#orthogonal-regions)
-    * [Composite](http://boost-experimental.github.io/sml/examples/index.html#composite)
-    * [History](http://boost-experimental.github.io/sml/examples/index.html#history)
-    * [Error handling](http://boost-experimental.github.io/sml/examples/index.html#error-handling)
-    * [Logging](http://boost-experimental.github.io/sml/examples/index.html#logging)
-    * [Nested](http://boost-experimental.github.io/sml/examples/index.html#nested)
-    * [Testing](http://boost-experimental.github.io/sml/examples/index.html#testing)
-    * [Runtime Dispatcher](http://boost-experimental.github.io/sml/examples/index.html#runtime-dispatcher)
-    * [eUML Emulation](http://boost-experimental.github.io/sml/examples/index.html#euml-emulation)
-    * [Dependencies](http://boost-experimental.github.io/sml/examples/index.html#dependencies)
-    * [Data](http://boost-experimental.github.io/sml/examples/index.html#data)
-    * [Dependency Injection](http://boost-experimental.github.io/sml/examples/index.html#dependency-injection)
-    * [SDL2 Integration](http://boost-experimental.github.io/sml/examples/index.html#sdl2-integration)
-    * [Plant UML Integration](http://boost-experimental.github.io/sml/examples/index.html#plant-uml-integration)
-* [FAQ](http://boost-experimental.github.io/sml/faq/index.html)
-* [CHANGELOG](http://boost-experimental.github.io/sml/CHANGELOG/index.html)
-    * [ [1.1.1] - 2020-05-17](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-111-2020-05-17)
-    * [ [1.1.0] - 2019-01-08](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-110-2019-01-08)
-    * [ [1.0.1] - 2016-05-06](http://boost-experimental.github.io/sml/CHANGELOG/index.html#-101-2016-05-06)
-    * [[1.0.0] - 2016-01-28](http://boost-experimental.github.io/sml/CHANGELOG/index.html#100-2016-01-28)
+* [Introduction](http://boost-ext.github.io/sml/index.html)
+    * [UML State Machine](http://boost-ext.github.io/sml/index.html#uml-state-machine)
+    * [Do I need a State Machine?](http://boost-ext.github.io/sml/index.html#do-i-need-a-state-machine)
+    * [Real Life examples?](http://boost-ext.github.io/sml/index.html#real-life-examples)
+    * [Why [Boost::ext].SML?](http://boost-ext.github.io/sml/index.html#why-boostsml)
+    * [Problems with Boost.MSM - eUML](http://boost-ext.github.io/sml/index.html#problems-with-boostmsm-euml)
+    * [[Boost::ext].SML design goals](http://boost-ext.github.io/sml/index.html#boostsml-design-goals)
+    * [What 'lite' implies?](http://boost-ext.github.io/sml/index.html#what-lite-implies)
+    * [*Supported* UML features](http://boost-ext.github.io/sml/index.html#supported-uml-features)
+    * [*Additional* features](http://boost-ext.github.io/sml/index.html#additional-features)
+    * [Related materials](http://boost-ext.github.io/sml/index.html#related-materials)
+    * [Acknowledgements](http://boost-ext.github.io/sml/index.html#acknowledgements)
+* [Overview](http://boost-ext.github.io/sml/overview/index.html)
+    * [Quick Start](http://boost-ext.github.io/sml/overview/index.html#quick-start)
+    * [Dependencies](http://boost-ext.github.io/sml/overview/index.html#dependencies)
+    * [Supported/Tested compilers](http://boost-ext.github.io/sml/overview/index.html#supportedtested-compilers)
+    * [Configuration](http://boost-ext.github.io/sml/overview/index.html#configuration)
+    * [Exception Safety](http://boost-ext.github.io/sml/overview/index.html#exception-safety)
+    * [Thread Safety](http://boost-ext.github.io/sml/overview/index.html#thread-safety)
+    * [Design](http://boost-ext.github.io/sml/overview/index.html#design)
+    * [Error messages](http://boost-ext.github.io/sml/overview/index.html#error-messages)
+* [Features/Benchmarks](http://boost-ext.github.io/sml/benchmarks/index.html)
+    * [Features](http://boost-ext.github.io/sml/benchmarks/index.html#features)
+    * [Benchmarks](http://boost-ext.github.io/sml/benchmarks/index.html#benchmarks)
+* [Tutorial/Workshop](http://boost-ext.github.io/sml/tutorial/index.html)
+    * [0. Read Boost.MSM - eUML documentation](http://boost-ext.github.io/sml/tutorial/index.html#0-read-boostmsm-euml-documentation)
+    * [1. Create events and states](http://boost-ext.github.io/sml/tutorial/index.html#1-create-events-and-states)
+    * [2. Create guards and actions](http://boost-ext.github.io/sml/tutorial/index.html#2-create-guards-and-actions)
+    * [3. Create a transition table](http://boost-ext.github.io/sml/tutorial/index.html#3-create-a-transition-table)
+    * [4. Set initial states](http://boost-ext.github.io/sml/tutorial/index.html#4-set-initial-states)
+    * [5. Create a state machine](http://boost-ext.github.io/sml/tutorial/index.html#5-create-a-state-machine)
+    * [6. Process events](http://boost-ext.github.io/sml/tutorial/index.html#6-process-events)
+    * [8. Handle errors](http://boost-ext.github.io/sml/tutorial/index.html#8-handle-errors)
+    * [9. Test it](http://boost-ext.github.io/sml/tutorial/index.html#9-test-it)
+    * [10. Debug it](http://boost-ext.github.io/sml/tutorial/index.html#10-debug-it)
+    * [ Workshop](http://boost-ext.github.io/sml/tutorial/index.html#-workshop)
+* [UML vs SML](http://boost-ext.github.io/sml/uml_vs_sml/index.html)
+    * [Unified Modeling Language™ (UML®) Version 2.5](http://boost-ext.github.io/sml/uml_vs_sml/index.html#unified-modeling-language-uml-version-25)
+    * [Initial Pseudostate](http://boost-ext.github.io/sml/uml_vs_sml/index.html#initial-pseudostate)
+    * [Terminate Pseudostate](http://boost-ext.github.io/sml/uml_vs_sml/index.html#terminate-pseudostate)
+    * [External transition](http://boost-ext.github.io/sml/uml_vs_sml/index.html#external-transition)
+    * [Anonymous transition](http://boost-ext.github.io/sml/uml_vs_sml/index.html#anonymous-transition)
+* [User Guide](http://boost-ext.github.io/sml/user_guide/index.html)
+    * [transitional [concept]](http://boost-ext.github.io/sml/user_guide/index.html#transitional-concept)
+    * [configurable [concept]](http://boost-ext.github.io/sml/user_guide/index.html#configurable-concept)
+    * [callable [concept]](http://boost-ext.github.io/sml/user_guide/index.html#callable-concept)
+    * [dispatchable [concept]](http://boost-ext.github.io/sml/user_guide/index.html#dispatchable-concept)
+    * [state [core]](http://boost-ext.github.io/sml/user_guide/index.html#state-core)
+    * [event [core]](http://boost-ext.github.io/sml/user_guide/index.html#event-core)
+    * [make_transition_table [state machine]](http://boost-ext.github.io/sml/user_guide/index.html#make_transition_table-state-machine)
+    * [sm [state machine]](http://boost-ext.github.io/sml/user_guide/index.html#sm-state-machine)
+    * [policies [state machine]](http://boost-ext.github.io/sml/user_guide/index.html#policies-state-machine)
+    * [testing::sm [testing]](http://boost-ext.github.io/sml/user_guide/index.html#testingsm-testing)
+    * [make_dispatch_table [utility]](http://boost-ext.github.io/sml/user_guide/index.html#make_dispatch_table-utility)
+* [Examples](http://boost-ext.github.io/sml/examples/index.html)
+    * [Hello World](http://boost-ext.github.io/sml/examples/index.html#hello-world)
+    * [Events](http://boost-ext.github.io/sml/examples/index.html#events)
+    * [States](http://boost-ext.github.io/sml/examples/index.html#states)
+    * [Actions Guards](http://boost-ext.github.io/sml/examples/index.html#actions-guards)
+    * [Transitions](http://boost-ext.github.io/sml/examples/index.html#transitions)
+    * [Defer/Process](http://boost-ext.github.io/sml/examples/index.html#deferprocess)
+    * [Orthogonal Regions](http://boost-ext.github.io/sml/examples/index.html#orthogonal-regions)
+    * [Composite](http://boost-ext.github.io/sml/examples/index.html#composite)
+    * [History](http://boost-ext.github.io/sml/examples/index.html#history)
+    * [Error handling](http://boost-ext.github.io/sml/examples/index.html#error-handling)
+    * [Logging](http://boost-ext.github.io/sml/examples/index.html#logging)
+    * [Nested](http://boost-ext.github.io/sml/examples/index.html#nested)
+    * [Testing](http://boost-ext.github.io/sml/examples/index.html#testing)
+    * [Runtime Dispatcher](http://boost-ext.github.io/sml/examples/index.html#runtime-dispatcher)
+    * [eUML Emulation](http://boost-ext.github.io/sml/examples/index.html#euml-emulation)
+    * [Dependencies](http://boost-ext.github.io/sml/examples/index.html#dependencies)
+    * [Data](http://boost-ext.github.io/sml/examples/index.html#data)
+    * [Dependency Injection](http://boost-ext.github.io/sml/examples/index.html#dependency-injection)
+    * [SDL2 Integration](http://boost-ext.github.io/sml/examples/index.html#sdl2-integration)
+    * [Plant UML Integration](http://boost-ext.github.io/sml/examples/index.html#plant-uml-integration)
+* [FAQ](http://boost-ext.github.io/sml/faq/index.html)
+* [CHANGELOG](http://boost-ext.github.io/sml/CHANGELOG/index.html)
+    * [ [1.1.1] - 2020-05-17](http://boost-ext.github.io/sml/CHANGELOG/index.html#-111-2020-05-17)
+    * [ [1.1.0] - 2019-01-08](http://boost-ext.github.io/sml/CHANGELOG/index.html#-110-2019-01-08)
+    * [ [1.0.1] - 2016-05-06](http://boost-ext.github.io/sml/CHANGELOG/index.html#-101-2016-05-06)
+    * [[1.0.0] - 2016-01-28](http://boost-ext.github.io/sml/CHANGELOG/index.html#100-2016-01-28)
 
 [](GENERATE_TOC_END)
 
 ---
 
-**Disclaimer** `Boost.SML` is not an official Boost library.
+**Disclaimer** `[Boost::ext].SML` is not an official Boost library.

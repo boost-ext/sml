@@ -1,8 +1,8 @@
 copyright: Copyright &copy; 2016-2020
-site_name: "[Boost].SML"
-site_url: http://boost-experimental.github.io/sml
+site_name: "[Boost::ext].SML"
+site_url: http://boost-ext.github.io/sml
 site_author: Kris Jusiak
-repo_url: https://github.com/boost-experimental/sml
+repo_url: https://github.com/boost-ext/sml
 repo_name: sml
 docs_dir: doc
 use_directory_urls: false
