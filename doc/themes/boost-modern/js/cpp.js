@@ -73,7 +73,7 @@ function compile_and_run(id) {
           "code" : cpp_code[id].getValue()
         , "codes" : [{
               "file" : "boost/sml.hpp"
-            , "code" : get_cpp_file("https://raw.githubusercontent.com/boost-experimental/sml/master/include/boost/sml.hpp")
+            , "code" : get_cpp_file("https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml.hpp")
            }]
          , "options": "warning,cpp-pedantic-errors,optimize,boost-1.60,c++1y"
          , "compiler" : "clang-head"

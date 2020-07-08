@@ -8,7 +8,7 @@ class SmlConan(ConanFile):
     version = "latest"
     license = "Boost"
     url = "https://github.com/paulbendixen/sml.git"
-    description = "[Boost].SML: C++14 State Machine Library"
+    description = "[Boost::ext].SML: C++14 State Machine Library"
     #no_copy_source = True
     # No settings/options are necessary, this is header only
     exports_sources = "include/*"

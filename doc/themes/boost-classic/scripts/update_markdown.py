@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#update_md.py . http://boost-experimental.github.io/sml/master
+#update_md.py . http://boost-ext.github.io/sml/master
 
 import fileinput, sys, os, glob
 

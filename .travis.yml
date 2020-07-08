@@ -163,12 +163,12 @@ script:
   - if [ "${CXX}" != "" ] && [ "${COVERAGE}" != "" ]; then (travis_wait make test); fi
   - if [ "${CHECK}" != "" ]; then (travis_wait make check); fi
   - if [ "${TRAVIS_PULL_REQUEST}" == "false" ] && [ "${TRAVIS_BRANCH}" == "master" ] && [ "${DOCUMENTATION}" != "" ]; then (
-    pip install mkdocs -U --user && git clone https://github.com/boost-experimental/sml
+    pip install mkdocs -U --user && git clone https://github.com/boost-ext/sml
     && cd sml && rm -rf * && git checkout -b gh-pages -t origin/gh-pages && git reset --hard && rm -rf * && cd ..
-    && MKDOCS_THEME=boost-experimental MKDOCS_SITE=site make doc
+    && MKDOCS_THEME=boost-modern MKDOCS_SITE=site make doc
     && MKDOCS_THEME=boost-classic MKDOCS_SITE=site/boost make doc readme
     && mv site/* sml && cd sml && git add -A . && git commit -am "doc update"
-    && git push --force --quiet "https://${GH_TOKEN}@github.com/boost-experimental/sml.git"); fi
+    && git push --force --quiet "https://${GH_TOKEN}@github.com/boost-ext/sml.git"); fi
 
 after_success:
   - if [ "${COVERAGE}" != "" ]; then (bash <(curl -s https://codecov.io/bash)); fi

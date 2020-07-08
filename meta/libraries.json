@@ -1,6 +1,6 @@
 {
     "key": "sml",
-    "name": "Boost.SML",
+    "name": "[Boost::ext].SML",
     "authors": [ "Kris Jusiak" ],
     "maintainers": [ "kris at jusiak dot net" ],
     "description": "C++14 State Machine Library",

@@ -1,22 +1,21 @@
 <a href="http://www.boost.org/LICENSE_1_0.txt" target="_blank">![Boost Licence](http://img.shields.io/badge/license-boost-blue.svg)</a>
-<a href="https://github.com/boost-experimental/sml/releases" target="_blank">![Version](https://badge.fury.io/gh/boost-experimental%2Fsml.svg)</a>
-<a href="https://travis-ci.org/boost-experimental/sml" target="_blank">![Build Status](https://img.shields.io/travis/boost-experimental/sml/master.svg?label=linux/osx)</a>
-<a href="https://ci.appveyor.com/project/krzysztof-jusiak/sml" target="_blank">![Build Status](https://img.shields.io/appveyor/ci/krzysztof-jusiak/sml/master.svg?label=windows)</a>
-<a href="https://codecov.io/gh/boost-experimental/sml" target="_blank">![Codecov](https://codecov.io/gh/boost-experimental/sml/branch/master/graph/badge.svg)</a>
-<a href="http://github.com/boost-experimental/sml/issues" target="_blank">![Github Issues](https://img.shields.io/github/issues/boost-experimental/sml.svg)</a>
+<a href="https://github.com/boost-ext/sml/releases" target="_blank">![Version](https://badge.fury.io/gh/boost-ext%2Fsml.svg)</a>
+<a href="https://travis-ci.org/boost-ext/sml" target="_blank">![Build Status](https://img.shields.io/travis/boost-ext/sml/master.svg?label=linux/osx)</a>
+<a href="https://ci.appveyor.com/project/boost-ext/sml" target="_blank">![Build Status](https://img.shields.io/appveyor/ci/boost-ext/sml/master.svg?label=windows)</a>
+<a href="https://codecov.io/gh/boost-ext/sml" target="_blank">![Codecov](https://codecov.io/gh/boost-ext/sml/branch/master/graph/badge.svg)</a>
+<a href="http://github.com/boost-ext/sml/issues" target="_blank">![Github Issues](https://img.shields.io/github/issues/boost-ext/sml.svg)</a>
 
 ---------------------------------------
 
 Introduction
 ============
 
-| **[Boost].SML (State Machine Language/Lite/Library)** | |
+| **[Boost::ext].SML (State Machine Language/Lite/Library)** | |
 | - | - |
-| Your scalable C++14 one header only State Machine Library with no dependencies ([__Try it online!__](http://boost-experimental.github.io/sml/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-experimental/sml" data-style="mega" data-count-href="/boost-experimental/sml/stargazers" data-count-api="/repos/boost-experimental/sml#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-experimental/sml on GitHub">GitHub</a> |
+| Your scalable C++14 one header only State Machine Library with no dependencies ([__Try it online!__](http://boost-ext.github.io/sml/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-ext/sml" data-style="mega" data-count-href="/boost-ext/sml/stargazers" data-count-api="/repos/boost-ext/sml#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-ext/sml on GitHub">GitHub</a> |
 
 <div class="important">
-<h3 class="wy-text-neutral"><span class="fa fa-info-circle wy-text-info"></span>&nbsp; Latest Release: <b>v1.1.2</b> (Jul 14, 2020)</h3>
-<a href="https://github.com/boost-experimental/sml/releases" class="btn btn-success" style="margin-bottom:8px;" role="button"><span class="fa fa-download"></span>&nbsp; <b>Download</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="CHANGELOG/index.html" class="btn btn-info" style="margin-bottom:8px;" role="button"><span class="fa fa-reorder"></span>&nbsp; <b>Changelog</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="tutorial/index.html" class="btn btn-warning" style="margin-bottom:8px;" role="button"><span class="fa fa-gear"></span>&nbsp; <b>Tutorial</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="examples/index.html" class="btn btn-danger" style="margin-bottom:8px;" role="button"><span class="fa fa-book"></span>&nbsp; <b>Examples</b></a>
+<a href="https://github.com/boost-ext/sml/releases" class="btn btn-success" style="margin-bottom:8px;" role="button"><span class="fa fa-download"></span>&nbsp; <b>Download</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="CHANGELOG/index.html" class="btn btn-info" style="margin-bottom:8px;" role="button"><span class="fa fa-reorder"></span>&nbsp; <b>Changelog</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="tutorial/index.html" class="btn btn-warning" style="margin-bottom:8px;" role="button"><span class="fa fa-gear"></span>&nbsp; <b>Tutorial</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="examples/index.html" class="btn btn-danger" style="margin-bottom:8px;" role="button"><span class="fa fa-book"></span>&nbsp; <b>Examples</b></a>
 </div>
 
 ###UML State Machine
@@ -46,10 +45,10 @@ to avoid it `[Boost].SML` may suit you!
 
 ###Real Life examples?
 
-![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/sdl2.cpp)
-![CPP(BTN)](Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/plant_uml.cpp)
-![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/logging.cpp)
-![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-experimental/sml/master/example/testing.cpp)
+![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/sdl2.cpp)
+![CPP(BTN)](Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/plant_uml.cpp)
+![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/logging.cpp)
+![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/testing.cpp)
 
 &nbsp;
 
@@ -121,9 +120,9 @@ to avoid it `[Boost].SML` may suit you!
 
 * [CppCon 2018 - Kris Jusiak - State Machines Battlefield - Naive vs STL vs Boost](https://www.youtube.com/watch?v=yZVby-PuXM0)
 * [C++Now 2018 - Michael Caisse - “Modern C++ in Embedded Systems”](https://youtu.be/c9Xt6Me3mJ4?t=4378)
-* [EmBO++ 2018 - Kris Jusiak - Workshop - 'Embedding' a Meta State Machine](http://boost-experimental.github.io/sml/embo-2018)
+* [EmBO++ 2018 - Kris Jusiak - Workshop - 'Embedding' a Meta State Machine](http://boost-ext.github.io/sml/embo-2018)
 * [EmBO++ 2018 - Simon Brand - Embedded DSLs for embedded programming](https://youtu.be/YQoXjqm2hiE?t=705)
-* [EmBO++ 2017 - Kris Jusiak - 'Embedding' a Meta State Machine](http://boost-experimental.github.io/sml/embo-2017)
+* [EmBO++ 2017 - Kris Jusiak - 'Embedding' a Meta State Machine](http://boost-ext.github.io/sml/embo-2017)
 * [C++Now 2017 - Kris Jusiak - State Machine Language](https://www.youtube.com/watch?v=Lg3tIact5Fw)
 * [C++Now 2016 - Kris Jusiak - C++14 version of Boost.MSM-eUML](https://www.youtube.com/watch?v=j0J33BnIjnU)
 * [Meeting C++ 2016 - Kris Jusiak - Implementing a web game in C++14](https://www.youtube.com/watch?v=8gRHHIjx4oE)

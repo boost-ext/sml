@@ -3,7 +3,7 @@
     - Support for GCC-10
 >
 - **Bug Fixes**
-    - [Issues](https://github.com/boost-experimental/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2020-07-17..2020-06-14+)
+    - [Issues](https://github.com/boost-ext/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2020-07-17..2020-06-14+)
 >
 - **Contributions**
     - [erikzenkerLogmein](https://github.com/erikzenkerLogmein)
@@ -15,7 +15,7 @@
     - Support for MSVC-2019/MSVC-2019 Preview
 >
 - **Bug Fixes**
-    - [Issues](https://github.com/boost-experimental/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2019-01-08..2020-05-17+)
+    - [Issues](https://github.com/boost-ext/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2019-01-08..2020-05-17+)
 >
 - **Contributions**
     - [Dale Lukas Peterson](https://github.com/hazelnusse)
@@ -37,14 +37,14 @@
     - Support for MSVC-2015/MSVC-2017/MSVC-2017 Preview
     >
     - **Build System**
-        - [CMake support](https://github.com/boost-experimental/sml/blob/master/CMakeLists.txt)
-        - [Conan support](https://github.com/boost-experimental/sml/blob/master/conanfile.py)
+        - [CMake support](https://github.com/boost-ext/sml/blob/master/CMakeLists.txt)
+        - [Conan support](https://github.com/boost-ext/sml/blob/master/conanfile.py)
     >
     - **Benchmarks**
-        - [Connection](https://github.com/boost-experimental/sml/tree/master/benchmark/connection)
+        - [Connection](https://github.com/boost-ext/sml/tree/master/benchmark/connection)
 >
 - **Bug Fixes**
-    - [Issues](https://github.com/boost-experimental/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2016-05-16..2019-01-08+)
+    - [Issues](https://github.com/boost-ext/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2016-05-16..2019-01-08+)
 >
 - **Contributions**
     - [Deniz Bahadir](https://github.com/Bagira80)
@@ -68,8 +68,8 @@
 ##[1.0.0] - 2016-01-28
 - Initial version
 
-[1.1.2]: https://github.com/boost-experimental/sml/compare/v1.1.1...v1.1.2
-[1.1.1]: https://github.com/boost-experimental/sml/compare/v1.1.0...v1.1.1
-[1.1.0]: https://github.com/boost-experimental/sml/compare/v1.0.0...v1.1.0
-[1.0.1]: https://github.com/boost-experimental/sml/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/boost-experimental/sml/tree/v1.0.0
+[1.1.2]: https://github.com/boost-ext/sml/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/boost-ext/sml/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/boost-ext/sml/compare/v1.0.0...v1.1.0
+[1.0.1]: https://github.com/boost-ext/sml/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/boost-ext/sml/tree/v1.0.0

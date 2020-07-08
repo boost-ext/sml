@@ -7,14 +7,16 @@
 #ifndef BOOST_SML_HPP
 #define BOOST_SML_HPP
 #if (__cplusplus < 201305L && _MSC_VER < 1900)
-#error "[Boost].SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
+#error "[Boost::ext].SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
 #define BOOST_SML_VERSION 1'1'2
 #define BOOST_SML_NAMESPACE_BEGIN \
   namespace boost {               \
+  inline namespace ext {          \
   namespace sml {                 \
   inline namespace v1_1_2 {
 #define BOOST_SML_NAMESPACE_END \
+  }                             \
   }                             \
   }                             \
   }
@@ -479,11 +481,11 @@ auto get_type_name(const char *ptr, index_sequence<Ns...>) {
 template <class T>
 const char *get_type_name() {
 #if defined(_MSC_VER) && !defined(__clang__)
-  return detail::get_type_name<T, 34>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 34 - 8>{});
+  return detail::get_type_name<T, 39>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 39 - 8>{});
 #elif defined(__clang__)
-  return detail::get_type_name<T, 58>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 58 - 2>{});
-#elif defined(__GNUC__)
   return detail::get_type_name<T, 63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
+#elif defined(__GNUC__)
+  return detail::get_type_name<T, 68>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 68 - 2>{});
 #endif
 }
 #if defined(__cpp_nontype_template_parameter_class)
