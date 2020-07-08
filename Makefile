@@ -86,7 +86,7 @@ static_analysis:
 
 doc: readme doc_$(MKDOCS_THEME)
 
-doc_boost-ext:
+doc_boost-modern:
 	MKDOCS_THEME_DIR='doc/themes/boost-modern' $(MKDOCS) build --quiet --config-file .$(MKDOCS).yml --clean --site-dir $(MKDOCS_SITE)
 
 doc_boost-classic:
