@@ -28,7 +28,7 @@ CLANG_FORMAT?=clang-format
 CLANG_TIDY?=clang-tidy
 PYTHON?=python2
 MKDOCS?=mkdocs
-MKDOCS_THEME?=boost-ext
+MKDOCS_THEME?=boost-modern
 MKDOCS_SITE?=site
 
 all: test example
@@ -94,7 +94,7 @@ doc_boost-classic:
 	MKDOCS_THEME_DIR='doc/themes/boost-classic' $(MKDOCS) build --quiet --config-file .$(MKDOCS).yml --clean --site-dir $(MKDOCS_SITE)
 
 readme:
-	$(PYTHON) doc/scripts/update_readme_toc.py doc .$(MKDOCS).yml README.md http://boost-ext.github.io/sml
+	$(PYTHON) doc/scripts/update_readme_toc.py doc .$(MKDOCS).yml README.md https://boost-ext.github.io/sml
 
 clean:
 	find example test -iname "*.out" -or -iname "*.obj" | xargs rm -f
