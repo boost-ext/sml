@@ -25,6 +25,12 @@ template <class, class T>
 struct callable
     : decltype(test_callable<aux::inherit<aux::conditional_t<__is_class(T), T, aux::none_type>, callable_fallback>>(0)) {};
 
+template <class T, class R, class TBase, class... TArgs>
+struct callable<T, R (TBase::*)(TArgs...)> : aux::true_type {};
+
+template <class T, class R, class TBase, class... TArgs>
+struct callable<T, R (TBase::*)(TArgs...) const> : aux::true_type {};
+
 }  // namespace concepts
 
 #endif

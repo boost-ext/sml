@@ -278,6 +278,24 @@ struct zero_wrapper : TExpr {
   const TExpr &get() const { return *this; }
 };
 
+template <class R, class TBase, class... TArgs>
+struct zero_wrapper<R (TBase::*)(TArgs...)> {
+  explicit zero_wrapper(R (TBase::*ptr)(TArgs...)) : ptr{ptr} {}
+  auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
+
+ private:
+  R (TBase::*ptr)(TArgs...){};
+};
+
+template <class R, class TBase, class... TArgs>
+struct zero_wrapper<R (TBase::*)(TArgs...) const> {
+  explicit zero_wrapper(R (TBase::*ptr)(TArgs...) const) : ptr{ptr} {}
+  auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
+
+ private:
+  R (TBase::*ptr)(TArgs...) const {};
+};
+
 template <class, class>
 struct zero_wrapper_impl;
 
