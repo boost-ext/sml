@@ -558,7 +558,7 @@ https://godbolt.org/g/6z6UF4
 
 ----
 
-##More realist [benchmark](https://github.com/boost-experimental/sml/tree/master/benchmark/complex)
+##More realist [benchmark](https://github.com/boost-ext/sml/tree/master/benchmark/complex)
 
 ![Benchmark](images/benchmark.png)
 
@@ -568,7 +568,7 @@ https://godbolt.org/g/6z6UF4
 
 ----
 
-##More realist [benchmark](https://github.com/boost-experimental/sml/tree/master/benchmark/complex)
+##More realist [benchmark](https://github.com/boost-ext/sml/tree/master/benchmark/complex)
 
 ####Main
 ```cpp
@@ -590,7 +590,7 @@ $CXX -std=c++1z -O3 -flto -fno-exceptions -DNDEBUG benchmark.cpp
 
 ----
 
-##More realist [benchmark](https://github.com/boost-experimental/sml/tree/master/benchmark/complex) - Results
+##More realist [benchmark](https://github.com/boost-ext/sml/tree/master/benchmark/complex) - Results
 
 |                  | Enum/Switch | Variant | [Boost].SML |
 |------------------|-------------|---------|-------------|
@@ -609,11 +609,11 @@ $CXX -std=c++1z -O3 -flto -fno-exceptions -DNDEBUG benchmark.cpp
 
 > UML-2.5 State Machine Language
 
-https://github.com/boost-experimental/sml
+https://github.com/boost-ext/sml
 
 -----
 
-##[[Boost].SML](http://boost-experimental.github.io/sml)
+##[[Boost].SML](http://boost-ext.github.io/sml)
 
 * One header - 2k LOC - (boost/sml.hpp) / generated
 * Neither Boost nor STL is required
@@ -622,11 +622,11 @@ https://github.com/boost-experimental/sml
 * No 'virtual's (-fno-rtti)
 * Optional support for 'exception's (-fno-exceptions)
 * Supported compilers (C++14)
-  * [Clang-3.4+](https://travis-ci.org/boost-experimental/sml), [XCode-6.1+](https://travis-ci.org/boost-experimental/sml), [GCC-5.2+](https://travis-ci.org/boost-experimental/di), [MSVC-2015+](https://ci.appveyor.com/project/krzysztof-jusiak/sml)
+  * [Clang-3.4+](https://travis-ci.org/boost-ext/sml), [XCode-6.1+](https://travis-ci.org/boost-ext/sml), [GCC-5.2+](https://travis-ci.org/boost-ext/di), [MSVC-2015+](https://ci.appveyor.com/project/krzysztof-jusiak/sml)
 
 ----
 
-##[[Boost].SML](http://boost-experimental.github.io/sml) - API (Simplified)
+##[[Boost].SML](http://boost-ext.github.io/sml) - API (Simplified)
 
 ```cpp
 /**
@@ -649,7 +649,7 @@ constexpr auto make_transition_table(Ts&&...) noexcept;
 
 ----
 
-##[[Boost].SML](http://boost-experimental.github.io/sml) - API (Simplified)
+##[[Boost].SML](http://boost-ext.github.io/sml) - API (Simplified)
 
 ```cpp
 /**
@@ -676,7 +676,7 @@ constexpr void process_event(const TEvent&);
 
 ----
 
-###[[Boost].SML](http://boost-experimental.github.io/sml) - Features
+###[[Boost].SML](http://boost-ext.github.io/sml) - Features
 
 * UML (2.5)
   * Transition
@@ -694,7 +694,7 @@ constexpr void process_event(const TEvent&);
 
 ----
 
-###[[Boost].SML](http://boost-experimental.github.io/sml) - Features
+###[[Boost].SML](http://boost-ext.github.io/sml) - Features
 
 We DON'T pay for features we are NOT using!
 
@@ -703,7 +703,7 @@ code responsible for handling them won't be even generated
 
 ----
 
-###[[Boost].SML](http://boost-experimental.github.io/sml) - More realistic example (System)
+###[[Boost].SML](http://boost-ext.github.io/sml) - More realistic example (System)
 
 ![system](images/system.png)
 
@@ -711,7 +711,7 @@ code responsible for handling them won't be even generated
 
 ----
 
-###[[Boost].SML](http://boost-experimental.github.io/sml) - More realistic example (System)
+###[[Boost].SML](http://boost-ext.github.io/sml) - More realistic example (System)
 
 ```cpp
 struct Connection {
@@ -746,7 +746,7 @@ struct System {
 
 ----
 
-###[[Boost].SML](http://boost-experimental.github.io/sml) - More realistic example (System)
+###[[Boost].SML](http://boost-ext.github.io/sml) - More realistic example (System)
 
 ```cpp
 int main() {
@@ -781,7 +781,7 @@ int main() {
 
 ----
 
-##[Benchmark](https://github.com/boost-experimental/sml/tree/master/benchmark/complex)  (Same as before)
+##[Benchmark](https://github.com/boost-ext/sml/tree/master/benchmark/complex)  (Same as before)
 
 ![Benchmark](images/benchmark.png)
 
@@ -791,7 +791,7 @@ int main() {
 
 ----
 
-##[Benchmark](https://github.com/boost-experimental/sml/tree/master/benchmark/complex) - Results
+##[Benchmark](https://github.com/boost-ext/sml/tree/master/benchmark/complex) - Results
 
 |                  | [Boost].SML    | Boost.MSM-eUML   | Boost.Statechart   |
 |------------------|----------------|------------------|--------------------|
@@ -802,7 +802,7 @@ int main() {
 
 ==============================================================================
 
-##[[Boost].SML](http://boost-experimental.github.io/sml) Design in a nutshell
+##[[Boost].SML](http://boost-ext.github.io/sml) Design in a nutshell
 
 ![design](images/design.png)
 
@@ -922,7 +922,7 @@ constexpr void process_event_impl(const TEvent& event, type_list<Transitions...>
 ----
 
 ##Leveraging Zero-cost libraries will boost your design and/or perfrormance
-  * [[Boost].SML](http://boost-experimental.github.io/sml/) / [Boost.MSM](http://www.boost.org/doc/libs/1_63_0/libs/msm/doc/HTML/index.html)
+  * [[Boost].SML](http://boost-ext.github.io/sml/) / [Boost.MSM](http://www.boost.org/doc/libs/1_63_0/libs/msm/doc/HTML/index.html)
 
 ==============================================================================
 
@@ -930,9 +930,9 @@ constexpr void process_event_impl(const TEvent& event, type_list<Transitions...>
 
 | [Boost].SML |  |
 | ------- | ------------- |
-| Documentation | http://boost-experimental.github.io/sml |
-| Source Code | https://github.com/boost-experimental/sml |
-| Try it online! | http://boost-experimental.github.io/sml/examples |
+| Documentation | http://boost-ext.github.io/sml |
+| Source Code | https://github.com/boost-ext/sml |
+| Try it online! | http://boost-ext.github.io/sml/examples |
 |                | https://godbolt.org/g/UX6eWt |
 <!-- .element: style="margin-left:-13%; width:125%" -->
 
