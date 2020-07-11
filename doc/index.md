@@ -3,7 +3,7 @@
 <a href="https://travis-ci.org/boost-ext/sml" target="_blank">![Build Status](https://img.shields.io/travis/boost-ext/sml/master.svg?label=linux/osx)</a>
 <a href="https://ci.appveyor.com/project/boost-ext/sml" target="_blank">![Build Status](https://img.shields.io/appveyor/ci/boost-ext/sml/master.svg?label=windows)</a>
 <a href="https://codecov.io/gh/boost-ext/sml" target="_blank">![Codecov](https://codecov.io/gh/boost-ext/sml/branch/master/graph/badge.svg)</a>
-<a href="http://github.com/boost-ext/sml/issues" target="_blank">![Github Issues](https://img.shields.io/github/issues/boost-ext/sml.svg)</a>
+<a href="https://github.com/boost-ext/sml/issues" target="_blank">![Github Issues](https://img.shields.io/github/issues/boost-ext/sml.svg)</a>
 
 ---------------------------------------
 
@@ -12,7 +12,7 @@ Introduction
 
 | **[Boost::ext].SML (State Machine Language/Lite/Library)** | |
 | - | - |
-| Your scalable C++14 one header only State Machine Library with no dependencies ([__Try it online!__](http://boost-ext.github.io/sml/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-ext/sml" data-style="mega" data-count-href="/boost-ext/sml/stargazers" data-count-api="/repos/boost-ext/sml#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-ext/sml on GitHub">GitHub</a> |
+| Your scalable C++14 one header only State Machine Library with no dependencies ([__Try it online!__](hsttp://boost-ext.github.io/sml/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-ext/sml" data-style="mega" data-count-href="/boost-ext/sml/stargazers" data-count-api="/repos/boost-ext/sml#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-ext/sml on GitHub">GitHub</a> |
 
 <div class="important">
 <a href="https://github.com/boost-ext/sml/releases" class="btn btn-success" style="margin-bottom:8px;" role="button"><span class="fa fa-download"></span>&nbsp; <b>Download</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="CHANGELOG/index.html" class="btn btn-info" style="margin-bottom:8px;" role="button"><span class="fa fa-reorder"></span>&nbsp; <b>Changelog</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="tutorial/index.html" class="btn btn-warning" style="margin-bottom:8px;" role="button"><span class="fa fa-gear"></span>&nbsp; <b>Tutorial</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="examples/index.html" class="btn btn-danger" style="margin-bottom:8px;" role="button"><span class="fa fa-book"></span>&nbsp; <b>Examples</b></a>
@@ -118,11 +118,15 @@ to avoid it `[Boost].SML` may suit you!
 
 ###Related materials
 
+* [C++Now 2019 - Kris Jusiak - Rise of the State Machines](https://www.youtube.com/watch?v=Zb6xcd2as6o)
+* [C++Now 2019 - Michael Caisse - Embedded Domain Specific Languages for Embedded Bare Metal Projects](https://youtu.be/OkeRijjmoh8)
+* [CppCast - Boost DI and SML](https://cppcast.com/kris-jusiak)
+* [CppCon 2018 - Ben Deane - Operator Overloading: History, Principles and Practice](https://www.youtube.com/watch?v=zh4EgO13Etg)
 * [CppCon 2018 - Kris Jusiak - State Machines Battlefield - Naive vs STL vs Boost](https://www.youtube.com/watch?v=yZVby-PuXM0)
 * [C++Now 2018 - Michael Caisse - “Modern C++ in Embedded Systems”](https://youtu.be/c9Xt6Me3mJ4?t=4378)
-* [EmBO++ 2018 - Kris Jusiak - Workshop - 'Embedding' a Meta State Machine](http://boost-ext.github.io/sml/embo-2018)
+* [EmBO++ 2018 - Kris Jusiak - Workshop - 'Embedding' a Meta State Machine](https://boost-ext.github.io/sml/embo-2018)
 * [EmBO++ 2018 - Simon Brand - Embedded DSLs for embedded programming](https://youtu.be/YQoXjqm2hiE?t=705)
-* [EmBO++ 2017 - Kris Jusiak - 'Embedding' a Meta State Machine](http://boost-ext.github.io/sml/embo-2017)
+* [EmBO++ 2017 - Kris Jusiak - 'Embedding' a Meta State Machine](https://boost-ext.github.io/sml/embo-2017)
 * [C++Now 2017 - Kris Jusiak - State Machine Language](https://www.youtube.com/watch?v=Lg3tIact5Fw)
 * [C++Now 2016 - Kris Jusiak - C++14 version of Boost.MSM-eUML](https://www.youtube.com/watch?v=j0J33BnIjnU)
 * [Meeting C++ 2016 - Kris Jusiak - Implementing a web game in C++14](https://www.youtube.com/watch?v=8gRHHIjx4oE)

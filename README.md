@@ -3,7 +3,7 @@
 <a href="https://travis-ci.org/boost-ext/sml" target="_blank">![Build Status](https://img.shields.io/travis/boost-ext/sml/master.svg?label=linux/osx)</a>
 <a href="https://ci.appveyor.com/project/boost-ext/sml" target="_blank">![Build Status](https://img.shields.io/appveyor/ci/boost-ext/sml/master.svg?label=windows)</a>
 <a href="https://codecov.io/gh/boost-ext/sml" target="_blank">![Codecov](https://codecov.io/gh/boost-ext/sml/branch/master/graph/badge.svg)</a>
-<a href="http://github.com/boost-ext/sml/issues" target="_blank">![Github Issues](https://img.shields.io/github/issues/boost-ext/sml.svg)</a>
+<a href="https://github.com/boost-ext/sml/issues" target="_blank">![Github Issues](https://img.shields.io/github/issues/boost-ext/sml.svg)</a>
 
 ---------------------------------------
 
@@ -99,7 +99,7 @@ int main() {
 }
 ```
 
-> MSVC-2015 ([Example](http://boost-ext.github.io/sml/examples/index.html#hello-world))
+> MSVC-2015 ([Example](https://boost-ext.github.io/sml/examples/index.html#hello-world))
 
   * use `state<class state_name>` instead of `"state_name"_s`
   * expliclty state a lambda's result type `auto action = [] -> void {}`
