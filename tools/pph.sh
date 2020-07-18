@@ -46,6 +46,7 @@ pph() {
   echo "#define __BOOST_SML_TEMPLATE_KEYWORD template"
   echo "#pragma GCC diagnostic push"
   echo "#pragma GCC diagnostic ignored \"-Wpedantic\""
+  echo "#pragma GCC diagnostic ignored \"-Wsubobject-linkage\""
   echo "#elif defined(_MSC_VER) && !defined(__clang__)"
   echo "#define __BOOST_SML_DEFINED_HAS_BUILTIN"
   echo "#define __has_builtin(...) __has_builtin##__VA_ARGS__"
