@@ -47,7 +47,9 @@
 #define __BOOST_SML_TEMPLATE_KEYWORD template
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
+#if defined(__GNUC__) && (__GNUC__ >= 10)
 #pragma GCC diagnostic ignored "-Wsubobject-linkage"
+#endif
 #elif defined(_MSC_VER) && !defined(__clang__)
 #define __BOOST_SML_DEFINED_HAS_BUILTIN
 #define __has_builtin(...) __has_builtin##__VA_ARGS__
