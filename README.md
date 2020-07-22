@@ -4,12 +4,13 @@
 <a href="https://ci.appveyor.com/project/boost-ext/sml" target="_blank">![Build Status](https://img.shields.io/appveyor/ci/boost-ext/sml/master.svg?label=windows)</a>
 <a href="https://codecov.io/gh/boost-ext/sml" target="_blank">![Codecov](https://codecov.io/gh/boost-ext/sml/branch/master/graph/badge.svg)</a>
 <a href="https://github.com/boost-ext/sml/issues" target="_blank">![Github Issues](https://img.shields.io/github/issues/boost-ext/sml.svg)</a>
+<a href="https://godbolt.org/z/y99L50">![Try it online](https://img.shields.io/badge/try%20it-online-blue.svg)</a>
 
 ---------------------------------------
 
 # [Boost::ext].SML (State Machine Language)
 
-> Your scalable C++14 **one header only** State Machine Library with no dependencies ([__Try it online!__](https://godbolt.org/z/y99L50))
+> Your scalable C++14 **one header only** State Machine Library with no dependencies
 
 <p align="center">
   <br />
