@@ -6,6 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <boost/sml.hpp>
+#include <cstdio>
 #include <string>
 #include <utility>
 #include <vector>
@@ -728,8 +729,6 @@ test composite_entry_exit_sub_sm = [] {
   sm.process_event(e4{});
   expect(std::vector<calls>{calls::ls2_1_exit, calls::sub2_exit, calls::sub1_entry, calls::ls1_1_entry} == c_);
 };
-
-#include <cstdio>
 
 test composite_entry_exit_sub_sm_only_dst = [] {
   using namespace sml;

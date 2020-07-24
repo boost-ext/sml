@@ -78,14 +78,46 @@ matrix:
     addons: { apt: { packages: ["clang-8", "libstdc++-8-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-8"] } }
 
   - os: linux
-    dist: trusty
-    env: CXX=clang++-8 LIBCXX=ON MEMCHECK=VALGRIND
-    addons: { apt: { packages: ["clang-8", "libstdc++-8-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-8"] } }
+    dist: xenial
+    env: CXX=clang++-9 CXXSTD=c++1z MEMCHECK=VALGRIND
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+          - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main'
+            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+        packages:
+          - clang-9
+          - libstdc++-9-dev
+          - valgrind
 
   - os: linux
-    dist: trusty
-    env: CXX=clang++-8 CXXSTD=c++1z LIBCXX=ON MEMCHECK=VALGRIND
-    addons: { apt: { packages: ["clang-8", "libstdc++-8-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-8"] } }
+    dist: bionic
+    env: CXX=clang++-10 CXXSTD=c++1z MEMCHECK=VALGRIND
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+          - sourceline: 'deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main'
+            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+        packages:
+          - clang-10
+          - libstdc++-10-dev
+          - valgrind
+
+  - os: linux
+    dist: bionic
+    env: CXX=clang++-10 CXXSTD=c++1z LIBCXX=ON MEMCHECK=VALGRIND
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+          - sourceline: 'deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main'
+            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+        packages:
+          - clang-10
+          - libstdc++-10-dev
+          - valgrind
 
   - os: linux
     dist: trusty
@@ -109,13 +141,32 @@ matrix:
 
   - os: linux
     dist: trusty
-    env: CXX=g++-8 CXXSTD=c++1z MEMCHECK=VALGRIND
-    addons: { apt: { packages: ["g++-8", "libstdc++-8-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
+    env: CXX=g++-9 MEMCHECK=VALGRIND
+    addons: { apt: { packages: ["g++-9", "libstdc++-9-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
 
   - os: linux
-    dist: trusty
-    env: CXX=g++-9 CXXSTD=c++1z MEMCHECK=VALGRIND
-    addons: { apt: { packages: ["g++-9", "libstdc++-9-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
+    dist: bionic
+    env: CXX=g++-10 MEMCHECK=VALGRIND
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - g++-10
+          - valgrind
+          - libstdc++-10-dev
+
+  - os: linux
+    dist: bionic
+    env: CXX=g++-10 CXXSTD=c++1z MEMCHECK=VALGRIND
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - g++-10
+          - valgrind
+          - libstdc++-10-dev
 
   - os: osx
     osx_image: xcode7.3
@@ -143,6 +194,14 @@ matrix:
 
   - os: osx
     osx_image: xcode11.4
+    env: CXX=clang++
+
+  - os: osx
+    osx_image: xcode11.5
+    env: CXX=clang++
+
+  - os: osx
+    osx_image: xcode11.6
     env: CXX=clang++
 
 #
