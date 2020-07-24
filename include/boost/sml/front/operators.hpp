@@ -220,10 +220,9 @@ class and_ : operator_base {
             ...);
 #else   // __pph__
     auto result = true;
-    (void)aux::swallow{0, (result && call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g),
-                                                                                                       event, sm, deps, subs)
-                               ? result
-                               : (result = false))...};
+    (void)aux::swallow{0, (result &= call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g),
+                                                                                                       event, sm, deps, subs),
+                           0)...};
     return result;
 #endif  // __pph__
   }
@@ -249,10 +248,9 @@ class or_ : operator_base {
             ...);
 #else   // __pph__
     auto result = false;
-    (void)aux::swallow{0, (result || call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g),
-                                                                                                       event, sm, deps, subs)
-                               ? (result = true)
-                               : result)...};
+    (void)aux::swallow{0, (result |= call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g),
+                                                                                                       event, sm, deps, subs),
+                           0)...};
     return result;
 #endif  // __pph__
   }

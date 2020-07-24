@@ -9,7 +9,7 @@
 
 namespace sml = boost::sml;
 
-#if !defined(_MSC_VER)
+#if !(defined(_MSC_VER) || (defined(__GNUC__) && (__GNUC__ >= 10)))
 test transition_sizeof = [] {
   using namespace sml;
   constexpr auto i = 0;
@@ -206,7 +206,7 @@ test sm_sizeof_no_capture = [] {
       // clang-format on
     }
   };
-#if defined(__clang__) or (__GNUC__ < 10)
+#if defined(__clang__)
   static_expect(1 /*current_state=1*/ == sizeof(sml::sm<no_capture_transition>));
 #endif
 };
@@ -478,7 +478,7 @@ test sm_sizeof_more_than_256_transitions = [] {
       // clang-format on
     }
   };
-#if defined(__clang__) or (__GNUC__ < 10)
+#if defined(__clang__)
   static_expect(2 /*current_state=2*/ == sizeof(sml::sm<c>));
 #endif
 };

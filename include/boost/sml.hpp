@@ -216,7 +216,7 @@ struct remove_reference<T &&> {
 };
 template <class T>
 using remove_reference_t = typename remove_reference<T>::type;
-}  // namespace aux
+}
 namespace aux {
 using swallow = int[];
 template <int...>
@@ -480,7 +480,7 @@ auto get_type_name(const char *ptr, index_sequence<Ns...>) {
   static const char str[] = {ptr[N + Ns]..., 0};
   return str;
 }
-}  // namespace detail
+}
 template <class T>
 const char *get_type_name() {
 #if defined(_MSC_VER) && !defined(__clang__)
@@ -525,7 +525,7 @@ struct string<T> {
   }
   static auto c_str_impl(...) { return get_type_name<T>(); }
 };
-}  // namespace aux
+}
 namespace back {
 namespace policies {
 struct defer_queue_policy__ {};
@@ -535,8 +535,8 @@ struct defer_queue : aux::pair<back::policies::defer_queue_policy__, defer_queue
   using rebind = T<U>;
   using flag = bool;
 };
-}  // namespace policies
-}  // namespace back
+}
+}
 namespace back {
 template <class... Ts>
 class queue_event {
@@ -627,7 +627,7 @@ struct deque_handler : queue_event_call<TEvents>... {
   }
   void *deque_{};
 };
-}  // namespace back
+}
 namespace back {
 struct _ {};
 struct initial {};
@@ -709,7 +709,7 @@ template <class... TEvents>
 struct defer : deque_handler<TEvents...> {
   using deque_handler<TEvents...>::deque_handler;
 };
-}  // namespace back
+}
 namespace back {
 template <class>
 class sm;
@@ -832,7 +832,7 @@ template <class T, class... Ts>
 struct convert_to_sm<T, aux::type_list<Ts...>> {
   using type = aux::type_list<sm_impl<T>, sm_impl<typename T::template rebind<Ts>>...>;
 };
-}  // namespace back
+}
 namespace back {
 template <class>
 class sm;
@@ -918,7 +918,7 @@ struct transitions_sub<sm<TSM>> {
     return sub_sm<sm_impl<TSM>>::get(&subs).template process_event<TEvent>(event, deps, subs);
   }
 };
-}  // namespace back
+}
 namespace back {
 template <class>
 class sm;
@@ -1036,7 +1036,7 @@ struct get_event_mapping_impl_helper<on_exit<T1, T2>, TMappings>
     : decltype(get_event_mapping_impl<on_exit<T1, T2>>((TMappings *)0)) {};
 template <class T, class TMappings>
 using get_event_mapping_t = get_event_mapping_impl_helper<T, TMappings>;
-}  // namespace back
+}
 namespace back {
 namespace policies {
 struct dispatch_policy__ {};
@@ -1111,8 +1111,8 @@ struct fold_expr {
   }
 };
 #endif
-}  // namespace policies
-}  // namespace back
+}
+}
 namespace back {
 template <class>
 class sm;
@@ -1179,8 +1179,8 @@ void log_guard(const aux::type<TLogger> &, TDeps &deps, const aux::zero_wrapper<
                bool result) {
   return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_guard<SM>(guard.get(), event, result);
 }
-}  // namespace policies
-}  // namespace back
+}
+}
 namespace back {
 namespace policies {
 struct process_queue_policy__ {};
@@ -1189,14 +1189,14 @@ struct process_queue : aux::pair<back::policies::process_queue_policy__, process
   template <class U>
   using rebind = T<U>;
 };
-}  // namespace policies
-}  // namespace back
+}
+}
 namespace back {
 namespace policies {
 struct testing_policy__ {};
 struct testing : aux::pair<testing_policy__, testing> {};
-}  // namespace policies
-}  // namespace back
+}
+}
 namespace back {
 namespace policies {
 struct thread_safety_policy__ {
@@ -1216,8 +1216,8 @@ struct thread_safe : aux::pair<thread_safety_policy__, thread_safe<TLock>> {
   }
   TLock lock;
 };
-}  // namespace policies
-}  // namespace back
+}
+}
 namespace back {
 struct no_policy : policies::thread_safety_policy__ {
   using type = no_policy;
@@ -1256,7 +1256,7 @@ struct sm_policy {
   template <class T>
   using rebind = typename rebind_impl<T, TPolicies...>::type;
 };
-}  // namespace back
+}
 namespace concepts {
 struct callable_fallback {
   void operator()();
@@ -1272,7 +1272,7 @@ template <class T, class R, class TBase, class... TArgs>
 struct callable<T, R (TBase::*)(TArgs...)> : aux::true_type {};
 template <class T, class R, class TBase, class... TArgs>
 struct callable<T, R (TBase::*)(TArgs...) const> : aux::true_type {};
-}  // namespace concepts
+}
 namespace concepts {
 template <class T>
 decltype(aux::declval<T>().operator()()) composable_impl(int);
@@ -1280,7 +1280,7 @@ template <class>
 void composable_impl(...);
 template <class T>
 struct composable : aux::is<aux::pool, decltype(composable_impl<T>(0))> {};
-}  // namespace concepts
+}
 #if !defined(BOOST_SML_DISABLE_EXCEPTIONS)
 #if !(defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND))
 #define BOOST_SML_DISABLE_EXCEPTIONS true
@@ -1618,8 +1618,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
     return ((current_state_[Ns] == aux::get_id<state_t, terminate_state>((states_ids_t *)0)) && ...);
 #else
     auto result = true;
-    (void)aux::swallow{
-        0, (current_state_[Ns] == aux::get_id<state_t, terminate_state>((states_ids_t *)0) ? result : (result = false))...};
+    (void)aux::swallow{0, (result &= current_state_[Ns] == aux::get_id<state_t, terminate_state>((states_ids_t *)0))...};
     return result;
 #endif
   }
@@ -1757,7 +1756,7 @@ class sm {
   deps_t deps_;
   sub_sms_t sub_sms_;
 };
-}  // namespace back
+}
 namespace front {
 struct operator_base {};
 struct action_base {};
@@ -1944,10 +1943,9 @@ class and_ : operator_base {
             ...);
 #else
     auto result = true;
-    (void)aux::swallow{0, (result && call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g),
-                                                                                                       event, sm, deps, subs)
-                               ? result
-                               : (result = false))...};
+    (void)aux::swallow{0, (result &= call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g),
+                                                                                                       event, sm, deps, subs),
+                           0)...};
     return result;
 #endif
   }
@@ -1970,10 +1968,9 @@ class or_ : operator_base {
             ...);
 #else
     auto result = false;
-    (void)aux::swallow{0, (result || call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g),
-                                                                                                       event, sm, deps, subs)
-                               ? (result = true)
-                               : result)...};
+    (void)aux::swallow{0, (result |= call<TEvent, args_t<Ts, TEvent>, typename TSM::logger_t>::execute(aux::get_by_id<Ns>(&g),
+                                                                                                       event, sm, deps, subs),
+                           0)...};
     return result;
 #endif
   }
@@ -1991,7 +1988,7 @@ class not_ : operator_base {
  private:
   T g;
 };
-}  // namespace front
+}
 template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
 auto operator!(const T &t) {
   return front::not_<aux::zero_wrapper<T>>(aux::zero_wrapper<T>{t});
@@ -2020,8 +2017,8 @@ struct defer : action_base {
     }
   }
 };
-}  // namespace actions
-}  // namespace front
+}
+}
 using testing = back::policies::testing;
 template <class T>
 using logger = back::policies::logger<T>;
@@ -2047,7 +2044,7 @@ auto transitional_impl(T &&t) -> aux::always<typename T::dst_state, typename T::
                                              decltype(T::initial), decltype(T::history)>;
 template <class T>
 struct transitional : decltype(transitional_impl(aux::declval<T>())) {};
-}  // namespace concepts
+}
 namespace front {
 namespace actions {
 struct process {
@@ -2068,8 +2065,8 @@ struct process {
     return process_impl<TEvent>{event};
   }
 };
-}  // namespace actions
-}  // namespace front
+}
+}
 namespace front {
 template <class, class>
 struct transition_eg;
@@ -2087,7 +2084,7 @@ struct event {
   }
   auto operator()() const { return TEvent{}; }
 };
-}  // namespace front
+}
 namespace front {
 struct initial_state {};
 struct history_state {};
@@ -2180,7 +2177,7 @@ struct state_sm<T, aux::enable_if_t<concepts::composable<T>::value>> {
   using type = state<back::sm<back::sm_policy<T>>>;
 };
 #endif
-}  // namespace front
+}
 namespace front {
 struct internal {};
 template <class, class>
@@ -2630,7 +2627,7 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
   }
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
-}  // namespace front
+}
 using _ = back::_;
 #if !(defined(_MSC_VER) && !defined(__clang__))
 template <class TEvent>
@@ -2678,7 +2675,7 @@ constexpr auto operator""_e() {
   return event<aux::string<T, Chrs...>>;
 }
 #endif
-}  // namespace literals
+}
 __BOOST_SML_UNUSED static front::state<back::terminate_state> X;
 __BOOST_SML_UNUSED static front::history_state H;
 __BOOST_SML_UNUSED static front::actions::defer defer;
