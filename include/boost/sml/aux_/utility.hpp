@@ -78,13 +78,12 @@ template <class, class...>
 struct unique_impl;
 
 template <class T, class... Rs, class... Ts>
-struct unique_impl<type<Rs...>, T, Ts...>
-    : conditional_t<is_base_of<type<T>, inherit<type<Rs>...>>::value, unique_impl<type<Rs...>, Ts...>,
-                    unique_impl<type<Rs..., T>, Ts...>> {};
+struct unique_impl<type<Rs...>, T, Ts...> : conditional_t<is_base_of<type<T>, inherit<type<Rs>...>>::value,
+                                                          unique_impl<type<Rs...>, Ts...>, unique_impl<type<Rs..., T>, Ts...>> {
+};
 
 template <class... Rs>
 struct unique_impl<type<Rs...>> : type_list<Rs...> {};
-
 
 template <class... Ts>
 struct unique : unique_impl<type<>, Ts...> {};

@@ -32,8 +32,7 @@ struct s0 {
   auto operator()() noexcept {
     auto idle = state<struct idle_>;
     auto run = state<struct run_>;
-    return make_transition_table(
-        *idle + event<e0> = run, run + on_entry<_> / [] {});
+    return make_transition_table(*idle + event<e0> = run, run + on_entry<_> / [] {});
   }
 };
 
@@ -41,8 +40,7 @@ struct s1 {
   auto operator()() noexcept {
     auto idle = state<struct idle_>;
     auto run = state<s0>;
-    return make_transition_table(
-        *idle + event<e1> = run, run + on_entry<_> / [] {});
+    return make_transition_table(*idle + event<e1> = run, run + on_entry<_> / [] {});
   }
 };
 
@@ -50,8 +48,7 @@ struct s2 {
   auto operator()() noexcept {
     auto idle = state<struct idle_>;
     auto run = state<s1>;
-    return make_transition_table(
-        *idle + event<e2> = run, run + on_entry<_> / [] {});
+    return make_transition_table(*idle + event<e2> = run, run + on_entry<_> / [] {});
   }
 };
 
@@ -59,8 +56,7 @@ struct s3 {
   auto operator()() noexcept {
     auto idle = state<struct idle_>;
     auto run = state<s2>;
-    return make_transition_table(
-        *idle + event<e3> = run, run + on_entry<_> / [] {});
+    return make_transition_table(*idle + event<e3> = run, run + on_entry<_> / [] {});
   }
 };
 
@@ -68,8 +64,7 @@ struct s4 {
   auto operator()() noexcept {
     auto idle = state<struct idle_>;
     auto run = state<s3>;
-    return make_transition_table(
-        *idle + event<e4> = run, run + on_entry<_> / [] {});
+    return make_transition_table(*idle + event<e4> = run, run + on_entry<_> / [] {});
   }
 };
 
@@ -77,8 +72,7 @@ struct s5 {
   auto operator()() noexcept {
     auto idle = state<struct idle_>;
     auto run = state<s4>;
-    return make_transition_table(
-        *idle + event<e5> = run, run + on_entry<_> / [] {});
+    return make_transition_table(*idle + event<e5> = run, run + on_entry<_> / [] {});
   }
 };
 
@@ -86,8 +80,7 @@ struct s6 {
   auto operator()() noexcept {
     auto idle = state<struct idle_>;
     auto run = state<s5>;
-    return make_transition_table(
-        *idle + event<e6> = run, run + on_entry<_> / [] {});
+    return make_transition_table(*idle + event<e6> = run, run + on_entry<_> / [] {});
   }
 };
 
@@ -95,8 +88,7 @@ struct s7 {
   auto operator()() noexcept {
     auto idle = state<struct idle_>;
     auto run = state<s6>;
-    return make_transition_table(
-        *idle + event<e7> = run, run + on_entry<_> / [] {});
+    return make_transition_table(*idle + event<e7> = run, run + on_entry<_> / [] {});
   }
 };
 
@@ -104,8 +96,7 @@ struct s8 {
   auto operator()() noexcept {
     auto idle = state<struct idle_>;
     auto run = state<s7>;
-    return make_transition_table(
-        *idle + event<e8> = run, run + on_entry<_> / [] {});
+    return make_transition_table(*idle + event<e8> = run, run + on_entry<_> / [] {});
   }
 };
 
@@ -113,8 +104,7 @@ struct s9 {
   auto operator()() noexcept {
     auto idle = state<struct idle_>;
     auto run = state<s8>;
-    return make_transition_table(
-        *idle + event<e9> = run, run + on_entry<_> / [] {});
+    return make_transition_table(*idle + event<e9> = run, run + on_entry<_> / [] {});
   }
 };
 
@@ -122,8 +112,7 @@ struct s10 {
   auto operator()() noexcept {
     auto idle = state<struct idle_>;
     auto run = state<s9>;
-    return make_transition_table(
-        *idle + event<e10> = run, run + on_entry<_> / [] {});
+    return make_transition_table(*idle + event<e10> = run, run + on_entry<_> / [] {});
   }
 };
 
