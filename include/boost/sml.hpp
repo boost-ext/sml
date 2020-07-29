@@ -856,17 +856,7 @@ template <class T>
 struct transitions<T> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
-    return execute_impl(event, sm, deps, subs, current_state);
-  }
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute_impl(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
     return aux::get<T>(sm.transitions_).execute(event, sm, deps, subs, current_state, typename SM::has_entry_exits{});
-  }
-  template <class _, class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute_impl(const on_exit<_, TEvent> &event, SM &sm, TDeps &deps, TSubs &subs,
-                           typename SM::state_t &current_state) {
-    aux::get<T>(sm.transitions_).execute(event, sm, deps, subs, current_state, typename SM::has_entry_exits{});
-    return false;
   }
 };
 template <>
@@ -908,6 +898,13 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
                            typename SM::state_t &current_state) {
     transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
     sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
+    return true;
+  }
+  template <class _, class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute_impl(const back::on_exit<_, TEvent> &event, SM &sm, TDeps &deps, TSubs &subs,
+                           typename SM::state_t &current_state) {
+    sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
+    transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
     return true;
   }
 };
