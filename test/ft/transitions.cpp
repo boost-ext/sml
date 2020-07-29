@@ -120,6 +120,8 @@ test subsequent_anonymous_transitions_composite = [] {
       // clang-format off
       return make_transition_table(
        *idle / [] (V& v) { v+="ss1|"; } = s1
+       ,s1 + sml::on_entry<_> / [] (V& v) { v+="ss1en|"; }
+       ,s1 + sml::on_exit<_> / [] (V& v) { v+="ss1ex|"; }
        ,s1 / [] (V& v) { v+="ss2|"; } = s2
        ,s2 / [] (V& v) { v+="ss3|"; } = X
       );
@@ -157,7 +159,7 @@ test subsequent_anonymous_transitions_composite = [] {
   sml::sm<composite_sm> sm{calls};
   expect(sm.is<decltype(state<sub_sm>)>(X));
   expect(sm.is(s3));
-  std::string expected("11|12|s1|s2|s3|ssen|ss1|ss2|ss3|ssex|s4|13|14|");
+  std::string expected("11|12|s1|s2|s3|ssen|ss1|ss1en|ss1ex|ss2|ss3|ssex|s4|13|14|");
   expect(calls == expected);
 };
 
@@ -550,20 +552,59 @@ test initial_nontrivial_entry = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-         *idle + sml::on_entry<e2> / [] {}
+         *idle + sml::on_entry<e2> / [this] { calls+="e2|"; }
+         ,idle + sml::on_entry<_> / [this] { calls+="_|"; }
          ,idle + event<e2> = s1
-         ,s1 + on_entry<_> / [this] { ++entry_calls; }
+         ,s1 + on_entry<_> / [this] { calls+="_|"; }
+         ,s1 + event<e3> = s2
+         ,s2 + on_entry<e3> / [this] { calls+="e3|"; }
+         ,s2 + on_entry<e2> / [this] { calls+="e2|"; }
+         ,s2 + on_entry<e1> / [this] { calls+="e1|"; }
+         ,s2 + on_entry<_>  / [this] { calls+="_|"; }
+         ,s2 + event<e3> = s3
+         ,s3 + on_entry<e2> / [this] { calls+="e2|"; }
+         ,s3 + on_entry<e1> / [this] { calls+="e1|"; }
+         ,s3 + on_entry<_> / [this] { calls+="_|"; }
       );
       // clang-format on
     }
 
-    int entry_calls = 0;
+    std::string calls;
   };
 
-  sml::sm<c> sm{};
-  const c& c_ = sm;
-  sm.process_event(e2{});
-  expect(1 == c_.entry_calls);
+  struct d {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        *idle + event<e2> = state<c>
+      );
+      // clang-format on
+    }
+  };
+  {
+    sml::sm<c> sm{};
+    const c& c_ = sm;
+    expect("_|" == c_.calls);
+    sm.process_event(e2{});
+    expect("_|_|" == c_.calls);
+    sm.process_event(e3{});
+    expect("_|_|e3|" == c_.calls);
+    sm.process_event(e3{});
+    expect("_|_|e3|_|" == c_.calls);
+  }
+  {
+    sml::sm<d> sm{};
+    const c& c_ = sm;
+    sm.process_event(e2{});
+    expect("e2|" == c_.calls);
+    sm.process_event(e2{});
+    expect("e2|_|" == c_.calls);
+    sm.process_event(e3{});
+    expect("e2|_|e3|" == c_.calls);
+    sm.process_event(e3{});
+    expect("e2|_|e3|_|" == c_.calls);
+  }
 };
 
 test initial_nontrivial_exit = [] {
@@ -572,20 +613,69 @@ test initial_nontrivial_exit = [] {
       using namespace sml;
       // clang-format off
       return make_transition_table(
-         *idle + sml::on_exit<_> / [this] { ++entry_calls; }
+         *idle + sml::on_exit<_> / [](std::string& calls) { calls+="_|"; }
+         ,idle + sml::on_exit<e2> / [](std::string& calls) { calls+="e2|"; }
          ,idle + event<e1> = s1
-         ,s1 + sml::on_exit<e1> / [] {}
+         ,idle + event<e2> = s1
+         ,s1 + sml::on_exit<e2> / [](std::string& calls) { calls+="e2|"; }
+         ,s1 + sml::on_exit<e1> / [](std::string& calls) { calls+="e1|"; }
+         ,s1 + sml::on_exit<_> / [](std::string& calls) { calls+="_|"; }
+         ,s1 + event<e3> = s2
+         ,s1 + event<e1> = s2
+         ,s2 + sml::on_exit<e4>  / [](std::string& calls) { calls+="e4|"; }
+         ,s2 + sml::on_exit<e3>  / [](std::string& calls) { calls+="e3|"; }
+         ,s2 + sml::on_exit<e2> / [](std::string& calls) { calls+="e2|"; }
+         ,s2 + sml::on_exit<e1> / [](std::string& calls) { calls+="e1|"; }
+         ,s2 + sml::on_exit<_> / [](std::string& calls) { calls+="_|"; }
+         ,s2 + event<e3> = s3
       );
       // clang-format on
     }
-
-    int entry_calls = 0;
   };
 
-  sml::sm<c> sm{};
-  const c& c_ = sm;
-  sm.process_event(e1{});
-  expect(1 == c_.entry_calls);
+  struct d {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        *state<c> + event<e2> = idle
+        ,state<c> + sml::on_exit<e4> / [](std::string& calls) { calls+="ce4|"; }
+      );
+      // clang-format on
+    }
+  };
+  struct e {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        *state<d> + event<e4> = idle
+      );
+      // clang-format on
+    }
+  };
+  {
+    // Test with a simple sm
+    std::string s;
+    sml::sm<c> sm{s};
+    sm.process_event(e1{});
+    expect("_|" == s);
+    sm.process_event(e3{});
+    expect("_|_|" == s);
+    sm.process_event(e3{});
+    expect("_|_|e3|" == s);
+  }
+  {
+    // Test with a composite sm
+    std::string s;
+    sml::sm<e> sm{s};
+    sm.process_event(e1{});
+    expect("_|" == s);
+    sm.process_event(e1{});
+    expect("_|e1|" == s);
+    sm.process_event(e4{});
+    expect("_|e1|e4|ce4|" == s);
+  }
 };
 
 #if !defined(_MSC_VER)
