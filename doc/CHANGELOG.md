@@ -1,3 +1,14 @@
+## [1.1.3] - 2020-08-02
+- **Additions**
+    - Support for member-function like guards/actions
+      - https://github.com/boost-ext/sml/commit/e6d0685993a8a0160dde1610d7f8be4f811c89d0
+>
+- **Bug Fixes**
+    - [Issues](https://github.com/boost-ext/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2020-08-02..2020-07-17+)
+>
+- **Contributions**
+    - [Guilhem Codron](https://github.com/GuiCodron)
+
 ## [1.1.2] - 2020-06-14
 - **Additions**
     - Support for GCC-10
@@ -68,6 +79,7 @@
 ##[1.0.0] - 2016-01-28
 - Initial version
 
+[1.1.3]: https://github.com/boost-ext/sml/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/boost-ext/sml/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/boost-ext/sml/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/boost-ext/sml/compare/v1.0.0...v1.1.0
