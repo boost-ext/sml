@@ -678,6 +678,107 @@ test initial_nontrivial_exit = [] {
   }
 };
 
+template <int N>
+struct tstate {
+  auto operator()() noexcept {
+    using namespace sml;
+    // clang-format off
+      return make_transition_table(
+         *idle + sml::on_entry<_> / [](std::string& s) { s+="ts" + std::to_string(N) + "_en|"; }
+         ,idle + sml::on_entry<e1> / [](std::string& s) { s+="ts"+std::to_string(N)+"e1en|"; }
+         ,idle + sml::on_exit<_> / [](std::string& s) { s+="ts"+std::to_string(N)+"_ex|"; }
+         ,idle + sml::on_exit<e1> / [](std::string& s) { s+="ts"+std::to_string(N)+"e1ex|"; }
+      );
+    // clang-format on
+  }
+};
+auto t1 = sml::state<tstate<1>>;
+auto t2 = sml::state<tstate<2>>;
+auto t3 = sml::state<tstate<3>>;
+auto t4 = sml::state<tstate<4>>;
+
+test composite_nontrivial_entry = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *t1 + sml::on_entry<_> / [](std::string& calls) { calls+="t1_en|"; }
+         ,t1 + sml::on_entry<e2> / [](std::string& calls) { calls+="t1e2en|"; }
+      );
+      // clang-format on
+    }
+  };
+
+  struct d {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        *idle + event<e2> = state<c>
+        , idle + event<e1> = state<c>
+        , state<c> + event<e2> = idle
+      );
+      // clang-format on
+    }
+  };
+  {
+    // Test with a composite sm
+    std::string s;
+    sml::sm<d> sm{s};
+    sm.process_event(e1{});
+    expect("t1_en|ts1e1en|" == s);
+    s = "";
+    sm.process_event(e2{});
+    expect("ts1_ex|" == s);
+    s = "";
+    sm.process_event(e2{});
+    expect("t1e2en|ts1_en|" == s);
+  }
+};
+
+test composite_nontrivial_exit = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *t1 + sml::on_exit<_> / [](std::string& calls) { calls+="t1_ex|"; }
+         ,t1 + sml::on_exit<e2> / [](std::string& calls) { calls+="t1e2ex|"; }
+         ,t1 + event<e1> = t2
+         ,t1 + event<e2> = t2
+         ,t2 + sml::on_exit<_> / [](std::string& calls) { calls+="t2_ex|"; }
+         ,t2 + sml::on_exit<e4> / [](std::string& calls) { calls+="t2e4ex|"; }
+      );
+      // clang-format on
+    }
+  };
+
+  struct d {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        *state<c> + event<e4> = idle
+        ,state<c> + sml::on_exit<_> / [](std::string& calls) { calls+="c_ex|"; }
+      );
+      // clang-format on
+    }
+  };
+  {
+    // Test with a composite sm
+    std::string s;
+    sml::sm<d> sm{s};
+    expect("ts1_en|" == s);
+    s = "";
+    sm.process_event(e1{});
+    expect("ts1e1ex|t1_ex|ts2e1en|" == s);
+    s = "";
+    sm.process_event(e4{});
+    expect("ts2_ex|t2e4ex|c_ex|" == s);
+  }
+};
+
 #if !defined(_MSC_VER)
 test general_transition_overload = [] {
   struct c {
