@@ -27,8 +27,12 @@ struct Interrupted {
 };
 
 class data {
+  using Self = data;
+
  public:
   explicit data(const std::string& address) : address{address} {}
+
+  void print(Connected& state) { std::cout << address << ':' << state.id << '\n'; };
 
   auto operator()() {
     using namespace boost::sml;
@@ -37,14 +41,12 @@ class data {
 
     const auto update = [](Connected& src_state, Interrupted& dst_state) { dst_state.id = src_state.id; };
 
-    const auto print = [this](Connected& state) { std::cout << address << ':' << state.id << '\n'; };
-
     // clang-format off
     return make_transition_table(
-      * state<Disconnected> + event<connect>    / (set, print)    = state<Connected>
-      , state<Connected>    + event<interrupt>  / (update, print) = state<Interrupted>
-      , state<Interrupted>  + event<connect>    / (set, print)    = state<Connected>
-      , state<Connected>    + event<disconnect> / (print)         = X
+      * state<Disconnected> + event<connect>    / (set, &Self::print)    = state<Connected>
+      , state<Connected>    + event<interrupt>  / (update, &Self::print) = state<Interrupted>
+      , state<Interrupted>  + event<connect>    / (set, &Self::print)    = state<Connected>
+      , state<Connected>    + event<disconnect> / (&Self::print)         = X
     );
     // clang-format on
   }
@@ -58,7 +60,8 @@ int main() {
   Disconnected ds{};
   Connected cs{};
   Interrupted is{};
-  sml::sm<data> sm{data{"127.0.0.1"}, ds, cs, is};
+  data d{std::string{"127.0.0.1"}};
+  sml::sm<data> sm{d, ds, cs, is};
   sm.process_event(connect{1024});
   sm.process_event(interrupt{});
   sm.process_event(connect{1025});
