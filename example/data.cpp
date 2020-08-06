@@ -32,13 +32,10 @@ class data {
  public:
   explicit data(const std::string& address) : address{address} {}
 
-  void print(Connected& state) { std::cout << address << ':' << state.id << '\n'; };
-
   auto operator()() {
     using namespace boost::sml;
 
     const auto set = [](const auto& event, Connected& state) { state.id = event.id; };
-
     const auto update = [](Connected& src_state, Interrupted& dst_state) { dst_state.id = src_state.id; };
 
     // clang-format off
@@ -52,6 +49,8 @@ class data {
   }
 
  private:
+  void print(Connected& state) { std::cout << address << ':' << state.id << '\n'; };
+
   std::string address{};  /// shared data between states
 };
 }  // namespace

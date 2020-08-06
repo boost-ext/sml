@@ -76,7 +76,7 @@ constexpr auto operator""_e() {
   return event<aux::string<T, Chrs...>>;
 }
 #endif                                             // __pph__
-}  // literals
+}  // namespace literals
 
 __BOOST_SML_UNUSED static front::state<back::terminate_state> X;
 __BOOST_SML_UNUSED static front::history_state H;

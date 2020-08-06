@@ -102,7 +102,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
     auto region = 0;
 #if defined(__cpp_fold_expressions)  // __pph__
     ((current_state_[region++] = aux::get_id<state_t, TStates>((states_ids_t *)0)), ...);
-#else  // __pph__
+#else   // __pph__
     (void)aux::swallow{0, (current_state_[region++] = aux::get_id<state_t, TStates>((states_ids_t *)0), 0)...};
 #endif  // __pph__
   }
@@ -323,7 +323,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 #if BOOST_SML_DISABLE_EXCEPTIONS  // __pph__
     return process_event_impl<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, states_t{},
                                                                      aux::make_index_sequence<regions>{});
-#else  // __pph__
+#else   // __pph__
     return process_event_noexcept<get_event_mapping_t<TEvent, mappings>>(event, deps, subs, has_exceptions{});
 #endif  // __pph__
   }

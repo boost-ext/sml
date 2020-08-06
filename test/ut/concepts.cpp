@@ -85,7 +85,7 @@ test callable_concept = [] {
   static_expect(callable<void, decltype(calll2)>::value);
   static_expect(callable<bool, decltype(calll3)>::value);
 
-#ifdef __cpp_noexcept_function_type
+#if defined(__cpp_noexcept_function_type)
   struct class0 {
     void action() {}
     void const_action() const {}
