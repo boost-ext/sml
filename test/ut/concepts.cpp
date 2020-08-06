@@ -36,6 +36,8 @@ test composable_concept = [] {
   static_expect(composable<c1>::value);
   static_expect(composable<c2>::value);
   static_expect(composable<c3>::value);
+  static_expect(composable<c3>::value);
+  static_expect(composable<c3>::value);
   static_expect(!composable<c0>::value);
   static_expect(!composable<c4>::value);
   static_expect(!composable<c5>::value);
@@ -72,6 +74,16 @@ test callable_concept = [] {
   auto calll2 = [](int) {};
   auto calll3 = [] { return true; };
 
+  struct class0 {
+    void action() {}
+    void const_action() const {}
+    void const_noexcept_action() const noexcept {}
+
+    bool guard() { return true; }
+    bool const_guard() const { return true; }
+    bool const_noexcept_guard() const noexcept { return true; }
+  };
+
   static_expect(!callable<void, call>::value);
   static_expect(callable<void, call1>::value);
   static_expect(callable<void, call2>::value);
@@ -82,6 +94,13 @@ test callable_concept = [] {
   static_expect(callable<void, decltype(calll1)>::value);
   static_expect(callable<void, decltype(calll2)>::value);
   static_expect(callable<bool, decltype(calll3)>::value);
+  static_expect(callable<void, decltype(&class0::action)>::value);
+  static_expect(callable<void, decltype(&class0::const_action)>::value);
+  static_expect(callable<void, decltype(&class0::const_noexcept_action)>::value);
+  static_expect(callable<bool, decltype(&class0::guard)>::value);
+  static_expect(callable<bool, decltype(&class0::const_guard)>::value);
+  static_expect(callable<bool, decltype(&class0::const_noexcept_guard)>::value);
+
   (void)calll1;
   (void)calll2;
   (void)calll3;
