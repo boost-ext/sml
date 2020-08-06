@@ -7,6 +7,7 @@
 //
 #if !defined(_MSC_VER)
 #include "boost/sml/utility/dispatch_table.hpp"
+
 #include <boost/sml.hpp>
 #include <string>
 #include <utility>

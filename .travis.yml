@@ -31,10 +31,17 @@ matrix:
 # Style
 #
   - os: linux
-    dist: trusty
-    env: CHECK=ON CLANG_FORMAT=clang-format-4.0 CLANG_TIDY=clang-tidy-4.0
-    addons: { apt: { packages: ["clang-format-4.0", "clang-tidy-4.0", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
-
+    dist: xenial
+    env: CHECK=ON CLANG_FORMAT=clang-format-9 CLANG_TIDY=clang-tidy-9
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+          - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main'
+            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+        packages:
+          - clang-format-9
+          - clang-tidy-9
 #
 # Build
 #
