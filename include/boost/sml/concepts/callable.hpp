@@ -31,11 +31,13 @@ struct callable<T, R (TBase::*)(TArgs...)> : aux::true_type {};
 template <class T, class R, class TBase, class... TArgs>
 struct callable<T, R (TBase::*)(TArgs...) const> : aux::true_type {};
 
+#ifdef __cpp_noexcept_function_type
 template <class T, class R, class TBase, class... TArgs>
 struct callable<T, R (TBase::*)(TArgs...) noexcept> : aux::true_type {};
 
 template <class T, class R, class TBase, class... TArgs>
 struct callable<T, R (TBase::*)(TArgs...) const noexcept> : aux::true_type {};
+#endif
 }  // namespace concepts
 
 #endif
