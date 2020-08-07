@@ -45,9 +45,7 @@ int main() {
   using namespace sml;
 
   sm<hello_world> sm;
-#if !defined(__GNUC__) || (defined(__GNUC__) && (__GNUC__ < 10))
   static_assert(1 == sizeof(sm), "sizeof(sm) != 1b");
-#endif
   assert(sm.is("established"_s));
 
   sm.process_event(release{});
