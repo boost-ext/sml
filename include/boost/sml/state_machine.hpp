@@ -35,4 +35,14 @@ template <class T, class... TPolicies>
 using sm = back::sm<back::sm_policy<T, TPolicies...>>;
 #endif  // __pph__
 
+#if defined(__cpp_deduction_guides)  // __pph__
+namespace front {
+template <class T, class... TPolicies>
+struct sm : back::sm<back::sm_policy<T, TPolicies...>> {
+  constexpr sm(T t) : back::sm<back::sm_policy<T, TPolicies...>>::sm{t} {}
+  using back::sm<back::sm_policy<T, TPolicies...>>::sm;
+};
+}  // namespace front
+#endif  // __pph__
+
 #endif
