@@ -28,7 +28,7 @@ template <int N>
 struct make_index_sequence_impl {
   using type = typename __make_integer_seq<integer_sequence, int, N>::type;
 };
-#else   // __pph__
+#else  // __pph__
 template <class, class>
 struct concat;
 template <int... I1, int... I2>
@@ -265,7 +265,7 @@ template <int... Ts>
 constexpr int max() {
   return max_impl(Ts...);
 }
-#else   // __pph__
+#else  // __pph__
 template <int... Ts>
 constexpr int max() {
   int max = 0;
@@ -299,6 +299,26 @@ struct zero_wrapper<R (TBase::*)(TArgs...) const> {
   R (TBase::*ptr)(TArgs...) const {};
 };
 
+#if defined(__cpp_noexcept_function_type)  // __pph__
+template <class R, class TBase, class... TArgs>
+struct zero_wrapper<R (TBase::*)(TArgs...) noexcept> {
+  explicit zero_wrapper(R (TBase::*ptr)(TArgs...) noexcept) : ptr{ptr} {}
+  auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
+
+ private:
+  R (TBase::*ptr)(TArgs...) noexcept {};
+};
+
+template <class R, class TBase, class... TArgs>
+struct zero_wrapper<R (TBase::*)(TArgs...) const noexcept> {
+  explicit zero_wrapper(R (TBase::*ptr)(TArgs...) const noexcept) : ptr{ptr} {}
+  auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
+
+ private:
+  R (TBase::*ptr)(TArgs...) const noexcept {};
+};
+#endif  // __pph__
+
 template <class, class>
 struct zero_wrapper_impl;
 
@@ -331,9 +351,9 @@ const char *get_type_name() {
   return detail::get_type_name<T, 39>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 39 - 8>{});
 #elif defined(__clang__)  // __pph__
   return detail::get_type_name<T, 63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
-#elif defined(__GNUC__)   // __pph__
+#elif defined(__GNUC__)  // __pph__
   return detail::get_type_name<T, 68>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 68 - 2>{});
-#endif                    // __pph__
+#endif  // __pph__
 }
 
 #if defined(__cpp_nontype_template_parameter_class)  // __pph__
