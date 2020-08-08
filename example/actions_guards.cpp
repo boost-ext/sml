@@ -59,7 +59,7 @@ struct actions_guards {
     // clang-format on
   }
 
-  bool guard3(int i) const {
+  bool guard3(int i) const noexcept {
     assert(42 == i);
     std::cout << "guard3" << std::endl;
     return true;
