@@ -701,8 +701,7 @@ test member_functions_as_actions_and_guards = [] {
       return make_transition_table(
           *state<s1> + event<e1>[&Self::guard] / &Self::const_noexcept_action = state<s2>,
           state<s2> + event<e1>[&Self::const_guard] / &Self::const_noexcept_action = state<s3>,
-          state<s3> + event<e1>[&Self::const_noexcept_guard] / &Self::const_noexcept_action = state<s1>
-              );
+          state<s3> + event<e1>[&Self::const_noexcept_guard] / &Self::const_noexcept_action = state<s1>);
     }
   };
   {
