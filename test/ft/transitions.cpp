@@ -678,6 +678,51 @@ test initial_nontrivial_exit = [] {
   }
 };
 
+#if defined(__cpp_noexcept_function_type)
+test member_functions_as_actions_and_guards = [] {
+  struct class0 {
+    void action(int& i) { ++i; }
+    void const_action(int& i) const { ++i; }
+    void const_noexcept_action(int& i) const noexcept { ++i; }
+
+    bool guard() { return true; }
+    bool const_guard() const { return true; }
+    bool const_noexcept_guard() const noexcept { return true; }
+
+    struct s1 {};
+    struct s2 {};
+    struct s3 {};
+
+    struct e1 {};
+
+    auto operator()() noexcept {
+      using namespace sml;
+      using Self = class0;
+      return make_transition_table(
+          *state<s1> + event<e1>[&Self::guard] / &Self::const_noexcept_action = state<s2>,
+          state<s2> + event<e1>[&Self::const_guard] / &Self::const_noexcept_action = state<s3>,
+          state<s3> + event<e1>[&Self::const_noexcept_guard] / &Self::const_noexcept_action = state<s1>
+              );
+    }
+  };
+  {
+    using namespace sml;
+    class0 c;
+    int i = 0;
+    sml::sm<class0> sm{c, i};
+    sm.process_event(class0::e1{});
+    expect(sm.is(state<class0::s2>));
+    expect(i == 1);
+    sm.process_event(class0::e1{});
+    expect(sm.is(state<class0::s3>));
+    expect(i == 2);
+    sm.process_event(class0::e1{});
+    expect(sm.is(state<class0::s1>));
+    expect(i == 3);
+  }
+};
+#endif
+
 #if !defined(_MSC_VER)
 test general_transition_overload = [] {
   struct c {
