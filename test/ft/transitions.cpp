@@ -163,6 +163,101 @@ test subsequent_anonymous_transitions_composite = [] {
   expect(calls == expected);
 };
 
+
+test subsequent_anonymous_transitions_composite_with_action = []{
+  using namespace sml;
+
+  using V = std::string;
+  V calls{};
+  //
+  //        sub_sm
+  //        +--------------------------------+
+  //        |                                |
+  //        |       +---+       +---+ evExit |
+  //   *+--->  *+---> A +-------> B +----> X +----> X
+  //        |       +---+       +---+        |
+  //        |                                |
+  //        +--------------------------------+
+  //
+
+  struct sub_sm {
+    auto operator()() const noexcept {
+      return make_transition_table(
+          // clang-format off
+          *s1              = s2
+          ,s2 + event<e1>  = X
+          // clang-format on
+      );
+    }
+  };
+
+  struct StateMachine {
+    auto operator()() const noexcept {
+      return make_transition_table(
+          // clang-format off
+          *state<sub_sm> + event<e2>  = X
+          ,state<sub_sm> + on_entry<_> /[] (V& v) { v+="enter sub_sm"; } // this line is required for entry to work
+          // clang-format on
+      );
+    }
+  };
+
+  sml::sm<StateMachine> sm{calls};
+
+  std::string expected = "enter sub_sm";
+  expect(calls == expected);
+
+  expect(sm.is(state<sub_sm>));
+  expect(sm.is<decltype(state<sub_sm>)>(s2));
+  expect(!sm.is<decltype(state<sub_sm>)>(s1));
+
+};
+
+
+test subsequent_anonymous_transitions_composite_without_action = []{
+  using namespace sml;
+
+  //
+  //        sub_sm
+  //        +--------------------------------+
+  //        |                                |
+  //        |       +---+       +---+ evExit |
+  //   *+--->  *+---> A +-------> B +----> X +----> X
+  //        |       +---+       +---+        |
+  //        |                                |
+  //        +--------------------------------+
+  //
+
+  struct sub_sm {
+    auto operator()() const noexcept {
+      return make_transition_table(
+          // clang-format off
+          *s1                = s2
+          ,s2 + event<e1>    = X
+          // clang-format on
+      );
+    }
+  };
+
+  struct StateMachine {
+    auto operator()() const noexcept {
+      return make_transition_table(
+          // clang-format off
+          *state<sub_sm>  = X
+          // clang-format on
+      );
+    }
+  };
+
+  sml::sm<StateMachine> sm{};
+
+  expect(sm.is(state<sub_sm>));
+  expect(sm.is<decltype(state<sub_sm>)>(s2));  // FAILS
+  expect(!sm.is<decltype(state<sub_sm>)>(s1)); // FAILS
+
+};
+
+
 test self_transition = [] {
   enum class calls { s1_entry, s1_exit, s1_action };
 
