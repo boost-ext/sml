@@ -463,6 +463,14 @@ struct zero_wrapper<R (TBase::*)(TArgs...) const> {
  private:
   R (TBase::*ptr)(TArgs...) const {};
 };
+template <class R, class... TArgs>
+struct zero_wrapper<R (*)(TArgs...)> {
+  explicit zero_wrapper(R (*ptr)(TArgs...)) : ptr{ptr} {}
+  auto operator()(TArgs... args) { return (*ptr)(args...); }
+
+ private:
+  R (*ptr)(TArgs...){};
+};
 #if defined(__cpp_noexcept_function_type)
 template <class R, class TBase, class... TArgs>
 struct zero_wrapper<R (TBase::*)(TArgs...) noexcept> {
@@ -479,6 +487,14 @@ struct zero_wrapper<R (TBase::*)(TArgs...) const noexcept> {
 
  private:
   R (TBase::*ptr)(TArgs...) const noexcept {};
+};
+template <class R, class... TArgs>
+struct zero_wrapper<R (*)(TArgs...) noexcept> {
+  explicit zero_wrapper(R (*ptr)(TArgs...) noexcept) : ptr{ptr} {}
+  auto operator()(TArgs... args) { return (*ptr)(args...); }
+
+ private:
+  R (*ptr)(TArgs...) noexcept {};
 };
 #endif
 template <class, class>
