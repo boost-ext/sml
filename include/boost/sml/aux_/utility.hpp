@@ -415,4 +415,8 @@ struct string<T> {
 
 }  // namespace aux
 
+template <typename T>
+auto wrap(T callback) {
+  return aux::zero_wrapper{callback};
+}
 #endif
