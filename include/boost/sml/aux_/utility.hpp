@@ -417,6 +417,6 @@ struct string<T> {
 
 template <typename T>
 auto wrap(T callback) {
-  return aux::zero_wrapper{callback};
+  return aux::zero_wrapper<T>{callback};
 }
 #endif
