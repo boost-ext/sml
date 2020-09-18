@@ -564,6 +564,10 @@ struct string<T> {
   static auto c_str_impl(...) { return get_type_name<T>(); }
 };
 }  // namespace aux
+template <typename T>
+auto wrap(T callback) {
+  return aux::zero_wrapper{callback};
+}
 namespace back {
 namespace policies {
 struct defer_queue_policy__ {};

@@ -35,7 +35,7 @@ struct actions_guards {
       return true;
     };
 
-    auto guard2 = aux::zero_wrapper(&guard2_impl);
+    auto guard2 = wrap(&guard2_impl);
 
     auto action1 = [](auto e) { std::cout << "action1: " << typeid(e).name() << std::endl; };
 
