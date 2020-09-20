@@ -463,8 +463,8 @@ struct zero_wrapper<R (TBase::*)(TArgs...) const> {
  private:
   R (TBase::*ptr)(TArgs...) const {};
 };
-template <class R, class... TArgs>
-struct zero_wrapper<R (*)(TArgs...)> {
+template <class R, class... TArgs, class T>
+struct zero_wrapper<R (*)(TArgs...), T> {
   explicit zero_wrapper(R (*ptr)(TArgs...)) : ptr{ptr} {}
   auto operator()(TArgs... args) { return (*ptr)(args...); }
 
@@ -564,9 +564,9 @@ struct string<T> {
   static auto c_str_impl(...) { return get_type_name<T>(); }
 };
 }  // namespace aux
-template <typename T>
-auto wrap(T callback) {
-  return aux::zero_wrapper<T>{callback};
+template <class T>
+constexpr auto wrap(T callback) {
+  return aux::zero_wrapper<T, T>{callback};
 }
 namespace back {
 namespace policies {
