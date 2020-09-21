@@ -10,7 +10,7 @@
 #include <iostream>
 
 int main() {
-#if defined(__cpp_deduction_guides)  // __pph__
+#if defined(__cpp_deduction_guides)
   namespace sml = boost::sml;
 
   struct start {};

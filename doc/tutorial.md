@@ -487,7 +487,4 @@ sm.process_event(my_event{}); // will call my_logger appropriately
 
 ---
 
-## [Workshop](https://boost-ext.github.io/sml/embo-2018)
-
 <iframe style="width: 100%; height: 600px;" src="https://boost-ext.github.io/sml/embo-2018" />
-
