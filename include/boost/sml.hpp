@@ -2067,6 +2067,15 @@ using sm = back::sm<back::sm_policy<T__, TPolicies...>>;
 template <class T, class... TPolicies>
 using sm = back::sm<back::sm_policy<T, TPolicies...>>;
 #endif
+#if defined(__cpp_deduction_guides)
+namespace front {
+template <class T, class... TPolicies>
+struct sm : back::sm<back::sm_policy<T, TPolicies...>> {
+  constexpr sm(T t) : back::sm<back::sm_policy<T, TPolicies...>>::sm{t} {}
+  using back::sm<back::sm_policy<T, TPolicies...>>::sm;
+};
+}  // namespace front
+#endif
 namespace concepts {
 aux::false_type transitional_impl(...);
 template <class T>

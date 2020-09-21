@@ -433,13 +433,10 @@ class sm {
   }
 
   sm(aux::init, deps_t &deps) : deps_{deps}, sub_sms_{deps} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
-
   sm(const sm &) = default;
-
   sm(sm &&) = default;
 
   sm &operator=(const sm &) = default;
-
   sm &operator=(sm &&) = default;
 
   template <class TEvent, __BOOST_SML_REQUIRES(aux::is_base_of<TEvent, events_ids>::value)>
