@@ -8,6 +8,11 @@ using namespace boost::sml;
 
 struct next {};
 
+struct s1 {};
+struct s2 {};
+struct s3 {};
+struct s4 {};
+
 void action1_impl(int& i) { ++i; }
 void action2_impl(int& i) noexcept { ++i; }
 
@@ -22,17 +27,17 @@ test wrap_free_functions = [] {
       auto const guard1 = wrap(&guard1_impl);
       auto const guard2 = wrap(&guard2_impl);
 
-      return make_transition_table(*"s1"_s + event<next>[guard1] / action1 = "s2"_s,
-                                   "s2"_s + event<next>[guard2] / action2 = X);
+      return make_transition_table(*state<s1> + event<next>[guard1] / action1 = state<s2>,
+                                   state<s2> + event<next>[guard2] / action2 = X);
     }
   };
 
   int i = 0;
   sm<free_functions> state_machine{i};
 
-  expect(state_machine.is("s1"_s));
+  expect(state_machine.is(state<s1>));
   state_machine.process_event(next{});
-  expect(state_machine.is("s2"_s));
+  expect(state_machine.is(state<s2>));
   expect(i == 1);
   state_machine.process_event(next{});
   expect(state_machine.is(X));
@@ -63,21 +68,21 @@ test wrap_member_functions = [] {
       auto const guard2 = wrap(&self::guard2_impl);
       auto const guard3 = wrap(&self::guard3_impl);
       auto const guard4 = wrap(&self::guard4_impl);
-      return make_transition_table(*"s1"_s + event<next>[guard1] / action1 = "s2"_s,
-                                   "s2"_s + event<next>[guard2] / action2 = "s3"_s,
-                                   "s3"_s + event<next>[guard3] / action3 = "s4"_s, "s4"_s + event<next>[guard4] / action4 = X);
+      return make_transition_table(
+          *state<s1> + event<next>[guard1] / action1 = state<s2>, state<s2> + event<next>[guard2] / action2 = state<s3>,
+          state<s3> + event<next>[guard3] / action3 = state<s4>, state<s4> + event<next>[guard4] / action4 = X);
     }
   };
 
   member_functions mf{};
   sm<member_functions> state_machine{mf};
-  expect(state_machine.is("s1"_s));
+  expect(state_machine.is(state<s1>));
   state_machine.process_event(next{});
-  expect(state_machine.is("s2"_s));
+  expect(state_machine.is(state<s2>));
   state_machine.process_event(next{});
-  expect(state_machine.is("s3"_s));
+  expect(state_machine.is(state<s3>));
   state_machine.process_event(next{});
-  expect(state_machine.is("s4"_s));
+  expect(state_machine.is(state<s4>));
   state_machine.process_event(next{});
   expect(state_machine.is(X));
 };
