@@ -447,16 +447,16 @@ struct zero_wrapper : TExpr {
   explicit zero_wrapper(const TExpr &expr) : TExpr(expr) {}
   const TExpr &get() const { return *this; }
 };
-template <class R, class TBase, class... TArgs>
-struct zero_wrapper<R (TBase::*)(TArgs...)> {
+template <class R, class TBase, class... TArgs, class T>
+struct zero_wrapper<R (TBase::*)(TArgs...), T> {
   explicit zero_wrapper(R (TBase::*ptr)(TArgs...)) : ptr{ptr} {}
   auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
 
  private:
   R (TBase::*ptr)(TArgs...){};
 };
-template <class R, class TBase, class... TArgs>
-struct zero_wrapper<R (TBase::*)(TArgs...) const> {
+template <class R, class TBase, class... TArgs, class T>
+struct zero_wrapper<R (TBase::*)(TArgs...) const, T> {
   explicit zero_wrapper(R (TBase::*ptr)(TArgs...) const) : ptr{ptr} {}
   auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
 
@@ -472,24 +472,24 @@ struct zero_wrapper<R (*)(TArgs...), T> {
   R (*ptr)(TArgs...){};
 };
 #if defined(__cpp_noexcept_function_type)
-template <class R, class TBase, class... TArgs>
-struct zero_wrapper<R (TBase::*)(TArgs...) noexcept> {
+template <class R, class TBase, class... TArgs, class T>
+struct zero_wrapper<R (TBase::*)(TArgs...) noexcept, T> {
   explicit zero_wrapper(R (TBase::*ptr)(TArgs...) noexcept) : ptr{ptr} {}
   auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
 
  private:
   R (TBase::*ptr)(TArgs...) noexcept {};
 };
-template <class R, class TBase, class... TArgs>
-struct zero_wrapper<R (TBase::*)(TArgs...) const noexcept> {
+template <class R, class TBase, class... TArgs, class T>
+struct zero_wrapper<R (TBase::*)(TArgs...) const noexcept, T> {
   explicit zero_wrapper(R (TBase::*ptr)(TArgs...) const noexcept) : ptr{ptr} {}
   auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
 
  private:
   R (TBase::*ptr)(TArgs...) const noexcept {};
 };
-template <class R, class... TArgs>
-struct zero_wrapper<R (*)(TArgs...) noexcept> {
+template <class R, class... TArgs, class T>
+struct zero_wrapper<R (*)(TArgs...) noexcept, T> {
   explicit zero_wrapper(R (*ptr)(TArgs...) noexcept) : ptr{ptr} {}
   auto operator()(TArgs... args) { return (*ptr)(args...); }
 
