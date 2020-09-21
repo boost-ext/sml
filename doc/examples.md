@@ -15,6 +15,7 @@
 * [eUML Emulation](#euml-emulation)
 * [Dependencies](#dependencies)
 * [Data](#data)
+* [In-Place](#in-place)
 * [Dependency Injection](#dependency-injection)
 * [SDL2 Integration](#sdl2-integration)
 * [Plant UML Integration](#plant-uml-integration)
@@ -72,6 +73,9 @@
 ###Data
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/data.cpp)
 
+###In-Place
+![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/in_place.cpp)
+
 ###Dependency Injection
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/dependency_injection.cpp)
 
@@ -80,4 +84,3 @@
 
 ###Plant UML Integration
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/plant_uml.cpp)
-
