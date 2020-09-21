@@ -22,6 +22,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
     add_test(test_dependencies test_dependencies)
 endif()
 
+add_executable(test_wrap wrap.cpp)
+add_test(test_wrap test_wrap)
+
 add_executable(test_deep_sm deep_sm.cpp)
 
 add_executable(test_di di.cpp)
@@ -40,7 +43,7 @@ add_executable(test_exceptions exceptions.cpp)
 add_test(test_exceptions test_exceptions)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
     target_compile_options(test_exceptions PRIVATE
-        "-fexceptions") # Enable exception handling
+            "-fexceptions") # Enable exception handling
 
     add_executable(test_fwd fwd.cpp)
     add_test(test_fwd test_fwd)
@@ -69,7 +72,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # gcc
     add_executable(test_policies_thread_safe policies_thread_safe.cpp)
     add_test(test_policies_thread_safe test_policies_thread_safe)
     target_link_libraries(test_policies_thread_safe
-        -lpthread)
+            -lpthread)
 endif ()
 
 add_executable(test_sizeof sizeof.cpp)
