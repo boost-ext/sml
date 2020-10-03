@@ -250,4 +250,28 @@ test exception_and_context = [] {
   sm.process_event(e1{});  // throws exception1
   expect(sm.is(sml::X));
 };
+
+test propage_exception_if_no_handled = [] {
+  struct c {
+    auto operator()() const {
+      using namespace sml;
+      // clang-format off
+        return make_transition_table(
+           *idle + event<e1> / [] { throw exception1{}; } = X
+        );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c> sm{};
+  auto exception = false;
+  try {
+    sm.process_event(e1{});  // throws exception1
+  } catch (const exception1 &) {
+    expect(sm.is(sml::X));
+    exception = true;
+  }
+
+  expect(exception);
+};
 #endif
