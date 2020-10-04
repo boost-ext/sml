@@ -56,11 +56,8 @@ class data {
 }  // namespace
 
 int main() {
-  Disconnected ds{};
-  Connected cs{};
-  Interrupted is{};
   data d{std::string{"127.0.0.1"}};
-  sml::sm<data> sm{d, ds, cs, is};
+  sml::sm<data> sm{d, Connected{1}};
   sm.process_event(connect{1024});
   sm.process_event(interrupt{});
   sm.process_event(connect{1025});

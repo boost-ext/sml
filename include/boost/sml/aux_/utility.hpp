@@ -138,18 +138,33 @@ T &get_by_id(tuple_type<N, T> *object) {
 }
 
 struct init {};
+
 struct pool_type_base {
   __BOOST_SML_ZERO_SIZE_ARRAY(byte);
 };
 
-template <class T>
-struct pool_type : pool_type_base {
-  explicit pool_type(T object) : value{object} {}
-
+template <class T, class = void>
+struct pool_type_impl : pool_type_base {
+  explicit pool_type_impl(T object) : value{object} {}
   template <class TObject>
-  pool_type(init i, TObject object) : value{i, object} {}
-
+  pool_type_impl(init i, TObject object) : value{i, object} {}
   T value;
+};
+
+template <class T>
+struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value>> : pool_type_base {
+  explicit pool_type_impl(T &value) : value{value} {}
+  template <class TObject>
+  explicit pool_type_impl(TObject value) : value_{value}, value{value_} {}
+  template <class TObject>
+  pool_type_impl(const init &i, const TObject &object) : value(i, object) {}
+  T value_{};
+  T &value;
+};
+
+template <class T>
+struct pool_type : pool_type_impl<T> {
+  using pool_type_impl<T>::pool_type_impl;
 };
 
 template <class T>
