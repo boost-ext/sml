@@ -9,11 +9,8 @@ set(CMAKE_CXX_STANDARD 11)
 add_example(simple_euml benchmark_simple_euml euml.cpp)
 set(CMAKE_CXX_STANDARD ${CURRENT_CXX_STANDARD})
 
-# sml/benchmark/complex/euml2.cpp:14:10: fatal error: boost/msm/front/euml2/euml2.hpp: No such file or directory
-# add_executable(simple_euml2 euml2.cpp)
-
 add_example(simple_sc benchmark_simple_sc sc.cpp)
 
 if (NOT IS_MSVC_2015)
-    add_example(simple_sml benchmark_simple_sml sml.cpp)
+  add_example(simple_sml benchmark_simple_sml sml.cpp)
 endif()

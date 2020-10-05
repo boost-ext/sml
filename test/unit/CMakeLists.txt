@@ -7,4 +7,3 @@
 add_executable(test_unit unit1.cpp unit2.cpp units.cpp)
 target_link_libraries(test_unit PUBLIC sml)
 add_test(test_unit test_unit)
-
