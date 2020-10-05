@@ -2,7 +2,6 @@ import os
 
 from conans import ConanFile, tools
 
-
 class SML(ConanFile):
     name = "SML"
     version = "latest"
@@ -15,4 +14,3 @@ class SML(ConanFile):
 
     def package(self):
         self.copy("*.hpp")
-
