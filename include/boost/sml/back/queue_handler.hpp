@@ -15,8 +15,8 @@ namespace back {
 template <class... Ts>
 class queue_event {
   using ids_t = aux::type_id<Ts...>;
-  static constexpr auto alignment = aux::max<alignof(Ts)...>();
-  static constexpr auto size = aux::max<sizeof(Ts)...>();
+  static constexpr auto alignment = aux::max_element<alignof(Ts)...>();
+  static constexpr auto size = aux::max_element<sizeof(Ts)...>();
 
   template <class T>
   static void dtor_impl(aux::byte *data) {
