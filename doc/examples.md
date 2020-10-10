@@ -17,6 +17,7 @@
 * [Data](#data)
 * [In-Place](#in-place)
 * [Dependency Injection](#dependency-injection)
+* [Arduino Integration](#arduino-integration)
 * [SDL2 Integration](#sdl2-integration)
 * [Plant UML Integration](#plant-uml-integration)
 
@@ -78,6 +79,9 @@
 
 ###Dependency Injection
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/dependency_injection.cpp)
+
+###Arduino Integration
+![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/arduino.cpp)
 
 ###SDL2 Integration
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/sdl2.cpp)

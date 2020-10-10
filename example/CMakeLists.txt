@@ -12,15 +12,8 @@ include_directories(AFTER
 source_group(example)
 
 if (IS_COMPILER_GCC_LIKE)
-    add_executable(actions_guards actions_guards.cpp)
-    target_link_libraries(actions_guards PUBLIC sml)
-    add_test(example_actions_guards actions_guards)
-
-    if (IS_COMPILER_GCC_LIKE)
-        target_compile_options(actions_guards PRIVATE
-            "-Wno-unused-parameter")
-    endif()
-
+    add_example(actions_guards actions_guards actions_guards.cpp)
+    add_example(arduino arduino arduino.cpp)
     add_example(composite example_composite composite.cpp)
     add_example(data example_data data.cpp)
     add_example(defer_and_process example_defer_and_process defer_and_process.cpp)

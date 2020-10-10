@@ -108,7 +108,7 @@ int main() {
 #### Compile
 * **GCC/Clang**
   ```sh
-  $CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic -pedantic-errors tcp_release.cpp
+  $CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic tcp_release.cpp
   ```
 * **MSVC**
   ```sh
@@ -180,6 +180,21 @@ send: 42
 | **Execution time**   |   679ms    | 827ms   |        622ms |        664ms     |             2282ms |
 | **Memory usage**     |      1b    | 2b/8b   |           1b |        120b      |             224b   |
 | **Executable size**  |     15K    | 187K    |          34K |        611K      |             211K   |
+
+---
+
+<a name="arduino"></a>
+### [Arduino](https://www.arduino.cc)
+
+<p align="center"><a href="http://www.plantuml.com/plantuml/uml/XOvFQy904CNl-odUpLXg4Ztq48g8VmwsOWlQNagHc9sOhN4txCwI-ksRhGZIIoyBR-RzPdyzqSFCD6Uh3XKZAleOfSE7mIWTfNYsok79EvKV4Hr3o1bVbomDGnFtHJWmLuwjsdic2QybMN15c1hZ61jJSfjRmaeLf1tTuvsiKqPZ6ATn1qSR8kH5OKvDhizA7r2gkgilPulrPh4RxjAOlnd6ekWyWqB5t6H9qhPjl0z_nCOUaZ_z83Pnd5lsfrg8ZxjF3CPGiYOHdX1gaZjJbiYGm17xHbmdrwNkTeqbvqW-lYxNMJPzssvVrcCaO6zrLuX-nwl5l2yknCtX_-2olA75XBGCgZy0"><img src="doc/images/arduino/uml.png" alt="arduino uml"/></a></p>
+
+<p align="center"><a href="https://godbolt.org/z/MfMdj9"><img src="doc/images/arduino/code.png" alt="arduino code"/></a></p>
+
+> https://godbolt.org/z/MfMdj9
+
+<p align="center"><a href="https://www.tinkercad.com/things/8rDYx57Ns7Q"><img src="doc/images/arduino/board.png" alt="arduino board"/></a></p>
+
+> https://www.tinkercad.com/things/8rDYx57Ns7Q
 
 ---------------------------------------
 
@@ -260,6 +275,7 @@ send: 42
     * [Data](https://boost-ext.github.io/sml/examples.html#data)
     * [In-Place](https://boost-ext.github.io/sml/examples.html#in-place)
     * [Dependency Injection](https://boost-ext.github.io/sml/examples.html#dependency-injection)
+    * [Arduino Integration](https://boost-ext.github.io/sml/examples.html#arduino-integration)
     * [SDL2 Integration](https://boost-ext.github.io/sml/examples.html#sdl2-integration)
     * [Plant UML Integration](https://boost-ext.github.io/sml/examples.html#plant-uml-integration)
 * [FAQ](https://boost-ext.github.io/sml/faq.html)

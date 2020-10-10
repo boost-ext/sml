@@ -29,7 +29,6 @@ project(sml LANGUAGES CXX)
 include(CTest)
 
 option(SML_BUILD_BENCHMARKS "Build benchmarks" ON)
-option(SML_BUILD_DOCS       "Build docs"       ON)
 option(SML_BUILD_EXAMPLES   "Build examples"   ON)
 option(SML_BUILD_TESTS      "Build tests"      ON)
 option(SML_USE_EXCEPTIONS   "Do not disable exceptions" ON)
@@ -132,10 +131,6 @@ endfunction()
 
 if (SML_BUILD_BENCHMARKS)
   add_subdirectory(benchmark)
-endif()
-
-if (SML_BUILD_DOCS)
-  add_subdirectory(doc)
 endif()
 
 if (SML_BUILD_EXAMPLES)
