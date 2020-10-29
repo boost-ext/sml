@@ -12,6 +12,12 @@
 
 > Your scalable C++14 **one header only** State Machine Library with no dependencies
 
+<p align="center"><a href="https://www.youtube.com/watch?v=Zb6xcd2as6o"><img src="doc/images/rise_of_the_state_machines.png" alt="Rise of the State Machines"/></a></p>
+
+> https://www.youtube.com/watch?v=Zb6xcd2as6o
+
+---
+
 <p align="center">
   <br />
   <b>Let's release a TCP connection!</b>
