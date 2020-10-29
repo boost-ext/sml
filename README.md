@@ -202,6 +202,24 @@ send: 42
 
 > https://www.tinkercad.com/things/8rDYx57Ns7Q
 
+---
+
+<a name="match3"></a>
+### [Match3](https://github.com/modern-cpp-examples/match3)
+
+<table>
+  <tr>
+    <td>
+      <p align="center"><a href="https://www.youtube.com/watch?v=8gRHHIjx4oE"><img src="doc/images/match3.png" alt="match3"/></a></p>
+    </td>
+    <td>
+      <p align="center"><a href="http://modern-cpp-examples.github.io/match3/"><img src="https://github.com/modern-cpp-examples/match3/raw/master/docs/images/match3.png" alt="match3"/></a></p>
+    </td>
+  </tr>
+</table>
+
+> https://github.com/modern-cpp-examples/match3
+
 ---------------------------------------
 
 ### Documentation
