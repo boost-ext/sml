@@ -6,66 +6,63 @@
 //
 #include <boost/sml.hpp>
 
-/**
- * Simulation: https://www.tinkercad.com/things/8rDYx57Ns7Q
- */
 #if __has_include(<Arduino.h>)
 #include <Arduino.h>
 
-struct blink {
-  enum class PIN : uint8_t {
-    BUTTON = 2,
-    LED = 11,
-  };
-  template <PIN Pin>
-  struct pressed {
-    static constexpr PIN pin = Pin;
-  };
+// clang-format off
+template<class T>
+concept component = requires {
+  T::setup();
+  T::on();
+  T::off();
+};
 
-  auto operator()() const {
-    using namespace boost::sml;
+template<auto Pin>
+struct led final {
+  static constexpr auto setup = [] { pinMode(uint8_t(Pin), OUTPUT); };
+  static constexpr auto on    = [] { digitalWrite(uint8_t(Pin), HIGH); };
+  static constexpr auto off   = [] { digitalWrite(uint8_t(Pin), LOW); };
+};
 
-    constexpr auto setup = [] {
-      pinMode(uint8_t(PIN::LED), OUTPUT);
-      pinMode(uint8_t(PIN::BUTTON), INPUT);
-    };
-    constexpr auto turn_on = [](auto pin) { return [pin] { digitalWrite(uint8_t(pin), HIGH); }; };
-    constexpr auto turn_off = [](auto pin) { return [pin] { digitalWrite(uint8_t(pin), LOW); }; };
+template<auto Pin>
+struct button final {
+  static constexpr auto setup = [] { pinMode(uint8_t(Pin), INPUT); };
+  static constexpr auto on    = [] { return digitalRead(uint8_t(Pin)) == HIGH; };
+  static constexpr auto off   = [] { return digitalRead(uint8_t(Pin)) == LOW; };
+};
+
+/**
+ * Simulation: https://www.tinkercad.com/things/9epUrFrzKP3
+ */
+template<component TButton, component TLed>
+struct switcher {
+  constexpr auto operator()() const {
+    const auto event = []<class TEvent>(TEvent) { return boost::sml::event<TEvent>; };
+    const auto setup = [this] { []<class... Ts>(switcher<Ts...>) { (Ts::setup(), ...); }(*this); };
 
     /**
      * Initial state: *initial_state
      * Transition DSL: src_state + event [ guard ] / action = dst_state
      */
-    // clang-format off
+    using namespace boost::sml;
     return make_transition_table(
-      *"idle"_s                                  / setup              = "led off"_s,
-       "led off"_s + event<pressed<PIN::BUTTON>> / turn_on (PIN::LED) = "led on"_s,
-       "led on"_s  + event<pressed<PIN::BUTTON>> / turn_off(PIN::LED) = "led off"_s
+      *"idle"_s                          / setup     = "led off"_s,
+       "led off"_s + event(TButton::on)  / TLed::on  = "led on"_s,
+       "led on"_s  + event(TButton::off) / TLed::off = "led off"_s
     );
-    // clang-format on
   }
 };
 
-template <template <class...> class TList, class... TEvents, class T>
-constexpr auto dispatch(TList<TEvents...>, T& sm) -> void {
-  // clang-format off
-  (void)boost::sml::aux::swallow{0, ((
-    [&sm](const auto& event) {
-      if (digitalRead(uint8_t(event.pin))) {
-        while (digitalRead(uint8_t(event.pin))) { delay(10); };
-        sm.process_event(decltype(event){});
-      }
-    }(TEvents{})
-  ), 0)...};
-  // clang-format on
-}
-
 int main() {
-  boost::sml::sm<blink> sm{};
-  for (;;) {
-    dispatch(decltype(sm)::events{}, sm);
+  for (boost::sml::sm<switcher<button<2>, led<11>>> sm;;) {
+    [&sm]<template<class...> class TList, class... TEvents>(TList<TEvents...>) {
+      ([&sm](const auto& event) {
+        if (event()) { sm.process_event(event); }
+      }(TEvents{}), ...);
+    }(decltype(sm)::events{});
   }
 }
+// clang-format on
 #else
 int main() {}
 #endif
