@@ -32,6 +32,7 @@ struct button final {
 };
 
 /**
+ * Implementation: https://godbolt.org/z/Ej5KeE
  * Simulation: https://www.tinkercad.com/things/9epUrFrzKP3
  */
 template<component TButton, component TLed>
