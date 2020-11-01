@@ -61,7 +61,7 @@
   <!-- .element: class="fragment" data-fragment-index="2" -->
 * #### Project - Switcher
   <!-- .element: class="fragment" data-fragment-index="3" -->
-  * #### Design/Development/Simulation
+  * #### Design/Implementation/Testing/Simulation
   <!-- .element: class="fragment" data-fragment-index="4" -->
 * #### Demo
   <!-- .element: class="fragment" data-fragment-index="5" -->
@@ -77,8 +77,8 @@
 
 ### Motivation/Goal
 
-<a href="https://store.arduino.cc/usa/arduino-uno-rev3"><img src="images/arduino_uno.jpg" style="width: 47%; background:none; border:none; box-shadow:none;" /></a>
-<a href="https://www.microchip.com/wwwproducts/en/ATtiny85"><img src="images/attiny85.jpg" style="width: 30%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://store.arduino.cc/usa/arduino-uno-rev3"><img src="images/arduino_uno.jpg" style="width: 43%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://www.microchip.com/wwwproducts/en/ATtiny85"><img src="images/attiny85.jpg" style="width: 27%; background:none; border:none; box-shadow:none;" /></a>
 
 #### Not easy to start with modern C++
 <!-- .element: class="fragment" -->
@@ -87,6 +87,9 @@
   <!-- .element: class="fragment" -->
 
   * #### Simulation online?
+  <!-- .element: class="fragment" -->
+
+  * #### ...
   <!-- .element: class="fragment" -->
 
 ----
@@ -112,7 +115,7 @@
 * #### Design - [Plant UML](https://plantuml.com)
 <!-- .element: class="fragment" -->
 
-* #### Development - [Compiler Explorer](https://godbolt.org)
+* #### Implementation - [Compiler Explorer](https://godbolt.org)
   <!-- .element: class="fragment" -->
 
   * #### avr-gcc-9.2.0 / C++20
@@ -121,10 +124,13 @@
   * #### gcc-trunk/clang-trunk
   <!-- .element: class="fragment" -->
 
-  * #### Libraries/include `http://...`
+  * #### Libraries
   <!-- .element: class="fragment" -->
 
-  * #### Multiple cross-compilations
+  * #### `#include <http://...>`
+  <!-- .element: class="fragment" -->
+
+  * #### Cross-compilation
   <!-- .element: class="fragment" -->
 
 ----
@@ -166,7 +172,7 @@
 
 * #### Simulation - [TinkerCad](https://www.tinkercad.com)
 
-  * #### Arduino/Attiny85
+  * #### Arduino Uno/Attiny85
   <!-- .element: class="fragment" -->
 
   * #### Multiple components
@@ -190,7 +196,7 @@ Feature: Switcher
       And The Button is switched off
       And The LED is turned off
      When I switch the Button
-     Then I should have turned on LED
+     Then The LED is turned on
 ```
 <!-- .element: class="fragment" -->
 
@@ -200,28 +206,25 @@ Feature: Switcher
       And The Button is switched on
       And The LED is turned on
      When I switch the Button
-     Then I should have turned off LED
+     Then The LED is turned off
 ```
 <!-- .element: class="fragment" -->
 
 ----
 
-#### Design - https://bit.ly/320Cmdu
-
-<img src="images/transition.png" style="width: 50%; background:none; border:none; box-shadow:none;" />
-<!-- .element: class="fragment" -->
+#### Design / Plant UML
 
 ```java
 @startuml
   [*]     -> idle
-  idle    -> led_off : / setup
+  idle    -> led_off :             / setup
   led_off -> led_on  : Button::on  / Led::on
   led_on  -> led_off : Button::off / Led::off
 @enduml
 ```
 <!-- .element: class="fragment" -->
 
-<img src="images/design.png" style="width: 100%; background:none; border:none; box-shadow:none;" />
+<img src="images/design.png" style="width: 60%; background:none; border:none; box-shadow:none;" />
 <!-- .element: class="fragment" -->
 
 ----
@@ -283,23 +286,27 @@ template<auto Pin> struct button final {
 <!-- .element: class="fragment" -->
 
 ```cpp
-* -> idle                 / setup    -> led_off
+* -> idle                  / setup    -> led_off
 ```
 <!-- .element: class="fragment" -->
 
 ```cpp
-     led_off : Button::on / Led::on  -> led_on
+     led_off : Button::on  / Led::on  -> led_on
 ```
 <!-- .element: class="fragment" -->
 
 ```cpp
-     led_on : Button::off / Led::off -> led_off
+     led_on  : Button::off / Led::off -> led_off
 ```
 <!-- .element: class="fragment" -->
 
 ---
 
 ```cpp
+/**
+ * Initial state: *initial_state
+ * Transition DSL: src_state + event [ guard ] / action = dst_state
+ */
 transition_table{
   *"idle"_s                          / setup     = "led off"_s,
    "led off"_s + event(TButton::on)  / TLed::on  = "led on"_s,
@@ -397,7 +404,7 @@ int main() {
 <!-- .element: class="fragment" data-fragment-index="3" -->
 
 ```cpp
-    should("switch the led when button is pressed") = [sm] {
+    should("turn on/off the led when button is switched") = [sm] {
       mut(sm).process_event(button_t::on);
       expect(sm.is("led on"_s));
 
@@ -430,7 +437,7 @@ int main() {
   using switcher_t = sm<switcher<
     #if defined (__AVR_ATtiny85__)
       button<PB1>, led<PB0>
-    #elif defined (__AVR_ATmega328__)
+    #elif defined (__AVR_ATmega328__) // Arduino Uno
       button<2>, led<11>
     #endif
   >>;
@@ -448,7 +455,7 @@ int main() {
         ([&sm](const auto& event) {
           if (event()) { sm.process_event(event); }
         }(TEvents{}), ...);
-      }(decltype(sm)::events{});
+      }(decltype(sm)::events{}); // dispatch events
 ```
 <!-- .element: class="fragment" data-fragment-index="4" -->
 
@@ -466,7 +473,10 @@ int main() {
 
 #### Implementation - Assembly / atmega328 / attiny85
 
-<a href="https://godbolt.org/z/q7dYjf"><img src="images/asm.png" style="width: 90%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://godbolt.org/z/nno96T"><img src="images/asm.png" style="width: 80%; background:none; border:none; box-shadow:none;" /></a>
+
+##### Fully optimized (same as hand written solution)
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
 ----
 
@@ -498,10 +508,15 @@ void loop() {  // Arduino's hot loop
 
 ----
 
-#### Simulation - Board
+#### Simulation - Arduino Uno / atmega328
 
-<a href="https://www.tinkercad.com/things/9epUrFrzKP3"><img src="images/sim_arduino.jpeg" style="width: 52%; background:none; border:none; box-shadow:none;" /></a>
-<a href="https://www.tinkercad.com/things/8QZMtpXRpvn"><img src="images/sim_attiny85.jpeg" style="width: 44%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://www.tinkercad.com/things/9epUrFrzKP3"><img src="images/sim_arduino.jpeg" style="width: 80%; background:none; border:none; box-shadow:none;" /></a>
+
+----
+
+#### Simulation - attiny85
+
+<a href="https://www.tinkercad.com/things/8QZMtpXRpvn"><img src="images/sim_attiny85.jpeg" style="width: 70%; background:none; border:none; box-shadow:none;" /></a>
 
 ==============================================================================
 
@@ -509,16 +524,16 @@ void loop() {  // Arduino's hot loop
 
 ---
 
-> #### Design: https://bit.ly/320Cmdu
+> #### Design - https://bit.ly/2HQQmj1
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
-> #### Development: https://godbolt.org/z/q7dYjf
+> #### Implementation - https://godbolt.org/z/nno96T
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
-> #### Simulation / atmega328: https://www.tinkercad.com/things/9epUrFrzKP3
+> #### Simulation / Arduino Uno / atmega328 - https://www.tinkercad.com/things/9epUrFrzKP3
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
-> #### Simulation / attiny85: https://www.tinkercad.com/things/8QZMtpXRpvn
+> #### Simulation / attiny85 - https://www.tinkercad.com/things/8QZMtpXRpvn
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 ==============================================================================
