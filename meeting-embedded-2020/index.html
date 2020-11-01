@@ -131,21 +131,24 @@
 
 * #### Testing - [UT](https://github.com/boost-ext/ut)
 
-  * #### C++20 ([GCC-9+, Clang-9.0+, Apple Clang-11.0.0+](https://travis-ci.org/boost-ext/ut), [MSVC-2019+*](https://ci.appveyor.com/project/boost-ext/ut))
+  * #### C++20 ([GCC-9+, Clang-9.0+, Apple Clang-11.0.0+](https://travis-ci.org/boost-ext/ut), [MSVC-2019+](https://ci.appveyor.com/project/boost-ext/ut))
   <!-- .element: class="fragment" data-fragment-index="1" -->
 
-  * #### Single [header/module](https://github.com/boost-ext/ut/blob/master/include/boost/ut.hpp) (2k LOC) with no external dependencies
+  * #### Single [header/module](https://github.com/boost-ext/ut/blob/master/include/boost/ut.hpp) / 2k LOC
   <!-- .element: class="fragment" data-fragment-index="2" -->
 
-  * #### Macro-free (✔️)
+  * #### Only STL is required
   <!-- .element: class="fragment" data-fragment-index="3" -->
 
-  * #### Features ([Assertions](https://github.com/boost-ext/ut/tree/master/example/expect.cpp), [Suites](https://github.com/boost-ext/ut/tree/master/example/suite.cpp), [Tests](https://github.com/boost-ext/ut/tree/master/example/skip.cpp), [Sections](https://github.com/boost-ext/ut/tree/master/example/section.cpp), [BDD](https://github.com/boost-ext/ut/tree/master/example/BDD.cpp), [Matchers](https://github.com/boost-ext/ut/tree/master/example/matcher.cpp), [Logging](https://github.com/boost-ext/ut/tree/master/example/log.cpp), [...](https://github.com/boost-ext/ut/tree/master/example))
+  * #### Macro-free
   <!-- .element: class="fragment" data-fragment-index="4" -->
 
 ----
 
-* #### Implementation - [SML](https://github.com/boost-ext/sml)
+* #### Implementation / State Machine - [SML](https://github.com/boost-ext/sml)
+
+  * #### C++14 ([Clang-3.4+](https://travis-ci.org/boost-ext/sml), [XCode-6.1+](https://travis-ci.org/boost-ext/sml), [GCC-5.2+](https://travis-ci.org/boost-ext/sml), [MSVC-2015+](https://ci.appveyor.com/project/boost-ext/sml))
+  <!-- .element: class="fragment" -->
 
   * #### Single header / [sml.hpp](https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml.hpp) / 2k LOC
   <!-- .element: class="fragment" -->
@@ -159,15 +162,15 @@
   * #### No exceptions required (-fno-exceptions)
   <!-- .element: class="fragment" -->
 
-  * #### Supported compilers (C++14)
-  <!-- .element: class="fragment" -->
-
-  * #### [Clang-3.4+](https://travis-ci.org/boost-ext/sml), [XCode-6.1+](https://travis-ci.org/boost-ext/sml), [GCC-5.2+](https://travis-ci.org/boost-ext/sml), [MSVC-2015+](https://ci.appveyor.com/project/krzysztof-jusiak/sml)
-  <!-- .element: class="fragment" -->
-
 ----
 
 * #### Simulation - [TinkerCad](https://www.tinkercad.com)
+
+  * #### Arduino/Attiny85
+  <!-- .element: class="fragment" -->
+
+  * #### Multiple components
+  <!-- .element: class="fragment" -->
 
 ==============================================================================
 
@@ -203,7 +206,7 @@ Feature: Switcher
 
 ----
 
-### Design - https://bit.ly/320Cmdu
+#### Design - https://bit.ly/320Cmdu
 
 <img src="images/transition.png" style="width: 50%; background:none; border:none; box-shadow:none;" />
 <!-- .element: class="fragment" -->
@@ -223,7 +226,7 @@ Feature: Switcher
 
 ----
 
-### Implementation - Component
+#### Implementation - Component
 
 ```cpp
 template<class T>
@@ -257,11 +260,11 @@ template<auto Pin> struct button final {
 
 ----
 
-### Concepts / C++20 / [C++draft/concepts](http://eel.is/c++draft/concepts)
+#### Concepts / C++20 / [C++draft/concepts](http://eel.is/c++draft/concepts)
 
 ---
 
-* #### Type constraints (act like documentation for interfaces)
+* #### Type constraints (acts like documentation for interfaces)
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 * #### Better error messages (Point of Instantiation (`POI`))
@@ -274,9 +277,9 @@ template<auto Pin> struct button final {
 
 ----
 
-### Implementation - SML -  Switcher State Machine
+#### Implementation - Switcher State Machine
 
-<img src="images/design.png" style="width: 100%; background:none; border:none; box-shadow:none;" />
+<img src="images/design.png" style="width: 60%; background:none; border:none; box-shadow:none;" />
 <!-- .element: class="fragment" -->
 
 ```cpp
@@ -307,7 +310,7 @@ transition_table{
 
 ----
 
-### Implementation - Switcher State Machine
+#### Implementation - Switcher State Machine
 
 ```cpp
 template<component TButton, component TLed> struct switcher {
@@ -315,24 +318,32 @@ template<component TButton, component TLed> struct switcher {
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
-  constexpr switcher() {
-    [this]<class... Ts>(switcher<Ts...>) {
-      (Ts::setup(), ...);
-    }(*this);
-  }
+  constexpr auto operator()() const {
 ```
 <!-- .element: class="fragment" data-fragment-index="2" -->
 
 ```cpp
-  constexpr auto operator()() const {
+    const auto setup = {
+      [this]<class... Ts>(switcher<Ts...>) {
+        (Ts::setup(), ...);
+      }(*this);
+    };
+```
+<!-- .element: class="fragment" data-fragment-index="4" -->
+
+```cpp
     return transition_table{
       *"idle"_s                          / setup     = "led off"_s,
        "led off"_s + event(TButton::on)  / TLed::on  = "led on"_s,
        "led on"_s  + event(TButton::off) / TLed::off = "led off"_s
     };
-  }
 ```
 <!-- .element: class="fragment" data-fragment-index="3" -->
+
+```cpp
+  }
+```
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 ```cpp
 };
@@ -341,7 +352,7 @@ template<component TButton, component TLed> struct switcher {
 
 ----
 
-### Immediately-invoked function expression (`IIFE`)
+#### Immediately-invoked function expression (`IIFE`)
 
 ```cpp
 template<auto N>
@@ -363,7 +374,7 @@ static_assert(0 + 1 + 2 == iife<3>);
 
 ----
 
-### Implementation - testing
+#### Implementation - testing
 
 ```cpp
 int main() {
@@ -373,7 +384,7 @@ int main() {
 ```cpp
   "switcher"_test = [] {
     using button_t = button<0>;
-    using led_t = led<1>;
+    using led_t    = led<1>;
     sm<switcher<button_t, led_t>> sm{};
 ```
 <!-- .element: class="fragment" data-fragment-index="2" -->
@@ -408,7 +419,7 @@ int main() {
 
 ----
 
-### Implementation - main
+#### Implementation - main
 
 ```cpp
 int main() {
@@ -453,13 +464,13 @@ int main() {
 
 ----
 
-### Assembly - atmega328 / attiny85
+#### Implementation - Assembly / atmega328 / attiny85
 
 <a href="https://godbolt.org/z/q7dYjf"><img src="images/asm.png" style="width: 90%; background:none; border:none; box-shadow:none;" /></a>
 
 ----
 
-### Simulation - Setup/Loop
+#### Simulation - Setup/Loop
 
 ```cpp
 void setup(){} // Arudino's setup
@@ -467,14 +478,14 @@ void setup(){} // Arudino's setup
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
-void loop() { // Arduino's hot loop
+void loop() {  // Arduino's hot loop
 ```
 <!-- .element: class="fragment" data-fragment-index="2" -->
 
 ```cpp
   asm(R"(
 
-    ... // ASM output from Compiler Explorer
+    ...        // Assembly output from Compiler Explorer
 
   )");
 ```
@@ -487,10 +498,10 @@ void loop() { // Arduino's hot loop
 
 ----
 
-### Simulation - https://www.tinkercad.com
+#### Simulation - Board
 
-<a href="https://www.tinkercad.com/things/9epUrFrzKP3"><img src="images/sim_arduino.jpeg" style="width: 47%; background:none; border:none; box-shadow:none;" /></a>
-<a href="https://www.tinkercad.com/things/8QZMtpXRpvn"><img src="images/sim_attiny85.jpeg" style="width: 40%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://www.tinkercad.com/things/9epUrFrzKP3"><img src="images/sim_arduino.jpeg" style="width: 52%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://www.tinkercad.com/things/8QZMtpXRpvn"><img src="images/sim_attiny85.jpeg" style="width: 44%; background:none; border:none; box-shadow:none;" /></a>
 
 ==============================================================================
 
