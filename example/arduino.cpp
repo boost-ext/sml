@@ -12,34 +12,38 @@
 // clang-format off
 template<class T>
 concept component = requires {
-  T::setup();
-  T::on();
-  T::off();
+  T::setup;
+  T::on;
+  T::off;
 };
 
 template<auto Pin>
 struct led final {
   static constexpr auto setup = [] { pinMode(uint8_t(Pin), OUTPUT); };
-  static constexpr auto on    = [] { digitalWrite(uint8_t(Pin), HIGH); };
-  static constexpr auto off   = [] { digitalWrite(uint8_t(Pin), LOW); };
+  static constexpr auto on    = [] { digitalWrite(uint8_t(Pin), HIGH); }; 
+  static constexpr auto off   = [] { digitalWrite(uint8_t(Pin), LOW); }; 
 };
 
 template<auto Pin>
 struct button final {
-  static constexpr auto setup = [] { pinMode(uint8_t(Pin), INPUT); };
-  static constexpr auto on    = [] { return digitalRead(uint8_t(Pin)) == HIGH; };
-  static constexpr auto off   = [] { return digitalRead(uint8_t(Pin)) == LOW; };
+  static constexpr auto setup   = [] { pinMode(uint8_t(Pin), INPUT); };
+  static constexpr auto on      = [] (const auto& event) { return event() == HIGH; };
+  static constexpr auto off     = [] (const auto& event) { return event() == LOW; };
+  static constexpr auto pressed = [] { return digitalRead(uint8_t(Pin)); }; 
 };
 
 /**
- * Implementation: https://godbolt.org/z/Ej5KeE
+ * Implementation: https://godbolt.org/z/55z858
  * Simulation: https://www.tinkercad.com/things/9epUrFrzKP3
  */
-template<component TButton, component TLed>
+template<component Btn, component Led>
 struct switcher {
+  constexpr switcher() {
+    []<class... Ts>(switcher<Ts...>) { (Ts::setup(), ...); }(*this);
+  }
+
   constexpr auto operator()() const {
     const auto event = []<class TEvent>(TEvent) { return boost::sml::event<TEvent>; };
-    const auto setup = [this] { []<class... Ts>(switcher<Ts...>) { (Ts::setup(), ...); }(*this); };
 
     /**
      * Initial state: *initial_state
@@ -47,9 +51,8 @@ struct switcher {
      */
     using namespace boost::sml;
     return make_transition_table(
-      *"idle"_s                          / setup     = "led off"_s,
-       "led off"_s + event(TButton::on)  / TLed::on  = "led on"_s,
-       "led on"_s  + event(TButton::off) / TLed::off = "led off"_s
+      *"off"_s + event(Btn::pressed) [ Btn::on  ] / Led::on  = "on"_s,
+       "on"_s  + event(Btn::pressed) [ Btn::off ] / Led::off = "off"_s
     );
   }
 };
@@ -57,9 +60,7 @@ struct switcher {
 int main() {
   for (boost::sml::sm<switcher<button<2>, led<11>>> sm;;) {
     [&sm]<template<class...> class TList, class... TEvents>(TList<TEvents...>) {
-      ([&sm](const auto& event) {
-        if (event()) { sm.process_event(event); }
-      }(TEvents{}), ...);
+      (sm.process_event(TEvents{}), ...);
     }(decltype(sm)::events{});
   }
 }
