@@ -27,6 +27,7 @@ endif()
 
 if (IS_COMPILER_GCC_LIKE)
     add_example(dispatch_table example_dispatch_table dispatch_table.cpp)
+    add_example(dispatch_policy example_poilcy dispatch_policy.cpp)
 
     if (${SML_USE_EXCEPTIONS})
     add_executable(error_handling error_handling.cpp)
