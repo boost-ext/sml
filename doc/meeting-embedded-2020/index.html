@@ -209,7 +209,7 @@ void loop() {
 
 ```gherkin
 Feature: Switcher
-  Turn On/Off LED when Button pressed
+  Turn On/Off LED when Button is switched
 ```
 <!-- .element: class="fragment" -->
 
@@ -469,7 +469,8 @@ int main() {
     [&sm]<template<class...> class TList, class... TEvents>
       (TList<TEvents...>) {
         (sm.process_event(TEvents{}), ...);
-      }(decltype(sm)::events{}); // dispatch events
+      }
+    (decltype(sm)::events{}); // dispatch events
 ```
 <!-- .element: class="fragment" data-fragment-index="4" -->
 
@@ -485,21 +486,21 @@ int main() {
 
 ----
 
-#### Implementation - ASM attiny85 / C++11 & if/else/globals
+#### Implementation - ASM attiny85 / C++11 & if/else, globals
 
-<a href="https://godbolt.org/z/W3zvjj"><img src="images/asm_main_if_loop.png" style="width: 48%; background:none; border:none; box-shadow:none;" /></a>
-
-----
-
-#### Implementation - ASM attiny85 / C++11 & if/else/main
-
-<a href="https://godbolt.org/z/W3zvjj"><img src="images/asm_main_if.png" style="width: 55%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://godbolt.org/z/P4WMeo"><img src="images/asm_main_if_loop.png" style="width: 48%; background:none; border:none; box-shadow:none;" /></a>
 
 ----
 
-#### Implementation - ASM attiny85 / C++20 & SML
+#### Implementation - ASM attiny85 / C++11 & if/else
 
-<a href="https://godbolt.org/z/W3zvjj"><img src="images/asm_sml.png" style="width: 65%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://godbolt.org/z/P4WMeo"><img src="images/asm_main_if.png" style="width: 55%; background:none; border:none; box-shadow:none;" /></a>
+
+----
+
+#### Implementation - ASM attiny85 / C++20 & [SML](https://github.com/boost-ext/sml)
+
+<a href="https://godbolt.org/z/P4WMeo"><img src="images/asm_sml.png" style="width: 55%; background:none; border:none; box-shadow:none;" /></a>
 
 ----
 
@@ -509,9 +510,9 @@ int main() {
 
 | Standard | Implementation | ASM LOC |
 |-|-|-|
-| C++11 | if/else/globals | 44 |
-| C++11 | if/else/main    | 32 |
-| C++20 | SML             | 24 |
+| C++11 | if/else, globals | 44 |
+| C++11 | if/else          | 32 |
+| C++20 | [State Machine](https://github.com/boost-ext/sml) | 24 |
 
 ---
 
