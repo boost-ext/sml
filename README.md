@@ -189,8 +189,10 @@ send: 42
 
 ---
 
+### Examples
+
 <a name="arduino"></a>
-### [Arduino](https://www.arduino.cc)
+* #### [Arduino](https://www.arduino.cc)
 
 <p align="center"><a href="http://www.plantuml.com/plantuml/uml/TP11Qy9048Nl-HNlPYnj4ZtcK4JheQtq4kX5HDRiRB9LTyFiXDH_twmM2WKl2n_xFjvZ5a4KIty-9PDaWfNlBcoRLf3MKyoBUO5tjW5lVR3gYFGOGGc-Rgozm95Ch-wB3SBsq0jfz4uJGrh2qliWgBoHGJ5XOsjoWHxnIHoiTvXbHJRAQKK4LTV-t2btiQw1iQSn_hfQVrJh_MnVPF8jy8nwd1Wdj29TcUV3C6I7s95vRl9_-JWCs3xiyFGCRqo2-5x10IMMuigoOmg1DBOtZ3yxvDYGZX0LXr__dcBCdn9h5kJqUD8V"><img src="doc/images/arduino/uml.png" alt="Arduino UML"/></a></p>
 
@@ -204,8 +206,17 @@ send: 42
 
 ---
 
+<a name="avr"></a>
+* #### [AVR](https://www.arduino.cc)
+
+<p align="center"><a href="https://godbolt.org/z/W3zvjj"><img src="doc/images/avr.png" alt="AVR performance"/></a></p>
+
+> https://godbolt.org/z/W3zvjj
+
+---
+
 <a name="match3"></a>
-### [Match3](https://github.com/modern-cpp-examples/match3)
+* #### [Match3](https://github.com/modern-cpp-examples/match3)
 
 <table>
   <tr>
