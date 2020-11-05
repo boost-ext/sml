@@ -75,22 +75,42 @@
 
 ==============================================================================
 
-### Motivation/Goal
+### Motivation
 
 <a href="https://store.arduino.cc/usa/arduino-uno-rev3"><img src="images/arduino_uno.jpg" style="width: 43%; background:none; border:none; box-shadow:none;" /></a>
 <a href="https://www.microchip.com/wwwproducts/en/ATtiny85"><img src="images/attiny85.jpg" style="width: 27%; background:none; border:none; box-shadow:none;" /></a>
 
-#### Not easy to start with modern C++
-<!-- .element: class="fragment" -->
+----
+
+### Motivation/Problem
 
   * #### [Arduino IDE](https://www.arduino.cc) - avr-gcc-7.3.0 / C++11
-  <!-- .element: class="fragment" -->
+  <!-- .element: class="fragment" data-fragment-index="1" -->
 
   * #### Simulation online?
-  <!-- .element: class="fragment" -->
+  <!-- .element: class="fragment" data-fragment-index="2" -->
+
+  * #### Modern C++?
+  <!-- .element: class="fragment" data-fragment-index="3" -->
+
+```cpp
+bool is_button_1_on = false;
+...
+
+void loop() {
+  if ((is_button_1_on and not is_button_2_on) or is_led_off) {
+    ...
+  } else if (extra_feature_enabled and not testing) {
+    ...
+  } else {
+    ...
+  }
+}
+```
+  <!-- .element: class="fragment" data-fragment-index="3" -->
 
   * #### ...
-  <!-- .element: class="fragment" -->
+  <!-- .element: class="fragment" data-fragment-index="4" -->
 
 ----
 
@@ -156,6 +176,9 @@
   * #### C++14 ([Clang-3.4+](https://travis-ci.org/boost-ext/sml), [XCode-6.1+](https://travis-ci.org/boost-ext/sml), [GCC-5.2+](https://travis-ci.org/boost-ext/sml), [MSVC-2015+](https://ci.appveyor.com/project/boost-ext/sml))
   <!-- .element: class="fragment" -->
 
+  * #### [UML-2.5](https://www.omg.org/spec/UML/2.5) compliant
+  <!-- .element: class="fragment" -->
+
   * #### Single header / [sml.hpp](https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml.hpp) / 2k LOC
   <!-- .element: class="fragment" -->
 
@@ -186,7 +209,7 @@
 
 ```gherkin
 Feature: Switcher
-  Turn On/Off LED when Button pressed
+  Turn On/Off LED when Button is switched
 ```
 <!-- .element: class="fragment" -->
 
@@ -216,10 +239,9 @@ Feature: Switcher
 
 ```java
 @startuml
-  [*]     -> idle
-  idle    -> led_off :             / setup
-  led_off -> led_on  : Button::on  / Led::on
-  led_on  -> led_off : Button::off / Led::off
+  [*] -> off
+  off -> on  : Btn::pressed [ Btn::on  ] / Led::on
+  on  -> off : Btn::pressed [ Btn::off ] / Led::off
 @enduml
 ```
 <!-- .element: class="fragment" -->
@@ -234,9 +256,9 @@ Feature: Switcher
 ```cpp
 template<class T>
 concept component = requires {
-  T::setup();
-  T::on();
-  T::off();
+  T::setup; // set pin mode
+  T::on;    // state of write/read
+  T::off;   // state of write/read
 };
 ```
 <!-- .element: class="fragment" data-fragment-index="1" -->
@@ -254,9 +276,10 @@ template<auto Pin> struct led final {
 
 ```cpp
 template<auto Pin> struct button final {
-  constexpr auto setup = []{ pinMode(Pin, INPUT); };
-  constexpr auto on    = []{ return digitalRead(Pin) == HIGH; };
-  constexpr auto off   = []{ return digitalRead(Pin) == LOW; };
+  constexpr auto setup   = []{ pinMode(Pin, INPUT); };
+  constexpr auto on      = []( auto state ) { return state == HIGH; };
+  constexpr auto off     = []( auto state ) { return state == LOW; };
+  constexpr auto pressed = []{ return digitalRead(Pin); };
 };
 ```
 <!-- .element: class="fragment" data-fragment-index="3" -->
@@ -286,17 +309,12 @@ template<auto Pin> struct button final {
 <!-- .element: class="fragment" -->
 
 ```cpp
-* -> idle                  / setup    -> led_off
+* -> off : Btn::pressed [ Btn::on ]  / Led::on  -> on
 ```
 <!-- .element: class="fragment" -->
 
 ```cpp
-     led_off : Button::on  / Led::on  -> led_on
-```
-<!-- .element: class="fragment" -->
-
-```cpp
-     led_on  : Button::off / Led::off -> led_off
+     on  : Btn::pressed [ Btn::off ] / Led::off -> off
 ```
 <!-- .element: class="fragment" -->
 
@@ -305,12 +323,11 @@ template<auto Pin> struct button final {
 ```cpp
 /**
  * Initial state: *initial_state
- * Transition DSL: src_state + event [ guard ] / action = dst_state
+ * Transition DSL: src_state + event [guard] / action = dst_state
  */
 transition_table{
-  *"idle"_s                          / setup     = "led off"_s,
-   "led off"_s + event(TButton::on)  / TLed::on  = "led on"_s,
-   "led on"_s  + event(TButton::off) / TLed::off = "led off"_s
+  * "off"_s + event(Btn::pressed) [ Btn::on  ] / Led::on  = "on"_s,
+    "on"_s  + event(Btn::pressed) [ Btn::off ] / Led::off = "off"_s
 };
 ```
 <!-- .element: class="fragment" -->
@@ -320,37 +337,36 @@ transition_table{
 #### Implementation - Switcher State Machine
 
 ```cpp
-template<component TButton, component TLed> struct switcher {
+template<component Btn, component Led> struct switcher {
 ```
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
-  constexpr auto operator()() const {
+  constexpr switcher() {
+    [this]<class... Ts>(switcher<Ts...>) {
+      (Ts::setup(), ...); // set pin modes
+    }(*this);
+  }
 ```
-<!-- .element: class="fragment" data-fragment-index="2" -->
+  <!-- .element: class="fragment" data-fragment-index="2" -->
 
 ```cpp
-    const auto setup = {
-      [this]<class... Ts>(switcher<Ts...>) {
-        (Ts::setup(), ...);
-      }(*this);
+  constexpr auto operator()() const {
+```
+<!-- .element: class="fragment" data-fragment-index="3" -->
+
+```cpp
+    return transition_table{
+     * "off"_s + event(Btn::pressed) [Btn::on ] / TLed::on  = "on"_s,
+       "on"_s  + event(Btn::pressed) [Btn::off] / TLed::off = "off"_s
     };
 ```
 <!-- .element: class="fragment" data-fragment-index="4" -->
 
 ```cpp
-    return transition_table{
-      *"idle"_s                          / setup     = "led off"_s,
-       "led off"_s + event(TButton::on)  / TLed::on  = "led on"_s,
-       "led on"_s  + event(TButton::off) / TLed::off = "led off"_s
-    };
-```
-<!-- .element: class="fragment" data-fragment-index="3" -->
-
-```cpp
   }
 ```
-<!-- .element: class="fragment" data-fragment-index="2" -->
+<!-- .element: class="fragment" data-fragment-index="3" -->
 
 ```cpp
 };
@@ -390,26 +406,26 @@ int main() {
 
 ```cpp
   "switcher"_test = [] {
-    using button_t = button<0>;
-    using led_t    = led<1>;
+    using button_t = button<0>; // fake button
+    using led_t    = led<1>;    // fake led
     sm<switcher<button_t, led_t>> sm{};
 ```
 <!-- .element: class="fragment" data-fragment-index="2" -->
 
 ```cpp
-    should("start with led off") = [sm] {
-      expect(sm.is("led off"_s));
+    should("start in off state") = [sm] {
+      expect(sm.is("off"_s));
     };
 ```
 <!-- .element: class="fragment" data-fragment-index="3" -->
 
 ```cpp
     should("turn on/off the led when button is switched") = [sm] {
-      mut(sm).process_event(button_t::on);
-      expect(sm.is("led on"_s));
+      mut(sm).process_event(button_t::pressed);
+      expect(sm.is("on"_s));
 
-      mut(sm).process_event(button_t::off);
-      expect(sm.is("led off"_s));
+      mut(sm).process_event(button_t::pressed);
+      expect(sm.is("off"_s));
     };
 ```
 <!-- .element: class="fragment" data-fragment-index="4" -->
@@ -452,10 +468,9 @@ int main() {
 ```cpp
     [&sm]<template<class...> class TList, class... TEvents>
       (TList<TEvents...>) {
-        ([&sm](const auto& event) {
-          if (event()) { sm.process_event(event); }
-        }(TEvents{}), ...);
-      }(decltype(sm)::events{}); // dispatch events
+        (sm.process_event(TEvents{}), ...);
+      }
+    (decltype(sm)::events{}); // dispatch events
 ```
 <!-- .element: class="fragment" data-fragment-index="4" -->
 
@@ -471,11 +486,37 @@ int main() {
 
 ----
 
-#### Implementation - Assembly / atmega328 / attiny85
+#### Implementation - ASM attiny85 / C++11 & if/else, globals
 
-<a href="https://godbolt.org/z/nno96T"><img src="images/asm.png" style="width: 80%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://godbolt.org/z/P4WMeo"><img src="images/asm_main_if_loop.png" style="width: 48%; background:none; border:none; box-shadow:none;" /></a>
 
-##### Fully optimized (same as hand written solution)
+----
+
+#### Implementation - ASM attiny85 / C++11 & if/else
+
+<a href="https://godbolt.org/z/P4WMeo"><img src="images/asm_main_if.png" style="width: 55%; background:none; border:none; box-shadow:none;" /></a>
+
+----
+
+#### Implementation - ASM attiny85 / C++20 & [SML](https://github.com/boost-ext/sml)
+
+<a href="https://godbolt.org/z/P4WMeo"><img src="images/asm_sml.png" style="width: 55%; background:none; border:none; box-shadow:none;" /></a>
+
+----
+
+#### Implementation - ASM attiny85
+
+---
+
+| Standard | Implementation | ASM LOC |
+|-|-|-|
+| C++11 | if/else, globals | 44 |
+| C++11 | if/else          | 32 |
+| C++20 | [State Machine](https://github.com/boost-ext/sml) | 24 |
+
+---
+
+#### https://godbolt.org/z/W3zvjj
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 ----
@@ -510,13 +551,13 @@ void loop() {  // Arduino's hot loop
 
 #### Simulation - Arduino Uno / atmega328
 
-<a href="https://www.tinkercad.com/things/9epUrFrzKP3"><img src="images/sim_arduino.jpeg" style="width: 80%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://www.tinkercad.com/things/9epUrFrzKP3"><img src="images/sim_arduino.png" style="width: 80%; background:none; border:none; box-shadow:none;" /></a>
 
 ----
 
 #### Simulation - attiny85
 
-<a href="https://www.tinkercad.com/things/8QZMtpXRpvn"><img src="images/sim_attiny85.jpeg" style="width: 70%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://www.tinkercad.com/things/8QZMtpXRpvn"><img src="images/sim_attiny85.png" style="width: 70%; background:none; border:none; box-shadow:none;" /></a>
 
 ==============================================================================
 
@@ -524,10 +565,10 @@ void loop() {  // Arduino's hot loop
 
 ---
 
-> #### Design - https://bit.ly/2HQQmj1
+> #### Design - https://bit.ly/2HY4WVP
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
-> #### Implementation - https://godbolt.org/z/nno96T
+> #### Implementation - https://godbolt.org/z/Px8afj
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 > #### Simulation / Arduino Uno / atmega328 - https://www.tinkercad.com/things/9epUrFrzKP3
@@ -558,8 +599,6 @@ void loop() {  // Arduino's hot loop
 ---
 
 #### Slides - https://boost-ext.github.io/sml/meeting-embedded-2020
-
----
 
 #### SML, UT - https://github.com/boost-ext/ut
 
@@ -643,7 +682,7 @@ void loop() {  // Arduino's hot loop
         previewLinks: false,
 
         // Transition style
-        transition: 'convex', // none/fade/slide/convex/concave/zoom
+        transition: 'none', // none/fade/slide/convex/concave/zoom
 
         // Transition speed
         transitionSpeed: 'default', // default/fast/slow
