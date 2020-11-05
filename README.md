@@ -192,15 +192,15 @@ send: 42
 <a name="arduino"></a>
 ### [Arduino](https://www.arduino.cc)
 
-<p align="center"><a href="http://www.plantuml.com/plantuml/uml/XOvFQy904CNl-odUpLXg4Ztq48g8VmwsOWlQNagHc9sOhN4txCwI-ksRhGZIIoyBR-RzPdyzqSFCD6Uh3XKZAleOfSE7mIWTfNYsok79EvKV4Hr3o1bVbomDGnFtHJWmLuwjsdic2QybMN15c1hZ61jJSfjRmaeLf1tTuvsiKqPZ6ATn1qSR8kH5OKvDhizA7r2gkgilPulrPh4RxjAOlnd6ekWyWqB5t6H9qhPjl0z_nCOUaZ_z83Pnd5lsfrg8ZxjF3CPGiYOHdX1gaZjJbiYGm17xHbmdrwNkTeqbvqW-lYxNMJPzssvVrcCaO6zrLuX-nwl5l2yknCtX_-2olA75XBGCgZy0"><img src="doc/images/arduino/uml.png" alt="arduino uml"/></a></p>
+<p align="center"><a href="http://www.plantuml.com/plantuml/uml/TP11Qy9048Nl-HNlPYnj4ZtcK4JheQtq4kX5HDRiRB9LTyFiXDH_twmM2WKl2n_xFjvZ5a4KIty-9PDaWfNlBcoRLf3MKyoBUO5tjW5lVR3gYFGOGGc-Rgozm95Ch-wB3SBsq0jfz4uJGrh2qliWgBoHGJ5XOsjoWHxnIHoiTvXbHJRAQKK4LTV-t2btiQw1iQSn_hfQVrJh_MnVPF8jy8nwd1Wdj29TcUV3C6I7s95vRl9_-JWCs3xiyFGCRqo2-5x10IMMuigoOmg1DBOtZ3yxvDYGZX0LXr__dcBCdn9h5kJqUD8V"><img src="doc/images/arduino/uml.png" alt="Arduino UML"/></a></p>
 
-<p align="center"><a href="https://godbolt.org/z/MfMdj9"><img src="doc/images/arduino/code.png" alt="arduino code"/></a></p>
+<p align="center"><a href="https://godbolt.org/z/z55az3"><img src="doc/images/arduino/code.png" alt="Arduino Code"/></a></p>
 
-> https://godbolt.org/z/MfMdj9
+> https://godbolt.org/z/z55az3
 
-<p align="center"><a href="https://www.tinkercad.com/things/8rDYx57Ns7Q"><img src="doc/images/arduino/board.png" alt="arduino board"/></a></p>
+<p align="center"><a href="https://www.tinkercad.com/things/9epUrFrzKP3"><img src="doc/images/arduino/board.png" alt="Arduino Board"/></a></p>
 
-> https://www.tinkercad.com/things/8rDYx57Ns7Q
+> https://www.tinkercad.com/things/9epUrFrzKP3
 
 ---
 
