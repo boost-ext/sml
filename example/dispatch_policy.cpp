@@ -19,10 +19,10 @@ struct timeout {};
 // clang-format off
 struct dispatch_policy {
   auto operator()() const {
-    constexpr auto establish = []{ std::puts("establish"); };
-    constexpr auto close = []{ std::puts("close"); };
-    constexpr auto is_valid = [](auto const&) { return true; };
-    constexpr auto reset_timeout = []{ std::puts("reset_timeout"); };
+    const auto establish = []{ std::puts("establish"); };
+    const auto close = []{ std::puts("close"); };
+    const auto is_valid = [](auto const&) { return true; };
+    const auto reset_timeout = []{ std::puts("reset_timeout"); };
 
     using namespace sml;
     return make_transition_table(
@@ -70,6 +70,7 @@ int main() {
     sm.process_event(ping{});
   }
 
+#if defined(__cpp_fold_expressions)
   {
     sml::sm<dispatch_policy, sml::dispatch<sml::back::policies::fold_expr>> sm{};
     sm.process_event(connect{});
@@ -80,4 +81,5 @@ int main() {
     sm.process_event(established{});
     sm.process_event(ping{});
   }
+#endif
 }
