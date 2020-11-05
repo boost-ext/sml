@@ -234,7 +234,11 @@ Feature: Switcher
 
 #### Design / Plant UML
 
-```java
+```
+'
+' Initial state: [*] -> initial_state
+' Transition DSL: src_state -> dst_state : event [ guard ] / action
+'
 @startuml
   [*] -> off
   off -> on  : Btn::pressed [ Btn::on  ] / Led::on
@@ -353,10 +357,10 @@ template<component Btn, component Led> struct switcher {
 <!-- .element: class="fragment" data-fragment-index="3" -->
 
 ```cpp
-    return transition_table{
-     * "off"_s + event(Btn::pressed) [Btn::on ] / TLed::on  = "on"_s,
-       "on"_s  + event(Btn::pressed) [Btn::off] / TLed::off = "off"_s
-    };
+   return transition_table{
+    * "off"_s + event(Btn::pressed) [ Btn::on  ] / TLed::on  = "on"_s,
+      "on"_s  + event(Btn::pressed) [ Btn::off ] / TLed::off = "off"_s
+   };
 ```
 <!-- .element: class="fragment" data-fragment-index="4" -->
 
