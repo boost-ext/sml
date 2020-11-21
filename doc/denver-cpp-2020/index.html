@@ -418,6 +418,8 @@ int main() {
       button<PB1>, led<PB0>
     #elif defined (__AVR_ATmega328__) // Arduino Uno
       button<2>, led<11>
+    #elif defined (PI_MODEL_4B)       // Raspberry Pi 4
+      button<36>, led<38>
     #endif
   >>;
 ```
@@ -430,10 +432,8 @@ int main() {
 
 ```cpp
     [&sm]<template<class...> class TList, class... TEvents>
-      (TList<TEvents...>) {
-        (sm.process_event(TEvents{}), ...);
-      }
-    (decltype(sm)::events{}); // dispatch events
+      (TList<TEvents...>) { (sm.process_event(TEvents{}), ...); }
+    (sm.events); // dispatch events
 ```
 <!-- .element: class="fragment" data-fragment-index="4" -->
 
@@ -451,23 +451,23 @@ int main() {
 
 #### Implementation - ASM attiny85 / C++11 & if/else, globals
 
-<a href="https://godbolt.org/z/416zjY"><img src="images/asm_main_if_loop.png" style="width: 48%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://godbolt.org/z/3hroYT"><img src="images/asm_main_if_loop.png" style="width: 48%; background:none; border:none; box-shadow:none;" /></a>
 
 ----
 
 #### Implementation - ASM attiny85 / C++11 & if/else
 
-<a href="https://godbolt.org/z/416zjY"><img src="images/asm_main_if.png" style="width: 55%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://godbolt.org/z/3hroYT"><img src="images/asm_main_if.png" style="width: 55%; background:none; border:none; box-shadow:none;" /></a>
 
 ----
 
 #### Implementation - ASM attiny85 / C++20 & [SML](https://github.com/boost-ext/sml)
 
-<a href="https://godbolt.org/z/416zjY"><img src="images/asm_sml.png" style="width: 55%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://godbolt.org/z/3hroYT"><img src="images/asm_sml.png" style="width: 55%; background:none; border:none; box-shadow:none;" /></a>
 
 ----
 
-#### Implementation - ASM attiny85
+#### Implementation - ASM attiny85 - Benchmark
 
 ---
 
@@ -479,7 +479,7 @@ int main() {
 
 ---
 
-#### https://godbolt.org/z/416zjY
+#### https://godbolt.org/z/3hroYT
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 ----
