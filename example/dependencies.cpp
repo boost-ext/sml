@@ -23,7 +23,7 @@ struct dependencies {
   auto operator()() const noexcept {
     using namespace sml;
 
-    const auto guard = [](dependency& d) {  /// more dependencies might be passed
+    const auto guard = [](const dependency& d) {  /// more dependencies might be passed
       return !d.i;
     };
 
@@ -35,7 +35,7 @@ struct dependencies {
     // clang-format off
     return make_transition_table(
        *"idle"_s + event<e1> [ guard ] / action = "s1"_s
-      , "s1"_s   + event<e1> [ ([](const auto& event, dependency& d) { return d.i == event.i; }) ] = X
+      , "s1"_s   + event<e1> [ ([](const auto& event, const dependency& d) { return d.i == event.i; }) ] = X
      );
     // clang-format on
   }
