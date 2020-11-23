@@ -62,7 +62,7 @@
   <!-- .element: class="fragment" data-fragment-index="2" -->
 * #### Project - Switcher
   <!-- .element: class="fragment" data-fragment-index="3" -->
-  * #### Design/Implementation/Testing/Simulation
+  * #### Design/Implementation/Testing/Benchmark/Simulation
   <!-- .element: class="fragment" data-fragment-index="4" -->
 * #### Demo
   <!-- .element: class="fragment" data-fragment-index="5" -->
@@ -117,7 +117,7 @@ void loop() {
   * #### Multiple architectures (Arduino Uno / Attiny85 / Raspberry Pi)
   <!-- .element: class="fragment" -->
 
-  * #### Online (Design/Implementation/Testing/Simulation)
+  * #### Online (Design/Implementation/Testing/Benchmark/Simulation)
   <!-- .element: class="fragment" -->
 
   * #### ~~Deployment~~
@@ -439,29 +439,29 @@ int main() {
 
 ----
 
-#### Implementation - ASM attiny85 / C++03 & if/else, globals
+#### Benchmark/ASM - C++03 & if/else, globals
 
-<a href="https://godbolt.org/z/3hroYT"><img src="images/asm_main_if_loop.png" style="width: 48%; background:none; border:none; box-shadow:none;" /></a>
-
-----
-
-#### Implementation - ASM attiny85 / C++03 & if/else
-
-<a href="https://godbolt.org/z/3hroYT"><img src="images/asm_main_if.png" style="width: 55%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://godbolt.org/z/3hroYT"><img src="images/benchmark_ie_global.png" style="width: 80%; background:none; border:none; box-shadow:none;" /></a>
 
 ----
 
-#### Implementation - ASM attiny85 / C++20 & [SML](https://github.com/boost-ext/sml)
+#### Benchmark/ASM - C++03 & if/else
 
-<a href="https://godbolt.org/z/3hroYT"><img src="images/asm_sml.png" style="width: 55%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://godbolt.org/z/3hroYT"><img src="images/benchmark_ie.png" style="width: 80%; background:none; border:none; box-shadow:none;" /></a>
 
 ----
 
-#### Implementation - ASM attiny85 - Benchmark
+#### Benchmark/ASM - C++20 & [SML](https://github.com/boost-ext/sml)
+
+<a href="https://godbolt.org/z/3hroYT"><img src="images/benchmark_sm.png" style="width: 95%; background:none; border:none; box-shadow:none;" /></a>
+
+----
+
+#### Benchmark/ASM
 
 ---
 
-| Standard | Implementation | ASM LOC |
+| Standard | Benchmark | ASM LOC |
 |-|-|-|
 | C++03 | if/else, globals | 44 |
 | C++03 | if/else          | 32 |
