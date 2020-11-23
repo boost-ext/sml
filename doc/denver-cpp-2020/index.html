@@ -130,22 +130,13 @@ void loop() {
 * #### Design - [Plant UML](https://plantuml.com)
 <!-- .element: class="fragment" -->
 
-* #### Implementation - [Compiler Explorer](https://godbolt.org)
+* #### Development - [Compiler Explorer](https://godbolt.org)
   <!-- .element: class="fragment" -->
 
-  * #### avr-gcc-9.2.0 / C++20
+  * #### avr-gcc-9.2.0 / arm-gcc-9.2.1 / arm-clang-trunk / gcc-trunk / clang-trunk
   <!-- .element: class="fragment" -->
 
-  * #### gcc-trunk/clang-trunk
-  <!-- .element: class="fragment" -->
-
-  * #### Libraries
-  <!-- .element: class="fragment" -->
-
-  * #### `#include <http://...>`
-  <!-- .element: class="fragment" -->
-
-  * #### Cross-compilation
+  * #### Cross-compilation / Libraries / `#include <http://...>`
   <!-- .element: class="fragment" -->
 
 ----
@@ -190,13 +181,12 @@ void loop() {
 
 * #### Simulation - [TinkerCad](https://www.tinkercad.com)
 
-  * #### Arduino Uno/Attiny85
+  * #### Attiny85 / Arduino Uno / ~~Raspberry PI~~
   <!-- .element: class="fragment" data-fragment-index="1" -->
 
   * #### Multiple components
   <!-- .element: class="fragment" data-fragment-index="2" -->
-
-  <img src="images/components.png" style="width: 80%; background:none; border:none; box-shadow:none;" />
+  <img src="images/components.png" style="width: 55%; background:none; border:none; box-shadow:none;" />
   <!-- .element: class="fragment" data-fragment-index="2" -->
 
 ==============================================================================
@@ -413,20 +403,20 @@ int main() {
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 ```cpp
-  using switcher_t = sm<switcher<
-    #if defined (__AVR_ATtiny85__)
+  using switcher_t = switcher<
+    #if defined (__AVR_ATtiny85__)    // ATtiny 85
       button<PB1>, led<PB0>
     #elif defined (__AVR_ATmega328__) // Arduino Uno
       button<2>, led<11>
     #elif defined (PI_MODEL_4B)       // Raspberry Pi 4
       button<36>, led<38>
     #endif
-  >>;
+  >;
 ```
 <!-- .element: class="fragment" data-fragment-index="2" -->
 
 ```cpp
-  for (switcher_t sm;;) {
+  for (sm<switcher_t> sm;;) {
 ```
 <!-- .element: class="fragment" data-fragment-index="3" -->
 
@@ -449,13 +439,13 @@ int main() {
 
 ----
 
-#### Implementation - ASM attiny85 / C++11 & if/else, globals
+#### Implementation - ASM attiny85 / C++03 & if/else, globals
 
 <a href="https://godbolt.org/z/3hroYT"><img src="images/asm_main_if_loop.png" style="width: 48%; background:none; border:none; box-shadow:none;" /></a>
 
 ----
 
-#### Implementation - ASM attiny85 / C++11 & if/else
+#### Implementation - ASM attiny85 / C++03 & if/else
 
 <a href="https://godbolt.org/z/3hroYT"><img src="images/asm_main_if.png" style="width: 55%; background:none; border:none; box-shadow:none;" /></a>
 
@@ -473,8 +463,8 @@ int main() {
 
 | Standard | Implementation | ASM LOC |
 |-|-|-|
-| C++11 | if/else, globals | 44 |
-| C++11 | if/else          | 32 |
+| C++03 | if/else, globals | 44 |
+| C++03 | if/else          | 32 |
 | C++20 | [State Machine](https://github.com/boost-ext/sml) | 24 |
 
 ---
@@ -531,7 +521,7 @@ void loop() {  // Arduino's hot loop
 > #### Design - https://bit.ly/2HY4WVP
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
-> #### Implementation - https://godbolt.org/z/416zjY
+> #### Implementation - https://godbolt.org/z/KPr9rE
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 > #### Simulation / Arduino Uno / atmega328 - https://www.tinkercad.com/things/9epUrFrzKP3
