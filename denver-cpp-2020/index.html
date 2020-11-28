@@ -114,7 +114,7 @@ void loop() {
   * ##### C++20
   <!-- .element: class="fragment" -->
 
-  * #### Multiple architectures (Arduino Uno / Attiny85 / Raspberry Pi)
+  * #### Multiple architectures (Arduino Uno / Attiny85 / Raspberry Pi 4)
   <!-- .element: class="fragment" -->
 
   * #### Online (Design/Implementation/Testing/Benchmark/Simulation)
@@ -181,7 +181,7 @@ void loop() {
 
 * #### Simulation - [TinkerCad](https://www.tinkercad.com)
 
-  * #### Attiny85 / Arduino Uno / ~~Raspberry PI~~
+  * #### Attiny85 / Arduino Uno / ~~Raspberry PI 4~~
   <!-- .element: class="fragment" data-fragment-index="1" -->
 
   * #### Multiple components
@@ -408,8 +408,8 @@ int main() {
       button<PB1>, led<PB0>
     #elif defined (__AVR_ATmega328__) // Arduino Uno
       button<2>, led<11>
-    #elif defined (PI_MODEL_4B)       // Raspberry Pi 4
-      button<36>, led<38>
+    #elif defined (PI_MODEL_400)      // Raspberry Pi 4
+      button<5>, led<7>
     #endif
   >;
 ```
@@ -477,7 +477,7 @@ int main() {
 #### Simulation - Setup/Loop
 
 ```cpp
-void setup(){} // Arudino's setup
+void setup(){} // Arduino's setup
 ```
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
@@ -512,6 +512,13 @@ void loop() {  // Arduino's hot loop
 
 <a href="https://www.tinkercad.com/things/8QZMtpXRpvn"><img src="images/sim_attiny85.png" style="width: 85%; background:none; border:none; box-shadow:none;" /></a>
 
+----
+
+#### Simulation - Raspberry Pi 4
+
+  <img src="images/pi_switcher1.jpg" style="width: 49%; background:none; border:none; box-shadow:none;" />
+  <img src="images/pi_switcher2.jpg" style="width: 49%; background:none; border:none; box-shadow:none;" />
+
 ==============================================================================
 
 ## Demo
@@ -521,7 +528,7 @@ void loop() {  // Arduino's hot loop
 > #### Design - https://bit.ly/2HY4WVP
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
-> #### Implementation - https://godbolt.org/z/KPr9rE
+> #### Implementation - https://godbolt.org/z/vqhP5n
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
 > #### Simulation / Arduino Uno / atmega328 - https://www.tinkercad.com/things/9epUrFrzKP3
