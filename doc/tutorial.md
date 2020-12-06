@@ -434,7 +434,7 @@ On top of that, `SML` provides testing facilities to check state machine as a wh
 in a requested state.
 
 ```cpp
-testing::sm<example> sm{fake_data...};
+sml::sm<example, sml::testing> sm{fake_data...};
 sm.set_current_states("s3"_s); // set_current_states("s3"_s, "s1"_s, ...) for orthogonal regions
 sm.process_event(event{});
 assert(sm.is(X));
