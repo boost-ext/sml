@@ -554,7 +554,7 @@ sm.visit_current_states([](auto state) { std::cout &lt;&lt; state.c_str() &lt;&l
 <p>On top of that, <code>SML</code> provides testing facilities to check state machine as a whole.
 <code>set_current_states</code> method is available from <code>testing::sm</code> in order to set state machine
 in a requested state.</p>
-<pre><code class="cpp">testing::sm&lt;example&gt; sm{fake_data...};
+<pre><code class="cpp">sml::sm&lt;example, sml::testing&gt; sm{fake_data...};
 sm.set_current_states(&quot;s3&quot;_s); // set_current_states(&quot;s3&quot;_s, &quot;s1&quot;_s, ...) for orthogonal regions
 sm.process_event(event{});
 assert(sm.is(X));
