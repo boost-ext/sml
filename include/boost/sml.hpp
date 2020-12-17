@@ -1295,13 +1295,6 @@ TPolicy get_policy(aux::pair<T, TPolicy> *);
 template <class SM, class... TPolicies>
 struct sm_policy {
   static_assert(aux::is_same<aux::remove_reference_t<SM>, SM>::value, "SM type can't have qualifiers");
-#if defined(_MSC_VER) && !defined(__clang__)
-  using default_dispatch_policy = policies::jump_table;
-#elif defined(__clang__)
-  using default_dispatch_policy = policies::jump_table;
-#elif defined(__GNUC__)
-  using default_dispatch_policy = policies::branch_stm;
-#endif
   using sm = SM;
   using thread_safety_policy =
       decltype(get_policy<no_policy, policies::thread_safety_policy__>((aux::inherit<TPolicies...> *)0));
@@ -1310,6 +1303,7 @@ struct sm_policy {
       decltype(get_policy<no_policy, policies::process_queue_policy__>((aux::inherit<TPolicies...> *)0));
   using logger_policy = decltype(get_policy<no_policy, policies::logger_policy__>((aux::inherit<TPolicies...> *)0));
   using testing_policy = decltype(get_policy<no_policy, policies::testing_policy__>((aux::inherit<TPolicies...> *)0));
+  using default_dispatch_policy = policies::jump_table;
   using dispatch_policy =
       decltype(get_policy<default_dispatch_policy, policies::dispatch_policy__>((aux::inherit<TPolicies...> *)0));
   template <class T>
