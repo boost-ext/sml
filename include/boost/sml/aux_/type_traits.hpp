@@ -57,16 +57,27 @@ struct always : true_type {};
 template <class...>
 struct never : false_type {};
 
+namespace detail {
+template <bool>
+struct conditional;
+template <>
+struct conditional<false> {
+  template <class, class T>
+  using fn = T;
+};
+template <>
+struct conditional<true> {
+  template <class T, class>
+  using fn = T;
+};
+}  // namespace detail
+
 template <bool B, class T, class F>
 struct conditional {
-  using type = T;
-};
-template <class T, class F>
-struct conditional<false, T, F> {
-  using type = F;
+  using type = typename detail::conditional<B>::template fn<T, F>;
 };
 template <bool B, class T, class F>
-using conditional_t = typename conditional<B, T, F>::type;
+using conditional_t = typename detail::conditional<B>::template fn<T, F>;
 
 template <bool B, class T = void>
 struct enable_if {};
