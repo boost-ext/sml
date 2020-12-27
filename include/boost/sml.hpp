@@ -20,7 +20,10 @@
   }                             \
   }                             \
   }
+#define __BOOST_SML_HAS_BUILTIN(...) __BOOST_SML_HAS_BUILTIN##__VA_ARGS__
 #if defined(__clang__)
+#define __BOOST_SML_HAS_BUILTIN__make_integer_seq 1
+#define __BOOST_SML_HAS_BUILTIN__is_same 1
 #define __BOOST_SML_UNUSED __attribute__((unused))
 #define __BOOST_SML_VT_INIT \
   {}
@@ -35,10 +38,8 @@
 #pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
 #pragma clang diagnostic ignored "-Wzero-length-array"
 #elif defined(__GNUC__)
-#if !defined(__has_builtin)
-#define __BOOST_SML_DEFINED_HAS_BUILTIN
-#define __has_builtin(...) 0
-#endif
+#define __BOOST_SML_HAS_BUILTIN__make_integer_seq 0
+#define __BOOST_SML_HAS_BUILTIN__is_same 0
 #define __BOOST_SML_UNUSED __attribute__((unused))
 #define __BOOST_SML_VT_INIT \
   {}
@@ -55,9 +56,8 @@
 #pragma GCC diagnostic ignored "-Wsubobject-linkage"
 #endif
 #elif defined(_MSC_VER) && !defined(__clang__)
-#define __BOOST_SML_DEFINED_HAS_BUILTIN
-#define __has_builtin(...) __has_builtin##__VA_ARGS__
-#define __has_builtin__make_integer_seq(...) 1
+#define __BOOST_SML_HAS_BUILTIN__make_integer_seq 1
+#define __BOOST_SML_HAS_BUILTIN__is_same 0
 #define __BOOST_SML_UNUSED
 #define __BOOST_SML_VT_INIT
 #define __BOOST_SML_ZERO_SIZE_ARRAY(...)
@@ -140,10 +140,15 @@ struct enable_if<true, T> {
 };
 template <bool B, class T = void>
 using enable_if_t = typename enable_if<B, T>::type;
+#if __BOOST_SML_HAS_BUILTIN(__is_same)
+template <class T, class U>
+using is_same = integral_constant<bool, __is_same(T, U)>;
+#else
 template <class, class>
 struct is_same : false_type {};
 template <class T>
 struct is_same<T, T> : true_type {};
+#endif
 template <class T, class U>
 #if defined(_MSC_VER) && !defined(__clang__)
 struct is_base_of : integral_constant<bool, __is_base_of(T, U)> {
@@ -237,7 +242,7 @@ template <int...>
 struct index_sequence {
   using type = index_sequence;
 };
-#if __has_builtin(__make_integer_seq)
+#if __BOOST_SML_HAS_BUILTIN(__make_integer_seq)
 template <class T, T...>
 struct integer_sequence;
 template <int... Ns>
@@ -2737,12 +2742,13 @@ BOOST_SML_NAMESPACE_END
 #undef __BOOST_SML_TEMPLATE_KEYWORD
 #if defined(__clang__)
 #pragma clang diagnostic pop
-#elif defined(__GNUC__) && defined(__BOOST_SML_DEFINED_HAS_BUILTIN)
-#undef __has_builtin
+#elif defined(__GNUC__)
 #pragma GCC diagnostic pop
-#elif defined(_MSC_VER) && !defined(__clang__) && defined(__BOOST_SML_DEFINED_HAS_BUILTIN)
-#undef __has_builtin
-#undef __has_builtin__make_integer_seq
+#endif
+#if defined(__BOOST_SML_HAS_BUILTIN)
+#undef __BOOST_SML_HAS_BUILTIN
+#undef __BOOST_SML_HAS_BUILTIN__make_integer_seq
+#undef __BOOST_SML_HAS_BUILTIN__is_same
 #endif
 #endif
 #endif
