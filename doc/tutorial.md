@@ -476,8 +476,9 @@ struct my_logger {
   }
 };
 
-sml::sm<logging, sml::logger<my_logger>> sm;
-sm.process_event(my_event{}); // will call my_logger appropriately
+my_logger logger;
+sml::sm<logging, sml::logger<my_logger>> sm{logger};
+sm.process_event(my_event{}); // will call logger appropriately
 ```
 
 ![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/logging.cpp)
