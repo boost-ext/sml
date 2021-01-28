@@ -590,8 +590,9 @@ To enable logging you can use (Logger Policy)(user_guide.md#policies)</p>
   }
 };
 
-sml::sm&lt;logging, sml::logger&lt;my_logger&gt;&gt; sm;
-sm.process_event(my_event{}); // will call my_logger appropriately
+my_logger logger;
+sml::sm&lt;logging, sml::logger&lt;my_logger&gt;&gt; sm{logger};
+sm.process_event(my_event{}); // will call logger appropriately
 </code></pre>
 
 <p><img alt="CPP(BTN)" src="Run_Logging_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/logging.cpp" />
