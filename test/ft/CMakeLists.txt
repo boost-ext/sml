@@ -45,6 +45,9 @@ endif ()
 add_executable(test_history history.cpp)
 add_test(test_history test_history)
 
+add_executable(test_guards guards.cpp)
+add_test(test_guards test_guards)
+
 add_executable(test_orthogonal_regions orthogonal_regions.cpp)
 add_test(test_orthogonal_regions test_orthogonal_regions)
 
