@@ -209,7 +209,7 @@ send: 42
 <a name="avr"></a>
 * #### [AVR](https://www.arduino.cc)
 
-<p align="center"><a href="https://godbolt.org/z/W3zvjj"><img src="doc/images/avr.png" alt="AVR performance"/></a></p>
+<p align="center"><a href="https://godbolt.org/z/qhx8Md"><img src="doc/images/avr.png" alt="AVR performance"/></a></p>
 
 > https://godbolt.org/z/W3zvjj
 
