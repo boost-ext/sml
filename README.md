@@ -196,9 +196,9 @@ send: 42
 
 <p align="center"><a href="http://www.plantuml.com/plantuml/uml/TP11Qy9048Nl-HNlPYnj4ZtcK4JheQtq4kX5HDRiRB9LTyFiXDH_twmM2WKl2n_xFjvZ5a4KIty-9PDaWfNlBcoRLf3MKyoBUO5tjW5lVR3gYFGOGGc-Rgozm95Ch-wB3SBsq0jfz4uJGrh2qliWgBoHGJ5XOsjoWHxnIHoiTvXbHJRAQKK4LTV-t2btiQw1iQSn_hfQVrJh_MnVPF8jy8nwd1Wdj29TcUV3C6I7s95vRl9_-JWCs3xiyFGCRqo2-5x10IMMuigoOmg1DBOtZ3yxvDYGZX0LXr__dcBCdn9h5kJqUD8V"><img src="doc/images/arduino/uml.png" alt="Arduino UML"/></a></p>
 
-<p align="center"><a href="https://godbolt.org/z/z55az3"><img src="doc/images/arduino/code.png" alt="Arduino Code"/></a></p>
+<p align="center"><a href="https://godbolt.org/z/Y983h4"><img src="doc/images/arduino/code.png" alt="Arduino Code"/></a></p>
 
-> https://godbolt.org/z/z55az3
+> https://godbolt.org/z/Y983h4
 
 <p align="center"><a href="https://www.tinkercad.com/things/9epUrFrzKP3"><img src="doc/images/arduino/board.png" alt="Arduino Board"/></a></p>
 
@@ -211,7 +211,7 @@ send: 42
 
 <p align="center"><a href="https://godbolt.org/z/qhx8Md"><img src="doc/images/avr.png" alt="AVR performance"/></a></p>
 
-> https://godbolt.org/z/W3zvjj
+> https://godbolt.org/z/qhx8Md
 
 ---
 
