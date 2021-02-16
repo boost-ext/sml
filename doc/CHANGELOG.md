@@ -1,3 +1,7 @@
+## [1.1.4] - 2021-02-16
+- **Additions**
+    - LICENSE file
+
 ## [1.1.3] - 2020-08-02
 - **Additions**
     - Support for member-function like guards/actions
@@ -79,6 +83,7 @@
 ##[1.0.0] - 2016-01-28
 - Initial version
 
+[1.1.4]: https://github.com/boost-ext/sml/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/boost-ext/sml/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/boost-ext/sml/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/boost-ext/sml/compare/v1.1.0...v1.1.1
