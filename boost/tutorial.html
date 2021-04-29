@@ -316,7 +316,7 @@ make_transition_table(
 To create a state machine, we have to add a transition table.</p>
 <pre><code class="cpp">class example {
 public:
-  auto opeartor()() {
+  auto operator()() {
     using namespace sml;
     return make_transition_table(
      *&quot;src_state&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;dst_state&quot;_s,
