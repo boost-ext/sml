@@ -354,7 +354,8 @@ struct pool_type_impl : pool_type_base {
   T value;
 };
 template <class T>
-struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value>> : pool_type_base {
+struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value && aux::is_constructible<T, T>::value>>
+    : pool_type_base {
   explicit pool_type_impl(T &value) : value{value} {}
   template <class TObject>
   explicit pool_type_impl(TObject value) : value_{value}, value{value_} {}
