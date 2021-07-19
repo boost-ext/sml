@@ -88,10 +88,15 @@ struct enable_if<true, T> {
 template <bool B, class T = void>
 using enable_if_t = typename enable_if<B, T>::type;
 
+#if __BOOST_SML_HAS_BUILTIN(__is_same) // __pph__
+template<class T, class U>
+using is_same = integral_constant<bool, __is_same(T, U)>;
+#else // __pph__
 template <class, class>
 struct is_same : false_type {};
 template <class T>
 struct is_same<T, T> : true_type {};
+#endif // __pph__
 
 template <class T, class U>
 #if defined(_MSC_VER) && !defined(__clang__)  // __pph__

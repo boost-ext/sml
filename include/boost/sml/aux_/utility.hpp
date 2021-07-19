@@ -17,7 +17,7 @@ template <int...>
 struct index_sequence {
   using type = index_sequence;
 };
-#if __has_builtin(__make_integer_seq)  // __pph__
+#if __BOOST_SML_HAS_BUILTIN(__make_integer_seq)  // __pph__
 template <class T, T...>
 struct integer_sequence;
 template <int... Ns>
