@@ -271,25 +271,12 @@ struct size<T<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
 
-#if defined(_MSC_VER) && !defined(__clang__)  // __pph__
-constexpr int max_element_impl() { return 0; }
-constexpr int max_element_impl(int r) { return r; }
-constexpr int max_element_impl(int r, int i) { return r > i ? r : i; }
-constexpr int max_element_impl(int r, int i, int ints...) {
-  return i > r ? max_element_impl(i, ints) : max_element_impl(r, ints);
-}
-template <int... Ts>
-constexpr int max_element() {
-  return max_element_impl(Ts...);
-}
-#else   // __pph__
 template <int... Ts>
 constexpr int max_element() {
   int max = 0;
   (void)swallow{0, (Ts > max ? max = Ts : max)...};
   return max;
 }
-#endif  // __pph__
 
 template <class TExpr, class = void>
 struct zero_wrapper : TExpr {
