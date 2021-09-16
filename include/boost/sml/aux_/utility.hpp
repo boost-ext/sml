@@ -371,7 +371,7 @@ template <class T>
 const char *get_type_name() {
 #if defined(_MSC_VER) && !defined(__clang__)  // __pph__
   return detail::get_type_name<T, 39>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 39 - 8>{});
-#elif defined(__clang__) && (__clang_major__ >= 12)
+#elif defined(__clang__) && (__clang_major__ >= 12) // __pph__
   return detail::get_type_name<T, 50>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 50 - 2>{});
 #elif defined(__clang__)  // __pph__
   return detail::get_type_name<T, 63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
