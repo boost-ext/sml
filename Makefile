@@ -30,6 +30,7 @@ PYTHON?=python2
 MKDOCS?=mkdocs
 MKDOCS_THEME?=boost-modern
 MKDOCS_SITE?=site
+PLANTCXX:=$(subst -std=c++14,-std=c++17,$(CXXFLAGS))
 
 all: test example
 
@@ -71,6 +72,14 @@ example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp))
 
 example/%.out:
 	$(CXX) example/$*.cpp $(CXXFLAGS) -o example/$*.out && $($(MEMCHECK)) example/$*.out
+
+example/plant_uml.out:
+	# try to compile with C++17, if it didn't work C++14 instead
+	$(CXX) example/plant_uml.cpp $(PLANTCXX) -o $@ || true
+	@if [ ! -e "$@" ]; then\
+		$(CXX) example/plant_uml.cpp $(CXXFLAGS) -o $@;\
+	fi
+	$($(MEMCHECK)) $@
 
 style:
 	@find include example test -iname "*.hpp" -or -iname "*.cpp" | xargs $(CLANG_FORMAT) -i

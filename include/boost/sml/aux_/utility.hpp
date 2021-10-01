@@ -152,7 +152,8 @@ struct pool_type_impl : pool_type_base {
 };
 
 template <class T>
-struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value && aux::is_constructible<T, T>::value>> : pool_type_base {
+struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value && aux::is_constructible<T, T>::value>>
+    : pool_type_base {
   explicit pool_type_impl(T &value) : value{value} {}
   template <class TObject>
   explicit pool_type_impl(TObject value) : value_{value}, value{value_} {}
@@ -371,13 +372,13 @@ template <class T>
 const char *get_type_name() {
 #if defined(_MSC_VER) && !defined(__clang__)  // __pph__
   return detail::get_type_name<T, 39>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 39 - 8>{});
-#elif defined(__clang__) && (__clang_major__ >= 12) // __pph__
+#elif defined(__clang__) && (__clang_major__ >= 12)  // __pph__
   return detail::get_type_name<T, 50>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 50 - 2>{});
-#elif defined(__clang__)  // __pph__
+#elif defined(__clang__)                             // __pph__
   return detail::get_type_name<T, 63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
-#elif defined(__GNUC__)   // __pph__
+#elif defined(__GNUC__)                              // __pph__
   return detail::get_type_name<T, 68>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 68 - 2>{});
-#endif                    // __pph__
+#endif                                               // __pph__
 }
 
 #if defined(__cpp_nontype_template_parameter_class)  // __pph__
