@@ -68,9 +68,7 @@ test sm_noncopyable_deps = [] {
   struct c {
     auto operator()() const {
       using namespace sml;
-      return make_transition_table(
-          *("idle"_s) + event<e1> / [](dependency&){}
-      );
+      return make_transition_table(*("idle"_s) + event<e1> / [](dependency &) {});
     }
   };
 
