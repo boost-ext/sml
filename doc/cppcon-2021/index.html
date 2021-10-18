@@ -70,6 +70,14 @@
 * #### Demo
   <!-- .element: class="fragment" data-fragment-index="5" -->
 
+---
+
+##### <p align="left" style="background-color:darkblue">&nbsp;&nbsp;&nbsp;&nbsp;`darkblue background - something to remember ✓`</p>
+<!-- .element: class="fragment" data-fragment-index="6" -->
+
+###### Powered by [Compiler Explorer](https://godbolt.org)
+<!-- .element: class="fragment" data-fragment-index="8" -->
+
 ==============================================================================
 
 ### Motivation
@@ -136,7 +144,7 @@ void loop() {
 * #### Development - [Compiler Explorer](https://godbolt.org)
   <!-- .element: class="fragment" -->
 
-  * #### avr-gcc-9.2.0 / arm-gcc-9.2.1 / arm-clang-trunk / gcc-trunk / clang-trunk
+  * #### avr-gcc-11.1.0 / arm-gcc-trunk / arm-clang-trunk / gcc-trunk / clang-trunk
   <!-- .element: class="fragment" -->
 
   * #### Cross-compilation / Libraries / `#include <http://...>`
@@ -144,41 +152,23 @@ void loop() {
 
 ----
 
-* #### Testing - [UT](https://github.com/boost-ext/ut)
+### Implementation / State Machine
 
-  * #### C++20 ([GCC-9+, Clang-9.0+, Apple Clang-11.0.0+](https://travis-ci.org/boost-ext/ut), [MSVC-2019+](https://ci.appveyor.com/project/boost-ext/ut))
+  * Finite State Machine (FSM)
   <!-- .element: class="fragment" data-fragment-index="1" -->
-
-  * #### Single [header/module](https://github.com/boost-ext/ut/blob/master/include/boost/ut.hpp) / 2k LOC
-  <!-- .element: class="fragment" data-fragment-index="2" -->
-
-  * #### Only STL is required
-  <!-- .element: class="fragment" data-fragment-index="3" -->
-
-  * #### Macro-free
-  <!-- .element: class="fragment" data-fragment-index="4" -->
+    * [SML](https://github.com/boost-ext/sml)
+  <!-- .element: class="fragment" -->
 
 ----
 
-* #### Implementation / State Machine - [SML](https://github.com/boost-ext/sml)
+### 👍 State machine might be easily identified by implicit states
 
-  * #### C++14 ([Clang-3.4+](https://travis-ci.org/boost-ext/sml), [XCode-6.1+](https://travis-ci.org/boost-ext/sml), [GCC-5.2+](https://travis-ci.org/boost-ext/sml), [MSVC-2015+](https://ci.appveyor.com/project/boost-ext/sml))
-  <!-- .element: class="fragment" -->
+```cpp
+bool is_button_1_on  = true is_button_2_on = false, is_led_off = false; // 👎
+```
+<!-- .element: class="fragment" -->
 
-  * #### [UML-2.5](https://www.omg.org/spec/UML/2.5) compliant
-  <!-- .element: class="fragment" -->
-
-  * #### Single header / [sml.hpp](https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml.hpp) / 2k LOC
-  <!-- .element: class="fragment" -->
-
-  * #### Neither Boost nor STL is required
-  <!-- .element: class="fragment" -->
-
-  * #### No 'virtual's (-fno-rtti)
-  <!-- .element: class="fragment" -->
-
-  * #### No exceptions required (-fno-exceptions)
-  <!-- .element: class="fragment" -->
+<!-- .slide: data-background="darkblue" -->
 
 ----
 
@@ -194,7 +184,11 @@ void loop() {
 
 ==============================================================================
 
-### Project - Switcher
+### Project
+
+----
+
+#### Switcher
 
 ---
 
@@ -226,13 +220,37 @@ Feature: Switcher
 
 ----
 
-#### Design / Plant UML
+### Design
+
+----
+
+### UML-2.5 - State Machine
+
+<img src="images/uml-2.5.png" style="width: 50%; background:none; border:none; box-shadow:none;" />
+
+https://www.omg.org/spec/UML/2.5.1/PDF
+
+----
+
+### UML-2.5 - Transition
+
+---
+
+![Transition](images/transition.png)
+
+----
+
+#### Plant UML
 
 ```
 '
 ' Initial state: [*] -> initial_state
 ' Transition DSL: src_state -> dst_state : event [ guard ] / action
 '
+```
+<!-- .element: class="fragment" -->
+
+```
 @startuml
   [*] -> off
   off -> on  : Btn::pressed [ Btn::on  ] / Led::on
@@ -243,6 +261,93 @@ Feature: Switcher
 
 <img src="images/design.png" style="width: 60%; background:none; border:none; box-shadow:none;" />
 <!-- .element: class="fragment" -->
+
+==============================================================================
+
+### Implementation
+
+----
+
+#### [SML](https://github.com/boost-ext/sml)
+
+  * #### C++14 ([Clang-3.4+](https://travis-ci.org/boost-ext/sml), [XCode-6.1+](https://travis-ci.org/boost-ext/sml), [GCC-5.2+](https://travis-ci.org/boost-ext/sml), [MSVC-2015+](https://ci.appveyor.com/project/boost-ext/sml))
+  <!-- .element: class="fragment" -->
+
+  * #### [UML-2.5](https://www.omg.org/spec/UML/2.5) compliant
+  <!-- .element: class="fragment" -->
+
+  * #### Single header / [sml.hpp](https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml.hpp) / 2k LOC
+  <!-- .element: class="fragment" -->
+
+  * #### Neither Boost nor STL is required
+  <!-- .element: class="fragment" -->
+
+  * #### No 'virtual's (-fno-rtti)
+  <!-- .element: class="fragment" -->
+
+  * #### No exceptions required (-fno-exceptions)
+  <!-- .element: class="fragment" -->
+
+----
+
+### SML - [Benchmark](https://github.com/boost-ext/sml/tree/master/benchmark/complex)
+
+<img style="background:none; border:none; box-shadow:none;" src="images/benchmark_results.png" width="140%" />
+
+----
+
+#### Transition DSL (Domain Specific language)
+
+---
+
+![Transition](images/transition.png)
+<!-- .element: class="fragment" data-fragment-index="1" -->
+
+```cpp
+SourceState + event [ guard ] / action = DestinationState
+                                     ^
+                                     |
+                                    1. DestinationState + on_exit
+                                    2. SourceState + on_entry
+```
+<!-- .element: style="margin-left:0%; width:100%" -->
+<!-- .element: class="fragment" data-fragment-index="2" -->
+
+----
+
+#### Transition DSL (Domain Specific language)
+
+* Guard is optional and can be combined using logic operations
+<!-- .element: class="fragment" data-fragment-index="1" -->
+
+  ```cpp
+  [ guard1 and not guard2 ]
+  ```
+<!-- .element: class="fragment" data-fragment-index="1" -->
+
+* Action is optional and can be sequenced using a comma operator
+<!-- .element: class="fragment" data-fragment-index="2" -->
+
+  ```cpp
+  (action1, action2)
+  ```
+<!-- .element: class="fragment" data-fragment-index="2" -->
+
+* Event is optional - Anonymous transition
+<!-- .element: class="fragment" data-fragment-index="3" -->
+
+  ```cpp
+  SourceState + [ guard ] / action = DestinationState
+  ```
+<!-- .element: class="fragment" data-fragment-index="3" -->
+
+* DestinationState is optional - Internal transition
+<!-- .element: class="fragment" data-fragment-index="4" -->
+
+  ```cpp
+  SourceState + [ guard ] / action
+  ```
+<!-- .element: class="fragment" data-fragment-index="4" -->
 
 ----
 
@@ -281,6 +386,43 @@ template<auto Pin> struct button final {
 
 ----
 
+#### Concepts / C++20 / [C++draft/concepts](http://eel.is/c++draft/concepts)
+
+---
+
+* #### Type constraints (act like documentation for interfaces)
+<!-- .element: class="fragment" data-fragment-index="1" -->
+
+* #### Better error messages (Point Of Instantiation - POI)
+<!-- .element: class="fragment" data-fragment-index="2" -->
+
+* #### Faster compilation times (In comparison to Substitution Failure is Not an Error - SFINAE)
+<!-- .element: class="fragment" data-fragment-index="3" -->
+
+```cpp
+template<class T>
+concept Auto = true; // the least constraint concept (same as auto)
+```
+<!-- .element: class="fragment" data-fragment-index="4" -->
+
+---
+
+###### Equivalent syntax
+<!-- .element: class="fragment" data-fragment-index="5" -->
+
+```cpp
+                                   auto foo(auto arg);
+template<class T> requires Auto<T> auto foo(T arg);
+template<class T>                  auto foo(T arg) requires Auto<T>;
+template<Auto T>                   auto foo(T arg);
+                                   auto foo(Auto auto arg);
+```
+<!-- .element: class="fragment" data-fragment-index="5" -->
+
+<!-- .slide: data-background="darkblue" -->
+
+----
+
 #### Implementation - Switcher State Machine
 
 <img src="images/design.png" style="width: 60%; background:none; border:none; box-shadow:none;" />
@@ -309,6 +451,17 @@ transition_table{
 };
 ```
 <!-- .element: class="fragment" -->
+
+----
+
+### 👍 The power of declarative design
+
+---
+
+Express What, Not how!
+<!-- .element: class="fragment" -->
+
+<!-- .slide: data-background="darkblue" -->
 
 ----
 
@@ -440,6 +593,10 @@ int main() {
 ```
 <!-- .element: class="fragment" data-fragment-index="1" -->
 
+==============================================================================
+
+### Benchmark
+
 ----
 
 #### Benchmark/ASM - C++03 & if/else, globals
@@ -474,6 +631,19 @@ int main() {
 
 #### https://godbolt.org/z/3hroYT
 <!-- .element: class="fragment" data-fragment-index="1" -->
+
+----
+
+### Always measure in the production 'like' environment!
+
+* There is no sliver bullet - keeping all options open via policies is the best bet 👍
+<!-- .element: class="fragment" -->
+
+<!-- .slide: data-background="darkblue" -->
+
+==============================================================================
+
+### Simulation
 
 ----
 
@@ -517,42 +687,46 @@ void loop() {  // Arduino's hot loop
 
 ----
 
-#### Simulation - Raspberry Pi 4
+#### Simulation - Raspberry Pi 400
 
   <img src="images/pi_switcher1.jpg" style="width: 49%; background:none; border:none; box-shadow:none;" />
   <img src="images/pi_switcher2.jpg" style="width: 49%; background:none; border:none; box-shadow:none;" />
 
 ==============================================================================
 
-## Demo
+### Demo
+
+----
 
 ---
 
 > #### Design - https://bit.ly/2HY4WVP
-<!-- .element: class="fragment" data-fragment-index="1" -->
 
-> #### Implementation - https://godbolt.org/z/vqhP5n
-<!-- .element: class="fragment" data-fragment-index="1" -->
+> #### Implementation - https://godbolt.org/z/99v163aqd
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 > #### Simulation / Arduino Uno / atmega328 - https://www.tinkercad.com/things/9epUrFrzKP3
-<!-- .element: class="fragment" data-fragment-index="1" -->
+<!-- .element: class="fragment" data-fragment-index="3" -->
 
 > #### Simulation / attiny85 - https://www.tinkercad.com/things/8QZMtpXRpvn
-<!-- .element: class="fragment" data-fragment-index="1" -->
+<!-- .element: class="fragment" data-fragment-index="4" -->
+
+---
 
 ==============================================================================
 
-### Let's embed all the things with C++20 online!
+### Let's `<embed>` all the things with C++20!
 
 ---
 
-* #### Slides - https://boost-ext.github.io/sml/denver-cpp-2020
+> Slides - https://boost-ext.github.io/sml/cppcon-2021
 
-* #### SML, UT - https://github.com/boost-ext
+> SML, UT - https://github.com/boost-ext
 
 ---
 
-##### [kris@jusiak.net](mailto:kris@jusiak.net) | [@krisjusiak](https://twitter.com/krisjusiak) | [linkedin.com/in/kris-jusiak](https://www.linkedin.com/in/kris-jusiak)
+#### https://www.quantlab.com/careers
+<!-- .slide: data-background="images/skynet.jpg" -->
           </script>
         </section>
 
