@@ -69,6 +69,8 @@
   <!-- .element: class="fragment" data-fragment-index="4" -->
 * #### Demo
   <!-- .element: class="fragment" data-fragment-index="5" -->
+* #### Summary
+  <!-- .element: class="fragment" data-fragment-index="6" -->
 
 ---
 
@@ -164,7 +166,20 @@ void loop() {
 ### 👍 State machine might be easily identified by implicit states
 
 ```cpp
-bool is_button_1_on  = true is_button_2_on = false, is_led_off = false; // 👎
+auto is_button_1_on = true;  // 👎
+auto is_button_2_on = false; // 👎
+auto is_led_off     = false; // 👎
+```
+<!-- .element: class="fragment" -->
+
+---
+
+```cpp
+enum class state {
+  is_button_1_on,
+  is_button_2_on,
+  is_led_off
+}; // 👎
 ```
 <!-- .element: class="fragment" -->
 
@@ -696,37 +711,44 @@ void loop() {  // Arduino's hot loop
 
 ### Demo
 
-----
+* Design - https://bit.ly/2HY4WVP
+<!-- .element: class="fragment" data-fragment-index="1" -->
 
----
-
-> #### Design - https://bit.ly/2HY4WVP
-
-> #### Implementation - https://godbolt.org/z/99v163aqd
+* Implementation - https://godbolt.org/z/99v163aqd
 <!-- .element: class="fragment" data-fragment-index="2" -->
 
-> #### Simulation / Arduino Uno / atmega328 - https://www.tinkercad.com/things/9epUrFrzKP3
+* Simulation / Arduino Uno / atmega328 - https://www.tinkercad.com/things/9epUrFrzKP3
 <!-- .element: class="fragment" data-fragment-index="3" -->
 
-> #### Simulation / attiny85 - https://www.tinkercad.com/things/8QZMtpXRpvn
+* Simulation / attiny85 - https://www.tinkercad.com/things/8QZMtpXRpvn
 <!-- .element: class="fragment" data-fragment-index="4" -->
 
----
+==============================================================================
+
+### Summary
+
+* Online tools make the embedded development with modern C++ easier
+<!-- .element: class="fragment" -->
+
+* State machines are expressive way to represent the application flow and boost performance
+<!-- .element: class="fragment" -->
+
 
 ==============================================================================
 
 ### Let's `<embed>` all the things with C++20!
 
+<img src="images/skynet.jpg" style="width: 60%; background:none; border:none; box-shadow:none;" />
+
 ---
 
-> Slides - https://boost-ext.github.io/sml/cppcon-2021
+Slides - https://boost-ext.github.io/sml/cppcon-2021
 
-> SML, UT - https://github.com/boost-ext
+SML, UT - https://github.com/boost-ext
 
 ---
 
 #### https://www.quantlab.com/careers
-<!-- .slide: data-background="images/skynet.jpg" -->
           </script>
         </section>
 
