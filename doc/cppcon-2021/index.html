@@ -177,9 +177,7 @@ auto is_led_off     = false; // 👎
 ```cpp
 enum class state {
   is_button_1_on,
-  is_button_2_on,
-  is_led_off
-}; // 👎
+  is_button_2_on, is_led_off }; // 👎
 ```
 <!-- .element: class="fragment" -->
 
@@ -247,15 +245,7 @@ https://www.omg.org/spec/UML/2.5.1/PDF
 
 ----
 
-### UML-2.5 - Transition
-
----
-
-![Transition](images/transition.png)
-
-----
-
-#### Plant UML
+#### UML-2.5 / Plant UML - Transition
 
 ```
 '
@@ -263,6 +253,9 @@ https://www.omg.org/spec/UML/2.5.1/PDF
 ' Transition DSL: src_state -> dst_state : event [ guard ] / action
 '
 ```
+<!-- .element: class="fragment" -->
+
+![Transition](images/transition.png)
 <!-- .element: class="fragment" -->
 
 ```
@@ -305,64 +298,9 @@ https://www.omg.org/spec/UML/2.5.1/PDF
 
 ----
 
-### SML - [Benchmark](https://github.com/boost-ext/sml/tree/master/benchmark/complex)
+#### SML - [Benchmark](https://github.com/boost-ext/sml/tree/master/benchmark/complex)
 
 <img style="background:none; border:none; box-shadow:none;" src="images/benchmark_results.png" width="140%" />
-
-----
-
-#### Transition DSL (Domain Specific language)
-
----
-
-![Transition](images/transition.png)
-<!-- .element: class="fragment" data-fragment-index="1" -->
-
-```cpp
-SourceState + event [ guard ] / action = DestinationState
-                                     ^
-                                     |
-                                    1. DestinationState + on_exit
-                                    2. SourceState + on_entry
-```
-<!-- .element: style="margin-left:0%; width:100%" -->
-<!-- .element: class="fragment" data-fragment-index="2" -->
-
-----
-
-#### Transition DSL (Domain Specific language)
-
-* Guard is optional and can be combined using logic operations
-<!-- .element: class="fragment" data-fragment-index="1" -->
-
-  ```cpp
-  [ guard1 and not guard2 ]
-  ```
-<!-- .element: class="fragment" data-fragment-index="1" -->
-
-* Action is optional and can be sequenced using a comma operator
-<!-- .element: class="fragment" data-fragment-index="2" -->
-
-  ```cpp
-  (action1, action2)
-  ```
-<!-- .element: class="fragment" data-fragment-index="2" -->
-
-* Event is optional - Anonymous transition
-<!-- .element: class="fragment" data-fragment-index="3" -->
-
-  ```cpp
-  SourceState + [ guard ] / action = DestinationState
-  ```
-<!-- .element: class="fragment" data-fragment-index="3" -->
-
-* DestinationState is optional - Internal transition
-<!-- .element: class="fragment" data-fragment-index="4" -->
-
-  ```cpp
-  SourceState + [ guard ] / action
-  ```
-<!-- .element: class="fragment" data-fragment-index="4" -->
 
 ----
 
