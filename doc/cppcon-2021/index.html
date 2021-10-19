@@ -84,9 +84,11 @@
 
 ### Motivation
 
-<a href="https://store.arduino.cc/usa/arduino-uno-rev3"><img src="images/arduino_uno.jpg" style="width: 38%; background:none; border:none; box-shadow:none;" /></a>
-<a href="https://www.microchip.com/wwwproducts/en/ATtiny85"><img src="images/attiny85.jpg" style="width: 24%; background:none; border:none; box-shadow:none;" /></a>
-<a href="https://www.raspberrypi.org/products/raspberry-pi-4-model-b/"><img src="images/pi4.jpg" style="width: 31%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://store.arduino.cc/usa/arduino-uno-rev3"><img src="images/arduino_uno.jpg" style="width: 28%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://www.microchip.com/wwwproducts/en/ATtiny85"><img src="images/attiny85.jpg" style="width: 18%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://www.raspberrypi.org/products/raspberry-pi-pico/"><img src="images/pi_micro.jpg" style="width: 25%; background:none; border:none; box-shadow:none;" /></a>
+<a href="https://www.raspberrypi.org/products/raspberry-pi-4-model-b/"><img src="images/pi4.jpg" style="width: 23%; background:none; border:none; box-shadow:none;" /></a>
+<!-- .element: class="fragment" -->
 
 ----
 
@@ -177,9 +179,11 @@ auto is_led_off     = false; // 👎
 ---
 
 ```cpp
-enum class state {
+enum class state {           // 👎
   is_button_1_on,
-  is_button_2_on, is_led_off }; // 👎
+  is_button_2_on,
+  is_led_off,
+};
 ```
 <!-- .element: class="fragment" -->
 
@@ -239,7 +243,7 @@ Feature: Switcher
 
 ----
 
-#### UML-2.5 / Plant UML - Transition
+#### UML-2.5 / [Plant UML](https://plantuml.com) - Transition
 
 ```
 '
@@ -628,16 +632,28 @@ void loop() {  // Arduino's hot loop
 
 ----
 
+#### Simulation - Arduino Uno / atmega328 - Items
+
+<img src="images/items2.png" style="width: 85%; background:none; border:none; box-shadow:none;" />
+
+----
+
 #### Simulation - attiny85
 
 <a href="https://www.tinkercad.com/things/8QZMtpXRpvn"><img src="images/sim_attiny85.png" style="width: 85%; background:none; border:none; box-shadow:none;" /></a>
 
 ----
 
+#### Simulation - attiny85 - Items
+
+<img src="images/items.png" style="width: 85%; background:none; border:none; box-shadow:none;" />
+
+----
+
 #### Simulation - Raspberry Pi 400
 
-  <img src="images/pi_switcher1.jpg" style="width: 49%; background:none; border:none; box-shadow:none;" />
-  <img src="images/pi_switcher2.jpg" style="width: 49%; background:none; border:none; box-shadow:none;" />
+<img src="images/pi_switcher1.jpg" style="width: 49%; background:none; border:none; box-shadow:none;" />
+<img src="images/pi_switcher2.jpg" style="width: 49%; background:none; border:none; box-shadow:none;" />
 
 ==============================================================================
 
