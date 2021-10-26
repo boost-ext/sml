@@ -296,6 +296,12 @@ Feature: Switcher
 
 ----
 
+#### SML - https://godbolt.org/z/3hroYT
+
+<img style="background:none; border:none; box-shadow:none;" src="images/pressed.png" width="100%" />
+
+----
+
 #### SML - [Benchmark](https://github.com/boost-ext/sml/tree/master/benchmark/complex)
 
 <img style="background:none; border:none; box-shadow:none;" src="images/benchmark_results.png" width="140%" />
@@ -454,6 +460,53 @@ template<component Btn, component Led> struct switcher {
 };
 ```
 <!-- .element: class="fragment" data-fragment-index="1" -->
+
+----
+
+#### Immediately-Invoked Function Expression (`IIFE`) - https://godbolt.org/z/aM58T1
+
+```cpp
+template<auto N>
+constexpr auto unroll = [](auto expr) {
+  [expr]<auto ...Is>(std::index_sequence<Is...>) {
+    ((expr(), void(Is)), ...);
+  }(std::make_index_sequence<N>{});
+};
+```
+<!-- .element: class="fragment" -->
+
+```cpp
+int main() {
+  unroll<2>([]{ std::puts("CppCon 2021!"); });
+}
+```
+<!-- .element: class="fragment" -->
+
+---
+
+```cpp
+.LC0: .string "CppCon 2021!"
+main:
+  sub     rsp, 8
+  mov     edi, OFFSET FLAT:.LC0
+  call    puts
+  mov     edi, OFFSET FLAT:.LC0
+  call    puts
+  xor     eax, eax
+  add     rsp, 8
+  ret
+```
+<!-- .element: class="fragment" -->
+
+<!-- .slide: data-background="darkblue" -->
+
+----
+
+#### Immediately-Invoked Function Expression (`IIFE`) - https://godbolt.org/z/jj7vWaMrG
+
+<img style="background:none; border:none; box-shadow:none;" src="images/iife-asm.png" width="100%" />
+
+<!-- .slide: data-background="darkblue" -->
 
 ----
 
