@@ -302,6 +302,18 @@ Feature: Switcher
 
 ----
 
+#### Dispatch policy
+
+| Name | Policy | Default |
+| ---- | ------ | ------- |
+| Jump Table | `jump_table` | `gcc < 8.0`  |
+| Nested Switch | `switch`  | `gcc >= 8.0` |
+| If/Else | `branch` | `clang` |
+| Fold expressions | `fold_expr` | `gcc/clang with C++17` |
+| Coroutines | `coro` | `clang with C++20` |
+
+----
+
 #### SML - [Benchmark](https://github.com/boost-ext/sml/tree/master/benchmark/complex)
 
 <img style="background:none; border:none; box-shadow:none;" src="images/benchmark_results.png" width="140%" />
@@ -629,7 +641,7 @@ int main() {
 |-|-|-|
 | C++03 | if/else, globals | 44 |
 | C++03 | if/else          | 32 |
-| C++20 | [State Machine](https://github.com/boost-ext/sml) | 24 |
+| C++20 | [SML](https://github.com/boost-ext/sml) | 24 |
 
 ---
 
