@@ -304,13 +304,13 @@ Feature: Switcher
 
 #### Dispatch policy
 
-| Name | Policy | Default |
-| ---- | ------ | ------- |
-| Jump Table | `jump_table` | `gcc < 8.0`  |
-| Nested Switch | `switch`  | `gcc >= 8.0` |
-| If/Else | `branch` | `clang` |
-| Fold expressions | `fold_expr` | `gcc/clang with C++17` |
-| Coroutines | `coro` | `clang with C++20` |
+| Name | Policy |
+| ---- | ------ |
+| Jump Table | `jump_table` |
+| Nested Switch | `switch_stm`  |
+| If/Else | `branch_stm` |
+| Fold expressions | `fold_expr` |
+| Coroutines | `coro` |
 
 ----
 
