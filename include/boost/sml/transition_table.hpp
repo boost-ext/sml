@@ -86,6 +86,9 @@ __BOOST_SML_UNUSED static front::history_state H;
 __BOOST_SML_UNUSED static front::actions::defer defer;
 __BOOST_SML_UNUSED static front::actions::process process;
 
+/// others
+__BOOST_SML_UNUSED static front::state<class SML_EVAL> eval;
+
 /// transition table
 
 template <class... Ts, __BOOST_SML_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
