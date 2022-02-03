@@ -86,6 +86,14 @@ struct transition<state<S2>, G, A> : transition<state<internal>, state<S2>, fron
   auto operator=(const T &) const {
     return transition<T, state<S2>, front::event<back::anonymous>, G, A>{g, a};
   }
+
+  const auto& operator()() const { return *this;}
+
+  template <class TEvent, class TSM, class TDeps, class TSubs>
+  auto operator()(const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) -> void {
+    typename TSM::state_t s{};
+    this->execute(event, sm, deps, subs, s);
+  }
 };
 
 template <class S1, class S2>

@@ -58,6 +58,7 @@ if (NOT IS_MSVC_2015)
 endif()
 
 if (IS_COMPILER_GCC_LIKE)
+    add_example(eval example_eval eval.cpp)
     add_example(history example_history history.cpp)
     add_example(in_place example_in_place in_place.cpp)
     add_example(logging example_logging logging.cpp)
