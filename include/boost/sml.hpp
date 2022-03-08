@@ -354,7 +354,8 @@ struct pool_type_impl : pool_type_base {
   T value;
 };
 template <class T>
-struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value>> : pool_type_base {
+struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value && aux::is_constructible<T, T>::value>>
+    : pool_type_base {
   explicit pool_type_impl(T &value) : value{value} {}
   template <class TObject>
   explicit pool_type_impl(TObject value) : value_{value}, value{value_} {}
@@ -448,25 +449,12 @@ template <template <class...> class T, class... Ts>
 struct size<T<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
-#if defined(_MSC_VER) && !defined(__clang__)
-constexpr int max_element_impl() { return 0; }
-constexpr int max_element_impl(int r) { return r; }
-constexpr int max_element_impl(int r, int i) { return r > i ? r : i; }
-constexpr int max_element_impl(int r, int i, int ints...) {
-  return i > r ? max_element_impl(i, ints) : max_element_impl(r, ints);
-}
-template <int... Ts>
-constexpr int max_element() {
-  return max_element_impl(Ts...);
-}
-#else
 template <int... Ts>
 constexpr int max_element() {
   int max = 0;
   (void)swallow{0, (Ts > max ? max = Ts : max)...};
   return max;
 }
-#endif
 template <class TExpr, class = void>
 struct zero_wrapper : TExpr {
   using type = TExpr;
@@ -549,6 +537,8 @@ template <class T>
 const char *get_type_name() {
 #if defined(_MSC_VER) && !defined(__clang__)
   return detail::get_type_name<T, 39>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 39 - 8>{});
+#elif defined(__clang__) && (__clang_major__ >= 12)
+  return detail::get_type_name<T, 50>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 50 - 2>{});
 #elif defined(__clang__)
   return detail::get_type_name<T, 63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
 #elif defined(__GNUC__)
@@ -1716,7 +1706,7 @@ class sm {
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
   }
   template <class... TDeps, __BOOST_SML_REQUIRES((sizeof...(TDeps) > 1) && aux::is_unique_t<TDeps...>::value)>
-  explicit sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
+  explicit sm(TDeps &&...deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
   }
   sm(aux::init, deps_t &deps) : deps_{deps}, sub_sms_{deps} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
@@ -2299,6 +2289,12 @@ struct transition<state<S2>, G, A> : transition<state<internal>, state<S2>, fron
   auto operator=(const T &) const {
     return transition<T, state<S2>, front::event<back::anonymous>, G, A>{g, a};
   }
+  const auto &operator()() const { return *this; }
+  template <class TEvent, class TSM, class TDeps, class TSubs>
+  auto operator()(const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) -> void {
+    typename TSM::state_t s{};
+    this->execute(event, sm, deps, subs, s);
+  }
 };
 template <class S1, class S2>
 struct transition<state<S1>, state<S2>> : transition<state<S1>, state<S2>, front::event<back::anonymous>, always, none> {
@@ -2724,6 +2720,7 @@ __BOOST_SML_UNUSED static front::state<back::terminate_state> X;
 __BOOST_SML_UNUSED static front::history_state H;
 __BOOST_SML_UNUSED static front::actions::defer defer;
 __BOOST_SML_UNUSED static front::actions::process process;
+__BOOST_SML_UNUSED static front::state<class SML_EVAL> eval;
 template <class... Ts, __BOOST_SML_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
                                                          aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 auto make_transition_table(Ts... ts) {

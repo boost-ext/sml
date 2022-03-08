@@ -58,6 +58,24 @@ test sm_ctor = [] {
   (void)sm;
 };
 
+test sm_noncopyable_deps = [] {
+  struct dependency {
+    dependency() = default;
+    dependency(dependency const &) = delete;
+    int i = 0;
+  };
+
+  struct c {
+    auto operator()() const {
+      using namespace sml;
+      return make_transition_table(*("idle"_s) + event<e1> / [](dependency &) {});
+    }
+  };
+
+  dependency d{};
+  sml::sm<c> sm{d};
+};
+
 test sm_ctor_in_array = [] {
   struct c {
     auto operator()() noexcept {
