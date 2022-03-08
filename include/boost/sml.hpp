@@ -1424,9 +1424,23 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   }
   template <class TEvent, class TDeps, class TSubs, class... Ts,
             __BOOST_SML_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
-                                 !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
-  bool process_internal_events(const TEvent &, TDeps &, TSubs &, Ts &&...) {
+                                 !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value &&
+                                 !aux::is_same<get_event_t<TEvent>, initial>::value)>
+  bool process_internal_events(const TEvent&, TDeps &, TSubs &, Ts &&...) {
     return false;
+  }
+  template <class TEvent, class TDeps, class TSubs, class... Ts,
+            __BOOST_SML_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
+                                 !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value &&
+                                 aux::is_same<get_event_t<TEvent>, initial>::value)>
+  bool process_internal_events(const TEvent &event, TDeps &deps, TSubs &subs) {
+    policies::log_process_event<sm_t>(aux::type<logger_t>{}, deps, event);
+#if BOOST_SML_DISABLE_EXCEPTIONS
+    return process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, states_t{},
+                                                                                    aux::make_index_sequence<regions>{});
+#else
+    return process_event_except_imp<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, deps, subs, has_exceptions{});
+#endif
   }
   template <class TEvent, class TDeps, class TSubs,
             __BOOST_SML_REQUIRES(aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
