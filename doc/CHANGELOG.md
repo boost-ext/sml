@@ -1,3 +1,6 @@
+## [1.1.5] - 2022-03-23
+- **Additions**
+
 ## [1.1.4] - 2021-02-16
 - **Additions**
     - LICENSE file
