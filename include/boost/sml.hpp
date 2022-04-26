@@ -9,12 +9,12 @@
 #if (__cplusplus < 201305L && _MSC_VER < 1900)
 #error "[Boost::ext].SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
-#define BOOST_SML_VERSION 1'1'4
+#define BOOST_SML_VERSION 1'1'5
 #define BOOST_SML_NAMESPACE_BEGIN \
   namespace boost {               \
   inline namespace ext {          \
   namespace sml {                 \
-  inline namespace v1_1_4 {
+  inline namespace v1_1_5 {
 #define BOOST_SML_NAMESPACE_END \
   }                             \
   }                             \
@@ -1706,7 +1706,7 @@ class sm {
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
   }
   template <class... TDeps, __BOOST_SML_REQUIRES((sizeof...(TDeps) > 1) && aux::is_unique_t<TDeps...>::value)>
-  explicit sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
+  explicit sm(TDeps &&...deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
   }
   sm(aux::init, deps_t &deps) : deps_{deps}, sub_sms_{deps} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
@@ -2289,6 +2289,12 @@ struct transition<state<S2>, G, A> : transition<state<internal>, state<S2>, fron
   auto operator=(const T &) const {
     return transition<T, state<S2>, front::event<back::anonymous>, G, A>{g, a};
   }
+  const auto &operator()() const { return *this; }
+  template <class TEvent, class TSM, class TDeps, class TSubs>
+  auto operator()(const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) -> void {
+    typename TSM::state_t s{};
+    this->execute(event, sm, deps, subs, s);
+  }
 };
 template <class S1, class S2>
 struct transition<state<S1>, state<S2>> : transition<state<S1>, state<S2>, front::event<back::anonymous>, always, none> {
@@ -2714,6 +2720,7 @@ __BOOST_SML_UNUSED static front::state<back::terminate_state> X;
 __BOOST_SML_UNUSED static front::history_state H;
 __BOOST_SML_UNUSED static front::actions::defer defer;
 __BOOST_SML_UNUSED static front::actions::process process;
+__BOOST_SML_UNUSED static front::state<class SML_EVAL> eval;
 template <class... Ts, __BOOST_SML_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
                                                          aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 auto make_transition_table(Ts... ts) {
