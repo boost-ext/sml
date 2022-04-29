@@ -370,6 +370,7 @@ make_transition_table(
 
 In such case...
 
+```cpp
 sm.process_event(some_event{}); // "unexpected 'some_event'
 sm.process_event(int{}); // terminate
 assert(sm.is(X));
