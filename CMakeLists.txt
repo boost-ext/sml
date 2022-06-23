@@ -76,15 +76,10 @@ set(CXX_STANDARD_REQUIRED ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-find_package(Boost REQUIRED)
-
 add_library(sml INTERFACE)
 
 target_include_directories(sml
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-
-target_link_libraries(sml
-  INTERFACE Boost::boost)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   target_compile_definitions(sml
@@ -128,6 +123,12 @@ function(add_example exe_name bm_name src_name)
   target_link_libraries(${exe_name} PUBLIC sml)
   add_test(${bm_name} ${exe_name})
 endfunction()
+
+if (SML_BUILD_BENCHMARKS OR SML_BUILD_EXAMPLES OR SML_BUILD_TESTS)
+  find_package(Boost REQUIRED)
+  target_link_libraries(sml
+    INTERFACE Boost::boost)
+endif()
 
 if (SML_BUILD_BENCHMARKS)
   add_subdirectory(benchmark)
