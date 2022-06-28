@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2019 Kris Jusiak (kris at jusiak dot net)
+# Copyright (c) 2016-2020 Kris Jusiak (kris at jusiak dot net)
 #
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -31,10 +31,17 @@ matrix:
 # Style
 #
   - os: linux
-    dist: trusty
-    env: CHECK=ON CLANG_FORMAT=clang-format-4.0 CLANG_TIDY=clang-tidy-4.0
-    addons: { apt: { packages: ["clang-format-4.0", "clang-tidy-4.0", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
-
+    dist: xenial
+    env: CHECK=ON CLANG_FORMAT=clang-format-9 CLANG_TIDY=clang-tidy-9
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+          - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main'
+            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+        packages:
+          - clang-format-9
+          - clang-tidy-9
 #
 # Build
 #
@@ -78,14 +85,46 @@ matrix:
     addons: { apt: { packages: ["clang-8", "libstdc++-8-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-8"] } }
 
   - os: linux
-    dist: trusty
-    env: CXX=clang++-8 LIBCXX=ON MEMCHECK=VALGRIND
-    addons: { apt: { packages: ["clang-8", "libstdc++-8-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-8"] } }
+    dist: xenial
+    env: CXX=clang++-9 CXXSTD=c++1z MEMCHECK=VALGRIND
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+          - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main'
+            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+        packages:
+          - clang-9
+          - libstdc++-9-dev
+          - valgrind
 
   - os: linux
-    dist: trusty
-    env: CXX=clang++-8 CXXSTD=c++1z LIBCXX=ON MEMCHECK=VALGRIND
-    addons: { apt: { packages: ["clang-8", "libstdc++-8-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-8"] } }
+    dist: bionic
+    env: CXX=clang++-10 CXXSTD=c++1z MEMCHECK=VALGRIND
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+          - sourceline: 'deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main'
+            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+        packages:
+          - clang-10
+          - libstdc++-10-dev
+          - valgrind
+
+  - os: linux
+    dist: bionic
+    env: CXX=clang++-10 CXXSTD=c++1z LIBCXX=ON MEMCHECK=VALGRIND
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+          - sourceline: 'deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main'
+            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+        packages:
+          - clang-10
+          - libstdc++-10-dev
+          - valgrind
 
   - os: linux
     dist: trusty
@@ -109,13 +148,32 @@ matrix:
 
   - os: linux
     dist: trusty
-    env: CXX=g++-8 CXXSTD=c++1z MEMCHECK=VALGRIND
-    addons: { apt: { packages: ["g++-8", "libstdc++-8-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
+    env: CXX=g++-9 MEMCHECK=VALGRIND
+    addons: { apt: { packages: ["g++-9", "libstdc++-9-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
 
   - os: linux
-    dist: trusty
-    env: CXX=g++-9 CXXSTD=c++1z MEMCHECK=VALGRIND
-    addons: { apt: { packages: ["g++-9", "libstdc++-9-dev", "valgrind"], sources: ["ubuntu-toolchain-r-test"] } }
+    dist: bionic
+    env: CXX=g++-10 MEMCHECK=VALGRIND
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - g++-10
+          - valgrind
+          - libstdc++-10-dev
+
+  - os: linux
+    dist: bionic
+    env: CXX=g++-10 CXXSTD=c++1z MEMCHECK=VALGRIND
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - g++-10
+          - valgrind
+          - libstdc++-10-dev
 
   - os: osx
     osx_image: xcode7.3
@@ -145,6 +203,14 @@ matrix:
     osx_image: xcode11.4
     env: CXX=clang++
 
+  - os: osx
+    osx_image: xcode11.5
+    env: CXX=clang++
+
+  - os: osx
+    osx_image: xcode11.6
+    env: CXX=clang++
+
 #
 # Coverage
 #
@@ -163,12 +229,12 @@ script:
   - if [ "${CXX}" != "" ] && [ "${COVERAGE}" != "" ]; then (travis_wait make test); fi
   - if [ "${CHECK}" != "" ]; then (travis_wait make check); fi
   - if [ "${TRAVIS_PULL_REQUEST}" == "false" ] && [ "${TRAVIS_BRANCH}" == "master" ] && [ "${DOCUMENTATION}" != "" ]; then (
-    pip install mkdocs -U --user && git clone https://github.com/boost-experimental/sml
+    pip install mkdocs -U --user && git clone https://github.com/boost-ext/sml
     && cd sml && rm -rf * && git checkout -b gh-pages -t origin/gh-pages && git reset --hard && rm -rf * && cd ..
-    && MKDOCS_THEME=boost-experimental MKDOCS_SITE=site make doc
+    && MKDOCS_THEME=boost-modern MKDOCS_SITE=site make doc
     && MKDOCS_THEME=boost-classic MKDOCS_SITE=site/boost make doc readme
     && mv site/* sml && cd sml && git add -A . && git commit -am "doc update"
-    && git push --force --quiet "https://${GH_TOKEN}@github.com/boost-experimental/sml.git"); fi
+    && git push --force --quiet "https://${GH_TOKEN}@github.com/boost-ext/sml.git"); fi
 
 after_success:
   - if [ "${COVERAGE}" != "" ]; then (bash <(curl -s https://codecov.io/bash)); fi

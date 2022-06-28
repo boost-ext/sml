@@ -25,6 +25,19 @@ template <class, class T>
 struct callable
     : decltype(test_callable<aux::inherit<aux::conditional_t<__is_class(T), T, aux::none_type>, callable_fallback>>(0)) {};
 
+template <class T, class R, class TBase, class... TArgs>
+struct callable<T, R (TBase::*)(TArgs...)> : aux::true_type {};
+
+template <class T, class R, class TBase, class... TArgs>
+struct callable<T, R (TBase::*)(TArgs...) const> : aux::true_type {};
+
+#if defined(__cpp_noexcept_function_type)  // __pph__
+template <class T, class R, class TBase, class... TArgs>
+struct callable<T, R (TBase::*)(TArgs...) noexcept> : aux::true_type {};
+
+template <class T, class R, class TBase, class... TArgs>
+struct callable<T, R (TBase::*)(TArgs...) const noexcept> : aux::true_type {};
+#endif  // __pph__
 }  // namespace concepts
 
 #endif

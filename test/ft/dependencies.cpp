@@ -37,6 +37,43 @@ test minimal_with_dependency = [] {
   expect(sm.is(idle));
 };
 
+#if !defined(_MSC_VER)
+test default_dependency = [] {
+  struct data {
+    int id{};
+  };
+
+  struct c {
+    auto operator()() {
+      using namespace sml;
+      return make_transition_table(*idle + event<e1>[([](data& d) { return d.id == 42; })] = X);
+    }
+  };
+
+  {
+    sml::sm<c> sm{};
+    expect(sm.is(idle));
+    sm.process_event(e1{});
+    expect(sm.is(idle));
+  }
+
+  {
+    sml::sm<c> sm{data{42}};
+    expect(sm.is(idle));
+    sm.process_event(e1{});
+    expect(sm.is(sml::X));
+  }
+
+  {
+    data d{42};
+    sml::sm<c> sm{d};
+    expect(sm.is(idle));
+    sm.process_event(e1{});
+    expect(sm.is(sml::X));
+  }
+};
+#endif
+
 test dependencies = [] {
   struct c {
     auto operator()() noexcept {

@@ -6,6 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "boost/sml/utility/dispatch_table.hpp"
+
 #include <boost/sml.hpp>
 #include <cassert>
 

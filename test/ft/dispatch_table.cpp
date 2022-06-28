@@ -7,6 +7,7 @@
 //
 #if !defined(_MSC_VER)
 #include "boost/sml/utility/dispatch_table.hpp"
+
 #include <boost/sml.hpp>
 #include <string>
 #include <utility>
@@ -74,31 +75,31 @@ test dispatch_runtime_event = [] {
 
   {
     runtime_event event{1};
-    dispatcher(event, event.id);
+    expect(dispatcher(event, event.id));
     expect(sm.is(s1));
   }
 
   {
     runtime_event event{9};
-    dispatcher(event, event.id);
+    expect(!dispatcher(event, event.id));
     expect(sm.is(s1));
   }
 
   {
     runtime_event event{2};
-    dispatcher(event, event.id);
+    expect(dispatcher(event, event.id));
     expect(sm.is(s2));
   }
 
   {
     runtime_event event{3};
-    dispatcher(event, event.id);
+    expect(dispatcher(event, event.id));
     expect(sm.is(sml::X));
   }
 
   {
     runtime_event event{5};
-    dispatcher(event, event.id);
+    expect(!dispatcher(event, event.id));
     expect(sm.is(sml::X));
   }
 };
@@ -121,7 +122,7 @@ test dispatch_runtime_event_dynamic_id = [] {
     expect(sm.is(idle));
     auto dispatcher = sml::utility::make_dispatch_table<runtime_event, 1 /*min*/, 10 /*max*/>(sm);
     runtime_event event{4};
-    dispatcher(event, event.id);
+    expect(dispatcher(event, event.id));
     expect(sm.is(sml::X));
   }
 
@@ -130,7 +131,7 @@ test dispatch_runtime_event_dynamic_id = [] {
     expect(sm.is(idle));
     auto dispatcher = sml::utility::make_dispatch_table<runtime_event, 1 /*min*/, 10 /*max*/>(sm);
     runtime_event event{5};
-    dispatcher(event, event.id);
+    expect(dispatcher(event, event.id));
     expect(sm.is(sml::X));
   }
 };
@@ -180,7 +181,7 @@ test dispatch_sm_with_rebind_policies = [] {
     expect(sm.is(idle));
     auto dispatcher = sml::utility::make_dispatch_table<runtime_event, 1 /*min*/, 10 /*max*/>(sm);
     runtime_event event{4};
-    dispatcher(event, event.id);
+    expect(dispatcher(event, event.id));
     expect(sm.is(sml::X));
   }
 
@@ -190,7 +191,7 @@ test dispatch_sm_with_rebind_policies = [] {
     expect(sm.is(idle));
     auto dispatcher = sml::utility::make_dispatch_table<runtime_event, 1 /*min*/, 10 /*max*/>(sm);
     runtime_event event{5};
-    dispatcher(event, event.id);
+    expect(dispatcher(event, event.id));
     expect(sm.is(sml::X));
   }
 };
@@ -230,28 +231,28 @@ test dispatch_runtime_event_sub_sm = [] {
 
   {
     runtime_event event{1};
-    dispatcher(event, event.id);
+    expect(dispatcher(event, event.id));
     expect(sm.is(sml::state<sub>));
     expect(0 == in_sub);
   }
 
   {
     runtime_event event{2};
-    dispatcher(event, event.id);
+    expect(dispatcher(event, event.id));
     expect(sm.is(sml::state<sub>));
     expect(1 == in_sub);
   }
 
   {
     runtime_event event{3};
-    dispatcher(event, event.id);
+    expect(dispatcher(event, event.id));
     expect(sm.is(sml::X));
     expect(1 == in_sub);
   }
 
   {
     runtime_event event{4};
-    dispatcher(event, event.id);
+    expect(!dispatcher(event, event.id));
     expect(sm.is(sml::X));
     expect(1 == in_sub);
   }

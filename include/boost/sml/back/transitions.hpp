@@ -39,19 +39,7 @@ template <class T>
 struct transitions<T> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent& event, SM& sm, TDeps& deps, TSubs& subs, typename SM::state_t& current_state) {
-    return execute_impl(event, sm, deps, subs, current_state);
-  }
-
-  template <class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute_impl(const TEvent& event, SM& sm, TDeps& deps, TSubs& subs, typename SM::state_t& current_state) {
     return aux::get<T>(sm.transitions_).execute(event, sm, deps, subs, current_state, typename SM::has_entry_exits{});
-  }
-
-  template <class _, class TEvent, class SM, class TDeps, class TSubs>
-  static bool execute_impl(const on_exit<_, TEvent>& event, SM& sm, TDeps& deps, TSubs& subs,
-                           typename SM::state_t& current_state) {
-    aux::get<T>(sm.transitions_).execute(event, sm, deps, subs, current_state, typename SM::has_entry_exits{});
-    return false;  // from bottom to top
   }
 };
 
@@ -72,6 +60,7 @@ struct transitions<aux::false_type> {
   }
 };
 
+/// @brief Event executor on a sub state machine with transition in parent state machine.
 template <class TSM, class T, class... Ts>
 struct transitions_sub<sm<TSM>, T, Ts...> {
   template <class TEvent, class SM, class TDeps, class TSubs>
@@ -101,13 +90,29 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
     sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
     return true;  // from top to bottom
   }
+
+  template <class _, class TEvent, class SM, class TDeps, class TSubs>
+  static bool execute_impl(const back::on_exit<_, TEvent>& event, SM& sm, TDeps& deps, TSubs& subs,
+                           typename SM::state_t& current_state) {
+    sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
+    transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
+    return true;  // from bottom to top
+  }
 };
 
+/// @brief Event executor on a sub state machine without transition in parent state machine.
 template <class TSM>
 struct transitions_sub<sm<TSM>> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent& event, SM&, TDeps& deps, TSubs& subs, typename SM::state_t&) {
-    return sub_sm<sm_impl<TSM>>::get(&subs).template process_event<TEvent>(event, deps, subs);
+    return sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
+  }
+
+  template <class, class SM, class TDeps, class TSubs>
+  static bool execute(const anonymous&, SM&, TDeps&, TSubs&, typename SM::state_t&) {
+    // Do not propagate anonymous events to sub state machine
+    // Anonymous events will be generated inside sub-statemachine by initial process_event.
+    return false;
   }
 };
 

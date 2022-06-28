@@ -76,31 +76,34 @@ using join_t = typename join<TArgs...>::type;
 
 template <class, class...>
 struct unique_impl;
-template <class T1, class T2, class... Rs, class... Ts>
-struct unique_impl<type<T1, Rs...>, T2, Ts...>
-    : conditional_t<is_base_of<type<T2>, T1>::value, unique_impl<type<inherit<T1>, Rs...>, Ts...>,
-                    unique_impl<type<inherit<T1, type<T2>>, Rs..., T2>, Ts...>> {};
-template <class T1, class... Rs>
-struct unique_impl<type<T1, Rs...>> : type_list<Rs...> {};
+
+template <class T, class... Rs, class... Ts>
+struct unique_impl<type<Rs...>, T, Ts...> : conditional_t<is_base_of<type<T>, inherit<type<Rs>...>>::value,
+                                                          unique_impl<type<Rs...>, Ts...>, unique_impl<type<Rs..., T>, Ts...>> {
+};
+
+template <class... Rs>
+struct unique_impl<type<Rs...>> : type_list<Rs...> {};
+
 template <class... Ts>
-struct unique : unique_impl<type<none_type>, Ts...> {};
+struct unique : unique_impl<type<>, Ts...> {};
 template <class T>
 struct unique<T> : type_list<T> {};
 template <class... Ts>
 using unique_t = typename unique<Ts...>::type;
 
-template <class, class...>
+template <class...>
 struct is_unique;
 
 template <class T>
 struct is_unique<T> : true_type {};
 
-template <class T1, class T2, class... Ts>
-struct is_unique<T1, T2, Ts...>
-    : conditional_t<is_base_of<type<T2>, T1>::value, false_type, is_unique<inherit<T1, type<T2>>, Ts...>> {};
+template <class T, class... Rs, class... Ts>
+struct is_unique<type<Rs...>, T, Ts...>
+    : conditional_t<is_base_of<type<T>, inherit<type<Rs>...>>::value, false_type, is_unique<type<Rs..., T>, Ts...>> {};
 
 template <class... Ts>
-using is_unique_t = is_unique<none_type, Ts...>;
+using is_unique_t = is_unique<type<>, Ts...>;
 
 template <template <class...> class, class>
 struct apply;
@@ -135,18 +138,34 @@ T &get_by_id(tuple_type<N, T> *object) {
 }
 
 struct init {};
+
 struct pool_type_base {
   __BOOST_SML_ZERO_SIZE_ARRAY(byte);
 };
 
-template <class T>
-struct pool_type : pool_type_base {
-  explicit pool_type(T object) : value{object} {}
-
+template <class T, class = void>
+struct pool_type_impl : pool_type_base {
+  explicit pool_type_impl(T object) : value{object} {}
   template <class TObject>
-  pool_type(init i, TObject object) : value{i, object} {}
-
+  pool_type_impl(init i, TObject object) : value{i, object} {}
   T value;
+};
+
+template <class T>
+struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value && aux::is_constructible<T, T>::value>>
+    : pool_type_base {
+  explicit pool_type_impl(T &value) : value{value} {}
+  template <class TObject>
+  explicit pool_type_impl(TObject value) : value_{value}, value{value_} {}
+  template <class TObject>
+  pool_type_impl(const init &i, const TObject &object) : value(i, object) {}
+  T value_{};
+  T &value;
+};
+
+template <class T>
+struct pool_type : pool_type_impl<T> {
+  using pool_type_impl<T>::pool_type_impl;
 };
 
 template <class T>
@@ -271,23 +290,12 @@ struct size<T<Ts...>> {
   static constexpr auto value = sizeof...(Ts);
 };
 
-#if defined(_MSC_VER) && !defined(__clang__)  // __pph__
-constexpr int max_impl() { return 0; }
-constexpr int max_impl(int r) { return r; }
-constexpr int max_impl(int r, int i) { return r > i ? r : i; }
-constexpr int max_impl(int r, int i, int ints...) { return i > r ? max_impl(i, ints) : max_impl(r, ints); }
 template <int... Ts>
-constexpr int max() {
-  return max_impl(Ts...);
-}
-#else   // __pph__
-template <int... Ts>
-constexpr int max() {
+constexpr int max_element() {
   int max = 0;
   (void)swallow{0, (Ts > max ? max = Ts : max)...};
   return max;
 }
-#endif  // __pph__
 
 template <class TExpr, class = void>
 struct zero_wrapper : TExpr {
@@ -295,6 +303,62 @@ struct zero_wrapper : TExpr {
   explicit zero_wrapper(const TExpr &expr) : TExpr(expr) {}
   const TExpr &get() const { return *this; }
 };
+
+template <class R, class TBase, class... TArgs, class T>
+struct zero_wrapper<R (TBase::*)(TArgs...), T> {
+  explicit zero_wrapper(R (TBase::*ptr)(TArgs...)) : ptr{ptr} {}
+  auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
+
+ private:
+  R (TBase::*ptr)(TArgs...){};
+};
+
+template <class R, class TBase, class... TArgs, class T>
+struct zero_wrapper<R (TBase::*)(TArgs...) const, T> {
+  explicit zero_wrapper(R (TBase::*ptr)(TArgs...) const) : ptr{ptr} {}
+  auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
+
+ private:
+  R (TBase::*ptr)(TArgs...) const {};
+};
+
+template <class R, class... TArgs, class T>
+struct zero_wrapper<R (*)(TArgs...), T> {
+  explicit zero_wrapper(R (*ptr)(TArgs...)) : ptr{ptr} {}
+  auto operator()(TArgs... args) { return (*ptr)(args...); }
+
+ private:
+  R (*ptr)(TArgs...){};
+};
+
+#if defined(__cpp_noexcept_function_type)  // __pph__
+template <class R, class TBase, class... TArgs, class T>
+struct zero_wrapper<R (TBase::*)(TArgs...) noexcept, T> {
+  explicit zero_wrapper(R (TBase::*ptr)(TArgs...) noexcept) : ptr{ptr} {}
+  auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
+
+ private:
+  R (TBase::*ptr)(TArgs...) noexcept {};
+};
+
+template <class R, class TBase, class... TArgs, class T>
+struct zero_wrapper<R (TBase::*)(TArgs...) const noexcept, T> {
+  explicit zero_wrapper(R (TBase::*ptr)(TArgs...) const noexcept) : ptr{ptr} {}
+  auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
+
+ private:
+  R (TBase::*ptr)(TArgs...) const noexcept {};
+};
+
+template <class R, class... TArgs, class T>
+struct zero_wrapper<R (*)(TArgs...) noexcept, T> {
+  explicit zero_wrapper(R (*ptr)(TArgs...) noexcept) : ptr{ptr} {}
+  auto operator()(TArgs... args) { return (*ptr)(args...); }
+
+ private:
+  R (*ptr)(TArgs...) noexcept {};
+};
+#endif  // __pph__
 
 template <class, class>
 struct zero_wrapper_impl;
@@ -325,12 +389,14 @@ auto get_type_name(const char *ptr, index_sequence<Ns...>) {
 template <class T>
 const char *get_type_name() {
 #if defined(_MSC_VER) && !defined(__clang__)  // __pph__
-  return detail::get_type_name<T, 34>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 34 - 8>{});
-#elif defined(__clang__)  // __pph__
-  return detail::get_type_name<T, 58>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 58 - 2>{});
-#elif defined(__GNUC__)   // __pph__
+  return detail::get_type_name<T, 39>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 39 - 8>{});
+#elif defined(__clang__) && (__clang_major__ >= 12)  // __pph__
+  return detail::get_type_name<T, 50>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 50 - 2>{});
+#elif defined(__clang__)                             // __pph__
   return detail::get_type_name<T, 63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
-#endif                    // __pph__
+#elif defined(__GNUC__)                              // __pph__
+  return detail::get_type_name<T, 68>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 68 - 2>{});
+#endif                                               // __pph__
 }
 
 #if defined(__cpp_nontype_template_parameter_class)  // __pph__
@@ -374,4 +440,8 @@ struct string<T> {
 
 }  // namespace aux
 
+template <class T>
+constexpr auto wrap(T callback) {
+  return aux::zero_wrapper<T, T>{callback};
+}
 #endif

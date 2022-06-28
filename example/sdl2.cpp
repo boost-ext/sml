@@ -8,6 +8,7 @@
 #include <boost/sml.hpp>
 #include <cassert>
 #include <iostream>
+
 #include "boost/sml/utility/dispatch_table.hpp"
 
 namespace sml = boost::sml;

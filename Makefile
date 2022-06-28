@@ -28,8 +28,9 @@ CLANG_FORMAT?=clang-format
 CLANG_TIDY?=clang-tidy
 PYTHON?=python2
 MKDOCS?=mkdocs
-MKDOCS_THEME?=boost-experimental
+MKDOCS_THEME?=boost-modern
 MKDOCS_SITE?=site
+PLANTCXX:=$(subst -std=c++14,-std=c++17,$(CXXFLAGS))
 
 all: test example
 
@@ -72,6 +73,14 @@ example: $(patsubst %.cpp, %.out, $(wildcard example/*.cpp))
 example/%.out:
 	$(CXX) example/$*.cpp $(CXXFLAGS) -o example/$*.out && $($(MEMCHECK)) example/$*.out
 
+example/plant_uml.out:
+	# try to compile with C++17, if it didn't work C++14 instead
+	$(CXX) example/plant_uml.cpp $(PLANTCXX) -o $@ || true
+	@if [ ! -e "$@" ]; then\
+		$(CXX) example/plant_uml.cpp $(CXXFLAGS) -o $@;\
+	fi
+	$($(MEMCHECK)) $@
+
 style:
 	@find include example test -iname "*.hpp" -or -iname "*.cpp" | xargs $(CLANG_FORMAT) -i
 	@git diff include example test
@@ -86,15 +95,15 @@ static_analysis:
 
 doc: readme doc_$(MKDOCS_THEME)
 
-doc_boost-experimental:
-	MKDOCS_THEME_DIR='doc/themes/boost-experimental' $(MKDOCS) build --quiet --config-file .$(MKDOCS).yml --clean --site-dir $(MKDOCS_SITE)
+doc_boost-modern:
+	MKDOCS_THEME_DIR='doc/themes/boost-modern' $(MKDOCS) build --quiet --config-file .$(MKDOCS).yml --clean --site-dir $(MKDOCS_SITE)
 
 doc_boost-classic:
-	$(PYTHON) doc/themes/boost-classic/scripts/update_markdown.py . https://raw.githubusercontent.com/boost-experimental/sml/master
+	$(PYTHON) doc/themes/boost-classic/scripts/update_markdown.py . https://raw.githubusercontent.com/boost-ext/sml/master
 	MKDOCS_THEME_DIR='doc/themes/boost-classic' $(MKDOCS) build --quiet --config-file .$(MKDOCS).yml --clean --site-dir $(MKDOCS_SITE)
 
 readme:
-	$(PYTHON) doc/scripts/update_readme_toc.py doc .$(MKDOCS).yml README.md http://boost-experimental.github.io/sml
+	$(PYTHON) doc/scripts/update_readme_toc.py doc .$(MKDOCS).yml README.md https://boost-ext.github.io/sml
 
 clean:
 	find example test -iname "*.out" -or -iname "*.obj" | xargs rm -f

@@ -6,6 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <boost/sml.hpp>
+#include <cstdio>
 #include <string>
 #include <utility>
 #include <vector>
@@ -729,8 +730,6 @@ test composite_entry_exit_sub_sm = [] {
   expect(std::vector<calls>{calls::ls2_1_exit, calls::sub2_exit, calls::sub1_entry, calls::ls1_1_entry} == c_);
 };
 
-#include <cstdio>
-
 test composite_entry_exit_sub_sm_only_dst = [] {
   using namespace sml;
 
@@ -883,6 +882,74 @@ test composite_with_names = [] {
 
   sm.process_event(e3{});
   expect(sm.is(sml::X));
+};
+
+test composite_sub_guards = [] {
+  enum class calls { a1_entry, a1_exit, a2_entry, a2_exit, b1_entry, b1_exit };
+
+  struct A {
+    auto operator()() const noexcept {
+      using namespace sml;
+      const auto a1 = state<class A1>;
+      const auto a2 = state<class A2>;
+      // clang-format off
+      return make_transition_table(
+        (*a1) [([](int& guard_counter, bool& is_ok) {guard_counter++; return is_ok;})] = a2,
+         a1 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::a1_entry); },
+         a1 + sml::on_exit<_> / [](std::vector<calls>& c) { c.push_back(calls::a1_exit); },
+         a2 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::a2_entry); },
+         a2 + sml::on_exit<_> / [](std::vector<calls>& c) { c.push_back(calls::a2_exit); }
+      );
+      // clang-format on
+    }
+  };
+
+  struct B {
+    auto operator()() const noexcept {
+      using namespace sml;
+      const auto b1 = state<class B1>;
+      const auto b2 = state<class B2>;
+      // clang-format off
+      return make_transition_table(
+        *b1 + event<e2> = b2,
+         b1 + sml::on_entry<_> / [](std::vector<calls>& c) { c.push_back(calls::b1_entry); },
+         b1 + sml::on_exit<_>  / [](std::vector<calls>& c) { c.push_back(calls::b1_exit); }
+      );
+      // clang-format on
+    }
+  };
+
+  struct SM {
+    auto operator()() const noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        *state<class init> = state<A>,
+         state<A>  + event<e1> = state<B>,
+         state<B>  + event<e3> = X
+      );
+      // clang-format on
+    }
+  };
+
+  std::vector<calls> c_;
+  int guard_counter = 0;
+  bool is_ok = false;
+  sml::sm<SM> sm{c_, guard_counter, is_ok};
+  expect(std::vector<calls>{calls::a1_entry} == c_);
+  expect(guard_counter == 1);
+  guard_counter = {};
+  sm.process_event(e2{});
+  expect(guard_counter == 1);
+  guard_counter = {};
+  is_ok = true;
+  sm.process_event(e2{});
+  expect(guard_counter == 1);
+  expect(std::vector<calls>{calls::a1_entry, calls::a1_exit, calls::a2_entry} == c_);
+  guard_counter = {};
+  sm.process_event(e1{});
+  expect(guard_counter == 0);
+  expect(std::vector<calls>{calls::a1_entry, calls::a1_exit, calls::a2_entry, calls::a2_exit, calls::b1_entry} == c_);
 };
 
 #if !defined(_MSC_VER)

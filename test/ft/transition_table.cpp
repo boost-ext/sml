@@ -96,6 +96,30 @@ test uml_notation = [] {
   expect(sm.is(sml::X));
 };
 
+test member_functions = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *idle + event<e1> [ &c::guard ] / &c::action = X
+      );
+      // clang-format on
+    }
+
+    auto guard() const -> bool { return true; }
+    void action() { action_ = true; }
+    bool action_{};
+  };
+
+  c c_{};
+  sml::sm<c> sm{c_};
+  expect(!c_.action_);
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+  expect(c_.action_);
+};
+
 struct c_guard {
   template <class T>
   bool operator()(const T &) const noexcept {
