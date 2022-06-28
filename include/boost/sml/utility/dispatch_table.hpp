@@ -42,25 +42,27 @@ namespace detail {
 template <int Id, class TEvent = void>
 struct dispatch_event_impl {
   template <class SM, class T, __BOOST_SML_REQUIRES(aux::is_constructible<TEvent>::value &&aux::always<T>::value)>
-  static void execute(SM &sm, const T &) {
-    sm.process_event(TEvent());
+  static bool execute(SM &sm, const T &) {
+    return sm.process_event(TEvent());
   }
 
   template <class SM, class T, __BOOST_SML_REQUIRES(aux::is_constructible<TEvent, T>::value)>
-  static void execute(SM &sm, const T &data) {
-    sm.process_event(TEvent(data));
+  static bool execute(SM &sm, const T &data) {
+    return sm.process_event(TEvent(data));
   }
 
   template <class SM, class T, __BOOST_SML_REQUIRES(aux::is_constructible<TEvent, T, int>::value)>
-  static void execute(SM &sm, const T &data) {
-    sm.process_event(TEvent(data, Id));
+  static bool execute(SM &sm, const T &data) {
+    return sm.process_event(TEvent(data, Id));
   }
 };
 
 template <int N>
 struct dispatch_event_impl<N, void> {
   template <class SM, class T>
-  static void execute(SM &, const T &) {}
+  static bool execute(SM &, const T &) {
+    return false;
+  }
 };
 
 template <int, class>
@@ -95,11 +97,11 @@ using get_event_t = typename get_event<N, T>::type;
 template <class TEvent, int EventRangeBegin, class SM, int... Ns>
 auto make_dispatch_table(SM &fsm, const aux::index_sequence<Ns...> &) {
   using events_ids_t = aux::apply_t<event_id, typename SM::events>;
-  return [&](const TEvent &e, int id) {
-    using dispatch_table_t = void (*)(SM &, const TEvent &);
+  return [&](const TEvent &e, int id) -> bool {
+    using dispatch_table_t = bool (*)(SM &, const TEvent &);
     const static dispatch_table_t dispatch_table[sizeof...(Ns) ? sizeof...(Ns) : 1] = {
         &get_event_t<Ns + EventRangeBegin, events_ids_t>::template execute<SM, TEvent>...};
-    dispatch_table[id - EventRangeBegin](fsm, e);
+    return dispatch_table[id - EventRangeBegin](fsm, e);
   };
 }
 }  // namespace detail
