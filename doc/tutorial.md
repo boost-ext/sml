@@ -320,7 +320,7 @@ Process event might be also triggered on transition table.
 ```
 using namespace sml;
 return make_transition_table(
- *"s1"_s + event<my_event> / process_event(other_event{}) = "s2"_s,
+ *"s1"_s + event<my_event> / process(other_event{}) = "s2"_s,
   "s2"_s + event<other_event> = X
 );
 ```
