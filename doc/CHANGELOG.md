@@ -1,9 +1,20 @@
+## [1.1.6] - 2022-09-07
+- **Bug Fixes**
+    - [Issues](https://github.com/boost-ext/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2022-03-23..2020-09-07+)
+>
+- **Contributions**
+    - [Ladislas de Toldi](https://github.com/ladislas)
+
 ## [1.1.5] - 2022-03-23
-- **Additions**
+- **Bug Fixes**
+    - [Issues](https://github.com/boost-ext/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2021-02-16..2022-03-23+)
 
 ## [1.1.4] - 2021-02-16
 - **Additions**
     - LICENSE file
+
+- **Bug Fixes**
+    - [Issues](https://github.com/boost-ext/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2020-08-02..2021-02-16+)
 
 ## [1.1.3] - 2020-08-02
 - **Additions**
@@ -86,6 +97,9 @@
 ##[1.0.0] - 2016-01-28
 - Initial version
 
+[1.1.6]: https://github.com/boost-ext/sml/compare/v1.1.5...v1.1.6
+[1.1.5]: https://github.com/boost-ext/sml/compare/v1.1.4...v1.1.5
+[1.1.5]: https://github.com/boost-ext/sml/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/boost-ext/sml/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/boost-ext/sml/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/boost-ext/sml/compare/v1.1.1...v1.1.2
