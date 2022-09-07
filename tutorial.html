@@ -463,7 +463,7 @@ sm.process_event(int{}); // not handled -&gt; unexpected_event&lt;int&gt;
 <p>Process event might be also triggered on transition table.</p>
 <pre><code>using namespace sml;
 return make_transition_table(
- *&quot;s1&quot;_s + event&lt;my_event&gt; / process_event(other_event{}) = &quot;s2&quot;_s,
+ *&quot;s1&quot;_s + event&lt;my_event&gt; / process(other_event{}) = &quot;s2&quot;_s,
   &quot;s2&quot;_s + event&lt;other_event&gt; = X
 );
 </code></pre>
@@ -502,15 +502,14 @@ dispatch_event(event, event.type); // will call sm.process(game_over{});
 </code></pre>
 
 <p>In such case...</p>
-<p>sm.process_event(some_event{}); // "unexpected 'some_event'
+<pre><code class="cpp">sm.process_event(some_event{}); // &quot;unexpected 'some_event'
 sm.process_event(int{}); // terminate
-assert(sm.is(X));</p>
-<pre><code>
-Usually, it's handy to create additional `Orthogonal region` to cover this scenario,
-This way State causing unexpected event does not matter.
+assert(sm.is(X));
+</code></pre>
 
-```cpp
-make_transition_table(
+<p>Usually, it's handy to create additional <code>Orthogonal region</code> to cover this scenario,
+This way State causing unexpected event does not matter.</p>
+<pre><code class="cpp">make_transition_table(
  *&quot;idle&quot;_s + event&lt;my_event&gt; [ guard ] / action = &quot;s1&quot;_s
 , &quot;s1&quot;_s + event&lt;other_event&gt; [ guard ] / action = &quot;s2&quot;_s
 , &quot;s2&quot;_s + event&lt;yet_another_event&gt; [ guard ] / action = X
