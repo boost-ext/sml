@@ -66,7 +66,7 @@ constexpr auto send_ack = [](const auto& event, sender& s) { s.send(event); };
 
 #### State Machine
 ```cpp
-struct tcp_release final {
+struct tcp_release {
   auto operator()() const {
     using namespace sml;
     /**
