@@ -68,18 +68,17 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
   set(IS_COMPILER_GCC_LIKE TRUE)
 endif()
 
-include(GNUInstallDirs)
-
-install(DIRECTORY "include/boost" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-
 set(CXX_STANDARD_REQUIRED ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 add_library(sml INTERFACE)
+add_library(sml::sml ALIAS sml)
 
-target_include_directories(sml
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+target_include_directories(sml INTERFACE 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   target_compile_definitions(sml
@@ -141,3 +140,41 @@ endif()
 if (SML_BUILD_TESTS)
   add_subdirectory(test)
 endif()
+
+# install support
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/smlConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/smlConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/sml
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/smlConfigVersion.cmake
+    VERSION 1.1.6
+    COMPATIBILITY SameMajorVersion    
+)
+
+install(TARGETS sml 
+    EXPORT smlTargets 
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+install(EXPORT smlTargets 
+    NAMESPACE sml:: 
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/sml
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/boost 
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/smlConfigVersion.cmake 
+        ${CMAKE_CURRENT_BINARY_DIR}/smlConfig.cmake 
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/sml
+)
