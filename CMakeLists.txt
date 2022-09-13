@@ -80,6 +80,8 @@ target_include_directories(sml INTERFACE
     $<INSTALL_INTERFACE:include>
 )
 
+target_compile_features(sml INTERFACE cxx_std_14)
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   target_compile_definitions(sml
     INTERFACE NOMINMAX # avoid Win macro definition of min/max, use std one
@@ -91,27 +93,31 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   endif()
 elseif (IS_COMPILER_GCC_LIKE) # gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
-  target_compile_options(sml
-    INTERFACE "-Wfatal-errors" # stops on first error
-    INTERFACE "-Wall" # enables all the warnings about constructions
-    INTERFACE "-Wextra" # Print extra warning messages"
-    INTERFACE "-Werror" # Make all warnings into errors.
-    INTERFACE "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
-    INTERFACE "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings
+  target_compile_options(sml INTERFACE
+    $<BUILD_INTERFACE:
+      "-Wfatal-errors" # stops on first error
+      "-Wall" # enables all the warnings about constructions
+      "-Wextra" # Print extra warning messages"
+      "-Werror" # Make all warnings into errors.
+      "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
+      "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings
+    >
   )
 
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    target_compile_options(sml
+    target_compile_options(sml INTERFACE
       # http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
-      INTERFACE "-ftrack-macro-expansion=0"
-      INTERFACE "-fno-diagnostics-show-caret"
+      $<BUILD_INTERFACE:
+        "-ftrack-macro-expansion=0"
+        "-fno-diagnostics-show-caret"
+      >
     )
   endif()
 
   if (NOT ${SML_USE_EXCEPTIONS})
-    target_compile_options(sml
-      INTERFACE "-fno-exceptions" # compiles without exception support
-      )
+    target_compile_options(sml INTERFACE
+      $<BUILD_INTERFACE:"-fno-exceptions"> # compiles without exception support
+    )
   endif()
 endif ()
 
