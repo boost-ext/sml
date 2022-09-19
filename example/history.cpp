@@ -41,9 +41,9 @@ struct history {
 int main() {
   sml::sm<history> sm;
   using namespace sml;
-  sm.process_event("e1"_e());
   sm.process_event("e1"_e());  // enter sub
+  sm.process_event("e1"_e());  // in sub
   sm.process_event("e3"_e());  // exit sub
-  sm.process_event("e4"_e());  // enter sub
-  sm.process_event("e2"_e());  // in sub again (history)
+  sm.process_event("e4"_e());  // enter sub again
+  sm.process_event("e2"_e());  // in sub again
 }
