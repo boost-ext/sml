@@ -28,21 +28,6 @@ matrix:
   - os: linux
     env: DOCUMENTATION=ON
 #
-# Style
-#
-  - os: linux
-    dist: xenial
-    env: CHECK=ON CLANG_FORMAT=clang-format-9 CLANG_TIDY=clang-tidy-9
-    addons:
-      apt:
-        sources:
-          - ubuntu-toolchain-r-test
-          - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main'
-            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
-        packages:
-          - clang-format-9
-          - clang-tidy-9
-#
 # Build
 #
   - os: linux
