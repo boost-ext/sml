@@ -8,7 +8,7 @@
 
 ---------------------------------------
 
-# [Boost::ext].SML (State Machine Language)
+# SML (State Machine Language)
 
 > Your scalable C++14 **one header only** State Machine Library with no dependencies
 
