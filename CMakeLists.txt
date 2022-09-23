@@ -28,9 +28,9 @@ cmake_minimum_required(VERSION 3.10)
 project(sml LANGUAGES CXX)
 include(CTest)
 
-option(SML_BUILD_BENCHMARKS "Build benchmarks" ON)
-option(SML_BUILD_EXAMPLES   "Build examples"   ON)
-option(SML_BUILD_TESTS      "Build tests"      ON)
+option(SML_BUILD_BENCHMARKS "Build benchmarks" OFF)
+option(SML_BUILD_EXAMPLES   "Build examples"   OFF)
+option(SML_BUILD_TESTS      "Build tests"      OFF)
 option(SML_USE_EXCEPTIONS   "Do not disable exceptions" ON)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 6.0.0)
@@ -75,7 +75,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 add_library(sml INTERFACE)
 add_library(sml::sml ALIAS sml)
 
-target_include_directories(sml INTERFACE 
+target_include_directories(sml INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
@@ -129,7 +129,7 @@ function(add_example exe_name bm_name src_name)
   add_test(${bm_name} ${exe_name})
 endfunction()
 
-if (SML_BUILD_BENCHMARKS OR SML_BUILD_EXAMPLES OR SML_BUILD_TESTS)
+if (SML_BUILD_BENCHMARKS)
   find_package(Boost REQUIRED)
   target_link_libraries(sml
     INTERFACE Boost::boost)
@@ -161,26 +161,26 @@ configure_package_config_file(
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/smlConfigVersion.cmake
     VERSION 1.1.6
-    COMPATIBILITY SameMajorVersion    
+    COMPATIBILITY SameMajorVersion
 )
 
-install(TARGETS sml 
-    EXPORT smlTargets 
+install(TARGETS sml
+    EXPORT smlTargets
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-install(EXPORT smlTargets 
-    NAMESPACE sml:: 
+install(EXPORT smlTargets
+    NAMESPACE sml::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/sml
 )
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/boost 
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/boost
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 install(FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/smlConfigVersion.cmake 
-        ${CMAKE_CURRENT_BINARY_DIR}/smlConfig.cmake 
+        ${CMAKE_CURRENT_BINARY_DIR}/smlConfigVersion.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/smlConfig.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/sml
 )
