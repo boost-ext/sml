@@ -21,7 +21,7 @@ struct e4 {};
 struct e5 {};
 
 // Allow out of header implementation
-bool guard2_impl(int i);
+bool guard2_impl(int);
 
 struct actions_guards {
   using self = actions_guards;
@@ -39,7 +39,7 @@ struct actions_guards {
     auto action1 = [](auto e) { std::cout << "action1: " << typeid(e).name() << std::endl; };
 
     struct action2 {
-      void operator()(int i) {
+      void operator()([[maybe_unused]] int i) {
         assert(42 == i);
         std::cout << "action2" << std::endl;
       }

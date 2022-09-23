@@ -1,0 +1,82 @@
+name: CMake Build Matrix
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "windows MinGW",
+            os: windows-latest,
+            build_type: "Debug",
+            cxx: "g++",
+            generators: "Ninja"
+          }
+        - {
+            name: "ubuntu g++",
+            os: ubuntu-latest,
+            build_type: "Debug",
+            cxx: "g++",
+            generators: "Ninja"
+          }
+        - {
+            name: "macos clang++",
+            os: macos-latest,
+            build_type: "Debug",
+            cxx: "clang++",
+            generators: "Ninja"
+          }
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies on windows
+        if: startsWith(matrix.config.os, 'windows')
+        run: |
+          choco install ninja cmake
+          ninja --version
+          cmake --version
+
+      - name: Install dependencies on ubuntu
+        if: startsWith(matrix.config.name, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install ninja-build cmake
+          ninja --version
+          cmake --version
+          gcc --version
+
+      - name: Install dependencies on macos
+        if: startsWith(matrix.config.os, 'macos')
+        run: |
+          brew install cmake ninja
+          ninja --version
+          cmake --version
+
+      - name: Configure
+        shell: bash
+        run: |
+          mkdir build
+          cmake \
+            -S . \
+            -B . \
+            -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+            -DSML_BUILD_EXAMPLES=ON \
+            -DSML_BUILD_TESTS=ON \
+            -G "${{ matrix.config.generators }}"
+
+      - name: Build
+        shell: bash
+        run: cmake --build . --config ${{ matrix.config.build_type }}
+
+      - name: Test
+        shell: bash
+        run: ctest --output-on-failure .
