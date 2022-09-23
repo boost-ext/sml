@@ -1,4 +1,4 @@
-name: CMake Build Matrix
+name: linux/windows/macos
 
 on:
   push:
