@@ -179,6 +179,90 @@ test dependencies_smart_ptrs = [] {
   expect(sm.is(sml::X));
 };
 
+test dependencies_with_reference = [] {
+  struct Data {
+    int m_member { 42 };
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      const auto action = [](Data& data) { expect(data.m_member == 42); };
+
+      using namespace sml;
+      return make_transition_table(*idle + event<e1> / action = X);
+    }
+  };
+
+  Data data;
+  sml::sm<c> sm{data};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+test dependencies_with_const_reference = [] {
+  struct Data {
+    int m_member { 42 };
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      const auto action = [](const Data& data) {
+        expect(data.m_member == 42);
+      };
+
+      using namespace sml;
+      return make_transition_table(*idle + event<e1> / action = X);
+    }
+  };
+
+  Data data;
+  sml::sm<c> sm{data};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+test dependencies_with_pointer = [] {
+  struct Data {
+    int m_member { 42 };
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      const auto action = [](Data* data) { expect(data->m_member == 42); };
+
+      using namespace sml;
+      return make_transition_table(*idle + event<e1> / action = X);
+    }
+  };
+
+  Data data;
+  sml::sm<c> sm{&data};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+test dependencies_with_const_pointer = [] {
+  struct Data {
+    int m_member { 42 };
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      const auto action = [](const Data* data) {
+        expect(data->m_member == 42);
+      };
+
+      using namespace sml;
+      return make_transition_table(*idle + event<e1> / action = X);
+    }
+  };
+
+  Data data;
+  sml::sm<c> sm{&data};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
 #if (_MSC_VER >= 1910)  // MSVC 2017
 test dependencies_multiple_subs = [] {
   struct update {
