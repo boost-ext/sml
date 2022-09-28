@@ -1,4 +1,4 @@
-name: linux/windows/macos
+name: build
 
 on:
   push:
