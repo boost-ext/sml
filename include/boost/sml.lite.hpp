@@ -10,7 +10,7 @@
 #pragma GCC diagnostic ignored "-Wnon-template-friend"
 #endif
 
-namespace boost::inline v_2_0_0 {
+namespace boost::inline v_2_0_0::sml {
 namespace mp {
 template <int...>
 struct index_sequence {
@@ -300,7 +300,7 @@ using front::operator not;
 using front::operator and;
 using front::operator or;
 }  // namespace dsl
-}  // namespace boost::inline v_2_0_0
+}  // namespace boost::inline v_2_0_0::sml
 
 #if not defined(__clang__)
 #pragma GCC diagnostic pop

@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 #
 # Copyright (c) 2016-2020 Kris Jusiak (kris at jusiak dot net)
 #
@@ -8,9 +10,9 @@
 .PHONY: benchmark
 CXX?=clang++
 ifneq (, $(findstring clang++, $(CXX)))
-	CXXFLAGS?=-std=c++1y -fno-exceptions -O3 -s -I ../include -I .
+	CXXFLAGS?=-std=c++20 -fno-exceptions -O3 -s -I ../include -I .
 else ifneq (, $(findstring g++, $(CXX)))
-	CXXFLAGS?=-std=c++1y -fno-exceptions -O3 -s -I ../include -I .
+	CXXFLAGS?=-std=c++20 -fno-exceptions -O3 -s -I ../include -I .
 else
 	CXXFLAGS?=-nologo -EHsc -Ox -W3 -I include -I .
 endif
@@ -18,6 +20,8 @@ endif
 all: benchmark_header benchmark_simple benchmark_composite benchmark_complex
 
 benchmark_%:
+	time $(CXX) $*/sml.lite.cpp $(CXXFLAGS) -DCHECK_COMPILE_TIME
+	@$(CXX) $*/sml.lite.cpp $(CXXFLAGS) && ./a.out && ls -lh a.out
 	time $(CXX) $*/switch.cpp $(CXXFLAGS) -DCHECK_COMPILE_TIME
 	@$(CXX) $*/switch.cpp $(CXXFLAGS) && ./a.out && ls -lh a.out
 	time $(CXX) $*/sml.cpp $(CXXFLAGS) -DCHECK_COMPILE_TIME
