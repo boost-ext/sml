@@ -10,7 +10,7 @@
 #pragma GCC diagnostic ignored "-Wnon-template-friend"
 #endif
 
-namespace boost::inline v_2_0_0::sml {
+namespace boost::sml::inline v_2_0_0 {
 namespace mp {
 template <int...>
 struct index_sequence {
@@ -68,7 +68,7 @@ struct fixed_string {
   }
 
   char data[N + 1]{};
-  unsigned int hash{};
+  unsigned hash{};
 };
 
 template <auto N>
@@ -110,7 +110,7 @@ struct pool : Ts... {
   constexpr explicit(true) pool(Ts... ts) : Ts{ts}... {}
 };
 
-template <unsigned int, class...>
+template <unsigned, class...>
 struct transition {};
 
 template <class>
@@ -130,7 +130,7 @@ class sm<TList<Transitions...>> {
  public:
   constexpr explicit(true) sm(const TList<Transitions...>& transition_table)
       : transition_table_{transition_table} {
-    const unsigned int states[]{
+    const unsigned states[]{
         (Transitions::src.data[0] == '*' ? Transitions::src.hash : 0u)...};
     for (auto* current_state = &current_state_[0]; auto state : states) {
       if (state) {
@@ -140,7 +140,7 @@ class sm<TList<Transitions...>> {
   }
 
   constexpr auto process_event(const auto& event) -> void {
-    process_event(event, mp::make_index_sequence<1>{});
+    process_event(event, mp::make_index_sequence<num_of_regions>{});
   }
 
  private:
@@ -150,7 +150,7 @@ class sm<TList<Transitions...>> {
     (dispatch<TEvent>(event, current_state_[Rs], &mappings), ...);
   }
 
-  template <class TEvent, unsigned int N = 0u, class T>
+  template <class TEvent, unsigned N = 0u, class T>
   constexpr auto dispatch(const TEvent& event, auto& current_state,
                           const transition<N, TEvent, T>*) -> void {
     if (T::src.hash == current_state) {
@@ -162,11 +162,11 @@ class sm<TList<Transitions...>> {
     }
   }
 
-  template <class TEvent, unsigned int = 0u>
+  template <class TEvent, unsigned = 0u>
   constexpr auto dispatch(const TEvent&, auto&, ...) -> void {}
 
   [[no_unique_address]] TList<Transitions...> transition_table_{};
-  unsigned int current_state_[num_of_regions]{};
+  unsigned current_state_[num_of_regions]{};
 };
 }  // namespace back
 
@@ -300,7 +300,7 @@ using front::operator not;
 using front::operator and;
 using front::operator or;
 }  // namespace dsl
-}  // namespace boost::inline v_2_0_0::sml
+}  // namespace boost::sml::inline v_2_0_0
 
 #if not defined(__clang__)
 #pragma GCC diagnostic pop
