@@ -5,10 +5,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#if not defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnon-template-friend"
-#endif
+#pragma once
 
 namespace boost::sml::inline v_2_0_0 {
 namespace mp {
@@ -76,7 +73,14 @@ fixed_string(const char (&str)[N]) -> fixed_string<N - 1>;
 
 template <class T, auto N>
 struct reader {
+#if not defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-template-friend"
+#endif
   friend auto counted_flag(reader<T, N>);
+#if not defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 };
 
 template <class T, auto N>
@@ -139,8 +143,13 @@ class sm<TList<Transitions...>> {
     }
   }
 
-  constexpr auto process_event(const auto& event) -> void {
-    process_event(event, mp::make_index_sequence<num_of_regions>{});
+  template<class TEvent>
+  constexpr auto process_event(const TEvent& event) -> void {
+    if constexpr (num_of_regions == 1u) {
+      dispatch<TEvent>(event, current_state_[0], &mappings);
+    } else {
+      process_event(event, mp::make_index_sequence<num_of_regions>{});
+    }
   }
 
  private:
@@ -153,11 +162,7 @@ class sm<TList<Transitions...>> {
   template <class TEvent, unsigned N = 0u, class T>
   constexpr auto dispatch(const TEvent& event, auto& current_state,
                           const transition<N, TEvent, T>*) -> void {
-    if (T::src.hash == current_state) {
-      if (not static_cast<T&>(transition_table_)(event, current_state)) {
-        dispatch<TEvent, N + 1u>(event, current_state, &mappings);
-      }
-    } else {
+    if (T::src.hash != current_state or not static_cast<T&>(transition_table_)(event, current_state)) {
       dispatch<TEvent, N + 1u>(event, current_state, &mappings);
     }
   }
@@ -184,7 +189,7 @@ concept invokable = not requires { &invokable_impl<T>::operator(); };
 constexpr auto invoke(const concepts::invokable auto& fn, const auto& event) {
   if constexpr (requires { fn(event); }) {
     return fn(event);
-  } else if constexpr (requires { fn(); }) {
+  } else {
     return fn();
   }
 }
@@ -239,9 +244,8 @@ struct transition {
         current_state = dst.hash;
       }
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   [[no_unique_address]] TGuard guard;
@@ -301,7 +305,3 @@ using front::operator and;
 using front::operator or;
 }  // namespace dsl
 }  // namespace boost::sml::inline v_2_0_0
-
-#if not defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
