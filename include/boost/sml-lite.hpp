@@ -5,6 +5,9 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+// Example
+//  https://godbolt.org/z/v98acEbb6
+//
 #if defined(__cpp_modules) && !defined(BOOST_SML_DISABLE_MODULE)
 export module boost.sml;
 export import std;
@@ -14,9 +17,6 @@ export import std;
 #if defined(__cpp_modules) && !defined(BOOST_SML_DISABLE_MODULE)
 export
 #endif
-/**
- * https://godbolt.org/z/v98acEbb6
- */
 namespace boost::sml::inline v_2_0_0 {
 namespace mp {
 template <int...>
@@ -160,6 +160,11 @@ class sm<TList<Transitions...>> {
     } else {
       process_event(event, mp::make_index_sequence<num_of_regions>{});
     }
+  }
+
+  [[nodiscard]] constexpr auto is(auto... states) const -> bool {
+    auto i = 0;
+    return ((states.src.hash == current_state_[i++]) and ...);
   }
 
  private:
@@ -315,3 +320,119 @@ using front::operator and;
 using front::operator or;
 }  // namespace dsl
 }  // namespace boost::sml::inline v_2_0_0
+
+#if defined(UT)
+#include <boost/ut.hpp>
+
+int main() {
+  using namespace boost::ut;
+  using namespace boost::sml;
+
+  struct e1{};
+  struct e2{};
+  struct e { bool value{}; };
+
+  "process event"_test = [] {
+    sm sm = [] {
+      using namespace dsl;
+      return transition_table{
+        *"s1"_s + event<e1> = "s2"_s
+      };
+    };
+
+    using namespace dsl;
+    expect(sm.is("s1"_s));
+
+    sm.process_event(e1{});
+    expect(sm.is("s2"_s));
+  };
+
+  "transitions"_test = [] {
+    sm sm = [] {
+      using namespace dsl;
+      return transition_table{
+        *"s1"_s + event<e1> = "s2"_s,
+         "s2"_s + event<e2> = "s1"_s
+      };
+    };
+
+    using namespace dsl;
+    expect(sm.is("s1"_s));
+
+    sm.process_event(e1{});
+    expect(sm.is("s2"_s));
+
+    sm.process_event(e1{});
+    expect(sm.is("s2"_s));
+
+    sm.process_event(e2{});
+    expect(sm.is("s1"_s));
+  };
+
+  "guards/actions"_test = [] {
+    unsigned calls{};
+    sm sm = [&] {
+      using namespace dsl;
+      auto guard = [](const auto& event) { return event.value; };
+      auto action = [&]{ calls++; };
+      return transition_table{
+        *"s1"_s + event<e> [ guard ] / action = "s2"_s,
+      };
+    };
+
+    using namespace dsl;
+    sm.process_event(e{false});
+    expect(sm.is("s1"_s));
+
+    sm.process_event(e{true});
+    expect(sm.is("s2"_s));
+  };
+
+  "dependencies"_test = [] {
+    struct s {
+      bool value{};
+
+      constexpr auto operator()() const {
+        using namespace dsl;
+        auto guard = [this] { return value; };
+        return transition_table{
+          *"s1"_s + event<e1> [ guard ] = "s2"_s,
+        };
+      }
+    };
+
+    using namespace dsl;
+    {
+      s s{};
+      sm sm{s};
+      sm.process_event(e1{});
+      expect(sm.is("s1"_s));
+    }
+    {
+      s s{true};
+      sm sm{s};
+      sm.process_event(e1{});
+      expect(sm.is("s2"_s));
+    }
+  };
+
+  "orthogonal regions"_test = [] {
+    sm sm = [] {
+      using namespace dsl;
+      return transition_table{
+        *"s1"_s + event<e1> = "s2"_s,
+        *"s3"_s + event<e2> = "s4"_s
+      };
+    };
+
+    using namespace dsl;
+    expect(sm.is("s1"_s, "s3"_s));
+
+    sm.process_event(e1{});
+    expect(sm.is("s2"_s, "s3"_s));
+
+    sm.process_event(e2{});
+    expect(sm.is("s2"_s, "s4"_s));
+  };
+}
+#endif
