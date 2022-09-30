@@ -5,8 +5,15 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#if defined(__cpp_modules) && !defined(BOOST_SML_DISABLE_MODULE)
+export module boost.sml;
+export import std;
+#else
 #pragma once
-
+#endif
+#if defined(__cpp_modules) && !defined(BOOST_SML_DISABLE_MODULE)
+export
+#endif
 /**
  * https://godbolt.org/z/v98acEbb6
  */
@@ -180,16 +187,16 @@ class sm<TList<Transitions...>> {
 
 namespace front {
 namespace concepts {
-struct invokable_base {
+struct invocable_base {
   void operator()();
 };
 template <class T>
-struct invokable_impl : T, invokable_base {};
+struct invocable_impl : T, invocable_base {};
 template <class T>
-concept invokable = not requires { &invokable_impl<T>::operator(); };
+concept invocable = not requires { &invocable_impl<T>::operator(); };
 }  // namespace concepts
 
-constexpr auto invoke(const concepts::invokable auto& fn, const auto& event) {
+constexpr auto invoke(const concepts::invocable auto& fn, const auto& event) {
   if constexpr (requires { fn(event); }) {
     return fn(event);
   } else {
@@ -262,26 +269,26 @@ constexpr auto operator""_s() {
   return transition<Str>{};
 }
 
-[[nodiscard]] constexpr auto operator,(const concepts::invokable auto& lhs,
-                                       const concepts::invokable auto& rhs) {
+[[nodiscard]] constexpr auto operator,(const concepts::invocable auto& lhs,
+                                       const concepts::invocable auto& rhs) {
   return [=](const auto& event) {
     invoke(lhs, event);
     invoke(rhs, event);
   };
 }
-[[nodiscard]] constexpr auto operator and(const concepts::invokable auto& lhs,
-                                          const concepts::invokable auto& rhs) {
+[[nodiscard]] constexpr auto operator and(const concepts::invocable auto& lhs,
+                                          const concepts::invocable auto& rhs) {
   return [=](const auto& event) {
     return invoke(lhs, event) and invoke(rhs, event);
   };
 }
-[[nodiscard]] constexpr auto operator or(const concepts::invokable auto& lhs,
-                                         const concepts::invokable auto& rhs) {
+[[nodiscard]] constexpr auto operator or(const concepts::invocable auto& lhs,
+                                         const concepts::invocable auto& rhs) {
   return [=](const auto& event) {
     return invoke(lhs, event) or invoke(rhs, event);
   };
 }
-[[nodiscard]] constexpr auto operator not(const concepts::invokable auto& t) {
+[[nodiscard]] constexpr auto operator not(const concepts::invocable auto& t) {
   return [=](const auto& event) { return not invoke(t, event); };
 }
 }  // namespace front
