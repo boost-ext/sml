@@ -1,0 +1,695 @@
+//
+// Copyright (c) 2022 Kris Jusiak (kris at jusiak dot net)
+//
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+//
+// Example
+//  https://godbolt.org/z/v98acEbb6
+//
+#if defined(__cpp_modules) && !defined(BOOST_SML_DISABLE_MODULE)
+export module boost.sml;
+export import std;
+#else
+#pragma once
+#if not defined(__clang__)
+#pragma GCC system_header
+#endif
+#endif
+#if defined(__cpp_modules) && !defined(BOOST_SML_DISABLE_MODULE)
+export
+#endif
+    namespace boost::sml::inline v_2_0_0 {
+namespace mp {
+template <int...>
+struct index_sequence {
+  using type = index_sequence;
+};
+#if __has_builtin(__make_integer_seq)
+template <class T, T...>
+struct integer_sequence;
+template <int... Ns>
+struct integer_sequence<int, Ns...> {
+  using type = index_sequence<Ns...>;
+};
+template <int N>
+struct make_index_sequence_impl {
+  using type = typename __make_integer_seq<integer_sequence, int, N>::type;
+};
+#else
+template <class, class>
+struct concat;
+template <int... I1, int... I2>
+struct concat<index_sequence<I1...>, index_sequence<I2...>> : index_sequence<I1..., (sizeof...(I1) + I2)...> {};
+template <int N>
+struct make_index_sequence_impl
+    : concat<typename make_index_sequence_impl<N / 2>::type, typename make_index_sequence_impl<N - N / 2>::type>::type {};
+template <>
+struct make_index_sequence_impl<0> : index_sequence<> {};
+template <>
+struct make_index_sequence_impl<1> : index_sequence<0> {};
+#endif
+template <int N>
+using make_index_sequence = typename make_index_sequence_impl<N>::type;
+
+template <class T>
+auto declval() -> T&&;
+
+template <auto N>
+struct fixed_string {
+  static constexpr auto size = N;
+
+  constexpr fixed_string() = default;
+  constexpr explicit(false) fixed_string(const char (&str)[N + 1]) {
+    for (auto i = 0u; i < N; ++i) {
+      data[i] = str[i];
+      (hash ^= data[i]) <<= 1;
+    }
+  }
+
+  constexpr auto operator*() const {
+    fixed_string<N + 1> str{};
+    str.data[0] = '*';
+    for (auto i = 0u; i < N; ++i) {
+      str.data[i + 1] = data[i];
+      (str.hash ^= str.data[i + 1]) <<= 1;
+    }
+    return str;
+  }
+
+  char data[N + 1]{};
+  unsigned hash{};
+};
+
+template <auto N>
+fixed_string(const char (&str)[N]) -> fixed_string<N - 1>;
+
+template <class T, auto N>
+struct reader {
+  friend auto counted_flag(reader<T, N>);
+};
+
+template <class T, auto N>
+struct setter {
+  friend auto counted_flag(reader<T, N>) {}
+  static constexpr unsigned value = N;
+};
+
+template <class T, auto Tag, unsigned NextVal = 0>
+[[nodiscard]] consteval auto counter_impl() {
+  if constexpr (requires(reader<T, NextVal> r) { counted_flag(r); }) {
+    return counter_impl<T, Tag, NextVal + 1>();
+  } else {
+    return NextVal;
+  }
+}
+
+template <class T, auto Tag = [] {}, auto N = counter_impl<T, Tag>()>
+constexpr auto counter = N;
+
+template <class...>
+struct append;
+template <template <class...> class TList, class... Ts, class T>
+struct append<TList<Ts...>, T> {
+  using type = TList<Ts..., T>;
+};
+template <class TList, class T>
+using append_t = typename append<TList, T>::type;
+}  // namespace mp
+
+namespace back {
+template <class, auto>
+struct mappings {
+  friend auto get(mappings);
+  template <class T>
+  struct set {
+    friend auto get(mappings) { return T{}; }
+  };
+};
+
+template <class...>
+struct transitions {};
+
+template <class TEvent, class T, auto Counter>
+constexpr auto insert() {
+  if constexpr (requires { get(mappings<TEvent, Counter>{}); }) {
+    using joined = mp::append_t<decltype(get(mappings<TEvent, Counter>{})), T>;
+    void(typename mappings<TEvent, mp::setter<TEvent, Counter + 1u>::value>::template set<joined>{});
+  } else {
+    void(typename mappings<TEvent, Counter>::template set<transitions<T>>{});
+  }
+}
+
+template <class... Ts>
+struct pool : Ts... {
+  constexpr explicit(true) pool(Ts... ts) : Ts{ts}... {}
+};
+
+template <class...>
+class sm;
+template <template <class...> class TList, class... Transitions, class TUnique>
+class sm<TList<Transitions...>, TUnique> {
+  static constexpr auto num_of_regions = ((Transitions::src.data[0] == '*') + ...);
+
+ public:
+  constexpr explicit(true) sm(const auto& transition_table) : transition_table_{transition_table} {
+    (insert<typename Transitions::event(TUnique), Transitions, mp::counter<typename Transitions::event(TUnique)>>(), ...);
+    const unsigned states[]{(Transitions::src.data[0] == '*' ? Transitions::src.hash : 0u)...};
+    for (auto* current_state = &current_state_[0]; auto state : states) {
+      if (state) {
+        *current_state++ = state;
+      }
+    }
+  }
+
+  template <class TEvent, class Ts = decltype(get(mappings<TEvent(TUnique), mp::counter<TEvent(TUnique)>>{}))>
+  constexpr auto process_event(const TEvent& event) -> void {
+    if constexpr (const auto transitions = Ts{}; num_of_regions == 1u) {
+      dispatch<TEvent>(event, current_state_[0], transitions);
+    } else {
+      process_event(event, transitions, mp::make_index_sequence<num_of_regions>{});
+    }
+  }
+
+  [[nodiscard]] constexpr auto is(auto... states) const -> bool {
+    auto i = 0;
+    return ((states.src.hash == current_state_[i++]) and ...);
+  }
+
+ private:
+  template <auto... Rs, class TEvent>
+  constexpr auto process_event(const TEvent& event, const auto& transitions, mp::index_sequence<Rs...>) -> void {
+    (dispatch<TEvent>(event, current_state_[Rs], transitions), ...);
+  }
+
+  template <class TEvent, class T>
+  constexpr auto dispatch(const TEvent& event, auto& current_state, transitions<T>) -> bool {
+    return T::src.hash == current_state and static_cast<T&>(transition_table_)(event, current_state);
+  }
+
+  template <class TEvent, class... Ts>
+  constexpr auto dispatch(const TEvent& event, auto& current_state, transitions<Ts...>) -> bool {
+    return (dispatch(event, current_state, transitions<Ts>{}) or ...);
+  }
+
+  [[no_unique_address]] TList<Transitions...> transition_table_{};
+  unsigned current_state_[num_of_regions]{};
+};
+}  // namespace back
+
+namespace front {
+namespace concepts {
+struct invocable_base {
+  void operator()();
+};
+template <class T>
+struct invocable_impl : T, invocable_base {};
+template <class T>
+concept invocable = not requires { &invocable_impl<T>::operator(); };
+}  // namespace concepts
+
+auto invoke(const auto& fn, const auto& event) {
+  if constexpr (requires { fn(event); }) {
+    return fn(event);
+  } else {
+    return fn();
+  }
+}
+
+namespace detail {
+constexpr auto none = [] {};
+constexpr auto always = [] { return true; };
+}  // namespace detail
+
+template <mp::fixed_string Src = "", class TEvent = decltype(detail::none), class TGuard = decltype(detail::always),
+          class TAction = decltype(detail::none), mp::fixed_string Dst = "">
+struct transition {
+  static constexpr auto src = Src;
+  static constexpr auto dst = Dst;
+  using event = TEvent;
+
+  [[nodiscard]] constexpr auto operator*() const {
+    return transition<*Src, TEvent, TGuard, TAction, Dst>{.guard = guard, .action = action};
+  }
+
+  template <class T>
+  [[nodiscard]] constexpr auto operator+(const T& t) const {
+    return transition<Src, typename T::event, decltype(T::guard), decltype(T::action)>{.guard = t.guard, .action = t.action};
+  }
+
+  template <class T>
+  [[nodiscard]] constexpr auto operator[](const T& guard) const {
+    return transition<Src, TEvent, T>{.guard = guard, .action = action};
+  }
+
+  template <class T>
+  [[nodiscard]] constexpr auto operator/(const T& action) const {
+    return transition<Src, TEvent, TGuard, T>{.guard = guard, .action = action};
+  }
+
+  template <class T>
+  [[nodiscard]] constexpr auto operator=(const T&) const {
+    return transition<src, TEvent, TGuard, TAction, T::src>{.guard = guard, .action = action};
+  }
+
+  [[nodiscard]] auto operator()(const TEvent& event, [[maybe_unused]] auto& current_state) -> bool {
+    if (invoke(guard, event)) {
+      invoke(action, event);
+      if constexpr (dst.size) {
+        current_state = dst.hash;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  [[no_unique_address]] TGuard guard;
+  [[no_unique_address]] TAction action;
+};
+
+template <class TEvent>
+constexpr auto event = transition<"", TEvent>{};
+template <mp::fixed_string Str>
+constexpr auto operator""_s() {
+  return transition<Str>{};
+}
+
+[[nodiscard]] constexpr auto operator,(const concepts::invocable auto& lhs, const concepts::invocable auto& rhs) {
+  return [=](const auto& event) {
+    invoke(lhs, event);
+    invoke(rhs, event);
+  };
+}
+[[nodiscard]] constexpr auto operator and(const concepts::invocable auto& lhs, const concepts::invocable auto& rhs) {
+  return [=](const auto& event) { return invoke(lhs, event) and invoke(rhs, event); };
+}
+[[nodiscard]] constexpr auto operator or(const concepts::invocable auto& lhs, const concepts::invocable auto& rhs) {
+  return [=](const auto& event) { return invoke(lhs, event) or invoke(rhs, event); };
+}
+[[nodiscard]] constexpr auto operator not(const concepts::invocable auto& t) {
+  return [=](const auto& event) { return not invoke(t, event); };
+}
+}  // namespace front
+
+template <class T, class TUnique = decltype([] {})>
+struct sm final : back::sm<decltype(mp::declval<T>()()), TUnique> {
+  constexpr explicit(false) sm(T t) : back::sm<decltype(mp::declval<T>()()), TUnique>{t()} {}
+};
+template <class T>
+sm(T&&) -> sm<T>;
+
+namespace dsl {
+template <class... Ts>
+struct transition_table : back::pool<Ts...> {
+  constexpr explicit(false) transition_table(Ts... ts) : back::pool<Ts...>{ts...} {}
+};
+using front::event;
+using front::operator""_s;
+using front::operator, ;
+using front::operator not;
+using front::operator and;
+using front::operator or;
+}  // namespace dsl
+}  // namespace boost::sml::inline v_2_0_0
+
+/**
+ * $CXX -std=c++20 -x c++ sml-lite -DUT
+ */
+#if defined(UT)
+#include <boost/ut.hpp>
+
+int main() {
+  using namespace boost::ut;
+  using namespace boost::sml;
+
+  struct e1 {};
+  struct e2 {};
+  struct e {
+    bool value{};
+  };
+
+  "process event"_test = [] {
+    sm sm = [] {
+      using namespace dsl;
+      return transition_table{*"s1"_s + event<e1> = "s2"_s};
+    };
+
+    using namespace dsl;
+    expect(sm.is("s1"_s));
+
+    sm.process_event(e1{});
+    expect(sm.is("s2"_s));
+  };
+
+  "transitions"_test = [] {
+    sm sm = [] {
+      using namespace dsl;
+      return transition_table{*"s1"_s + event<e1> = "s2"_s, "s2"_s + event<e2> = "s1"_s};
+    };
+
+    using namespace dsl;
+    expect(sm.is("s1"_s));
+
+    sm.process_event(e1{});
+    expect(sm.is("s2"_s));
+
+    sm.process_event(e1{});
+    expect(sm.is("s2"_s));
+
+    sm.process_event(e2{});
+    expect(sm.is("s1"_s));
+  };
+
+  "guards/actions"_test = [] {
+    unsigned calls{};
+    sm sm = [&] {
+      using namespace dsl;
+      auto guard = [](const auto& event) { return event.value; };
+      auto action = [&] { calls++; };
+      return transition_table{
+          *"s1"_s + event<e>[guard] / action = "s2"_s,
+      };
+    };
+
+    using namespace dsl;
+    sm.process_event(e{false});
+    expect(sm.is("s1"_s));
+
+    sm.process_event(e{true});
+    expect(sm.is("s2"_s));
+  };
+
+  "dependencies"_test = [] {
+    struct s {
+      bool value{};
+
+      constexpr auto operator()() const {
+        using namespace dsl;
+        auto guard = [this] { return value; };
+        return transition_table{
+            *"s1"_s + event<e1>[guard] = "s2"_s,
+        };
+      }
+    };
+
+    using namespace dsl;
+    {
+      s s{};
+      sm sm{s};
+      sm.process_event(e1{});
+      expect(sm.is("s1"_s));
+    }
+    {
+      s s{true};
+      sm sm{s};
+      sm.process_event(e1{});
+      expect(sm.is("s2"_s));
+    }
+  };
+
+  "orthogonal regions"_test = [] {
+    sm sm = [] {
+      using namespace dsl;
+      return transition_table{*"s1"_s + event<e1> = "s2"_s, *"s3"_s + event<e2> = "s4"_s};
+    };
+
+    using namespace dsl;
+    expect(sm.is("s1"_s, "s3"_s));
+
+    sm.process_event(e1{});
+    expect(sm.is("s2"_s, "s3"_s));
+
+    sm.process_event(e2{});
+    expect(sm.is("s2"_s, "s4"_s));
+  };
+}
+#endif
+
+/**
+ * perf stat $CXX -std=c++20 -x c++ sml-lite -DBENCH
+ */
+#if defined(BENCH)
+int main() {
+  struct e1 {};
+  struct e2 {};
+  struct e3 {};
+  struct e4 {};
+  struct e5 {};
+  struct e6 {};
+  struct e7 {};
+  struct e8 {};
+  struct e9 {};
+  struct e10 {};
+  struct e11 {};
+  struct e12 {};
+  struct e13 {};
+  struct e14 {};
+  struct e15 {};
+  struct e16 {};
+  struct e17 {};
+  struct e18 {};
+  struct e19 {};
+  struct e20 {};
+  struct e21 {};
+  struct e22 {};
+  struct e23 {};
+  struct e24 {};
+  struct e25 {};
+  struct e26 {};
+  struct e27 {};
+  struct e28 {};
+  struct e29 {};
+  struct e30 {};
+  struct e31 {};
+  struct e32 {};
+  struct e33 {};
+  struct e34 {};
+  struct e35 {};
+  struct e36 {};
+  struct e37 {};
+  struct e38 {};
+  struct e39 {};
+  struct e40 {};
+  struct e41 {};
+  struct e42 {};
+  struct e43 {};
+  struct e44 {};
+  struct e45 {};
+  struct e46 {};
+  struct e47 {};
+  struct e48 {};
+  struct e49 {};
+  struct e50 {};
+  struct e51 {};
+  struct e52 {};
+  struct e53 {};
+  struct e54 {};
+  struct e55 {};
+  struct e56 {};
+  struct e57 {};
+  struct e58 {};
+  struct e59 {};
+  struct e60 {};
+  struct e61 {};
+  struct e62 {};
+  struct e63 {};
+  struct e64 {};
+  struct e65 {};
+  struct e66 {};
+  struct e67 {};
+  struct e68 {};
+  struct e69 {};
+  struct e70 {};
+  struct e71 {};
+  struct e72 {};
+  struct e73 {};
+  struct e74 {};
+  struct e75 {};
+  struct e76 {};
+  struct e77 {};
+  struct e78 {};
+  struct e79 {};
+  struct e80 {};
+  struct e81 {};
+  struct e82 {};
+  struct e83 {};
+  struct e84 {};
+  struct e85 {};
+  struct e86 {};
+  struct e87 {};
+  struct e88 {};
+  struct e89 {};
+  struct e90 {};
+  struct e91 {};
+  struct e92 {};
+  struct e93 {};
+  struct e94 {};
+  struct e95 {};
+  struct e96 {};
+  struct e97 {};
+  struct e98 {};
+  struct e99 {};
+  struct e100 {};
+
+  boost::sml::sm sm = [] {
+    auto guard = [] { return true; };
+    auto action = [] {};
+
+    using namespace boost::sml::dsl;
+    return transition_table{
+        *"s1"_s + event<e1>[guard] / action = "s2"_s,    "s2"_s + event<e2>[guard] / action = "s3"_s,
+        "s3"_s + event<e3>[guard] / action = "s4"_s,     "s4"_s + event<e4>[guard] / action = "s5"_s,
+        "s5"_s + event<e5>[guard] / action = "s6"_s,     "s6"_s + event<e6>[guard] / action = "s7"_s,
+        "s7"_s + event<e7>[guard] / action = "s8"_s,     "s8"_s + event<e8>[guard] / action = "s9"_s,
+        "s9"_s + event<e9>[guard] / action = "s10"_s,    "s10"_s + event<e10>[guard] / action = "s11"_s,
+        "s11"_s + event<e11>[guard] / action = "s12"_s,  "s12"_s + event<e12>[guard] / action = "s13"_s,
+        "s13"_s + event<e13>[guard] / action = "s14"_s,  "s14"_s + event<e14>[guard] / action = "s15"_s,
+        "s15"_s + event<e15>[guard] / action = "s16"_s,  "s16"_s + event<e16>[guard] / action = "s17"_s,
+        "s17"_s + event<e17>[guard] / action = "s18"_s,  "s18"_s + event<e18>[guard] / action = "s19"_s,
+        "s19"_s + event<e19>[guard] / action = "s20"_s,  "s20"_s + event<e20>[guard] / action = "s21"_s,
+        "s21"_s + event<e21>[guard] / action = "s22"_s,  "s22"_s + event<e22>[guard] / action = "s23"_s,
+        "s23"_s + event<e23>[guard] / action = "s24"_s,  "s24"_s + event<e24>[guard] / action = "s25"_s,
+        "s25"_s + event<e25>[guard] / action = "s26"_s,  "s26"_s + event<e26>[guard] / action = "s27"_s,
+        "s27"_s + event<e27>[guard] / action = "s28"_s,  "s28"_s + event<e28>[guard] / action = "s29"_s,
+        "s29"_s + event<e29>[guard] / action = "s30"_s,  "s30"_s + event<e30>[guard] / action = "s31"_s,
+        "s31"_s + event<e31>[guard] / action = "s32"_s,  "s32"_s + event<e32>[guard] / action = "s33"_s,
+        "s33"_s + event<e33>[guard] / action = "s34"_s,  "s34"_s + event<e34>[guard] / action = "s35"_s,
+        "s35"_s + event<e35>[guard] / action = "s36"_s,  "s36"_s + event<e36>[guard] / action = "s37"_s,
+        "s37"_s + event<e37>[guard] / action = "s38"_s,  "s38"_s + event<e38>[guard] / action = "s39"_s,
+        "s39"_s + event<e39>[guard] / action = "s40"_s,  "s40"_s + event<e40>[guard] / action = "s41"_s,
+        "s41"_s + event<e41>[guard] / action = "s42"_s,  "s42"_s + event<e42>[guard] / action = "s43"_s,
+        "s43"_s + event<e43>[guard] / action = "s44"_s,  "s44"_s + event<e44>[guard] / action = "s45"_s,
+        "s45"_s + event<e45>[guard] / action = "s46"_s,  "s46"_s + event<e46>[guard] / action = "s47"_s,
+        "s47"_s + event<e47>[guard] / action = "s48"_s,  "s48"_s + event<e48>[guard] / action = "s49"_s,
+        "s49"_s + event<e49>[guard] / action = "s50"_s,  "s50"_s + event<e50>[guard] / action = "s51"_s,
+        "s51"_s + event<e51>[guard] / action = "s52"_s,  "s52"_s + event<e52>[guard] / action = "s53"_s,
+        "s53"_s + event<e53>[guard] / action = "s54"_s,  "s54"_s + event<e54>[guard] / action = "s55"_s,
+        "s55"_s + event<e55>[guard] / action = "s56"_s,  "s56"_s + event<e56>[guard] / action = "s57"_s,
+        "s57"_s + event<e57>[guard] / action = "s58"_s,  "s58"_s + event<e58>[guard] / action = "s59"_s,
+        "s59"_s + event<e59>[guard] / action = "s60"_s,  "s60"_s + event<e60>[guard] / action = "s61"_s,
+        "s61"_s + event<e61>[guard] / action = "s62"_s,  "s62"_s + event<e62>[guard] / action = "s63"_s,
+        "s63"_s + event<e63>[guard] / action = "s64"_s,  "s64"_s + event<e64>[guard] / action = "s65"_s,
+        "s65"_s + event<e65>[guard] / action = "s66"_s,  "s66"_s + event<e66>[guard] / action = "s67"_s,
+        "s67"_s + event<e67>[guard] / action = "s68"_s,  "s68"_s + event<e68>[guard] / action = "s69"_s,
+        "s69"_s + event<e69>[guard] / action = "s70"_s,  "s70"_s + event<e70>[guard] / action = "s71"_s,
+        "s71"_s + event<e71>[guard] / action = "s72"_s,  "s72"_s + event<e72>[guard] / action = "s73"_s,
+        "s73"_s + event<e73>[guard] / action = "s74"_s,  "s74"_s + event<e74>[guard] / action = "s75"_s,
+        "s75"_s + event<e75>[guard] / action = "s76"_s,  "s76"_s + event<e76>[guard] / action = "s77"_s,
+        "s77"_s + event<e77>[guard] / action = "s78"_s,  "s78"_s + event<e78>[guard] / action = "s79"_s,
+        "s79"_s + event<e79>[guard] / action = "s80"_s,  "s80"_s + event<e80>[guard] / action = "s81"_s,
+        "s81"_s + event<e81>[guard] / action = "s82"_s,  "s82"_s + event<e82>[guard] / action = "s83"_s,
+        "s83"_s + event<e83>[guard] / action = "s84"_s,  "s84"_s + event<e84>[guard] / action = "s85"_s,
+        "s85"_s + event<e85>[guard] / action = "s86"_s,  "s86"_s + event<e86>[guard] / action = "s87"_s,
+        "s87"_s + event<e87>[guard] / action = "s88"_s,  "s88"_s + event<e88>[guard] / action = "s89"_s,
+        "s89"_s + event<e89>[guard] / action = "s90"_s,  "s90"_s + event<e90>[guard] / action = "s91"_s,
+        "s91"_s + event<e91>[guard] / action = "s92"_s,  "s92"_s + event<e92>[guard] / action = "s93"_s,
+        "s93"_s + event<e93>[guard] / action = "s94"_s,  "s94"_s + event<e94>[guard] / action = "s95"_s,
+        "s95"_s + event<e95>[guard] / action = "s96"_s,  "s96"_s + event<e96>[guard] / action = "s97"_s,
+        "s97"_s + event<e97>[guard] / action = "s98"_s,  "s98"_s + event<e98>[guard] / action = "s99"_s,
+        "s99"_s + event<e99>[guard] / action = "s100"_s, "s100"_s + event<e100>[guard] / action = "s101"_s,
+    };
+  };
+
+  sm.process_event(e1{});
+  sm.process_event(e2{});
+  sm.process_event(e3{});
+  sm.process_event(e4{});
+  sm.process_event(e5{});
+  sm.process_event(e6{});
+  sm.process_event(e7{});
+  sm.process_event(e8{});
+  sm.process_event(e9{});
+  sm.process_event(e10{});
+  sm.process_event(e11{});
+  sm.process_event(e12{});
+  sm.process_event(e13{});
+  sm.process_event(e14{});
+  sm.process_event(e15{});
+  sm.process_event(e16{});
+  sm.process_event(e17{});
+  sm.process_event(e18{});
+  sm.process_event(e19{});
+  sm.process_event(e20{});
+  sm.process_event(e21{});
+  sm.process_event(e22{});
+  sm.process_event(e23{});
+  sm.process_event(e24{});
+  sm.process_event(e25{});
+  sm.process_event(e26{});
+  sm.process_event(e27{});
+  sm.process_event(e28{});
+  sm.process_event(e29{});
+  sm.process_event(e30{});
+  sm.process_event(e31{});
+  sm.process_event(e32{});
+  sm.process_event(e33{});
+  sm.process_event(e34{});
+  sm.process_event(e35{});
+  sm.process_event(e36{});
+  sm.process_event(e37{});
+  sm.process_event(e38{});
+  sm.process_event(e39{});
+  sm.process_event(e40{});
+  sm.process_event(e41{});
+  sm.process_event(e42{});
+  sm.process_event(e43{});
+  sm.process_event(e44{});
+  sm.process_event(e45{});
+  sm.process_event(e46{});
+  sm.process_event(e47{});
+  sm.process_event(e48{});
+  sm.process_event(e49{});
+  sm.process_event(e50{});
+  sm.process_event(e51{});
+  sm.process_event(e52{});
+  sm.process_event(e53{});
+  sm.process_event(e54{});
+  sm.process_event(e55{});
+  sm.process_event(e56{});
+  sm.process_event(e57{});
+  sm.process_event(e58{});
+  sm.process_event(e59{});
+  sm.process_event(e60{});
+  sm.process_event(e61{});
+  sm.process_event(e62{});
+  sm.process_event(e63{});
+  sm.process_event(e64{});
+  sm.process_event(e65{});
+  sm.process_event(e66{});
+  sm.process_event(e67{});
+  sm.process_event(e68{});
+  sm.process_event(e69{});
+  sm.process_event(e70{});
+  sm.process_event(e71{});
+  sm.process_event(e72{});
+  sm.process_event(e73{});
+  sm.process_event(e74{});
+  sm.process_event(e75{});
+  sm.process_event(e76{});
+  sm.process_event(e77{});
+  sm.process_event(e78{});
+  sm.process_event(e79{});
+  sm.process_event(e80{});
+  sm.process_event(e81{});
+  sm.process_event(e82{});
+  sm.process_event(e83{});
+  sm.process_event(e84{});
+  sm.process_event(e85{});
+  sm.process_event(e86{});
+  sm.process_event(e87{});
+  sm.process_event(e88{});
+  sm.process_event(e89{});
+  sm.process_event(e90{});
+  sm.process_event(e91{});
+  sm.process_event(e92{});
+  sm.process_event(e93{});
+  sm.process_event(e94{});
+  sm.process_event(e95{});
+  sm.process_event(e96{});
+  sm.process_event(e97{});
+  sm.process_event(e98{});
+  sm.process_event(e99{});
+  sm.process_event(e100{});
+}
+#endif
