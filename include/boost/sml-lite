@@ -5,9 +5,27 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+// Tests
+//   $CXX -std=c++20 -x c++ sml-lite -DUT
+//
+// Benchmarks
+//    perf stat $CXX -std=c++20 -x c++ sml-lite -DBENCH
+//
 // Example
 //  https://godbolt.org/z/v98acEbb6
 //
+// [] support for &fn without lambda
+//  [ &type::guard ]  / &type::action
+//
+// [] support for process
+//  process(event{})
+//
+// [] sm should be copyable/movable
+//
+// [] support for logger
+//
+// [] entry/exit actions for state
+
 #if defined(__cpp_modules) && !defined(BOOST_SML_DISABLE_MODULE)
 export module boost.sml;
 export import std;
@@ -21,301 +39,343 @@ export import std;
 export
 #endif
     namespace boost::sml::inline v_2_0_0 {
-namespace mp {
-template <int...>
-struct index_sequence {
-  using type = index_sequence;
-};
+  namespace mp {
+  template <int...>
+  struct index_sequence {
+    using type = index_sequence;
+  };
 #if __has_builtin(__make_integer_seq)
-template <class T, T...>
-struct integer_sequence;
-template <int... Ns>
-struct integer_sequence<int, Ns...> {
-  using type = index_sequence<Ns...>;
-};
-template <int N>
-struct make_index_sequence_impl {
-  using type = typename __make_integer_seq<integer_sequence, int, N>::type;
-};
+  template <class T, T...>
+  struct integer_sequence;
+  template <int... Ns>
+  struct integer_sequence<int, Ns...> {
+    using type = index_sequence<Ns...>;
+  };
+  template <int N>
+  struct make_index_sequence_impl {
+    using type = typename __make_integer_seq<integer_sequence, int, N>::type;
+  };
 #else
-template <class, class>
-struct concat;
-template <int... I1, int... I2>
-struct concat<index_sequence<I1...>, index_sequence<I2...>> : index_sequence<I1..., (sizeof...(I1) + I2)...> {};
-template <int N>
-struct make_index_sequence_impl
-    : concat<typename make_index_sequence_impl<N / 2>::type, typename make_index_sequence_impl<N - N / 2>::type>::type {};
-template <>
-struct make_index_sequence_impl<0> : index_sequence<> {};
-template <>
-struct make_index_sequence_impl<1> : index_sequence<0> {};
+  template <class, class>
+  struct concat;
+  template <int... I1, int... I2>
+  struct concat<index_sequence<I1...>, index_sequence<I2...>> : index_sequence<I1..., (sizeof...(I1) + I2)...> {};
+  template <int N>
+  struct make_index_sequence_impl
+      : concat<typename make_index_sequence_impl<N / 2>::type, typename make_index_sequence_impl<N - N / 2>::type>::type {};
+  template <>
+  struct make_index_sequence_impl<0> : index_sequence<> {};
+  template <>
+  struct make_index_sequence_impl<1> : index_sequence<0> {};
 #endif
-template <int N>
-using make_index_sequence = typename make_index_sequence_impl<N>::type;
+  template <int N>
+  using make_index_sequence = typename make_index_sequence_impl<N>::type;
 
-template <class T>
-auto declval() -> T&&;
-
-template <auto N>
-struct fixed_string {
-  static constexpr auto size = N;
-
-  constexpr fixed_string() = default;
-  constexpr explicit(false) fixed_string(const char (&str)[N + 1]) {
-    for (auto i = 0u; i < N; ++i) {
-      data[i] = str[i];
-      (hash ^= data[i]) <<= 1;
-    }
-  }
-
-  constexpr auto operator*() const {
-    fixed_string<N + 1> str{};
-    str.data[0] = '*';
-    for (auto i = 0u; i < N; ++i) {
-      str.data[i + 1] = data[i];
-      (str.hash ^= str.data[i + 1]) <<= 1;
-    }
-    return str;
-  }
-
-  char data[N + 1]{};
-  unsigned hash{};
-};
-
-template <auto N>
-fixed_string(const char (&str)[N]) -> fixed_string<N - 1>;
-
-template <class T, auto N>
-struct reader {
-  friend auto counted_flag(reader<T, N>);
-};
-
-template <class T, auto N>
-struct setter {
-  friend auto counted_flag(reader<T, N>) {}
-  static constexpr unsigned value = N;
-};
-
-template <class T, auto Tag, unsigned NextVal = 0>
-[[nodiscard]] consteval auto counter_impl() {
-  if constexpr (requires(reader<T, NextVal> r) { counted_flag(r); }) {
-    return counter_impl<T, Tag, NextVal + 1>();
-  } else {
-    return NextVal;
-  }
-}
-
-template <class T, auto Tag = [] {}, auto N = counter_impl<T, Tag>()>
-constexpr auto counter = N;
-
-template <class...>
-struct append;
-template <template <class...> class TList, class... Ts, class T>
-struct append<TList<Ts...>, T> {
-  using type = TList<Ts..., T>;
-};
-template <class TList, class T>
-using append_t = typename append<TList, T>::type;
-}  // namespace mp
-
-namespace back {
-template <class, auto>
-struct mappings {
-  friend auto get(mappings);
   template <class T>
-  struct set {
-    friend auto get(mappings) { return T{}; }
-  };
-};
+  auto declval() -> T&&;
 
-template <class...>
-struct transitions {};
+  template <auto N>
+  struct fixed_string {
+    static constexpr auto size = N;
 
-template <class TEvent, class T, auto Counter>
-constexpr auto insert() {
-  if constexpr (requires { get(mappings<TEvent, Counter>{}); }) {
-    using joined = mp::append_t<decltype(get(mappings<TEvent, Counter>{})), T>;
-    void(typename mappings<TEvent, mp::setter<TEvent, Counter + 1u>::value>::template set<joined>{});
-  } else {
-    void(typename mappings<TEvent, Counter>::template set<transitions<T>>{});
-  }
-}
-
-template <class... Ts>
-struct pool : Ts... {
-  constexpr explicit(true) pool(Ts... ts) : Ts{ts}... {}
-};
-
-template <class...>
-class sm;
-template <template <class...> class TList, class... Transitions, class TUnique>
-class sm<TList<Transitions...>, TUnique> {
-  static constexpr auto num_of_regions = ((Transitions::src.data[0] == '*') + ...);
-
- public:
-  constexpr explicit(true) sm(const auto& transition_table) : transition_table_{transition_table} {
-    (insert<typename Transitions::event(TUnique), Transitions, mp::counter<typename Transitions::event(TUnique)>>(), ...);
-    const unsigned states[]{(Transitions::src.data[0] == '*' ? Transitions::src.hash : 0u)...};
-    for (auto* current_state = &current_state_[0]; auto state : states) {
-      if (state) {
-        *current_state++ = state;
+    constexpr fixed_string() = default;
+    constexpr explicit(false) fixed_string(const char (&str)[N + 1]) {
+      for (auto i = 0u; i < N; ++i) {
+        data[i] = str[i];
+        (hash ^= data[i]) <<= 1;
       }
     }
-  }
 
-  template <class TEvent, class Ts = decltype(get(mappings<TEvent(TUnique), mp::counter<TEvent(TUnique)>>{}))>
-  constexpr auto process_event(const TEvent& event) -> void {
-    if constexpr (const auto transitions = Ts{}; num_of_regions == 1u) {
-      dispatch<TEvent>(event, current_state_[0], transitions);
+    constexpr auto operator*() const {
+      fixed_string<N + 1> str{};
+      str.data[0] = '*';
+      for (auto i = 0u; i < N; ++i) {
+        str.data[i + 1] = data[i];
+        (str.hash ^= str.data[i + 1]) <<= 1;
+      }
+      return str;
+    }
+
+    char data[N + 1]{};
+    unsigned hash{};
+  };
+
+  template <auto N>
+  fixed_string(const char (&str)[N]) -> fixed_string<N - 1>;
+
+  template <class T, auto N>
+  struct reader {
+    friend auto counted_flag(reader<T, N>);
+  };
+
+  template <class T, auto N>
+  struct setter {
+    friend auto counted_flag(reader<T, N>) {}
+    static constexpr unsigned value = N;
+  };
+
+  template <class T, auto Tag, unsigned NextVal = 0>
+  [[nodiscard]] consteval auto counter_impl() {
+    if constexpr (requires(reader<T, NextVal> r) { counted_flag(r); }) {
+      return counter_impl<T, Tag, NextVal + 1>();
     } else {
-      process_event(event, transitions, mp::make_index_sequence<num_of_regions>{});
+      return NextVal;
     }
   }
 
-  [[nodiscard]] constexpr auto is(auto... states) const -> bool {
-    auto i = 0;
-    return ((states.src.hash == current_state_[i++]) and ...);
-  }
+  template <class T, auto Tag = [] {}, auto N = counter_impl<T, Tag>()>
+  constexpr auto counter = N;
 
- private:
-  template <auto... Rs, class TEvent>
-  constexpr auto process_event(const TEvent& event, const auto& transitions, mp::index_sequence<Rs...>) -> void {
-    (dispatch<TEvent>(event, current_state_[Rs], transitions), ...);
-  }
-
-  template <class TEvent, class T>
-  constexpr auto dispatch(const TEvent& event, auto& current_state, transitions<T>) -> bool {
-    return T::src.hash == current_state and static_cast<T&>(transition_table_)(event, current_state);
-  }
-
-  template <class TEvent, class... Ts>
-  constexpr auto dispatch(const TEvent& event, auto& current_state, transitions<Ts...>) -> bool {
-    return (dispatch(event, current_state, transitions<Ts>{}) or ...);
-  }
-
-  [[no_unique_address]] TList<Transitions...> transition_table_{};
-  unsigned current_state_[num_of_regions]{};
-};
-}  // namespace back
-
-namespace front {
-namespace concepts {
-struct invocable_base {
-  void operator()();
-};
-template <class T>
-struct invocable_impl : T, invocable_base {};
-template <class T>
-concept invocable = not requires { &invocable_impl<T>::operator(); };
-}  // namespace concepts
-
-auto invoke(const auto& fn, const auto& event) {
-  if constexpr (requires { fn(event); }) {
-    return fn(event);
-  } else {
-    return fn();
-  }
-}
-
-namespace detail {
-constexpr auto none = [] {};
-constexpr auto always = [] { return true; };
-}  // namespace detail
-
-template <mp::fixed_string Src = "", class TEvent = decltype(detail::none), class TGuard = decltype(detail::always),
-          class TAction = decltype(detail::none), mp::fixed_string Dst = "">
-struct transition {
-  static constexpr auto src = Src;
-  static constexpr auto dst = Dst;
-  using event = TEvent;
-
-  [[nodiscard]] constexpr auto operator*() const {
-    return transition<*Src, TEvent, TGuard, TAction, Dst>{.guard = guard, .action = action};
-  }
-
-  template <class T>
-  [[nodiscard]] constexpr auto operator+(const T& t) const {
-    return transition<Src, typename T::event, decltype(T::guard), decltype(T::action)>{.guard = t.guard, .action = t.action};
-  }
-
-  template <class T>
-  [[nodiscard]] constexpr auto operator[](const T& guard) const {
-    return transition<Src, TEvent, T>{.guard = guard, .action = action};
-  }
-
-  template <class T>
-  [[nodiscard]] constexpr auto operator/(const T& action) const {
-    return transition<Src, TEvent, TGuard, T>{.guard = guard, .action = action};
-  }
-
-  template <class T>
-  [[nodiscard]] constexpr auto operator=(const T&) const {
-    return transition<src, TEvent, TGuard, TAction, T::src>{.guard = guard, .action = action};
-  }
-
-  [[nodiscard]] auto operator()(const TEvent& event, [[maybe_unused]] auto& current_state) -> bool {
-    if (invoke(guard, event)) {
-      invoke(action, event);
-      if constexpr (dst.size) {
-        current_state = dst.hash;
-      }
-      return true;
-    }
-    return false;
-  }
-
-  [[no_unique_address]] TGuard guard;
-  [[no_unique_address]] TAction action;
-};
-
-template <class TEvent>
-constexpr auto event = transition<"", TEvent>{};
-template <mp::fixed_string Str>
-constexpr auto operator""_s() {
-  return transition<Str>{};
-}
-
-[[nodiscard]] constexpr auto operator,(const concepts::invocable auto& lhs, const concepts::invocable auto& rhs) {
-  return [=](const auto& event) {
-    invoke(lhs, event);
-    invoke(rhs, event);
+  template <class...>
+  struct append;
+  template <template <class...> class TList, class... Ts, class T>
+  struct append<TList<Ts...>, T> {
+    using type = TList<Ts..., T>;
   };
-}
-[[nodiscard]] constexpr auto operator and(const concepts::invocable auto& lhs, const concepts::invocable auto& rhs) {
-  return [=](const auto& event) { return invoke(lhs, event) and invoke(rhs, event); };
-}
-[[nodiscard]] constexpr auto operator or(const concepts::invocable auto& lhs, const concepts::invocable auto& rhs) {
-  return [=](const auto& event) { return invoke(lhs, event) or invoke(rhs, event); };
-}
-[[nodiscard]] constexpr auto operator not(const concepts::invocable auto& t) {
-  return [=](const auto& event) { return not invoke(t, event); };
-}
-}  // namespace front
+  template <class TList, class T>
+  using append_t = typename append<TList, T>::type;
+  template <class...>
+  struct list {};
+  template <class, auto>
+  struct mappings {
+    friend auto get(mappings);
+    template <class T>
+    struct set {
+      friend auto get(mappings) { return T{}; }
+    };
+  };
+  }  // namespace mp
 
-template <class T, class TUnique = decltype([] {})>
-struct sm final : back::sm<decltype(mp::declval<T>()()), TUnique> {
-  constexpr explicit(false) sm(T t) : back::sm<decltype(mp::declval<T>()()), TUnique>{t()} {}
-};
-template <class T>
-sm(T&&) -> sm<T>;
+  namespace back {
 
-namespace dsl {
-template <class... Ts>
-struct transition_table : back::pool<Ts...> {
-  constexpr explicit(false) transition_table(Ts... ts) : back::pool<Ts...>{ts...} {}
-};
-using front::event;
-using front::operator""_s;
-using front::operator, ;
-using front::operator not;
-using front::operator and;
-using front::operator or;
-}  // namespace dsl
-}  // namespace boost::sml::inline v_2_0_0
+  template <class... Ts>
+  struct pool : Ts... {
+    constexpr explicit(true) pool(Ts... ts) : Ts{ts}... {}
+  };
 
-/**
- * $CXX -std=c++20 -x c++ sml-lite -DUT
- */
+  template <class...>
+  struct transitions {};
+
+  template <class TEvent, class T, auto Counter>
+  constexpr auto insert() -> void {
+    if constexpr (requires { get(mp::mappings<TEvent, Counter>{}); }) {
+      using joined = mp::append_t<decltype(get(mp::mappings<TEvent, Counter>{})), T>;
+      void(typename mp::mappings<TEvent, mp::setter<TEvent, Counter + 1u>::value>::template set<joined>{});
+    } else {
+      void(typename mp::mappings<TEvent, Counter>::template set<transitions<T>>{});
+    }
+  }
+
+  template <class TUnique, class T, template <class...> class TList, class... TEvents>
+  constexpr auto transition(TList<TEvents...>) {
+    (insert<TEvents(TUnique), T, mp::counter<TEvents(TUnique)>>(), ...);
+  }
+
+  template <class...>
+  class sm;
+  template <template <class...> class TList, class... Transitions, class TUnique>
+  class sm<TList<Transitions...>, TUnique> {
+    static_assert(((transition<TUnique, Transitions>(typename Transitions::event{}), ...), true));
+    static constexpr auto num_of_regions = ((Transitions::src.data[0] == '*') + ...);
+
+   public:
+    constexpr explicit(true) sm(const auto& transition_table) : transition_table_{transition_table} {
+      const unsigned states[]{(Transitions::src.data[0] == '*' ? Transitions::src.hash : 0u)...};
+      for (auto* current_state = &current_state_[0]; auto state : states) {
+        if (state) {
+          *current_state++ = state;
+        }
+      }
+    }
+
+    template <class TEvent, class Ts = decltype(get(mp::mappings<TEvent(TUnique), mp::counter<TEvent(TUnique)>>{}))>
+    constexpr auto process_event(const TEvent& event, auto&&... args) -> bool {
+      if constexpr (const auto transitions = Ts{}; num_of_regions == 0u) {
+        return process_event0<TEvent>(event, transitions, args...);
+      } else if constexpr (num_of_regions == 1u) {
+        return process_event1<TEvent>(event, current_state_[0], transitions, args...);
+      } else {
+        return process_eventN<TEvent>(event, transitions, mp::make_index_sequence<num_of_regions>{}, args...);
+      }
+    }
+
+    [[nodiscard]] constexpr auto is(auto... states) const -> bool requires(num_of_regions > 0u) {
+      unsigned i{};
+      return ((states.src.hash == current_state_[i++]) and ...);
+    }
+
+   private:
+    template <class TEvent, class T>
+    constexpr auto process_event0(const TEvent& event, transitions<T>, auto&&... args) -> bool {
+      unsigned arg{};
+      return static_cast<T&>(transition_table_)(event, arg, args...);
+    }
+
+    template <class TEvent, class... Ts>
+    constexpr auto process_event0(const TEvent& event, transitions<Ts...>, auto&&... args) -> bool {
+      return (process_event0(event, transitions<Ts>{}, args...) or ...);
+    }
+
+    template <class TEvent, class T>
+    constexpr auto process_event1(const TEvent& event, auto& current_state, transitions<T>, auto&&... args) -> bool {
+      return T::src.hash == current_state and static_cast<T&>(transition_table_)(event, current_state, args...);
+    }
+
+    template <class TEvent, class... Ts>
+    constexpr auto process_event1(const TEvent& event, auto& current_state, transitions<Ts...>, auto&&... args) -> bool {
+      return (process_event1(event, current_state, transitions<Ts>{}, args...) or ...);
+    }
+
+    template <class TEvent, auto... Rs>
+    constexpr auto process_eventN(const TEvent& event, const auto& transitions, mp::index_sequence<Rs...>, auto&&... args)
+        -> bool {
+      return (process_event1<TEvent>(event, current_state_[Rs], transitions, args...) or ...);
+    }
+
+    [[no_unique_address]] TList<Transitions...> transition_table_{};
+    [[no_unique_address]] unsigned current_state_[num_of_regions]{};
+  };
+  }  // namespace back
+
+  namespace front {
+  namespace concepts {
+  struct invocable_base {
+    void operator()();
+  };
+  template <class T>
+  struct invocable_impl : T, invocable_base {};
+  template <class T>
+  concept invocable = not requires {
+    &invocable_impl<T>::operator();
+  };
+  }  // namespace concepts
+
+  [[nodiscard]] constexpr auto invoke(const auto& fn, const auto& event, auto&&... args) {
+    if constexpr (requires { fn(event, args...); }) {
+      return fn(event, args...);
+    } else if constexpr (requires { fn(event); }) {
+      return fn(event);
+    } else {
+      return fn();
+    }
+  }
+
+  namespace detail {
+  constexpr auto none = [] {};
+  constexpr auto always = [] { return true; };
+  }  // namespace detail
+
+  template <mp::fixed_string Src = "", class TEvent = decltype(detail::none), class TGuard = decltype(detail::always),
+            class TAction = decltype(detail::none), mp::fixed_string Dst = "">
+  struct transition {
+    static constexpr auto src = Src;
+    static constexpr auto dst = Dst;
+    using event = TEvent;
+
+    [[nodiscard]] constexpr auto operator*() const {
+      return transition<*Src, TEvent, TGuard, TAction, Dst>{.guard = guard, .action = action};
+    }
+
+    template <class T>
+    [[nodiscard]] constexpr auto operator+(const T& t) const {
+      return transition<Src, typename T::event, decltype(T::guard), decltype(T::action)>{.guard = t.guard, .action = t.action};
+    }
+
+    template <class T>
+    [[nodiscard]] constexpr auto operator[](const T& guard) const {
+      return transition<Src, TEvent, T>{.guard = guard, .action = action};
+    }
+
+    template <class T>
+    [[nodiscard]] constexpr auto operator/(const T& action) const {
+      return transition<Src, TEvent, TGuard, T>{.guard = guard, .action = action};
+    }
+
+    template <class T>
+    [[nodiscard]] constexpr auto operator=(const T&) const {
+      return transition<src, TEvent, TGuard, TAction, T::src>{.guard = guard, .action = action};
+    }
+
+    [[nodiscard]] auto operator()(const auto& event, [[maybe_unused]] auto& current_state, auto&&... args) -> bool {
+      using R = decltype(invoke(guard, event, args...));
+      if constexpr (requires { R::value; }) {
+        if constexpr (R::value) {
+          invoke(action, event, args...);
+          if constexpr (dst.size) {
+            current_state = dst.hash;
+          }
+          return true;
+        }
+      } else {
+        if (invoke(guard, event, args...)) {
+          invoke(action, event, args...);
+          if constexpr (dst.size) {
+            current_state = dst.hash;
+          }
+          return true;
+        }
+      }
+      return false;
+    }
+
+    [[no_unique_address]] TGuard guard;
+    [[no_unique_address]] TAction action;
+  };
+
+  template <class... TEvents>
+  constexpr auto event = transition<"", mp::list<TEvents...>>{};
+  template <template<class...> class TList, class... TEvents>
+  constexpr auto event<TList<TEvents...>> = transition<"", mp::list<TEvents...>>{};
+  template <mp::fixed_string Str>
+  constexpr auto operator""_s() {
+    return transition<Str>{};
+  }
+
+  [[nodiscard]] constexpr auto operator,(const concepts::invocable auto& lhs, const concepts::invocable auto& rhs) {
+    return [=](const auto& event) {
+      invoke(lhs, event);
+      invoke(rhs, event);
+    };
+  }
+  [[nodiscard]] constexpr auto operator and(const concepts::invocable auto& lhs, const concepts::invocable auto& rhs) {
+    return [=](const auto& event) { return invoke(lhs, event) and invoke(rhs, event); };
+  }
+  [[nodiscard]] constexpr auto operator or(const concepts::invocable auto& lhs, const concepts::invocable auto& rhs) {
+    return [=](const auto& event) { return invoke(lhs, event) or invoke(rhs, event); };
+  }
+  [[nodiscard]] constexpr auto operator not(const concepts::invocable auto& t) {
+    return [=](const auto& event) { return not invoke(t, event); };
+  }
+  }  // namespace front
+
+  template <class T, class TUnique = decltype([] {})>
+  struct sm final : back::sm<decltype(mp::declval<T>()()), TUnique> {
+    constexpr explicit(false) sm(T t) : back::sm<decltype(mp::declval<T>()()), TUnique>{t()} {}
+  };
+  template <class T>
+  sm(T &&)->sm<T>;
+
+  namespace dsl {
+  template <class... Ts>
+  struct transition_table : back::pool<Ts...> {
+    constexpr explicit(false) transition_table(Ts... ts) : back::pool<Ts...>{ts...} {}
+    static_assert(((Ts::src.data[0] == '*') + ...) >= 1, "[E001] At least one `*state` aka orthogonal region is required!");
+  };
+  template <class... Ts>
+  struct dispatch_table : back::pool<Ts...> {
+    constexpr explicit(false) dispatch_table(Ts... ts) : back::pool<Ts...>{ts...} {}
+  };
+  using front::event;
+  using front::operator""_s;
+  using front::operator,;
+  using front::operator not;
+  using front::operator and;
+  using front::operator or;
+  constexpr auto otherwise = [] { return true; };
+  constexpr auto X = "X"_s;
+  }  // namespace dsl
+}  // namespace boost::sml::inlinev_2_0_0
+
 #if defined(UT)
 #include <boost/ut.hpp>
 
@@ -338,11 +398,80 @@ int main() {
     using namespace dsl;
     expect(sm.is("s1"_s));
 
-    sm.process_event(e1{});
+    expect(sm.process_event(e1{}));
     expect(sm.is("s2"_s));
   };
 
-  "transitions"_test = [] {
+  "process event with parameters"_test = [] {
+    struct e {
+      int value{};
+    };
+    unsigned value{};
+
+    sm sm = [&] {
+      using namespace dsl;
+      auto action = [&](const auto& event, auto... args) { value += event.value + (args + ...); };
+      return transition_table{
+          *"s1"_s + event<e> / action,
+      };
+    };
+
+    using namespace dsl;
+    expect(sm.process_event(e{.value = 1}, 2, 3));
+    expect(6_u == value);
+  };
+
+  "unexpected event"_test = [] {
+    struct unexpected {};
+
+    sm sm = [] {
+      using namespace dsl;
+      return transition_table{*"s1"_s + event<e1> = "s2"_s};
+    };
+
+    const auto process_event = [&sm](auto event) {
+      return requires { sm.process_event(event); };
+    };
+
+    static_assert(process_event(e1{}));
+    static_assert(not process_event(unexpected{}));
+  };
+
+  "events"_test = [] {
+    const auto tt = [] {
+      using namespace dsl;
+      return transition_table{
+          *"s1"_s + event<e1, e2> = "s2"_s,
+          "s2"_s + event<mp::list<e1, e2>> = "s3"_s,
+      };
+    };
+
+    using namespace dsl;
+
+    {
+      sm sm{tt};
+      expect(sm.is("s1"_s));
+
+      expect(sm.process_event(e1{}));
+      expect(sm.is("s2"_s));
+
+      // expect(sm.process_event(e1{}));
+      // expect(sm.is("s3"_s));
+    }
+
+    {
+      sm sm{tt};
+      expect(sm.is("s1"_s));
+
+      expect(sm.process_event(e2{}));
+      expect(sm.is("s2"_s));
+
+      // expect(sm.process_event(e2{}));
+      // expect(sm.is("s3"_s));
+    }
+  };
+
+  "transition_table"_test = [] {
     sm sm = [] {
       using namespace dsl;
       return transition_table{*"s1"_s + event<e1> = "s2"_s, "s2"_s + event<e2> = "s1"_s};
@@ -351,33 +480,120 @@ int main() {
     using namespace dsl;
     expect(sm.is("s1"_s));
 
-    sm.process_event(e1{});
+    expect(sm.process_event(e1{}));
     expect(sm.is("s2"_s));
 
-    sm.process_event(e1{});
+    expect(not sm.process_event(e1{}));
     expect(sm.is("s2"_s));
 
-    sm.process_event(e2{});
+    expect(sm.process_event(e2{}));
     expect(sm.is("s1"_s));
   };
 
-  "guards/actions"_test = [] {
-    unsigned calls{};
-    sm sm = [&] {
+  "terminated state"_test = [] {
+    sm sm = [] {
       using namespace dsl;
-      auto guard = [](const auto& event) { return event.value; };
-      auto action = [&] { calls++; };
       return transition_table{
-          *"s1"_s + event<e>[guard] / action = "s2"_s,
+          *"s1"_s + event<e1> = X,
       };
     };
 
     using namespace dsl;
-    sm.process_event(e{false});
     expect(sm.is("s1"_s));
 
-    sm.process_event(e{true});
+    expect(sm.process_event(e1{}));
+    expect(sm.is(X));
+
+    expect(not sm.process_event(e1{}));
+  };
+
+  "guards/actions"_test = [] {
+    unsigned calls{};
+
+    sm sm = [&] {
+      using namespace dsl;
+      auto guard = [](const auto& event) { return event.value; };
+      auto action = [&] { ++calls; };
+      return transition_table{
+          *"s1"_s + event<e>[guard and (guard or guard)] / (action, action) = "s2"_s,
+      };
+    };
+
+    using namespace dsl;
+    expect(not sm.process_event(e{false}));
+    expect(sm.is("s1"_s));
+
+    expect(sm.process_event(e{true}));
     expect(sm.is("s2"_s));
+  };
+
+  "otherwise guard"_test = [] {
+    unsigned calls{};
+
+    sm sm = [&] {
+      using namespace dsl;
+      constexpr auto guard = [](const auto& event) { return event.value; };
+      return transition_table{
+          *"s1"_s + event<e>[guard] = "s2"_s,
+          "s1"_s + event<e>[otherwise] = "s3"_s,
+      };
+    };
+
+    using namespace dsl;
+    expect(sm.process_event(e{false}));
+    expect(sm.is("s3"_s));
+  };
+
+  "constexpr guards"_test = [] {
+    struct e1 {
+      int value{};
+    };
+    struct e2 {};
+
+    unsigned value{};
+    sm sm = [&] {
+      using namespace dsl;
+      auto ct_guard = [](const auto& event) {
+        return std::bool_constant < requires { event.value; }
+        > {};
+      };
+      auto action = [&](const auto& event) { value += event.value; };
+      return transition_table{
+          *"s1"_s + event<e1>[ct_guard] / action,
+          "s1"_s + event<e2>[ct_guard] / action,
+      };
+    };
+    expect(0_u == value);
+
+    using namespace dsl;
+    expect(sm.process_event(e1{.value = 42}));
+    expect(42_u == value);
+
+    expect(not sm.process_event(e2{}));
+    expect(42_u == value);
+  };
+
+  "dispatch_table"_test = [] {
+    unsigned calls{};
+    auto guard = [] { return true; };
+    auto action = [&] { ++calls; };
+
+    sm sm = [=] {
+      using namespace dsl;
+      return dispatch_table{
+          event<e1>[guard] / action,
+          event<e2>[guard] / action,
+      };
+    };
+
+    using namespace dsl;
+    expect(0_u == calls);
+
+    expect(sm.process_event(e1{}));
+    expect(1_u == calls);
+
+    expect(sm.process_event(e2{}));
+    expect(2_u == calls);
   };
 
   "dependencies"_test = [] {
@@ -397,13 +613,13 @@ int main() {
     {
       s s{};
       sm sm{s};
-      sm.process_event(e1{});
+      expect(not sm.process_event(e1{}));
       expect(sm.is("s1"_s));
     }
     {
       s s{true};
       sm sm{s};
-      sm.process_event(e1{});
+      expect(sm.process_event(e1{}));
       expect(sm.is("s2"_s));
     }
   };
@@ -417,18 +633,15 @@ int main() {
     using namespace dsl;
     expect(sm.is("s1"_s, "s3"_s));
 
-    sm.process_event(e1{});
+    expect(sm.process_event(e1{}));
     expect(sm.is("s2"_s, "s3"_s));
 
-    sm.process_event(e2{});
+    expect(sm.process_event(e2{}));
     expect(sm.is("s2"_s, "s4"_s));
   };
 }
 #endif
 
-/**
- * perf stat $CXX -std=c++20 -x c++ sml-lite -DBENCH
- */
 #if defined(BENCH)
 int main() {
   struct e1 {};
