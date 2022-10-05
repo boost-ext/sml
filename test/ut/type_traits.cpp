@@ -5,9 +5,9 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "boost/sml/aux_/type_traits.hpp"
+#include "boost/sml.hpp"
 
-namespace aux {
+namespace boost::sml::aux {
 
 test is_same_types = [] {
   static_expect(!is_same<int, double>::value);
