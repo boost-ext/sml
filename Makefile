@@ -34,9 +34,6 @@ PLANTCXX:=$(subst -std=c++14,-std=c++17,$(CXXFLAGS))
 
 all: test example
 
-pph:
-	@tools/pph.sh
-
 check: style
 
 test: $(patsubst %.cpp, %.out, $(wildcard test/ft/*.cpp test/ft/errors/*.cpp test/ut/*.cpp test/unit/*.cpp))
@@ -85,10 +82,6 @@ style:
 	@find include example test -iname "*.hpp" -or -iname "*.cpp" | xargs $(CLANG_FORMAT) -i
 	@git diff include example test
 	@exit `git ls-files -m include example test | wc -l`
-
-pph_check: pph
-	@git diff include/boost/sml.hpp
-	@git diff --quiet include/boost/sml.hpp
 
 static_analysis:
 	$(CLANG_TIDY) $(wildcard test/ft/*.cpp test/ut/*.cpp) -- -std=c++1y -I include -I test -FI common/test.hpp
