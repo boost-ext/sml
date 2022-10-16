@@ -16,8 +16,9 @@ add_definitions(
 
 add_subdirectory(unit)
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  add_compile_options("-FI common/test.hpp")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" OR 
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC"))
+  add_compile_options("-FIcommon/test.hpp")
 else()
   add_compile_options(-include common/test.hpp)
 endif()

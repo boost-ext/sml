@@ -804,13 +804,13 @@ test member_functions_as_actions_and_guards = [] {
     class0 c;
     int i = 0;
     sml::sm<class0> sm{c, i};
-    sm.process_event(class0::e1{});
+    sm.process_event(class0::e1());
     expect(sm.is(state<class0::s2>));
     expect(i == 1);
-    sm.process_event(class0::e1{});
+    sm.process_event(class0::e1());
     expect(sm.is(state<class0::s3>));
     expect(i == 2);
-    sm.process_event(class0::e1{});
+    sm.process_event(class0::e1());
     expect(sm.is(state<class0::s1>));
     expect(i == 3);
   }

@@ -7,7 +7,8 @@
 //
 #include "boost/sml.hpp"
 
-namespace boost::sml::concepts {
+BOOST_SML_NAMESPACE_BEGIN
+namespace concepts {
 
 struct c0 {};
 struct c1 {
@@ -137,3 +138,4 @@ test transitional_concept = [] {
 };
 
 }  // namespace concepts
+BOOST_SML_NAMESPACE_END

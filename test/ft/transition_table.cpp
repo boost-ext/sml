@@ -9,6 +9,14 @@
 #include <string>
 #include <utility>
 
+
+#if defined(_MSC_VER) && _MSC_VER == 1933 && _MSVC_LANG == 202002L
+// workaround: operator deduction failed (MSVC 19.33 /std:c++20) 
+#define OP_NEG(expr) operator!(expr)
+#else
+#define OP_NEG(expr) !expr
+#endif
+
 namespace sml = boost::sml;
 
 struct e1 {};
@@ -36,7 +44,7 @@ test operators = [] {
       // clang-format off
       return make_transition_table(
          *idle + event<e1> [ yes || no ] / (action, action) = s1
-        , s1 + event<e1> [ !no && yes ] / action = s2
+        , s1 + event<e1> [ OP_NEG(no) && yes ] / action = s2
         , s2 + event<e1> [ no && yes ] / (action, [](int&i) {i++;}) = s3
         , s2 + event<e2> [ yes && [] { return true; } ] / (action, [](int&i) {i++;}) = s3
       );
@@ -161,7 +169,7 @@ test transition_table_types = [] {
         , s3 + event<e5> [guard1] / action1
         , s1 [guard1 && guard1 && [] { return true; }] = s2
         , (*s3) [guard1] = s4
-        , s2 [guard1 && !guard2] = s3
+        , s2 [guard1 && OP_NEG(guard2)] = s3
         , s3 [guard1] / action1 = s4
         , s4 / action1 = s5
         , s5 / (action1, action2) = end
@@ -172,7 +180,7 @@ test transition_table_types = [] {
         , idle + event<e1> / (action1, c_action{1}) = s1
         , idle + event<e1> [guard1 && guard2] / (action1, action2) = s1
         , idle + event<e1> [guard1 && guard2] / (action1, action2, []{}) = s1
-        , idle + event<e1> [guard1 || !guard2] / (action1, action2, []{}, [](auto) -> void {}) = s1
+        , idle + event<e1> [guard1 || OP_NEG(guard2)] / (action1, action2, []{}, [](auto) -> void {}) = s1
         , idle + event<e2> [guard1 || guard2] / (action1, action2, []{}, [](int, const auto&, float) -> void{}) = s1
         , idle + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float) -> void{}) = X
         , idle + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto)  -> bool{ return false; } ] / (action1, action2, []{}, [](int, auto, double) -> void{}) = X
@@ -184,7 +192,7 @@ test transition_table_types = [] {
         , s1 <= s2 + event<e4> / defer
         , s2 <= s1 [guard1 && guard1 && [] { return true; }]
         , s4 <= (*s3) [guard1]
-        , s4 <= s3 [guard1 && !guard2]
+        , s4 <= s3 [guard1 && OP_NEG(guard2)]
         , s5 <= s4 [guard1] / action1
         , end <= s5 / (action1, action2)
         , s1 <= idle(H) + event<e1>
@@ -194,7 +202,7 @@ test transition_table_types = [] {
         , s1 <= idle + event<e1> / (action1, c_action{1}, c_action{2})
         , s1 <= idle + event<e1> [guard1 && guard2] / (action1, action2)
         , s1 <= idle + event<e1> [guard1 && guard2] / (action1, action2, []{})
-        , s1 <= idle + event<e1> [guard1 || !guard2] / (action1, action2, []{}, [](auto) -> void{})
+        , s1 <= idle + event<e1> [guard1 || OP_NEG(guard2)] / (action1, action2, []{}, [](auto) -> void{})
         , s1 <= idle + event<e2> [guard1 || guard2] / (action1, action2, []{}, [](int, auto, float) -> void{})
         , X <= idle + event<e1> [guard1 && guard2 && [] { return true; } ] / (action1, action2, []{}, [](int, auto, float) -> void {})
         , X <= idle + event<e1> [guard1 && guard2 && [] { return true; } && [] (auto) -> bool { return false; } ] / (action1, action2, []{}, [](int, auto, double) -> void{})

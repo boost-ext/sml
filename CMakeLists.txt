@@ -24,7 +24,7 @@
 #    List available test: $ctest -N
 #    Launch benchmark tests: $ctest -R benchmark*
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 project(sml LANGUAGES CXX)
 include(CTest)
 
@@ -42,9 +42,16 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" AND CMAKE_CXX_COMPILER_VERSION
 endif()
 
 include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
-check_cxx_compiler_flag(-std=c++17 HAS_CXX17_FLAG)
-check_cxx_compiler_flag(-std=c++2a HAS_CXX20_FLAG)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" OR 
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC"))    
+  check_cxx_compiler_flag(/std:c++14 HAS_CXX14_FLAG)
+  check_cxx_compiler_flag(/std:c++17 HAS_CXX17_FLAG)
+  check_cxx_compiler_flag(/std:c++20 HAS_CXX20_FLAG)
+else()
+  check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
+  check_cxx_compiler_flag(-std=c++17 HAS_CXX17_FLAG)
+  check_cxx_compiler_flag(-std=c++2a HAS_CXX20_FLAG)
+endif()
 
 if(HAS_CXX20_FLAG)
   set(CMAKE_CXX_STANDARD 20)
@@ -82,7 +89,8 @@ target_include_directories(sml INTERFACE
 
 target_compile_features(sml INTERFACE cxx_std_14)
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" OR 
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC"))
   target_compile_definitions(sml
     INTERFACE NOMINMAX # avoid Win macro definition of min/max, use std one
     INTERFACE _SCL_SECURE_NO_WARNINGS # disable security-paranoia warning
