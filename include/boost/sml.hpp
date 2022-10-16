@@ -186,7 +186,7 @@ template <class R, class T, class... TArgs>
 struct function_traits<R (T::*)(TArgs...) const> {
   using args = type_list<TArgs...>;
 };
-#if __cplusplus > 201402L && __cpp_noexcept_function_type >= 201510
+#if defined(__cpp_noexcept_function_type)
 template <class R, class... TArgs>
 struct function_traits<R (*)(TArgs...) noexcept> {
   using args = type_list<TArgs...>;
@@ -545,13 +545,14 @@ const char *get_type_name() {
   return detail::get_type_name<T, 68>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 68 - 2>{});
 #endif
 }
-#if defined(__cpp_nontype_template_parameter_class)
+#if defined(__cpp_nontype_template_parameter_class) || \
+    defined(__cpp_nontype_template_args) && __cpp_nontype_template_args >= 201911L
 template <auto N>
 struct fixed_string {
   static constexpr auto size = N;
   char data[N + 1]{};
   constexpr fixed_string(char const *str) {
-    for (auto i = 0; i < N; ++i) {
+    for (decltype(N) i = 0; i < N; ++i) {
       data[i] = str[i];
     }
   }
@@ -2714,7 +2715,8 @@ template <class T>
 typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #endif
 inline namespace literals {
-#if defined(__cpp_nontype_template_parameter_class)
+#if defined(__cpp_nontype_template_parameter_class) || \
+    defined(__cpp_nontype_template_args) && __cpp_nontype_template_args >= 201911L
 template <aux::fixed_string Str>
 constexpr auto operator""_s() {
   return []<auto... Ns>(aux::index_sequence<Ns...>) { return front::state<aux::string<char, Str.data[Ns]...>>{}; }

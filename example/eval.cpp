@@ -15,8 +15,8 @@ struct e1 {};
 
 struct eval {
   auto operator()() const {
-    constexpr auto guard = [] { return true; };
-    constexpr auto action = [](int &a) { ++a; };
+    const auto guard = [] { return true; };
+    const auto action = [](int &a) { ++a; };
 
     // clang-format off
     using namespace sml;

@@ -7,7 +7,8 @@
 //
 #include "boost/sml.hpp"
 
-namespace boost::sml::aux {
+BOOST_SML_NAMESPACE_BEGIN
+namespace aux {
 
 test is_same_types = [] {
   static_expect(!is_same<int, double>::value);
@@ -67,3 +68,4 @@ test is_empty_type = [] {
 };
 
 }  // namespace aux
+BOOST_SML_NAMESPACE_END

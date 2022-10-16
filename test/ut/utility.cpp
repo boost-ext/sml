@@ -7,7 +7,8 @@
 //
 #include "boost/sml.hpp"
 
-namespace boost::sml::aux {
+BOOST_SML_NAMESPACE_BEGIN
+namespace aux {
 
 test unique_types = [] {
   static_expect(is_same<type_list<>, unique_t<>>::value);
@@ -101,3 +102,4 @@ test type_id_basic = [] {
 };
 
 }  // namespace aux
+BOOST_SML_NAMESPACE_END
