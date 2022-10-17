@@ -1,6 +1,6 @@
 ## [1.1.6] - 2022-09-07
 - **Bug Fixes**
-    - [Issues](https://github.com/boost-ext/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2022-03-23..2020-09-07+)
+    - [Issues](https://github.com/boost-ext/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2022-03-23..2022-09-07+)
 >
 - **Contributions**
     - [Ladislas de Toldi](https://github.com/ladislas)
