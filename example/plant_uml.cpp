@@ -12,6 +12,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <typeinfo>
 #include <utility>
 #include <vector>
