@@ -20,6 +20,13 @@ jobs:
             generators: "Ninja"
           }
         - {
+            name: "windows MSVC",
+            os: windows-latest,
+            build_type: "Debug",
+            cxx: "cl",
+            generators: "Ninja"
+          }
+        - {
             name: "ubuntu g++",
             os: ubuntu-latest,
             build_type: "Debug",
@@ -36,6 +43,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Add msbuild to PATH env
+        if: matrix.config.name == 'windows MSVC'
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Install dependencies on windows
         if: startsWith(matrix.config.os, 'windows')
