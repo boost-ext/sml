@@ -6,20 +6,15 @@
 #
 project(test LANGUAGES CXX)
 
-include_directories(AFTER
-  ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(AFTER ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(
-  -DCHECK_COMPILE_TIME
-  -DBOOST_ALL_NO_LIB
-  -DBUILD_SHARED_LIBS=OFF)
+add_definitions(-DCHECK_COMPILE_TIME -DBOOST_ALL_NO_LIB -DBUILD_SHARED_LIBS=OFF)
 
 add_subdirectory(unit)
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" OR 
-    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC"))
+if(IS_COMPILER_OPTION_MSVC_LIKE)
   add_compile_options("-FIcommon/test.hpp")
-else()
+elseif(IS_COMPILER_OPTION_GCC_LIKE)
   add_compile_options(-include common/test.hpp)
 endif()
 

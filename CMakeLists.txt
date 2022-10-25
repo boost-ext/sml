@@ -41,38 +41,46 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" AND CMAKE_CXX_COMPILER_VERSION
   message(FATAL_ERROR "sml requires Visual Studio 14 2015 at least")
 endif()
 
+set(IS_COMPILER_GCC_LIKE FALSE)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
+    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR
+    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
+  set(IS_COMPILER_GCC_LIKE TRUE)
+endif()
+
+set(IS_COMPILER_OPTION_GCC_LIKE FALSE)
+set(IS_COMPILER_OPTION_MSVC_LIKE FALSE)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" OR 
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND 
+      "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC"))
+  set(IS_COMPILER_OPTION_MSVC_LIKE TRUE) # cl and clang-cl
+else()
+  set(IS_COMPILER_OPTION_GCC_LIKE TRUE) # g++ and clang++
+endif()
+
 include(CheckCXXCompilerFlag)
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" OR 
-    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC"))    
+if(IS_COMPILER_OPTION_MSVC_LIKE)    
   check_cxx_compiler_flag(/std:c++14 HAS_CXX14_FLAG)
   check_cxx_compiler_flag(/std:c++17 HAS_CXX17_FLAG)
   check_cxx_compiler_flag(/std:c++20 HAS_CXX20_FLAG)
-else()
+elseif(IS_COMPILER_OPTION_GCC_LIKE)
   check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
   check_cxx_compiler_flag(-std=c++17 HAS_CXX17_FLAG)
   check_cxx_compiler_flag(-std=c++2a HAS_CXX20_FLAG)
 endif()
 
-if(HAS_CXX20_FLAG)
-  set(CMAKE_CXX_STANDARD 20)
-elseif(HAS_CXX17_FLAG)
-  set(CMAKE_CXX_STANDARD 17)
-elseif(HAS_CXX14_FLAG)
-  set(CMAKE_CXX_STANDARD 14)
-else()
-  message(FATAL_ERROR "sml requires c++14")
-endif()
-
-if(NOT (DEFINED CMAKE_CXX_STANDARD) OR CMAKE_CXX_STANDARD STREQUAL "" OR CMAKE_CXX_STANDARD LESS 14)
+if(NOT (DEFINED CMAKE_CXX_STANDARD))
+  if(HAS_CXX20_FLAG)
+    set(CMAKE_CXX_STANDARD 20)
+  elseif(HAS_CXX17_FLAG)
+    set(CMAKE_CXX_STANDARD 17)
+  elseif(HAS_CXX14_FLAG)
+    set(CMAKE_CXX_STANDARD 14)
+  else()
     message(FATAL_ERROR "sml requires c++14")
-endif()
-
-set(IS_COMPILER_GCC_LIKE FALSE)
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
-    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR
-    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
-
-  set(IS_COMPILER_GCC_LIKE TRUE)
+  endif()
+elseif(CMAKE_CXX_STANDARD STREQUAL "" OR CMAKE_CXX_STANDARD LESS 14)
+  message(FATAL_ERROR "sml requires c++14")
 endif()
 
 set(CXX_STANDARD_REQUIRED ON)
@@ -89,8 +97,7 @@ target_include_directories(sml INTERFACE
 
 target_compile_features(sml INTERFACE cxx_std_14)
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" OR 
-    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC"))
+if (IS_COMPILER_OPTION_MSVC_LIKE)
   target_compile_definitions(sml
     INTERFACE NOMINMAX # avoid Win macro definition of min/max, use std one
     INTERFACE _SCL_SECURE_NO_WARNINGS # disable security-paranoia warning
@@ -99,7 +106,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" OR
     target_compile_definitions(sml
       INTERFACE _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)
   endif()
-elseif (IS_COMPILER_GCC_LIKE) # gcc
+elseif (IS_COMPILER_OPTION_GCC_LIKE)
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
   target_compile_options(sml INTERFACE
     $<BUILD_INTERFACE:

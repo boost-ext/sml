@@ -35,12 +35,12 @@ add_test(test_events test_events)
 
 add_executable(test_exceptions exceptions.cpp)
 add_test(test_exceptions test_exceptions)
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if(IS_COMPILER_OPTION_GCC_LIKE)
   target_compile_options(test_exceptions PRIVATE "-fexceptions")
-  add_executable(test_fwd fwd.cpp)
-  add_test(test_fwd test_fwd)
-endif ()
+endif()
+
+add_executable(test_fwd fwd.cpp)
+add_test(test_fwd test_fwd)
 
 add_executable(test_history history.cpp)
 add_test(test_history test_history)
@@ -51,8 +51,8 @@ add_test(test_guards test_guards)
 add_executable(test_orthogonal_regions orthogonal_regions.cpp)
 add_test(test_orthogonal_regions test_orthogonal_regions)
 
-#add_executable(test_policies_logging policies_logging.cpp)
-#add_test(test_policies_logging test_policies_logging)
+# add_executable(test_policies_logging policies_logging.cpp)
+# add_test(test_policies_logging test_policies_logging)
 
 add_executable(test_policies_testing policies_testing.cpp)
 add_test(test_policies_testing test_policies_testing)
