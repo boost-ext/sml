@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <boost/sml.hpp>
 #include <iostream>
-#include <sstream>
+#include <ostream>
 #include <string>
 #include <tuple>
 #include <typeinfo>
@@ -81,7 +81,7 @@ struct plant_uml {
   }
 };
 
-inline void do_indent(unsigned int indent) { std::cout << std::string(indent, ' '); }
+inline void do_indent(std::ostream& out, unsigned int indent) { out << std::string(indent, ' '); }
 
 // use this to track initialization for orthogonal states
 bool state_initialized = false;  // NOLINT(misc-definitions-in-headers)
@@ -185,29 +185,29 @@ struct submachine_type<sml::back::sm<T>> {
 template <class... Ts>
 struct print_seq_types {  // NOLINT(readability-identifier-naming)
   template <int I>
-  static void func() {
+  static void func(std::ostream& out) {
     constexpr auto param_pack_empty = (sizeof...(Ts) == I);
     if constexpr (!param_pack_empty) {  // NOLINT(readability-braces-around-statements,bugprone-suspicious-semicolon)
       using current_type = NthTypeOf<I, Ts...>;
       if constexpr (is_seq_<typename current_type::type>::value) {  // NOLINT(readability-braces-around-statements)
         // handle nested seq_ types, these happen when there are 3 or more actions
-        print_seq_types<typename current_type::type>::template func<0>();
+        print_seq_types<typename current_type::type>::template func<0>(out);
       } else {  // NOLINT(readability-misleading-indentation)
         // print this param directly
-        std::cout << sml::aux::string<typename strip_zero_wrapper<current_type>::type>{}.c_str();
+        out << sml::aux::string<typename strip_zero_wrapper<current_type>::type>{}.c_str();
       }
       if constexpr (I + 1 < sizeof...(Ts)) {  // NOLINT(readability-braces-around-statements,bugprone-suspicious-semicolon)
-        std::cout << ",\\n ";
+        out << ",\\n ";
       }
-      print_seq_types<Ts...>::template func<I + 1>();
+      print_seq_types<Ts...>::template func<I + 1>(out);
     }
   }
 };
 template <class... Ts>
 struct print_seq_types<sml::front::seq_<Ts...>> {  // NOLINT(readability-identifier-naming)
   template <int I>
-  static void func() {
-    print_seq_types<Ts...>::template func<0>();
+  static void func(std::ostream& out) {
+    print_seq_types<Ts...>::template func<0>(out);
   }
 };
 
@@ -219,55 +219,55 @@ struct print_seq_types<sml::front::seq_<Ts...>> {  // NOLINT(readability-identif
 template <class... Ts>
 struct print_guard {  // NOLINT(readability-identifier-naming)
   template <int I>
-  static void func(const std::string& sep = "") {
+  static void func(std::ostream& out, const std::string& sep = "") {
     constexpr auto param_pack_empty = (sizeof...(Ts) == I);
     if constexpr (!param_pack_empty) {  // NOLINT(readability-braces-around-statements,bugprone-suspicious-semicolon)
       using current_type = NthTypeOf<I, Ts...>;
       if constexpr (is_zero_wrapper<
                         current_type>::value) {  // NOLINT(readability-braces-around-statements,bugprone-suspicious-semicolon)
         // unwrap the zero_wrapper and put it back into the recursion, it could be anything
-        print_guard<typename strip_zero_wrapper<current_type>::type>::template func<0>();
+        print_guard<typename strip_zero_wrapper<current_type>::type>::template func<0>(out);
       } else {  // NOLINT(readability-misleading-indentation)
         // it's just a functor, print it
-        std::cout << sml::aux::string<current_type>{}.c_str();
+        out << sml::aux::string<current_type>{}.c_str();
       }
 
       // if we're not at the end, print the separator
       if constexpr (I + 1 < sizeof...(Ts)) {  // NOLINT(readability-braces-around-statements,bugprone-suspicious-semicolon)
         if (!sep.empty()) {
-          std::cout << sep;
+          out << sep;
         }
       }
 
       // keep the recursion going, call for the next type in the parameter pack
-      print_guard<Ts...>::template func<I + 1>(sep);
+      print_guard<Ts...>::template func<I + 1>(out, sep);
     }
   }
 };
 template <class T>
 struct print_guard<sml::front::not_<T>> {  // NOLINT(readability-identifier-naming)
   template <int I>
-  static void func(const std::string& /*sep*/ = "") {
-    std::cout << "!" << sml::aux::string<typename strip_zero_wrapper<T>::type>{}.c_str();
+  static void func(std::ostream& out, const std::string& /*sep*/ = "") {
+    out << "!" << sml::aux::string<typename strip_zero_wrapper<T>::type>{}.c_str();
   }
 };
 template <class... Ts>
 struct print_guard<sml::front::and_<Ts...>> {  // NOLINT(readability-identifier-naming)
   template <int I>
-  static void func(const std::string& /*sep*/ = "") {
+  static void func(std::ostream& out, const std::string& /*sep*/ = "") {
     constexpr auto param_pack_empty = (sizeof...(Ts) == I);
     if constexpr (!param_pack_empty) {
-      print_guard<Ts...>::template func<I>(" &&\\n ");
+      print_guard<Ts...>::template func<I>(out, " &&\\n ");
     }
   }
 };
 template <class... Ts>
 struct print_guard<sml::front::or_<Ts...>> {  // NOLINT(readability-identifier-naming)
   template <int I>
-  static void func(const std::string& /*sep*/ = "") {
+  static void func(std::ostream& out, const std::string& /*sep*/ = "") {
     constexpr auto param_pack_empty = (sizeof...(Ts) == I);
     if constexpr (!param_pack_empty) {
-      print_guard<Ts...>::template func<I>(" ||\\n ");
+      print_guard<Ts...>::template func<I>(out, " ||\\n ");
     }
   }
 };
@@ -277,7 +277,7 @@ template <typename...>
 struct dump_transitions;
 
 template <int N, class T>
-void dump_transition() noexcept {
+void dump_transition(std::ostream& out) noexcept {
   constexpr auto src_is_sub_sm =
       !sml::aux::is_same<sml::aux::type_list<>, sml::back::get_sub_sms<typename T::src_state>>::value;
   constexpr auto dst_is_sub_sm =
@@ -305,8 +305,8 @@ void dump_transition() noexcept {
   const auto has_action = !sml::aux::is_same<typename T::action, sml::front::none>::value;
 
   if (has_event && has_action && sml::aux::is_same<typename T::action::type, sml::front::actions::defer>::value) {
-    do_indent(N);
-    std::cout << src_state << " : " << boost::sml::aux::get_type_name<typename T::event>() << " / defer" << std::endl;
+    do_indent(out, N);
+    out << src_state << " : " << boost::sml::aux::get_type_name<typename T::event>() << " / defer\n";
     return;
   }
 
@@ -316,13 +316,13 @@ void dump_transition() noexcept {
 
   if (T::initial) {
     if (state_initialized) {  // create an orthogonal section
-      do_indent(N);
-      std::cout << "--" << std::endl;
+      do_indent(out, N);
+      out << "--\n";
     }
 
     state_initialized = true;
-    do_indent(N);
-    std::cout << "[*] --> " << src_state << std::endl;
+    do_indent(out, N);
+    out << "[*] --> " << src_state << "\n";
   }
 
   // NOLINTNEXTLINE(readability-braces-around-statements, bugprone-suspicious-semicolon)
@@ -332,50 +332,50 @@ void dump_transition() noexcept {
     if (!already_in) {
       completed_submachines.push_back(src_state);
       constexpr int indent = N + 2;
-      do_indent(N);
-      std::cout << "state " << src_state << " {" << std::endl;
+      do_indent(out, N);
+      out << "state " << src_state << " {\n";
       bool prev_state = state_initialized;
       state_initialized = false;
-      dump_transitions<typename T::src_state::transitions>::template func<indent>();
-      do_indent(N);
-      std::cout << "}" << std::endl;
+      dump_transitions<typename T::src_state::transitions>::template func<indent>(out);
+      do_indent(out, N);
+      out << "}\n";
       state_initialized = prev_state;
     }
   }
 
-  do_indent(N);
-  std::cout << src_state;
+  do_indent(out, N);
+  out << src_state;
   if (!dst_internal) {
-    std::cout << " --> " << dst_state;
+    out << " --> " << dst_state;
   }
 
   if (has_event || has_guard || has_action) {
-    std::cout << " :";
+    out << " :";
   }
 
   if (has_event) {
-    std::cout << " " << std::string{sml::aux::string<typename T::event>{}.c_str()};
+    out << " " << std::string{sml::aux::string<typename T::event>{}.c_str()};
   }
 
   if (has_guard) {
-    std::cout << "\\n [";
-    print_guard<typename T::guard::type>::template func<0>();
-    std::cout << "]";
+    out << "\\n [";
+    print_guard<typename T::guard::type>::template func<0>(out);
+    out << "]";
   }
 
   if (has_action) {
-    std::cout << " /\\n ";
+    out << " /\\n ";
 
     if constexpr (is_seq_<typename T::action::type>::value) {  // NOLINT(readability-braces-around-statements)
-      std::cout << "(";
-      print_seq_types<typename T::action::type>::template func<0>();
-      std::cout << ")";
+      out << "(";
+      print_seq_types<typename T::action::type>::template func<0>(out);
+      out << ")";
     } else {  // NOLINT(readability-misleading-indentation)
-      std::cout << sml::aux::string<typename T::action::type>{}.c_str();
+      out << sml::aux::string<typename T::action::type>{}.c_str();
     }
   }
 
-  std::cout << std::endl;
+  out << "\n";
 
   // NOLINTNEXTLINE(readability-braces-around-statements, bugprone-suspicious-semicolon)
   if constexpr (dst_is_sub_sm) {
@@ -384,13 +384,13 @@ void dump_transition() noexcept {
     if (!already_in) {
       completed_submachines.push_back(dst_state);
       constexpr int indent = N + 2;
-      do_indent(N);
-      std::cout << "state " << dst_state << " {" << std::endl;
+      do_indent(out, N);
+      out << "state " << dst_state << " {\n";
       bool prev_state = state_initialized;
       state_initialized = false;
-      dump_transitions<typename T::dst_state::transitions>::template func<indent>();
-      do_indent(N);
-      std::cout << "}" << std::endl;
+      dump_transitions<typename T::dst_state::transitions>::template func<indent>(out);
+      do_indent(out, N);
+      out << "}\n";
       state_initialized = prev_state;
     }
   }
@@ -400,14 +400,14 @@ void dump_transition() noexcept {
 // I is the counter
 // INDENT is the current indentation level (for the state machine or sub-state machine)
 template <int INDENT, int I, class... Ts>
-void apply_dump_transition() {
+void apply_dump_transition(std::ostream& out) {
   // iteration is finished when I == the size of the parameter pack
   constexpr auto param_pack_empty = (sizeof...(Ts) == I);
   if constexpr (!param_pack_empty) {  // NOLINT(readability-braces-around-statements,bugprone-suspicious-semicolon)
     // run the dump_transition function to print this sml::front::transition type
-    dump_transition<INDENT, NthTypeOf<I, Ts...>>();
+    dump_transition<INDENT, NthTypeOf<I, Ts...>>(out);
     // iteration isn't finished, keep going
-    apply_dump_transition<INDENT, I + 1, Ts...>();
+    apply_dump_transition<INDENT, I + 1, Ts...>(out);
   }
 }
 
@@ -415,7 +415,7 @@ void apply_dump_transition() {
 template <typename...>
 struct dump_transitions {  // NOLINT(readability-identifier-naming)
   template <int INDENT>
-  static void func() {}
+  static void func(std::ostream&) {}
 };
 
 // Partial specialization for sml::aux::type_list<Ts...>. This grants access to the
@@ -424,19 +424,19 @@ struct dump_transitions {  // NOLINT(readability-identifier-naming)
 template <typename... Ts>
 struct dump_transitions<typename sml::aux::type_list<Ts...>> {  // NOLINT(readability-identifier-naming)
   template <int INDENT>
-  static void func() {
-    apply_dump_transition<INDENT, 0, Ts...>();
+  static void func(std::ostream& out) {
+    apply_dump_transition<INDENT, 0, Ts...>(out);
   }
 };
 
 template <class T>
-void dump() noexcept {
-  std::cout << "@startuml" << std::endl << std::endl;
-  dump_transitions<typename sml::sm<T>::transitions>::template func<0>();
-  std::cout << std::endl << "@enduml" << std::endl;
+void dump(std::ostream& out) noexcept {
+  out << "@startuml\n\n";
+  dump_transitions<typename sml::sm<T>::transitions>::template func<0>(out);
+  out << "\n@enduml\n";
 }
 
-int main() { dump<plant_uml>(); }
+int main() { dump<plant_uml>(std::cout); }
 
 #elif __cplusplus == 201402L
 
@@ -481,7 +481,7 @@ struct plant_uml {
 };
 
 template <class T>
-void dump_transition() noexcept {
+void dump_transition(std::ostream& out) noexcept {
   auto src_state = std::string{sml::aux::string<typename T::src_state>{}.c_str()};
   auto dst_state = std::string{sml::aux::string<typename T::dst_state>{}.c_str()};
   if (dst_state == "X") {
@@ -489,7 +489,7 @@ void dump_transition() noexcept {
   }
 
   if (T::initial) {
-    std::cout << "[*] --> " << src_state << std::endl;
+    out << "[*] --> " << src_state << "\n";
   }
 
   const auto has_event = !sml::aux::is_same<typename T::event, sml::anonymous>::value;
@@ -501,13 +501,13 @@ void dump_transition() noexcept {
 
   // entry / exit entry
   if (is_entry || is_exit) {
-    std::cout << src_state;
+    out << src_state;
   } else {  // state to state transition
-    std::cout << src_state << " --> " << dst_state;
+    out << src_state << " --> " << dst_state;
   }
 
   if (has_event || has_guard || has_action) {
-    std::cout << " :";
+    out << " :";
   }
 
   if (has_event) {
@@ -518,36 +518,36 @@ void dump_transition() noexcept {
     } else if (is_exit) {
       event = "exit";
     }
-    std::cout << " " << event;
+    out << " " << event;
   }
 
   if (has_guard) {
-    std::cout << " [" << boost::sml::aux::get_type_name<typename T::guard::type>() << "]";
+    out << " [" << boost::sml::aux::get_type_name<typename T::guard::type>() << "]";
   }
 
   if (has_action) {
-    std::cout << " / " << boost::sml::aux::get_type_name<typename T::action::type>();
+    out << " / " << boost::sml::aux::get_type_name<typename T::action::type>();
   }
 
-  std::cout << std::endl;
+  out << "\n";
 }
 
 template <template <class...> class T, class... Ts>
-void dump_transitions(const T<Ts...>&) noexcept {
-  int _[]{0, (dump_transition<Ts>(), 0)...};
+void dump_transitions(const T<Ts...>&, std::ostream& out) noexcept {
+  int _[]{0, (dump_transition<Ts>(out), 0)...};
   (void)_;
 }
 
 template <class SM>
-void dump(const SM&) noexcept {
-  std::cout << "@startuml" << std::endl << std::endl;
-  dump_transitions(typename SM::transitions{});
-  std::cout << std::endl << "@enduml" << std::endl;
+void dump(const SM&, std::ostream& out) noexcept {
+  out << "@startuml\n\n";
+  dump_transitions(typename SM::transitions{}, out);
+  out << "\n@enduml\n";
 }
 
 int main() {
   sml::sm<plant_uml> sm;
-  dump(sm);
+  dump(sm, std::cout);
 }
 
 #endif
