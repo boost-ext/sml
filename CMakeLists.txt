@@ -108,16 +108,18 @@ if (IS_COMPILER_OPTION_MSVC_LIKE)
   endif()
 elseif (IS_COMPILER_OPTION_GCC_LIKE)
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
-  target_compile_options(sml INTERFACE
-    $<BUILD_INTERFACE:
-      "-Wfatal-errors" # stops on first error
-      "-Wall" # enables all the warnings about constructions
-      "-Wextra" # Print extra warning messages"
-      "-Werror" # Make all warnings into errors.
-      "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
-      "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings
-    >
-  )
+  if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    target_compile_options(sml INTERFACE
+      $<BUILD_INTERFACE:
+        "-Wfatal-errors" # stops on first error
+        "-Wall" # enables all the warnings about constructions
+        "-Wextra" # Print extra warning messages"
+        "-Werror" # Make all warnings into errors.
+        "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
+        "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings
+      >
+    )
+  endif()
 
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options(sml INTERFACE
