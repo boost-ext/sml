@@ -64,15 +64,12 @@ class data {
   auto operator()() {
     using namespace boost::sml;
 
-    const auto set = [](const auto& event, Connected& state) { state.id = event.id; };
-    const auto update = [](Connected& src_state, Interrupted& dst_state) { dst_state.id = src_state.id; };
-
     // clang-format off
     return make_transition_table(
-      * state<Disconnected> + event<connect>    / (set, &Self::print)    = state<Connected>
-      , state<Connected>    + event<interrupt>  / (update, &Self::print) = state<Interrupted>
-      , state<Interrupted>  + event<connect>    / (set, &Self::print)    = state<Connected>
-      , state<Connected>    + event<disconnect> / (&Self::print)         = X
+      * state<Disconnected> + event<connect>    = state<Connected>
+      , state<Connected>    + event<interrupt>  = state<Interrupted>
+      , state<Interrupted>  + event<connect>    = state<Connected>
+      , state<Connected>    + event<disconnect> = X
     );
     // clang-format on
   }
