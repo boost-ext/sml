@@ -49,6 +49,32 @@ test process_the_same_event = [] {
   expect(sm.is(s1) || sm.is(s2));
 };
 
+test process_from_multiple_threads = [] {
+  struct c {
+    size_t calls;
+    auto operator()() {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        * idle + event<e1> / process(e2{})
+        , idle + event<e2> / [this] { ++calls; }
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c, sml::process_queue<std::queue>, sml::thread_safe<std::mutex>> sm;
+  auto runner = [&sm] {
+    for (int i = 0; i != 1000; ++i) sm.process_event(e1{});
+  };
+  std::thread t1{runner};
+  std::thread t2{runner};
+  t1.join();
+  t2.join();
+  const c& c_ = sm;
+  expect(c_.calls == 2000);
+};
+
 test process_event_reentrant = [] {
   struct c {
     auto operator()() const {
