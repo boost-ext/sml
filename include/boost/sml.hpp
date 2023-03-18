@@ -1396,6 +1396,8 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   }
   template <class TEvent, class TDeps, class TSubs>
   bool process_event(const TEvent &event, TDeps &deps, TSubs &subs) {
+    const auto lock = thread_safety_.create_lock();
+    (void)lock;
     bool handled = process_internal_events(event, deps, subs);
     do {
       do {
@@ -1510,15 +1512,11 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &states,
                           aux::index_sequence<0>) {
-    const auto lock = thread_safety_.create_lock();
-    (void)lock;
     return dispatch_t::template dispatch<0, TMappings>(*this, current_state_[0], event, deps, subs, states);
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates, int... Ns>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &states,
                           aux::index_sequence<Ns...>) {
-    const auto lock = thread_safety_.create_lock();
-    (void)lock;
     auto handled = false;
 #if defined(__cpp_fold_expressions)
     ((handled |= dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, deps, subs, states)), ...);
@@ -1532,8 +1530,6 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
   bool process_event_impl(const TEvent &event, TDeps &deps, TSubs &subs, const aux::type_list<TStates...> &states,
                           state_t &current_state) {
-    const auto lock = thread_safety_.create_lock();
-    (void)lock;
     return dispatch_t::template dispatch<0, TMappings>(*this, current_state, event, deps, subs, states);
   }
 #if !BOOST_SML_DISABLE_EXCEPTIONS
