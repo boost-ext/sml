@@ -88,7 +88,6 @@ test process_event_reentrant = [] {
     }
   };
 
-  sml::sm<c, sml::process_queue<std::queue>, sml::thread_safe<std::recursive_mutex>> sm;
-  // Hangs forever awaiting lock if mutex is not reentrant.
+  sml::sm<c, sml::process_queue<std::queue>, sml::thread_safe<std::mutex>> sm;
   sm.process_event(e1{});
 };
