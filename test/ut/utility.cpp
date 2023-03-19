@@ -83,8 +83,8 @@ test pool_basic = [] {
 test pool_init_from_other_pool = [] {
   pool<double, int> p{87.0, 42};
   pool<int, double> p2{init{}, static_cast<decltype(p)&&>(p)};
-  expect(42 == get<int>(p));
-  expect(87.0 == get<double>(p));
+  expect(42 == get<int>(p2));
+  expect(87.0 == get<double>(p2));
 };
 
 test is_specialization = [] {
