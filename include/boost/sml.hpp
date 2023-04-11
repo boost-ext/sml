@@ -2752,8 +2752,10 @@ BOOST_SML_NAMESPACE_END
 #undef __BOOST_SML_TEMPLATE_KEYWORD
 #if defined(__clang__)
 #pragma clang diagnostic pop
-#elif defined(__GNUC__) && defined(__BOOST_SML_DEFINED_HAS_BUILTIN)
+#elif defined(__GNUC__)
+#if defined(__BOOST_SML_DEFINED_HAS_BUILTIN)
 #undef __has_builtin
+#endif
 #pragma GCC diagnostic pop
 #elif defined(_MSC_VER) && !defined(__clang__) && defined(__BOOST_SML_DEFINED_HAS_BUILTIN)
 #undef __has_builtin
