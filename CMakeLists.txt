@@ -50,8 +50,8 @@ endif()
 
 set(IS_COMPILER_OPTION_GCC_LIKE FALSE)
 set(IS_COMPILER_OPTION_MSVC_LIKE FALSE)
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" OR 
-    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" OR
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND
       "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC"))
   set(IS_COMPILER_OPTION_MSVC_LIKE TRUE) # cl and clang-cl
 else()
@@ -59,7 +59,7 @@ else()
 endif()
 
 include(CheckCXXCompilerFlag)
-if(IS_COMPILER_OPTION_MSVC_LIKE)    
+if(IS_COMPILER_OPTION_MSVC_LIKE)
   check_cxx_compiler_flag(/std:c++14 HAS_CXX14_FLAG)
   check_cxx_compiler_flag(/std:c++17 HAS_CXX17_FLAG)
   check_cxx_compiler_flag(/std:c++20 HAS_CXX20_FLAG)
