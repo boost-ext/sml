@@ -1551,7 +1551,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
     }
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs>
-  constexpr bool process_event_except_impl(const TEvent &event, TDeps &deps, TSubs &subs, aux::true_type) {
+  bool process_event_except_impl(const TEvent &event, TDeps &deps, TSubs &subs, aux::true_type) {
     try {
       return process_event_impl<TMappings>(event, deps, subs, states_t{}, aux::make_index_sequence<regions>{});
     } catch (...) {
