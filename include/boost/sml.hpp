@@ -9,12 +9,12 @@
 #if (__cplusplus < 201305L && _MSC_VER < 1900)
 #error "[Boost::ext].SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
-#define BOOST_SML_VERSION 1'1'6
+#define BOOST_SML_VERSION 1'1'8
 #define BOOST_SML_NAMESPACE_BEGIN \
   namespace boost {               \
   inline namespace ext {          \
   namespace sml {                 \
-  inline namespace v1_1_6 {
+  inline namespace v1_1_8 {
 #define BOOST_SML_NAMESPACE_END \
   }                             \
   }                             \
@@ -422,7 +422,7 @@ struct pool : pool_type<Ts>... {
 template <>
 struct pool<> {
   using boost_di_inject__ = type_list<>;
-  constexpr pool() = default;
+  pool() = default;
   template <class... Ts>
   constexpr explicit pool(Ts &&...) {}
   __BOOST_SML_ZERO_SIZE_ARRAY(byte);
