@@ -1399,13 +1399,14 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
     const auto lock = thread_safety_.create_lock();
     (void)lock;
     bool handled = process_internal_events(event, deps, subs);
+    bool queued_handled = true;
     do {
       do {
         while (process_internal_events(anonymous{}, deps, subs)) {
         }
       } while (process_defer_events(deps, subs, handled, aux::type<defer_queue_t<TEvent>>{}, events_t{}));
-    } while (process_queued_events(deps, subs, aux::type<process_queue_t<TEvent>>{}, events_t{}));
-    return handled;
+    } while (process_queued_events(deps, subs, queued_handled, aux::type<process_queue_t<TEvent>>{}, events_t{}));
+    return handled && queued_handled;
   }
   constexpr void initialize(const aux::type_list<> &) {}
   template <class TState>
@@ -1612,7 +1613,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
     return processed_events;
   }
   template <class TDeps, class TSubs, class... TEvents>
-  constexpr bool process_queued_events(TDeps &, TSubs &, const aux::type<no_policy> &, const aux::type_list<TEvents...> &) {
+  constexpr bool process_queued_events(TDeps &, TSubs &,  bool &, const aux::type<no_policy> &, const aux::type_list<TEvents...> &) {
     return false;
   }
   template <class TDeps, class TSubs, class TEvent>
@@ -1627,13 +1628,13 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 #endif
   }
   template <class TDeps, class TSubs, class TDeferQueue, class... TEvents>
-  bool process_queued_events(TDeps &deps, TSubs &subs, const aux::type<TDeferQueue> &, const aux::type_list<TEvents...> &) {
+  bool process_queued_events(TDeps &deps, TSubs &subs, bool &queued_handled, const aux::type<TDeferQueue> &, const aux::type_list<TEvents...> &) {
     using dispatch_table_t = bool (sm_impl::*)(TDeps &, TSubs &, const void *);
     const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
         &sm_impl::process_event_no_queue<TDeps, TSubs, TEvents>...};
     bool wasnt_empty = !process_.empty();
     while (!process_.empty()) {
-      (this->*dispatch_table[process_.front().id])(deps, subs, process_.front().data);
+      queued_handled &= (this->*dispatch_table[process_.front().id])(deps, subs, process_.front().data);
       process_.pop();
     }
     return wasnt_empty;

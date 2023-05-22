@@ -25,7 +25,7 @@ struct defer_and_process {
     return make_transition_table(
        *"idle"_s + event<e1> / defer
       , "idle"_s + event<e2> = "s1"_s
-      , "s1"_s   + event<e1> = "s2"_s
+      , "s1"_s   + event<e1> / process(e2{}) = "s2"_s
       , "s2"_s   + event<e3> / process(e4{})
       , "s2"_s   + event<e4> = X
     );
@@ -40,12 +40,13 @@ int main() {
       sm;  /// defer_queue policy to enable deferred events using std::queue
   assert(sm.is("idle"_s));
 
-  sm.process_event(e1{});
+  assert(sm.process_event(e1{}));
   assert(sm.is("idle"_s));
 
-  sm.process_event(e2{});  /// triggers idle -> s1 and s1 -> s2 (via deferred e1)
+  assert(!sm.process_event(e2{}));  /// triggers idle -> s1 and s1 -> s2 (via deferred e1)
+                                    /// additionally triggers e2 again which is unhandled so it returns false
   assert(sm.is("s2"_s));
 
-  sm.process_event(e3{});  /// triggers s2.process(e4) -> X (via processed e4)
+  assert(sm.process_event(e3{}));  /// triggers s2.process(e4) -> X (via processed e4)
   assert(sm.is(sml::X));
 }

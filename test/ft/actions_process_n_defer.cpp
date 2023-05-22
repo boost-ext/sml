@@ -62,7 +62,7 @@ test mix_process_n_defer = [] {
         , s3 + event<e2> / defer = s4
         , s4 + event<e2> = s5
         , s5 = s6
-        , s6 + on_entry<_> / process(e3{})
+        , s6 + on_entry<_> / (process(e1{}), process(e3{}))  // e1 is not handled
         , s6 + event<e3> = s7
         , s7 = X
       );
@@ -70,7 +70,7 @@ test mix_process_n_defer = [] {
     }
   };  // internal, defer, process, defer, internal, process, internal
   sml::sm<c, sml::process_queue<std::queue>, sml::defer_queue<std::deque>> sm{};
-  sm.process_event(e1{});
+  expect(!sm.process_event(e1{}));
   expect(sm.is(sml::X));
 };
 
@@ -105,10 +105,10 @@ test process_n_defer_again = [] {
 
   std::string calls;
   sml::sm<c, sml::process_queue<std::queue>, sml::defer_queue<std::deque>> sm{calls};
-  sm.process_event(e1{});
-  sm.process_event(e1{});
-  sm.process_event(e1{});
-  sm.process_event(e3{});
+  expect(sm.process_event(e1{}));
+  expect(sm.process_event(e1{}));
+  expect(sm.process_event(e1{}));
+  expect(sm.process_event(e3{}));
   expect(calls == "");
   sm.process_event(e2{});
   std::cout << calls << "\n";
