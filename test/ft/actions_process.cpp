@@ -85,26 +85,26 @@ test process_event_from_substate = [] {
   expect(sm.is(idle));
   expect(sm.is<decltype(sml::state<sub>)>(s1));
 
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
   expect(sm.is(sml::state<sub>));
   expect(sm.is<decltype(sml::state<sub>)>(s1));
   expect(!c_.a_called);
 
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
   expect(sm.is(sml::state<sub>));
   expect(sm.is<decltype(sml::state<sub>)>(s2));
   expect(!c_.a_called);
 
-  sm.process_event(e2{});  // + process(e3{})
+  expect(!sm.process_event(e2{}));  // + process(e3{}) + process(e2{})
   expect(sm.is(sml::state<sub>));
   expect(sm.is<decltype(sml::state<sub>)>(s3));
   expect(!c_.a_called);
 
-  sm.process_event(e3{});
+  expect(sm.process_event(e3{}));
   expect(sm.is(sml::state<sub>));
   expect(sm.is<decltype(sml::state<sub>)>(sml::X));
 
-  sm.process_event(e4{});
+  expect(sm.process_event(e4{}));
   expect(1 == c_.a_called);
 };
 
@@ -148,7 +148,7 @@ test queue_and_internal_process_events = [] {
       return make_transition_table(
         * idle + on_entry<sml::initial> / process(e1())
         , s1 <= idle + event<e1>
-        , s2 <= s1
+        , s2 <= s1 / process(e1())  // This process is unhandled, but the state machine still transitions to s2
         , s2 + on_entry<_> / process(e2())
         , s3 <= s2 + event<e2>
         , X <= s3
@@ -186,7 +186,7 @@ test queue_process_reaction = [] {
 
   sml::sm<c, sml::process_queue<std::queue>> sm{};
 
-  sm.process_event(e1());
+  expect(!sm.process_event(e1()));  // e3 was unexpected so it returns false
   expect(sm.is(sml::X));
 
   const c& c_ = sm;
@@ -209,7 +209,7 @@ test mix_process_and_internal = [] {
 
   sml::sm<c, sml::process_queue<std::queue>> sm{};
 
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
   expect(sm.is(sml::X));
 };
 
@@ -242,11 +242,11 @@ test process_event_sent_from_substate = [] {
   expect(sm.is(idle, s2));
   expect(sm.is<decltype(sml::state<sub>)>(s1));
 
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
   expect(sm.is(sml::state<sub>, s2));
   expect(sm.is<decltype(sml::state<sub>)>(s1));
 
-  sm.process_event(e1{});  // + process(e2{})
+  expect(sm.process_event(e1{}));  // + process(e2{})
   expect(sm.is(sml::X, sml::X));
   expect(sm.is<decltype(sml::state<sub>)>(sml::X));
 };
@@ -279,10 +279,10 @@ test process_event_of_substate = [] {
   expect(sm.is(idle));
   expect(sm.is<decltype(sml::state<sub>)>(s1));
 
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
   expect(sm.is(sml::state<sub>));
 
-  sm.process_event(e2{});  // + process(e2{})
+  expect(sm.process_event(e2{}));  // + process(e2{})
   expect(sm.is(sml::state<sub>));
   expect(sm.is<decltype(sml::state<sub>)>(sml::X));
 };
@@ -327,7 +327,7 @@ test process_between_substates = [] {
   expect(sm.is<decltype(sml::state<sub1>)>(s1));
   expect(sm.is<decltype(sml::state<sub2>)>(s2));
 
-  sm.process_event(e1{});
+  expect(sm.process_event(e1{}));
   expect(sm.is(sml::X, sml::X));
   expect(sm.is<decltype(sml::state<sub1>)>(sml::X));
   expect(sm.is<decltype(sml::state<sub2>)>(sml::X));
