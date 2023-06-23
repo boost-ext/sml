@@ -181,7 +181,7 @@ test dependencies_smart_ptrs = [] {
 
 test dependencies_with_reference = [] {
   struct Data {
-    int m_member { 42 };
+    int m_member{42};
   };
 
   struct c {
@@ -201,14 +201,12 @@ test dependencies_with_reference = [] {
 
 test dependencies_with_const_reference = [] {
   struct Data {
-    int m_member { 42 };
+    int m_member{42};
   };
 
   struct c {
     auto operator()() noexcept {
-      const auto action = [](const Data& data) {
-        expect(data.m_member == 42);
-      };
+      const auto action = [](const Data& data) { expect(data.m_member == 42); };
 
       using namespace sml;
       return make_transition_table(*idle + event<e1> / action = X);
@@ -223,7 +221,7 @@ test dependencies_with_const_reference = [] {
 
 test dependencies_with_pointer = [] {
   struct Data {
-    int m_member { 42 };
+    int m_member{42};
   };
 
   struct c {
@@ -243,14 +241,12 @@ test dependencies_with_pointer = [] {
 
 test dependencies_with_const_pointer = [] {
   struct Data {
-    int m_member { 42 };
+    int m_member{42};
   };
 
   struct c {
     auto operator()() noexcept {
-      const auto action = [](const Data* data) {
-        expect(data->m_member == 42);
-      };
+      const auto action = [](const Data* data) { expect(data->m_member == 42); };
 
       using namespace sml;
       return make_transition_table(*idle + event<e1> / action = X);
@@ -259,6 +255,30 @@ test dependencies_with_const_pointer = [] {
 
   Data data;
   sml::sm<c> sm{&data};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+test dependencies_move_only_reference = [] {
+  struct Data {
+    std::unique_ptr<int> m_member;
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      const auto action = [](const Data& data) {
+        expect(data.m_member != nullptr);
+        expect(*data.m_member == 42);
+      };
+
+      using namespace sml;
+      return make_transition_table(*idle + event<e1> / action = X);
+    }
+  };
+
+  Data data;
+  data.m_member = std::make_unique<int>(42);
+  sml::sm<c> sm{data};
   sm.process_event(e1{});
   expect(sm.is(sml::X));
 };
