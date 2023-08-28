@@ -171,9 +171,9 @@ test defer_reaction = [] {
             deferEvent(event2{});
             deferEvent(event3{});
             calls += "a1.end|";
-          }
-         , state1 + event<event2> / [this] { calls += "a2|"; }
-         , state1 + event<event3> / [this] { calls += "a3|"; } = X
+          } = state2
+         , state2 + event<event2> / [this] { calls += "a2|"; }
+         , state2 + event<event3> / [this] { calls += "a3|"; } = X
       );
       // clang-format on
     }
@@ -288,4 +288,56 @@ test defer_queue_event_move_dtor = [] {
   expect(e1data2.use_count() == 1);
   expect(e1data3.use_count() == 1);
   expect(e1data4.use_count() == 1);
+};
+
+test defer_and_action = [] {
+  struct c {
+    auto operator()() {
+      using namespace sml;
+      auto action1 = [this]{ calls += "a1|"; };
+      auto action2 = [this]{ calls += "a2|"; };
+      auto action3 = [this]{ calls += "a3|"; };
+
+      // clang-format off
+      return make_transition_table(
+        * state1 + event<event1> / (action1, defer, defer)
+        , state1 + event<event2> / (action2, defer)
+        , state1 + event<event3> = state2
+        , state2 + event<event1> / action3
+        , state2 + event<event2> = X
+      );
+      // clang-format on
+    }
+
+    std::string calls{};
+  };
+
+  sml::sm<c, sml::defer_queue<std::deque>> sm{};
+  const c& c_ = sm;
+
+  sm.process_event(event1());
+  sm.process_event(event2());
+  sm.process_event(event3());
+  expect(sm.is(sml::X));
+  expect("a1|a2|a3|a3|" == c_.calls);
+};
+
+test defer_multi = [] {
+  struct c {
+    auto operator()() {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        * state1 + event<event1> / defer = state2
+        , state2 + event<event1> / defer = state3
+        , state3 + event<event1> / defer = state4
+        , state4 + event<event1> = X
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c, sml::defer_queue<std::deque>> sm{};
+  sm.process_event(event1());
+  expect(sm.is(sml::X));
 };
