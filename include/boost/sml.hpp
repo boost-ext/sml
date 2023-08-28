@@ -1425,13 +1425,17 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   constexpr bool process_event(const TEvent &event, TDeps &deps, TSubs &subs) {
     const auto lock = thread_safety_.create_lock();
     (void)lock;
+    bool changed = false;
+    state_t old = current_state_[0];
     bool handled = process_internal_events(event, deps, subs);
     bool queued_handled = true;
     do {
       do {
         while (process_internal_events(anonymous{}, deps, subs)) {
         }
-      } while (process_defer_events(deps, subs, handled, aux::type<defer_queue_t<TEvent>>{}, events_t{}));
+        changed = (old != current_state_[0]);
+        old = current_state_[0];
+      } while (process_defer_events(deps, subs, changed, aux::type<defer_queue_t<TEvent>>{}, events_t{}));
     } while (process_queued_events(deps, subs, queued_handled, aux::type<process_queue_t<TEvent>>{}, events_t{}));
     return handled && queued_handled;
   }
@@ -1611,10 +1615,8 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
     bool handled = process_internal_events(event, deps, subs);
     if (handled && defer_again_) {
       ++defer_it_;
-      return false;
     } else {
-      defer_.erase(defer_it_);
-      defer_it_ = defer_.begin();
+      defer_it_ = defer_.erase(defer_it_);
       defer_end_ = defer_.end();
     }
     return handled;
@@ -1631,9 +1633,14 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
       defer_again_ = false;
       defer_it_ = defer_.begin();
       defer_end_ = defer_.end();
+      state_t old = current_state_[0];
       while (defer_it_ != defer_end_) {
         processed_events |= (this->*dispatch_table[defer_it_->id])(deps, subs, defer_it_->data);
         defer_again_ = false;
+        if (old != current_state_[0]) {
+          defer_it_ = defer_.begin();
+          old = current_state_[0];
+        }
       }
       defer_processing_ = false;
     }
