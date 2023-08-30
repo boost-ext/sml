@@ -2443,7 +2443,7 @@ struct transition<state<S2>, transition_eg<front::event<E>, G>>
   constexpr transition(const state<S2> &, const transition_eg<front::event<E>, G> &t)
       : transition<state<internal>, state<S2>, front::event<E>, G, none>{t.g, none{}} {}
   template <class T>
-  auto operator=(const T &) const {
+  constexpr auto operator=(const T &) const {
     return transition<T, state<S2>, front::event<E>, G, none>{g, none{}};
   }
 };
@@ -2460,7 +2460,7 @@ struct transition<state<S2>, transition_ea<front::event<E>, A>>
   constexpr transition(const state<S2> &, const transition_ea<front::event<E>, A> &t)
       : transition<state<internal>, state<S2>, front::event<E>, always, A>{always{}, t.a} {}
   template <class T>
-  auto operator=(const T &) const {
+  constexpr auto operator=(const T &) const {
     return transition<T, state<S2>, front::event<E>, always, A>{always{}, a};
   }
 };
