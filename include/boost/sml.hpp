@@ -1776,7 +1776,17 @@ class sm {
     constexpr auto regions = sm_impl_t::regions;
     aux::cget<sm_impl_t>(sub_sms_).visit_current_states(visitor, states_t{}, aux::make_index_sequence<regions>{});
   }
-  template <class T = aux::identity<sm_t>, class TState>
+  template <class T = aux::identity<sm_t>, class TState,
+            __BOOST_SML_REQUIRES(sm_impl<typename TSM::template rebind<typename T::type>>::regions == 1)>
+  constexpr bool is(const TState &) const {
+    using type = typename T::type;
+    using sm_impl_t = sm_impl<typename TSM::template rebind<type>>;
+    using state_t = typename sm_impl_t::state_t;
+    using states_ids_t = typename sm_impl_t::states_ids_t;
+    return aux::get_id<state_t, typename TState::type>((states_ids_t *)0) == aux::cget<sm_impl_t>(sub_sms_).current_state_[0];
+  }
+  template <class T = aux::identity<sm_t>, class TState,
+            __BOOST_SML_REQUIRES(sm_impl<typename TSM::template rebind<typename T::type>>::regions != 1)>
   constexpr bool is(const TState &) const {
     using type = typename T::type;
     using sm_impl_t = sm_impl<typename TSM::template rebind<type>>;
