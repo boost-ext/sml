@@ -46,14 +46,28 @@ test orthogonal_regions = [] {
 
   sml::sm<c> sm;
   expect(sm.is(idle, idle2));
+  expect(sm.is(idle));
+  expect(sm.is(idle2));
+
   sm.process_event(e1{});
   expect(sm.is(s1, idle2));
+  expect(sm.is(s1));
+  expect(sm.is(idle2));
+
   sm.process_event(e2{});
   expect(sm.is(s2, idle2));
+  expect(sm.is(s2));
+  expect(sm.is(idle2));
+
   sm.process_event(e3{});
   expect(sm.is(s2, s3));
+  expect(sm.is(s2));
+  expect(sm.is(s3));
+
   sm.process_event(e4{});
   expect(sm.is(s2, s4));
+  expect(sm.is(s2));
+  expect(sm.is(s4));
 };
 
 test orthogonal_regions_event_consumed_by_all_regions = [] {
