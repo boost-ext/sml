@@ -333,14 +333,14 @@ template <template <class...> class T, class D>
 using apply_t = typename apply<T, D>::type;
 template <int, class T>
 struct tuple_type {
-  explicit tuple_type(const T &object) : value(object) {}
+  constexpr explicit tuple_type(const T &object) : value(object) {}
   T value;
 };
 template <class, class...>
 struct tuple_impl;
 template <int... Ns, class... Ts>
 struct tuple_impl<index_sequence<Ns...>, Ts...> : tuple_type<Ns, Ts>... {
-  explicit tuple_impl(Ts... ts) : tuple_type<Ns, Ts>(ts)... {}
+  constexpr explicit tuple_impl(Ts... ts) : tuple_type<Ns, Ts>(ts)... {}
 };
 template <>
 struct tuple_impl<index_sequence<0>> {
@@ -349,7 +349,7 @@ struct tuple_impl<index_sequence<0>> {
 template <class... Ts>
 using tuple = tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
 template <int N, class T>
-T &get_by_id(tuple_type<N, T> *object) {
+constexpr T &get_by_id(tuple_type<N, T> *object) {
   return static_cast<tuple_type<N, T> &>(*object).value;
 }
 struct init {};
@@ -412,11 +412,11 @@ constexpr T &try_get(const pool_type<T &> *object) {
   return object->value;
 }
 template <class T>
-const T *try_get(const pool_type<const T *> *object) {
+constexpr const T *try_get(const pool_type<const T *> *object) {
   return object->value;
 }
 template <class T>
-T *try_get(const pool_type<T *> *object) {
+constexpr T *try_get(const pool_type<T *> *object) {
   return object->value;
 }
 template <class T, class TPool>
