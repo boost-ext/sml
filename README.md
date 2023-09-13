@@ -313,6 +313,7 @@ send: 42
     * [Plant UML Integration](https://boost-ext.github.io/sml/examples.html#plant-uml-integration)
 * [FAQ](https://boost-ext.github.io/sml/faq.html)
 * [CHANGELOG](https://boost-ext.github.io/sml/CHANGELOG.html)
+    * [[1.1.9] - 2023-09-13](https://boost-ext.github.io/sml/CHANGELOG.html#119-2023-09-13)
     * [[1.1.6] - 2022-09-07](https://boost-ext.github.io/sml/CHANGELOG.html#116-2022-09-07)
     * [[1.1.5] - 2022-03-23](https://boost-ext.github.io/sml/CHANGELOG.html#115-2022-03-23)
     * [[1.1.4] - 2021-02-16](https://boost-ext.github.io/sml/CHANGELOG.html#114-2021-02-16)
@@ -322,7 +323,6 @@ send: 42
     * [[1.1.0] - 2019-01-08](https://boost-ext.github.io/sml/CHANGELOG.html#110-2019-01-08)
     * [[1.0.1] - 2016-05-06](https://boost-ext.github.io/sml/CHANGELOG.html#101-2016-05-06)
     * [[1.0.0] - 2016-01-28](https://boost-ext.github.io/sml/CHANGELOG.html#100-2016-01-28)
-
 [](GENERATE_TOC_END)
 
 ---
