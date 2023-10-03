@@ -5,6 +5,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#define BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS
 #include <boost/sml.hpp>
 #include <cassert>
 #include <iostream>

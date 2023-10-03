@@ -363,6 +363,7 @@ struct pool_type_impl : pool_type_base {
   constexpr pool_type_impl(init i, TObject object) : value{i, object} {}
   T value{};
 };
+#if defined(BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS)
 template <class T>
 struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value && aux::is_constructible<T, const T &>::value>>
     : pool_type_base {
@@ -374,6 +375,7 @@ struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value && a
   T value_{};
   T &value;
 };
+#endif
 template <class T>
 struct pool_type : pool_type_impl<T> {
   using pool_type_impl<T>::pool_type_impl;
