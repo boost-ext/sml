@@ -11,6 +11,7 @@ The goal of this file is only to compile a state machine with deeply nested
 states that use on_entry events. The only requirement on this file is a
 successful compilation without a ftemplate-depth error.
 */
+#define BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS
 #include <boost/sml.hpp>
 
 namespace sml = boost::sml;
