@@ -28,6 +28,7 @@ struct e7 {
 const auto idle = sml::state<class idle>;
 const auto s1 = sml::state<class s1>;
 const auto s2 = sml::state<class s2>;
+const auto any = sml::state<sml::_>;
 
 test terminate_state = [] {
   struct c {
@@ -213,6 +214,51 @@ test states_initial_entry_actions_with_events = [] {
   expect(3 == c_.entries.size());
   expect(std::vector<std::type_index>{std::type_index(typeid(sml::initial)), std::type_index(typeid(sml::anonymous)),
                                       std::type_index(typeid(sml::anonymous))} == c_.entries);
+};
+
+test any_state = [] {
+  struct c {
+    auto operator()() {
+      using namespace sml;
+      auto action1 = [this]{ calls += "a1|"; };
+      auto action2 = [this]{ calls += "a2|"; };
+      auto action3 = [this]{ calls += "a3|"; };
+      
+      // clang-format off
+      return make_transition_table(
+        any + event<e1> / action1,
+        any + event<e2> / action2,
+        any + event<e3> / action3 = idle,
+
+        *idle + event<e1> = s1,
+        s1 + event<e2> = s2,
+        s2 + event<e3> = s1
+      );
+      // clang-format on
+    }
+
+    std::string calls{};
+  };
+
+  sml::sm<c> sm{};
+  const c& c_ = sm;
+
+  sm.process_event(e1());
+  expect(sm.is(s1));
+  sm.process_event(e1());
+  expect(sm.is(s1));
+  sm.process_event(e2());
+  expect(sm.is(s2));
+  sm.process_event(e1());
+  expect(sm.is(s2));
+  sm.process_event(e2());
+  expect(sm.is(s2));
+  sm.process_event(e3());
+  expect(sm.is(s1));
+  sm.process_event(e3());
+  expect(sm.is(idle));
+
+  expect("a1|a1|a2|a3|" == c_.calls);
 };
 
 #if !defined(_MSC_VER)

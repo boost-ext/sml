@@ -1087,7 +1087,9 @@ template <class T, class, class... Ts>
 transitions<Ts...> get_state_mapping_impl(state_mappings<T, aux::type_list<Ts...>> *);
 template <class T, class TMappings, class TUnexpected>
 struct get_state_mapping {
-  using type = decltype(get_state_mapping_impl<T, TUnexpected>((TMappings *)0));
+  using type = aux::conditional_t<aux::is_same<decltype(get_state_mapping_impl<T, TUnexpected>((TMappings *)0)), transitions<TUnexpected>>::value, 
+      decltype(get_state_mapping_impl<_, TUnexpected>((TMappings *)0)), 
+      decltype(get_state_mapping_impl<T, TUnexpected>((TMappings *)0))>;
 };
 template <class S>
 transitions_sub<S> get_sub_state_mapping_impl(...);
