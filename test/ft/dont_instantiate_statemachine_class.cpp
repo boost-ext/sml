@@ -1,8 +1,4 @@
-//
-// Created by seb on 14.01.24.
-//
-
-#include <boost/sml.hpp>
+ #include <boost/sml.hpp>
 
 namespace sml = boost::sml;
 
