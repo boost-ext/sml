@@ -87,4 +87,7 @@ add_test(test_transition_table test_transition_table)
 add_executable(test_unexpected_events unexpected_events.cpp)
 add_test(test_unexpected_events test_unexpected_events)
 
+add_executable(test_dont_instantiate_statemachine_class dont_instantiate_statemachine_class.cpp)
+add_test(test_dont_instantiate_statemachine_class test_dont_instantiate_statemachine_class)
+
 add_subdirectory(errors)

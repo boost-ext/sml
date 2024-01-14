@@ -422,6 +422,10 @@ constexpr T *try_get(const pool_type<T *> *object) {
   return object->value;
 }
 template <class T, class TPool>
+constexpr bool would_instantiate_missing_ctor_parameter() {
+  return is_same<missing_ctor_parameter<T>, decltype(try_get<T>(aux::declval<TPool>()))>::value;
+}
+template <class T, class TPool>
 constexpr T &get(TPool &p) {
   return static_cast<pool_type<T> &>(p).value;
 }
@@ -1284,6 +1288,25 @@ struct process_queue : aux::pair<back::policies::process_queue_policy__, process
 }  // namespace back
 namespace back {
 namespace policies {
+struct dont_instantiate_statemachine_class_policy__ {};
+struct dont_instantiate_statemachine_class
+    : aux::pair<dont_instantiate_statemachine_class_policy__, dont_instantiate_statemachine_class> {};
+}  // namespace policies
+}  // namespace back
+
+namespace aux {
+template <class TSM>
+struct should_not_instantiate_statemachine_class
+    : integral_constant<bool, is_same<typename TSM::dont_instantiate_statemachine_class_policy,
+                                                back::policies::dont_instantiate_statemachine_class>::value> {};
+
+template <class TSM>
+struct should_not_subclass_statemachine_class
+    : integral_constant<bool, is_empty<typename TSM::sm>::value || should_not_instantiate_statemachine_class<TSM>::value> {};
+} // namespace aux
+
+namespace back {
+namespace policies {
 struct testing_policy__ {};
 struct testing : aux::pair<testing_policy__, testing> {};
 }  // namespace policies
@@ -1335,6 +1358,7 @@ struct sm_policy {
       decltype(get_policy<no_policy, policies::process_queue_policy__>((aux::inherit<TPolicies...> *)0));
   using logger_policy = decltype(get_policy<no_policy, policies::logger_policy__>((aux::inherit<TPolicies...> *)0));
   using testing_policy = decltype(get_policy<no_policy, policies::testing_policy__>((aux::inherit<TPolicies...> *)0));
+  using dont_instantiate_statemachine_class_policy = decltype(get_policy<no_policy, policies::dont_instantiate_statemachine_class_policy__>((aux::inherit<TPolicies...> *)0));
   using default_dispatch_policy = policies::jump_table;
   using dispatch_policy =
       decltype(get_policy<default_dispatch_policy, policies::dispatch_policy__>((aux::inherit<TPolicies...> *)0));
@@ -1381,7 +1405,7 @@ struct composable : aux::is<aux::pool, decltype(composable_impl<T>(0))> {};
 #endif
 namespace back {
 template <class TSM>
-struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux::none_type, typename TSM::sm> {
+struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<TSM>::value, aux::none_type, typename TSM::sm> {
   using sm_t = typename TSM::sm;
   using thread_safety_t = typename TSM::thread_safety_policy::type;
   template <class T>
@@ -1404,6 +1428,7 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
   using events_ids_t = aux::apply_t<aux::inherit, events_t>;
   using has_unexpected_events = typename aux::is_base_of<unexpected, aux::apply_t<aux::inherit, events_t>>::type;
   using has_entry_exits = typename aux::is_base_of<entry_exit, aux::apply_t<aux::inherit, events_t>>::type;
+  using should_not_instantiate_statemachine_class_t = aux::should_not_instantiate_statemachine_class<TSM>;
   using defer_t = defer_queue_t<aux::apply_t<queue_event, events_t>>;
   using process_t = process_queue_t<aux::apply_t<queue_event, events_t>>;
   using deps = aux::apply_t<merge_deps, transitions_t>;
@@ -1416,13 +1441,26 @@ struct sm_impl : aux::conditional_t<aux::is_empty<typename TSM::sm>::value, aux:
 #endif
   struct mappings : mappings_t<transitions_t> {};
   template <class TPool>
-  constexpr sm_impl(aux::init, const TPool &p) : sm_impl{p, aux::is_empty<sm_t>{}} {}
+  constexpr sm_impl(aux::init, const TPool &p) : sm_impl{p, aux::should_not_subclass_statemachine_class<TSM>{}} {}
   template <class TPool>
   constexpr sm_impl(const TPool &p, aux::false_type) : sm_t{aux::try_get<sm_t>(&p)}, transitions_{(*this)()} {
     initialize(typename sm_impl<TSM>::initial_states_t{});
   }
+
+  template <class T, class TPool>
+  constexpr decltype(auto) try_get_without_instantiating(const TPool &p) const {
+    static_assert(!(should_not_instantiate_statemachine_class_t::value &&
+              aux::would_instantiate_missing_ctor_parameter<sm_t, decltype(&p)>()),
+            "When policy sml::dont_instantiate_statemachine_class is used, you have to provide a reference to an "
+            "instance of the transition table type (boost::sml::sm< your_transition_table_type >) "
+            "as well as a reference to instances of all sub-statemachine types as constructor parameters."
+  );
+
+    return aux::try_get<T>(&p)();
+  }
+
   template <class TPool>
-  constexpr sm_impl(const TPool &p, aux::true_type) : transitions_{aux::try_get<sm_t>(&p)()} {
+  constexpr sm_impl(const TPool &p, aux::true_type) : transitions_{ try_get_without_instantiating<sm_t>(p) } {
     initialize(typename sm_impl<TSM>::initial_states_t{});
   }
   template <class TEvent, class TDeps, class TSubs>
@@ -1739,7 +1777,13 @@ class sm {
   using transitions = aux::apply_t<aux::type_list, transitions_t>;
 
  private:
-  using sm_all_t = aux::apply_t<get_non_empty_t, aux::join_t<aux::type_list<sm_t>, aux::apply_t<get_sm_t, state_machines>>>;
+  using sm_all_t = aux::apply_t<get_non_empty_t, aux::join_t<
+      aux::conditional_t<
+            aux::is_same<no_policy, typename TSM::dont_instantiate_statemachine_class_policy>::value,
+            aux::type_list<sm_t>,
+            aux::none_type>,
+      aux::apply_t<get_sm_t, state_machines>>>;
+
   using sub_sms_t =
       aux::apply_t<aux::pool,
                    typename convert_to_sm<TSM, aux::apply_t<aux::unique_t, aux::apply_t<get_sub_sms, states>>>::type>;
@@ -2137,6 +2181,7 @@ template <template <class...> class T>
 using defer_queue = back::policies::defer_queue<T>;
 template <template <class...> class T>
 using process_queue = back::policies::process_queue<T>;
+using dont_instantiate_statemachine_class = back::policies::dont_instantiate_statemachine_class;
 #if defined(_MSC_VER) && !defined(__clang__)
 template <class T, class... TPolicies, class T__ = aux::remove_reference_t<decltype(aux::declval<T>())>>
 using sm = back::sm<back::sm_policy<T__, TPolicies...>>;
