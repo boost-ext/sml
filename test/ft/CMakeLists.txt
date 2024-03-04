@@ -54,8 +54,8 @@ add_test(test_guards test_guards)
 add_executable(test_orthogonal_regions orthogonal_regions.cpp)
 add_test(test_orthogonal_regions test_orthogonal_regions)
 
-# add_executable(test_policies_logging policies_logging.cpp)
-# add_test(test_policies_logging test_policies_logging)
+add_executable(test_policies_logging policies_logging.cpp)
+add_test(test_policies_logging test_policies_logging)
 
 add_executable(test_policies_testing policies_testing.cpp)
 add_test(test_policies_testing test_policies_testing)
