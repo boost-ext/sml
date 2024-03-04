@@ -21,7 +21,8 @@ struct my_logger {
   void log_process_event(const TEvent& evt) {
     std::stringstream sstr;
     sstr << "[" << sml::aux::get_type_name<SM>() << "] " << evt.c_str();
-    messages_out.push_back(sstr.str());
+    const auto str = sstr.str();
+    messages_out.push_back(str);
   }
 
   template <class SM, class TGuard, class TEvent>
@@ -29,15 +30,16 @@ struct my_logger {
     std::stringstream sstr;
     sstr << "[" << sml::aux::get_type_name<SM>() << "] " << sml::aux::get_type_name<TEvent>() << "["
          << sml::aux::get_type_name<TGuard>() << "]: " << std::boolalpha << result;
-    messages_out.push_back(sstr.str());
+    const auto str = sstr.str();
+    messages_out.push_back(str);
   }
 
   template <class SM, class TAction, class TEvent>
   void log_action(const TAction&, const TEvent&) {
     std::stringstream sstr;
-    sstr << "[" << sml::aux::get_type_name<SM>() << "] "
-         << "/ " << sml::aux::get_type_name<TAction>();
-    messages_out.push_back(sstr.str());
+    sstr << "[" << sml::aux::get_type_name<SM>() << "] " << "/ " << sml::aux::get_type_name<TAction>();
+    const auto str = sstr.str();
+    messages_out.push_back(str);
   }
 
   template <class SM, class TSrcState, class TDstState>
@@ -48,7 +50,8 @@ struct my_logger {
     std::string dst_state = dst.c_str();
     remove_spaces(dst_state);
     sstr << "[" << sml::aux::get_type_name<SM>() << "] " << src_state << " -> " << dst_state;
-    messages_out.push_back(sstr.str());
+    const auto str = sstr.str();
+    messages_out.push_back(str);
   }
 
   std::vector<std::string> messages_out;
@@ -90,7 +93,8 @@ struct c_log_sm {
 test log_sm = [] {
   // clang-format off
   std::vector<std::string> messages_expected = {
-     "[c_log_sm] e1"
+     "[c_log_sm] on_entry"
+   , "[c_log_sm] e1"
    , "[c_log_sm] idle -> s1_label"
    , "[c_log_sm] e2"
    , "[c_log_sm] s1_label -> terminate"
@@ -179,7 +183,9 @@ struct c_log_sub_sm {
 test log_sub_sm = [] {
   // clang-format off
   std::vector<std::string> messages_expected = {
-     "[c_log_sub_sm] e1"
+     "[c_log_sub_sm] on_entry"
+   , "[sub] on_entry"
+   , "[c_log_sub_sm] e1"
    , "[c_log_sub_sm] sub(a) -> sub(b)"
    , "[c_log_sub_sm] e2"
    , "[sub] e2"
@@ -217,7 +223,9 @@ struct c_log_sub_sm_mix {
 test log_sub_sm_mix = [] {
   // clang-format off
   std::vector<std::string> messages_expected = {
-     "[c_log_sub_sm_mix] e1"
+     "[c_log_sub_sm_mix] on_entry"
+   , "[sub] on_entry"
+   , "[c_log_sub_sm_mix] e1"
    , "[c_log_sub_sm_mix] sub(a) -> sub"
    , "[c_log_sub_sm_mix] e2"
    , "[sub] e2"
