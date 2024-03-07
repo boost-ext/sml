@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <boost/sml.hpp>
 #include <iomanip>
+#include <queue>
 #include <sstream>
 #include <vector>
 
@@ -37,7 +38,8 @@ struct my_logger {
   template <class SM, class TAction, class TEvent>
   void log_action(const TAction&, const TEvent&) {
     std::stringstream sstr;
-    sstr << "[" << sml::aux::get_type_name<SM>() << "] " << "/ " << sml::aux::get_type_name<TAction>();
+    sstr << "[" << sml::aux::get_type_name<SM>() << "] "
+         << "/ " << sml::aux::get_type_name<TAction>();
     const auto str = sstr.str();
     messages_out.push_back(str);
   }
@@ -239,6 +241,50 @@ test log_sub_sm_mix = [] {
 
   my_logger logger;
   sml::sm<c_log_sub_sm_mix, sml::logger<my_logger>> sm{logger};
+
+  sm.process_event(e1{});
+  sm.process_event(e2{});
+  sm.process_event(e3{});
+
+  expect(logger.messages_out.size() == messages_expected.size());
+  expect(std::equal(logger.messages_out.begin(), logger.messages_out.end(), messages_expected.begin()));
+};
+
+struct dependency_class_with_member_function_action {
+  void member_function() {}
+};
+
+struct c_log_sm_member_function_as_action {
+  auto operator()() {
+    using namespace sml;
+
+    using cls = dependency_class_with_member_function_action;
+
+    // clang-format off
+    return make_transition_table(
+       *"idle"_s + event<e1> / &cls::member_function = s1
+      , s1 + event<e2> = X
+    );
+    // clang-format on
+  }
+};
+
+test log_member_function_pointer_and_process_queue = [] {
+  // clang-format off
+  std::vector<std::string> messages_expected = {
+      "[c_log_sm_member_function_as_action] on_entry"
+    , "[c_log_sm_member_function_as_action] e1"
+    , "[c_log_sm_member_function_as_action] idle -> s1_label"
+    , "[c_log_sm_member_function_as_action] / void (dependency_class_with_member_function_action::*)()"
+    , "[c_log_sm_member_function_as_action] e2"
+    , "[c_log_sm_member_function_as_action] s1_label -> terminate"
+  };
+  // clang-format on
+
+  dependency_class_with_member_function_action dep;
+
+  my_logger logger;
+  sml::sm<c_log_sm_member_function_as_action, sml::logger<my_logger>, sml::process_queue<std::queue>> sm{logger, dep};
 
   sm.process_event(e1{});
   sm.process_event(e2{});
