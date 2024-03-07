@@ -496,52 +496,64 @@ struct zero_wrapper : TExpr {
 };
 template <class R, class TBase, class... TArgs, class T>
 struct zero_wrapper<R (TBase::*)(TArgs...), T> {
-  constexpr explicit zero_wrapper(R (TBase::*ptr)(TArgs...)) : ptr{ptr} {}
+  using type = R (TBase::*)(TArgs...);
+  constexpr explicit zero_wrapper(type ptr) : ptr{ptr} {}
   constexpr auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
+  constexpr type get() const { return ptr; }
 
  private:
-  R (TBase::*ptr)(TArgs...){};
+  type ptr{};
 };
 template <class R, class TBase, class... TArgs, class T>
 struct zero_wrapper<R (TBase::*)(TArgs...) const, T> {
-  constexpr explicit zero_wrapper(R (TBase::*ptr)(TArgs...) const) : ptr{ptr} {}
+  using type = R (TBase::*)(TArgs...) const;
+  constexpr explicit zero_wrapper(type ptr) : ptr{ptr} {}
   constexpr auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
+  constexpr type get() const { return ptr; }
 
  private:
-  R (TBase::*ptr)(TArgs...) const {};
+  type ptr{};
 };
 template <class R, class... TArgs, class T>
 struct zero_wrapper<R (*)(TArgs...), T> {
-  explicit zero_wrapper(R (*ptr)(TArgs...)) : ptr{ptr} {}
+  using type = R (*)(TArgs...);
+  explicit zero_wrapper(type ptr) : ptr{ptr} {}
   constexpr auto operator()(TArgs... args) { return (*ptr)(args...); }
+  constexpr type get() const { return ptr; }
 
  private:
-  R (*ptr)(TArgs...){};
+  type ptr{};
 };
 #if defined(__cpp_noexcept_function_type)
 template <class R, class TBase, class... TArgs, class T>
 struct zero_wrapper<R (TBase::*)(TArgs...) noexcept, T> {
-  constexpr explicit zero_wrapper(R (TBase::*ptr)(TArgs...) noexcept) : ptr{ptr} {}
+  using type = R (TBase::*)(TArgs...) noexcept;
+  constexpr explicit zero_wrapper(type ptr) : ptr{ptr} {}
   constexpr auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
+  constexpr type get() const { return ptr; }
 
  private:
-  R (TBase::*ptr)(TArgs...) noexcept {};
+  type ptr {};
 };
 template <class R, class TBase, class... TArgs, class T>
 struct zero_wrapper<R (TBase::*)(TArgs...) const noexcept, T> {
-  constexpr explicit zero_wrapper(R (TBase::*ptr)(TArgs...) const noexcept) : ptr{ptr} {}
+  using type = R (TBase::*)(TArgs...) const noexcept;
+  constexpr explicit zero_wrapper(type ptr) : ptr{ptr} {}
   constexpr auto operator()(TBase &self, TArgs... args) { return (self.*ptr)(args...); }
+  constexpr type get() const { return ptr; }
 
  private:
-  R (TBase::*ptr)(TArgs...) const noexcept {};
+  type ptr {};
 };
 template <class R, class... TArgs, class T>
 struct zero_wrapper<R (*)(TArgs...) noexcept, T> {
-  explicit zero_wrapper(R (*ptr)(TArgs...) noexcept) : ptr{ptr} {}
+  using type = R (*)(TArgs...) noexcept;
+  explicit zero_wrapper(type ptr) : ptr{ptr} {}
   constexpr auto operator()(TArgs... args) { return (*ptr)(args...); }
+  constexpr type get() const { return ptr; }
 
  private:
-  R (*ptr)(TArgs...) noexcept {};
+  type ptr {};
 };
 #endif
 template <class, class>
