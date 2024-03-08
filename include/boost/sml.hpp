@@ -658,11 +658,14 @@ class queue_event {
   }
 
  public:
+  constexpr queue_event() : dtor(nullptr) {}
   constexpr queue_event(queue_event &&other) : id(other.id), dtor(other.dtor), move(other.move) {
     move(data, static_cast<queue_event &&>(other));
   }
   constexpr queue_event &operator=(queue_event &&other) {
-    dtor(data);
+    if (dtor != nullptr) {
+      dtor(data);
+    }
     id = other.id;
     dtor = other.dtor;
     move = other.move;
@@ -678,7 +681,11 @@ class queue_event {
     move = &move_impl<T>;
     new (&data) T(static_cast<T &&>(object));
   }
-  ~queue_event() { dtor(data); }
+  ~queue_event() {
+    if (dtor) {
+      dtor(data);
+    }
+  }
   alignas(alignment) aux::byte data[size];
   int id = -1;
 

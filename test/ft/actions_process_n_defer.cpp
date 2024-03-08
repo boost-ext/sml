@@ -11,6 +11,9 @@
 #include <queue>
 #include <string>
 
+#include "static_deque.h"
+#include "static_queue.h"
+
 namespace sml = boost::sml;
 
 struct e1 {};
@@ -113,4 +116,35 @@ test process_n_defer_again = [] {
   sm.process_event(e2{});
   std::cout << calls << "\n";
   expect(calls == "|s3_entry|e1|e1|e1");
+};
+
+template <typename T>
+using MinimalStaticDeque10 = MinimalStaticDeque<T, 10>;
+
+template <typename T>
+using MinimalStaticQueue10 = MinimalStaticQueue<T, 10>;
+
+test mix_process_n_defer_at_init_static_queue = [] {
+  struct c {
+    auto operator()() {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+        * s1 + on_entry<sml::initial> / process(e1{})
+        , s1 + event<e1> / defer = s2
+        , s2 / defer = s3
+        , s3 + event<e1> / process(e2{})
+        , s3 + event<e2> / defer = s4
+        , s4 + event<e2> = s5
+        , s5 = s6
+        , s6 + on_entry<_> / process(e3{})
+        , s6 + event<e3> = s7
+        , s7 = X
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c, sml::process_queue<MinimalStaticQueue10>, sml::defer_queue<MinimalStaticDeque10>> sm{};
+  expect(sm.is(sml::X));
 };
