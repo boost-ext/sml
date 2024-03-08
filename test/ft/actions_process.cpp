@@ -11,6 +11,8 @@
 #include <utility>
 #include <vector>
 
+#include "static_queue.h"
+
 namespace sml = boost::sml;
 
 struct e1 {};
@@ -331,4 +333,38 @@ test process_between_substates = [] {
   expect(sm.is(sml::X, sml::X));
   expect(sm.is<decltype(sml::state<sub1>)>(sml::X));
   expect(sm.is<decltype(sml::state<sub2>)>(sml::X));
+};
+
+template <typename T>
+using MinimalStaticQueue10 = MinimalStaticQueue<T, 10>;
+
+test queue_process_events_static_queue = [] {
+  struct c {
+    std::vector<int> calls;
+
+    auto operator()() {
+      using namespace sml;
+
+      const auto a0 = [this] { calls.push_back(0); };
+      const auto a1 = [this] { calls.push_back(1); };
+      const auto a2 = [this] { calls.push_back(2); };
+
+      // clang-format off
+      return make_transition_table(
+        * idle + on_entry<sml::initial> / (process(e1()), process(e2()), a0)
+        , idle + event<e1> / a1
+        , idle + event<e2> / a2 = X
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c, sml::process_queue<MinimalStaticQueue10>> sm{};
+  expect(sm.is(sml::X));
+
+  const c& c_ = sm;
+  expect(3u == c_.calls.size());
+  expect(0 == c_.calls[0]);
+  expect(1 == c_.calls[1]);
+  expect(2 == c_.calls[2]);
 };

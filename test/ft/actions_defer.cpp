@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+#include "static_deque.h"
+
 namespace sml = boost::sml;
 
 struct event1 {};
@@ -294,9 +296,9 @@ test defer_and_action = [] {
   struct c {
     auto operator()() {
       using namespace sml;
-      auto action1 = [this]{ calls += "a1|"; };
-      auto action2 = [this]{ calls += "a2|"; };
-      auto action3 = [this]{ calls += "a3|"; };
+      auto action1 = [this] { calls += "a1|"; };
+      auto action2 = [this] { calls += "a2|"; };
+      auto action3 = [this] { calls += "a3|"; };
 
       // clang-format off
       return make_transition_table(
@@ -339,5 +341,26 @@ test defer_multi = [] {
 
   sml::sm<c, sml::defer_queue<std::deque>> sm{};
   sm.process_event(event1());
+  expect(sm.is(sml::X));
+};
+
+template <typename T>
+using MinimalStaticDeque10 = MinimalStaticDeque<T, 10>;
+
+test defer_minimal_static_deque = [] {
+  const auto c = [] {
+    using namespace sml;
+    // clang-format off
+    return make_transition_table(
+     *state1 + event<event1> / defer,
+      state1 + event<event2> = state2,
+      state2 + event<event1> = X
+    );
+    // clang-format off
+  };
+
+  sml::sm<decltype(c), sml::defer_queue<MinimalStaticDeque10>> sm{c};
+  sm.process_event(event1());
+  sm.process_event(event2());
   expect(sm.is(sml::X));
 };
