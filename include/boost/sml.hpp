@@ -1378,7 +1378,7 @@ struct sm_policy {
   using logger_policy = decltype(get_policy<no_policy, policies::logger_policy__>((aux::inherit<TPolicies...> *)0));
   using testing_policy = decltype(get_policy<no_policy, policies::testing_policy__>((aux::inherit<TPolicies...> *)0));
   using dont_instantiate_statemachine_class_policy = decltype(get_policy<no_policy, policies::dont_instantiate_statemachine_class_policy__>((aux::inherit<TPolicies...> *)0));
-  using default_dispatch_policy = policies::jump_table;
+  using default_dispatch_policy = policies::switch_stm;
   using dispatch_policy =
       decltype(get_policy<default_dispatch_policy, policies::dispatch_policy__>((aux::inherit<TPolicies...> *)0));
   template <class T>
