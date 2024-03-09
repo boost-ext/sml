@@ -5,6 +5,8 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <string>
+
 #include "boost/sml.hpp"
 
 BOOST_SML_NAMESPACE_BEGIN
@@ -65,6 +67,11 @@ test is_empty_type = [] {
   };
   static_expect(is_empty<empty>::value);
   static_expect(!is_empty<non_empty>::value);
+};
+
+test type_name = [] {
+  expect(std::string("int") == get_type_name<int>());
+  expect(std::string("void") == get_type_name<void>());
 };
 
 }  // namespace aux

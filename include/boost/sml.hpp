@@ -581,13 +581,13 @@ auto get_type_name(const char *ptr, index_sequence<Ns...>) {
 template <class T>
 const char *get_type_name() {
 #if defined(_MSC_VER) && !defined(__clang__)
-  return detail::get_type_name<T, 39>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 39 - 8>{});
+  return detail::get_type_name<T, 65>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 65 - 8>{});
 #elif defined(__clang__) && (__clang_major__ >= 12)
   return detail::get_type_name<T, 50>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 50 - 2>{});
 #elif defined(__clang__)
   return detail::get_type_name<T, 63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
 #elif defined(__GNUC__)
-  return detail::get_type_name<T, 68>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 68 - 2>{});
+  return detail::get_type_name<T, 69>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 69 - 2>{});
 #endif
 }
 #if defined(__cpp_nontype_template_parameter_class) || \
