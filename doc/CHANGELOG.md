@@ -1,3 +1,10 @@
+## [1.1.11] - 2024-03-09
+- **Bug Fixes**
+    - MSVC typename
+
+- **Additions**
+    - [performance] switch as defult dispatch_policy
+
 ## [1.1.10] - 2024-03-09
 - **Bug Fixes**
     - [Issues](https://github.com/boost-ext/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2023-09-13..2024-03-09+)

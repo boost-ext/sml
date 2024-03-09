@@ -9,12 +9,12 @@
 #if (__cplusplus < 201305L && _MSC_VER < 1900)
 #error "[Boost::ext].SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
-#define BOOST_SML_VERSION 1'1'10
+#define BOOST_SML_VERSION 1'1'11
 #define BOOST_SML_NAMESPACE_BEGIN \
   namespace boost {               \
   inline namespace ext {          \
   namespace sml {                 \
-  inline namespace v1_1_10 {
+  inline namespace v1_1_11 {
 #define BOOST_SML_NAMESPACE_END \
   }                             \
   }                             \
