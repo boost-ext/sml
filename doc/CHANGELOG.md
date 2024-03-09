@@ -1,3 +1,15 @@
+## [1.1.10] - 2024-03-09
+- **Bug Fixes**
+    - [Issues](https://github.com/boost-ext/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2023-09-13..2024-03-09+)
+
+- **Contributions**
+    - [Sebastian Michel](https://github.com/boost-ext/sml/commits?author=devzeb)
+    - [rvdvvdw](https://github.com/rvdvvdw)
+    - [Beartama](https://github.com/uyha)
+    - [michaelcorreia-adt](https://github.com/michaelcorreia-adt)
+    - [Julian Meyers](https://github.com/J-Meyers)
+    - [Marco Bergamin](https://github.com/marcobergamin)
+
 ## [1.1.9] - 2023-09-13
     - [Issues](https://github.com/boost-ext/sml/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+closed%3A2022-09-07..2023-09-13+)
 
