@@ -77,6 +77,7 @@
 #define __BOOST_SML_DEFINED_HAS_BUILTIN
 #define __has_builtin(...) 0
 #endif
+/* Needs IAR language extensions */
 #define __BOOST_SML_UNUSED __attribute__((unused))
 #define __BOOST_SML_VT_INIT \
   {}
@@ -2842,6 +2843,7 @@ constexpr typename front::state_sm<T>::type state{};
 template <class T>
 typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
 #endif
+#if !(defined(__ICCARM__))
 inline namespace literals {
 #if defined(__cpp_nontype_template_parameter_class) || \
     defined(__cpp_nontype_template_args) && __cpp_nontype_template_args >= 201911L
@@ -2866,6 +2868,7 @@ constexpr auto operator""_e() {
 }
 #endif
 }  // namespace literals
+#endif
 __BOOST_SML_UNUSED static front::state<back::terminate_state> X;
 __BOOST_SML_UNUSED static front::history_state H;
 __BOOST_SML_UNUSED static front::actions::defer defer;
