@@ -9,6 +9,9 @@
 #if (__cplusplus < 201305L && _MSC_VER < 1900)
 #error "[Boost::ext].SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
+#if defined(__ICCARM__) && __IAR_SYSTEMS_ICC__ < 8
+#error "[Boost::ext].SML requires C++14 support (IAR C/C++ ARM 8.1+)"
+#endif
 #define BOOST_SML_VERSION 1'1'11
 #define BOOST_SML_NAMESPACE_BEGIN \
   namespace boost {               \
@@ -69,6 +72,17 @@
 #endif
 #pragma warning(disable : 4503)
 #pragma warning(disable : 4200)
+#elif defined(__ICCARM__)
+#if !defined(__has_builtin)
+#define __BOOST_SML_DEFINED_HAS_BUILTIN
+#define __has_builtin(...) 0
+#endif
+#define __BOOST_SML_UNUSED __attribute__((unused))
+#define __BOOST_SML_VT_INIT \
+  {}
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...)
+#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
+#define __BOOST_SML_TEMPLATE_KEYWORD template
 #endif
 BOOST_SML_NAMESPACE_BEGIN
 #define __BOOST_SML_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0
@@ -588,6 +602,8 @@ const char *get_type_name() {
   return detail::get_type_name<T, 63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
 #elif defined(__GNUC__)
   return detail::get_type_name<T, 69>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 69 - 2>{});
+#elif defined(__ICCARM__)
+  return detail::get_type_name<T, 72>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 72 -2>{});
 #endif
 }
 #if defined(__cpp_nontype_template_parameter_class) || \
