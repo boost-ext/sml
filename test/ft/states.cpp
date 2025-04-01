@@ -261,6 +261,62 @@ test any_state = [] {
   expect("a1|a1|a2|a3|" == c_.calls);
 };
 
+test any_state_nested = [] {
+  struct s {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto action1 = [this]{ calls += "a1|"; };
+      // clang-format off
+      return make_transition_table(
+         *idle + event<e1> / action1 = s1
+      );
+      // clang-format on
+    }
+    std::string& calls;
+  };
+
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto action2 = [this]{ calls += "a2|"; };
+      auto action3 = [this]{ calls += "a3|"; };
+      // clang-format off
+      return make_transition_table(
+         any + event<e2> / action2,
+         any + event<e3> / action3 = idle,
+         *idle + event<e1> = state<s>,
+         state<s> + event<e4> = s2
+      );
+      // clang-format on
+    }
+    std::string& calls;
+  };
+
+  auto calls = std::string{};
+  auto c_ = c{calls};
+  auto s_ = s{calls};
+
+  sml::sm<c> sm{c_, s_};
+
+  sm.process_event(e1());
+  expect(sm.is(sml::state<s>));
+  expect(sm.is<decltype(sml::state<s>)>(idle));
+
+  sm.process_event(e1());
+  expect(sm.is(sml::state<s>));
+  expect(sm.is<decltype(sml::state<s>)>(s1));
+  expect("a1|" == c_.calls);
+
+  sm.process_event(e2());
+  expect(sm.is(sml::state<s>));
+  expect(sm.is<decltype(sml::state<s>)>(s1));
+  expect("a1|a2|" == c_.calls);
+
+  sm.process_event(e3());
+  expect(sm.is(idle));
+  expect("a1|a2|a3|" == c_.calls);
+};
+
 #if !defined(_MSC_VER)
 test state_names = [] {
   struct c {
