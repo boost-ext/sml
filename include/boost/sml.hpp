@@ -1010,7 +1010,6 @@ struct transitions_sub<sm<Tsm>, T, Ts...> {
   }
   template <class, class SM, class TDeps, class TSubs>
   constexpr static bool execute(const anonymous &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
-
     if (sub_sm<sm_impl<Tsm>>::cget(&subs).is_terminated()) {
       return transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
     } else {
