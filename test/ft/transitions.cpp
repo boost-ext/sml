@@ -252,9 +252,59 @@ test subsequent_anonymous_transitions_composite_without_action = []{
   sml::sm<StateMachine> sm{};
 
   expect(sm.is(state<sub_sm>));
-  expect(sm.is<decltype(state<sub_sm>)>(s2));  // FAILS
-  expect(!sm.is<decltype(state<sub_sm>)>(s1)); // FAILS
+  expect(sm.is<decltype(state<sub_sm>)>(s2));
+  expect(!sm.is<decltype(state<sub_sm>)>(s1));
 
+  sm.process_event(e1{});
+  expect(sm.is(X));
+  expect(sm.is<decltype(state<sub_sm>)>(X));
+};
+
+test subsequent_anonymous_transitions_composite_with_non_sub_sm_as_init = []{
+  using namespace sml;
+
+  //
+  //               sub_sm
+  //               +----------------------------------+
+  //               |                                  |
+  //       +----+  |       +----+       +----+        |
+  //   *+--> s1 +-->  *+---> s1 +-------> s2 +----> X +----> X
+  //       +----+  |       +----+       +----+        |
+  //               |                                  |
+  //               +----------------------------------+
+  //
+
+  using V = std::string;
+  V calls{};
+
+  struct sub_sm {
+    auto operator()() const noexcept {
+      return make_transition_table(
+          // clang-format off
+          *s1 /[](V& v){v+="ss1-ss2|";} = s2
+          ,s2 /[](V& v){v+="ss2-x|";} = X
+          // clang-format on
+      );
+    }
+  };
+
+  struct StateMachine {
+    auto operator()() const noexcept {
+      return make_transition_table(
+          // clang-format off
+          *s1 /[](V& v){v+="s1-sub_sm|";} = state<sub_sm>
+          ,state<sub_sm> /[](V& v){v+="sub_sm-X|";} = X
+          // clang-format on
+      );
+    }
+  };
+
+  sml::sm<StateMachine> sm{calls};
+
+  expect(sm.is(X));
+  expect(sm.is<decltype(state<sub_sm>)>(X));
+  std::string expected = "s1-sub_sm|ss1-ss2|ss2-x|sub_sm-X|";
+  expect(calls == expected);
 };
 
 
