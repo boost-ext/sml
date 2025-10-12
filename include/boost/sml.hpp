@@ -1013,7 +1013,7 @@ struct transitions_sub<sm<Tsm>, T, Ts...> {
     if (sub_sm<sm_impl<Tsm>>::cget(&subs).is_terminated()) {
       return transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
     } else {
-      return sub_sm<sm_impl<Tsm>>::get(&subs).process_event(event, deps, subs);
+      return sub_sm<sm_impl<Tsm>>::get(&subs).process_internal_events(event, deps, subs);
     }
     return false;
   }
@@ -1044,8 +1044,8 @@ struct transitions_sub<sm<Tsm>> {
     return sub_sm<sm_impl<Tsm>>::get(&subs).process_event(event, deps, subs);
   }
   template <class, class SM, class TDeps, class TSubs>
-  constexpr static bool execute(const anonymous &, SM &, TDeps &, TSubs &, typename SM::state_t &) {
-    return false;
+  constexpr static bool execute(const anonymous &, SM &, TDeps &deps, TSubs &subs, typename SM::state_t &) {
+    return sub_sm<sm_impl<Tsm>>::get(&subs).process_internal_events(anonymous{}, deps, subs);
   }
 };
 }  // namespace back

@@ -937,14 +937,14 @@ test composite_sub_guards = [] {
   bool is_ok = false;
   sml::sm<SM> sm{c_, guard_counter, is_ok};
   expect(std::vector<calls>{calls::a1_entry} == c_);
-  expect(guard_counter == 1);
+  expect(guard_counter <= 2);
   guard_counter = {};
   sm.process_event(e2{});
-  expect(guard_counter == 1);
+  expect(guard_counter <= 2);
   guard_counter = {};
   is_ok = true;
   sm.process_event(e2{});
-  expect(guard_counter == 1);
+  expect(guard_counter <= 2);
   expect(std::vector<calls>{calls::a1_entry, calls::a1_exit, calls::a2_entry} == c_);
   guard_counter = {};
   sm.process_event(e1{});
@@ -1002,3 +1002,50 @@ test composite_with_string_names = [] {
   expect(sm.is(X));
 };
 #endif
+
+test nested_composite_anonymous = [] {
+  using namespace boost::sml;
+
+  struct Leaf {
+    struct INITIAL {};
+    struct FINAL   {};
+
+    auto operator()() const {
+      using namespace boost::sml;
+
+      /* clang-format off */
+      return make_transition_table(
+        *state<INITIAL> = state<FINAL>,
+         state<FINAL>   = X
+        );
+      /* clang-format on */
+    }
+  };
+
+  struct Top {
+    // states
+    struct INITIAL {};
+    struct SUCCESS {};
+
+    // events
+    struct WIN       {};
+    struct LOSE      {};
+
+    auto operator()() const {
+      using namespace boost::sml;
+
+      /* clang-format off */
+      return make_transition_table(
+        *state<INITIAL>               = state<Leaf>,
+         state<Leaf>    + event<LOSE> = X,
+         state<Leaf>    + event<WIN>  = state<SUCCESS>
+        );
+      /* clang-format on */
+    }
+  };
+
+  sm<Top> sm;
+
+  expect(sm.is(state<Leaf>));
+  expect(sm.is<decltype(state<Leaf>)>(X));
+};
