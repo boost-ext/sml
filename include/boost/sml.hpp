@@ -258,6 +258,14 @@ using remove_pointer_t = typename remove_pointer<T>::type;
 }  // namespace aux
 namespace aux {
 using swallow = int[];
+template<typename F, template<class...> class L, class... Ts>
+void for_each(L<Ts...>, F f) {
+#if defined(__cpp_fold_expressions)
+  (f(identity<Ts>{}),...);
+#else
+  (void)aux::swallow{0, (f(identity<Ts>{}), 0)...};
+#endif
+}
 template <int...>
 struct index_sequence {
   using type = index_sequence;
@@ -2598,9 +2606,31 @@ constexpr void update_composite_states(TSubs &subs, aux::true_type, const aux::t
                          0)...};
 #endif
 }
+namespace detail {
+template<class T>
+struct is_composite_state {
+  constexpr static bool value = false;
+};
+template<class T>
+struct is_composite_state<back::sm<T>> {
+  constexpr static bool value = true;
+};
+template<class T>
+constexpr bool is_composite_state_v = is_composite_state<T>::value;
+} // namespace detail
+
 template <class T, class TSubs, class... Ts>
 constexpr void update_composite_states(TSubs &subs, aux::false_type, Ts &&...) {
   back::sub_sm<T>::get(&subs).initialize(typename T::initial_states_t{});
+
+  aux::for_each(typename T::initial_states_t{},
+                [&](auto state_identity){
+                  using state_t = typename decltype(state_identity)::type;
+                  if constexpr (detail::is_composite_state_v<state_t>) {
+                    using sm_impl_t = aux::apply_t<back::sm_impl, state_t>;
+                    update_composite_states<sm_impl_t>(subs, aux::false_type{}, Ts{}...);
+                  }
+                });
 }
 template <class SM, class TDeps, class TSubs, class TSrcState, class TDstState>
 constexpr void update_current_state(SM &, TDeps &deps, TSubs &, typename SM::state_t &current_state,

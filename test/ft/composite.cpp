@@ -1049,3 +1049,96 @@ test nested_composite_anonymous = [] {
   expect(sm.is(state<Leaf>));
   expect(sm.is<decltype(state<Leaf>)>(X));
 };
+
+test composite_state_reentry = [] {
+  using namespace boost::sml;
+
+  // events
+  struct E {};
+
+  struct Inner {
+    // states
+    struct START {};
+    struct MID {};
+    struct END {};
+
+    auto operator()() const noexcept {
+      using namespace sml;
+
+      /* clang-format off */
+      return make_transition_table(
+       *state<START>             = state<MID>,
+        state<MID>    + event<E> = state<END>,
+        state<END>               = X
+        );
+      /* clang-format on */
+    }
+  };
+
+  struct Outer {
+    // states
+    struct START {};   // for demonstrating the workaround
+    struct END {};
+
+
+    auto operator()() const noexcept {
+      using namespace sml;
+
+      // just runs the inner state machine
+      /* clang-format off */
+      return make_transition_table(
+       *state<Inner>             = state<END>,
+        state<END>               = X
+        );
+      /* clang-format on */
+    }
+
+  };
+
+  // events
+  struct CONTINUE {};
+  struct EXIT {};
+
+  struct Top {
+    // states
+    struct MID {};
+    struct END {};
+
+    auto operator()() const noexcept {
+      using namespace sml;
+
+      /* clang-format off */
+      return make_transition_table(
+       *state<Outer>                                  = state<MID>,
+        state<MID>                  + event<CONTINUE> = state<Outer>,
+        state<MID>                  + event<EXIT>     = state<END>,
+        state<END>                                    = X
+        );
+      /* clang-format on */
+    }
+
+  };
+
+  sml::sm<Top> sm;
+
+  // we should be in the Inner state machine waiting for its event
+  expect(sm.is(state<Outer>));
+  expect(sm.is<decltype(state<Outer>)>(state<Inner>));
+  expect(sm.is<decltype(state<Inner>)>(state<Inner::MID>));
+
+  // fire the event Inner is waiting for
+  expect(sm.process_event(E{}));
+
+  // now Inner and Outer have both finished and we are sitting in the top level MID
+  expect(sm.is(state<Top::MID>));
+  expect(sm.is<decltype(state<Outer>)>(X));
+  expect(sm.is<decltype(state<Inner>)>(X));
+
+  // fire CONTINUE to re-enter Outer and therefore Inner
+  expect(sm.process_event(CONTINUE{}));
+
+  // back in Inner waiting for an event
+  expect(sm.is(state<Outer>));
+  expect(sm.is<decltype(state<Outer>)>(state<Inner>));
+  expect(sm.is<decltype(state<Inner>)>(state<Inner::MID>));
+};
