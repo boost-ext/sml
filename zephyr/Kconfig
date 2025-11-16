@@ -1,0 +1,7 @@
+config LIB_BOOST_SML
+    bool "Enable use of the boost::sml C++ state machine library"
+    default n
+    depends on CPP && !STD_CPP98 && !STD_CPP11 && !STD_CPP14
+    help
+      Include the boost::sml state machine language library,
+      see https://github.com/boost-ext/sml.
