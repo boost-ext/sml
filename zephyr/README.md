@@ -1,6 +1,6 @@
 # Support for using the boost::sml as a [Zephyr](https://docs.zephyrproject.org/latest/index.html) module
 
-To use add the reposiory path to your west maifest file, probably `west.yml`. See the zephyr documentation on [project manifests](https://docs.zephyrproject.org/latest/develop/west/manifest.html#projects) for details.
+To use add the reposiory path to your west manifest file, probably `west.yml`. See the zephyr documentation on [project manifests](https://docs.zephyrproject.org/latest/develop/west/manifest.html#projects) for details.
 
 
 ``` yaml
