@@ -317,6 +317,44 @@ test any_state_nested = [] {
   expect("a1|a2|a3|" == c_.calls);
 };
 
+test any_state_fallback_when_guard_fails = [] {
+  struct c {
+    auto operator()() {
+      using namespace sml;
+      auto action1 = [this]{ calls += "a1|"; };
+      auto action2 = [this]{ calls += "a2|"; };
+      
+      auto true_guard = []{ return true; };
+      auto false_guard = []{ return false; };
+      
+      // clang-format off
+      return make_transition_table(
+        *idle + event<e1> = s1,
+        s1 + event<e2> [ false_guard ] = s2,
+
+        any + event<e1> / action1,
+        any + event<e2> / action2
+
+      );
+      // clang-format on
+    }
+
+    std::string calls{};
+  };
+
+  sml::sm<c> sm{};
+  const c& c_ = sm;
+
+  sm.process_event(e1());
+  expect(sm.is(s1));
+  sm.process_event(e1());
+  expect(sm.is(s1));
+  sm.process_event(e2());
+  expect(sm.is(s1));
+
+  expect("a1|a2|" == c_.calls);
+};
+
 #if !defined(_MSC_VER)
 test state_names = [] {
   struct c {
