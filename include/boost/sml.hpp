@@ -1138,13 +1138,15 @@ template <class T, class TMappings, class TUnexpected>
 struct get_state_mapping {
   using state_mapping = decltype(get_state_mapping_impl<T, TUnexpected>((TMappings *)0));
   using any_state_mapping = decltype(get_state_mapping_impl<_, TUnexpected>((TMappings *)0));
-  struct type {
+  static constexpr bool has_any_state_mapping = !aux::is_same<any_state_mapping, transitions<TUnexpected>>::value;
+  struct combined_mapping {
     template <class TEvent, class TSm, class TDeps, class TSubs>
     constexpr static bool execute(const TEvent& event, TSm& sm, TDeps& deps, TSubs& subs, typename TSm::state_t& current_state) {
       return state_mapping::template execute<TEvent, TSm, TDeps, TSubs>(event, sm, deps, subs, current_state) ||
              any_state_mapping::template execute<TEvent, TSm, TDeps, TSubs>(event, sm, deps, subs, current_state);
     }
   };
+  using type = aux::conditional_t<has_any_state_mapping, combined_mapping, state_mapping>;
 };
 template <class S>
 transitions_sub<S> get_sub_state_mapping_impl(...);
