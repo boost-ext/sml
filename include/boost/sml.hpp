@@ -1942,6 +1942,23 @@ class sm {
     });
     return result;
   }
+  template <class T = aux::identity<sm_t>, class TState>
+  bool is_one_of_current_states_as(const TState&) const {
+    using type = typename T::type;
+    using sm_impl_t = sm_impl<typename TSM::template rebind<type>>;
+    using state_t = typename sm_impl_t::state_t;
+    using states_ids_t = typename sm_impl_t::states_ids_t;
+    auto result = false;
+    visit_current_states<T>([&](auto state) {
+      (void)state;
+      if ((aux::get_id<state_t, typename TState::type>((states_ids_t *)0) ==
+                 aux::get_id<state_t, typename decltype(state)::type>((states_ids_t *)0))) {
+        result = true;
+        return;
+      }
+    });
+    return result;
+  }
   template <class T = aux::identity<sm_t>, class... TStates,
             __BOOST_SML_REQUIRES(!aux::is_same<no_policy, typename Tsm::testing_policy>::value && aux::always<T>::value)>
   constexpr void set_current_states(const TStates &...) {
