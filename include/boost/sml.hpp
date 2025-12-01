@@ -1279,7 +1279,6 @@ struct transitions_sub<sm<Tsm>, T, Ts...> {
     } else {
       return sub_sm<sm_impl<Tsm>>::get(&subs).process_internal_events(event, deps, subs);
     }
-    return false;
   }
   template <class TEvent, class SM, class TDeps, class TSubs>
   constexpr static bool execute_impl(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
