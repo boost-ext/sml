@@ -1,3 +1,11 @@
+## [1.1.13] - 2025-12-01
+- Changes
+    - https://github.com/boost-ext/sml/compare/v1.1.12...v1.1.13
+
+## [1.1.12] - 2025-04-02
+- Changes
+    - https://github.com/boost-ext/sml/compare/v1.1.11...v1.1.12
+
 ## [1.1.11] - 2024-03-09
 - **Bug Fixes**
     - MSVC typename

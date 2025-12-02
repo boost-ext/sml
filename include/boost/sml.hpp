@@ -12,12 +12,12 @@
 #if defined(__ICCARM__) && __IAR_SYSTEMS_ICC__ < 8
 #error "[Boost::ext].SML requires C++14 support (IAR C/C++ ARM 8.1+)"
 #endif
-#define BOOST_SML_VERSION 1'1'11
+#define BOOST_SML_VERSION 1'1'13
 #define BOOST_SML_NAMESPACE_BEGIN \
   namespace boost {               \
   inline namespace ext {          \
   namespace sml {                 \
-  inline namespace v1_1_11 {
+  inline namespace v1_1_13 {
 #define BOOST_SML_NAMESPACE_END \
   }                             \
   }                             \
