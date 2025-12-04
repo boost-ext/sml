@@ -368,14 +368,242 @@ struct join<type_list<T01s...>, type_list<T02s...>, type_list<T03s...>, type_lis
                      T61s..., T62s..., T63s..., T64s...>, Us...> {};
 template <class... TArgs>
 using join_t = typename join<TArgs...>::type;
-template <class, class...>
-struct unique_impl;
-template <class T, class... Rs, class... Ts>
-struct unique_impl<type<Rs...>, T, Ts...> : conditional_t<is_base_of<type<T>, inherit<type<Rs>...>>::value,
-                                                          unique_impl<type<Rs...>, Ts...>, unique_impl<type<Rs..., T>, Ts...>> {
+template <class Accumulator, class T>
+struct add_unique {
+  using type = conditional_t<is_base_of<type<T>, Accumulator>::value, Accumulator, inherit<Accumulator, type<T>>>;
 };
-template <class... Rs>
-struct unique_impl<type<Rs...>> : type_list<Rs...> {};
+template <class Accumulator, class T>
+using add_unique_t = typename add_unique<Accumulator, T>::type;
+template <class InheritHierarchy, class Accumulator = type<>>
+struct extract_types_impl;
+template <class... Acc>
+struct extract_types_impl<inherit<>, type<Acc...>> {
+  using type = type<Acc...>;
+};
+template <class... Ts, class... Acc>
+struct extract_types_impl<inherit<type<Ts>...>, type<Acc...>> {
+  using type = type<Acc..., Ts...>;
+};
+template <class Base, class T, class... Acc>
+struct extract_types_impl<inherit<Base, type<T>>, type<Acc...>>
+    : extract_types_impl<Base, type<Acc..., T>> {};
+template <class T>
+using extract_types = typename extract_types_impl<T>::type;
+template <class UniquesSoFar, class... RemainingTypes>
+struct unique_impl;
+template <class... UniqueTypes>
+struct unique_impl<type<UniqueTypes...>> : type_list<UniqueTypes...> {};
+template <class... UniqueTypes, class Head, class... Tail>
+struct unique_impl<type<UniqueTypes...>, Head, Tail...> {
+ private:
+  using current_set = inherit<type<UniqueTypes>...>;
+  using next_uniques = conditional_t<
+    is_base_of<type<Head>, current_set>::value,
+    type<UniqueTypes...>,
+    type<UniqueTypes..., Head>
+  >;
+ public:
+  using type = typename unique_impl<next_uniques, Tail...>::type;
+};
+template <class... UniqueTypes,
+    class T1, class T2, class T3, class T4,
+    class... Tail>
+struct unique_impl<type<UniqueTypes...>,
+    T1, T2, T3, T4,
+    Tail...>
+{
+private:
+    using initial_set = inherit<type<UniqueTypes>...>;
+    using after_1 = add_unique_t<initial_set, T1>;
+    using after_2 = add_unique_t<after_1, T2>;
+    using after_3 = add_unique_t<after_2, T3>;
+    using after_4 = add_unique_t<after_3, T4>;
+    using batch_result = extract_types<after_4>;
+public:
+    using type = typename unique_impl<batch_result, Tail...>::type;
+};
+template <class... UniqueTypes,
+          class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8,
+          class... Tail>
+struct unique_impl<type<UniqueTypes...>, T1, T2, T3, T4, T5, T6, T7, T8, Tail...>
+{
+ private:
+  using initial_set = inherit<type<UniqueTypes>...>;
+  using after_1 = add_unique_t<initial_set, T1>;
+  using after_2 = add_unique_t<after_1, T2>;
+  using after_3 = add_unique_t<after_2, T3>;
+  using after_4 = add_unique_t<after_3, T4>;
+  using after_5 = add_unique_t<after_4, T5>;
+  using after_6 = add_unique_t<after_5, T6>;
+  using after_7 = add_unique_t<after_6, T7>;
+  using after_8 = add_unique_t<after_7, T8>;
+  using batch_result = extract_types<after_8>;
+ public:
+  using type = typename unique_impl<batch_result, Tail...>::type;
+};
+template <class... UniqueTypes,
+          class T01, class T02, class T03, class T04, class T05, class T06, class T07, class T08,
+          class T09, class T10, class T11, class T12, class T13, class T14, class T15, class T16,
+          class... Tail>
+struct unique_impl<type<UniqueTypes...>,
+                   T01, T02, T03, T04, T05, T06, T07, T08, T09, T10, T11, T12, T13, T14, T15, T16,
+                   Tail...> {
+ private:
+  using initial_set = inherit<type<UniqueTypes>...>;
+  using after_01 = add_unique_t<initial_set, T01>;
+  using after_02 = add_unique_t<after_01, T02>;
+  using after_03 = add_unique_t<after_02, T03>;
+  using after_04 = add_unique_t<after_03, T04>;
+  using after_05 = add_unique_t<after_04, T05>;
+  using after_06 = add_unique_t<after_05, T06>;
+  using after_07 = add_unique_t<after_06, T07>;
+  using after_08 = add_unique_t<after_07, T08>;
+  using after_09 = add_unique_t<after_08, T09>;
+  using after_10 = add_unique_t<after_09, T10>;
+  using after_11 = add_unique_t<after_10, T11>;
+  using after_12 = add_unique_t<after_11, T12>;
+  using after_13 = add_unique_t<after_12, T13>;
+  using after_14 = add_unique_t<after_13, T14>;
+  using after_15 = add_unique_t<after_14, T15>;
+  using after_16 = add_unique_t<after_15, T16>;
+  using batch_result = extract_types<after_16>;
+ public:
+  using type = typename unique_impl<batch_result, Tail...>::type;
+};
+template <class... UniqueTypes,
+          class T01, class T02, class T03, class T04, class T05, class T06, class T07, class T08,
+          class T09, class T10, class T11, class T12, class T13, class T14, class T15, class T16,
+          class T17, class T18, class T19, class T20, class T21, class T22, class T23, class T24,
+          class T25, class T26, class T27, class T28, class T29, class T30, class T31, class T32,
+          class... Tail>
+struct unique_impl<type<UniqueTypes...>,
+                   T01, T02, T03, T04, T05, T06, T07, T08, T09, T10, T11, T12, T13, T14, T15, T16,
+                   T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32,
+                   Tail...> {
+ private:
+  using initial_set = inherit<type<UniqueTypes>...>;
+  using after_01 = add_unique_t<initial_set, T01>;
+  using after_02 = add_unique_t<after_01, T02>;
+  using after_03 = add_unique_t<after_02, T03>;
+  using after_04 = add_unique_t<after_03, T04>;
+  using after_05 = add_unique_t<after_04, T05>;
+  using after_06 = add_unique_t<after_05, T06>;
+  using after_07 = add_unique_t<after_06, T07>;
+  using after_08 = add_unique_t<after_07, T08>;
+  using after_09 = add_unique_t<after_08, T09>;
+  using after_10 = add_unique_t<after_09, T10>;
+  using after_11 = add_unique_t<after_10, T11>;
+  using after_12 = add_unique_t<after_11, T12>;
+  using after_13 = add_unique_t<after_12, T13>;
+  using after_14 = add_unique_t<after_13, T14>;
+  using after_15 = add_unique_t<after_14, T15>;
+  using after_16 = add_unique_t<after_15, T16>;
+  using after_17 = add_unique_t<after_16, T17>;
+  using after_18 = add_unique_t<after_17, T18>;
+  using after_19 = add_unique_t<after_18, T19>;
+  using after_20 = add_unique_t<after_19, T20>;
+  using after_21 = add_unique_t<after_20, T21>;
+  using after_22 = add_unique_t<after_21, T22>;
+  using after_23 = add_unique_t<after_22, T23>;
+  using after_24 = add_unique_t<after_23, T24>;
+  using after_25 = add_unique_t<after_24, T25>;
+  using after_26 = add_unique_t<after_25, T26>;
+  using after_27 = add_unique_t<after_26, T27>;
+  using after_28 = add_unique_t<after_27, T28>;
+  using after_29 = add_unique_t<after_28, T29>;
+  using after_30 = add_unique_t<after_29, T30>;
+  using after_31 = add_unique_t<after_30, T31>;
+  using after_32 = add_unique_t<after_31, T32>;
+  using batch_result = extract_types<after_32>;
+ public:
+  using type = typename unique_impl<batch_result, Tail...>::type;
+};
+template <class... UniqueTypes,
+          class T01, class T02, class T03, class T04, class T05, class T06, class T07, class T08,
+          class T09, class T10, class T11, class T12, class T13, class T14, class T15, class T16,
+          class T17, class T18, class T19, class T20, class T21, class T22, class T23, class T24,
+          class T25, class T26, class T27, class T28, class T29, class T30, class T31, class T32,
+          class T33, class T34, class T35, class T36, class T37, class T38, class T39, class T40,
+          class T41, class T42, class T43, class T44, class T45, class T46, class T47, class T48,
+          class T49, class T50, class T51, class T52, class T53, class T54, class T55, class T56,
+          class T57, class T58, class T59, class T60, class T61, class T62, class T63, class T64,
+          class... Tail>
+struct unique_impl<type<UniqueTypes...>,
+                   T01, T02, T03, T04, T05, T06, T07, T08, T09, T10, T11, T12, T13, T14, T15, T16,
+                   T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32,
+                   T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48,
+                   T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64,
+                   Tail...> {
+ private:
+  using initial_set = inherit<type<UniqueTypes>...>;
+  using after_01 = add_unique_t<initial_set, T01>;
+  using after_02 = add_unique_t<after_01, T02>;
+  using after_03 = add_unique_t<after_02, T03>;
+  using after_04 = add_unique_t<after_03, T04>;
+  using after_05 = add_unique_t<after_04, T05>;
+  using after_06 = add_unique_t<after_05, T06>;
+  using after_07 = add_unique_t<after_06, T07>;
+  using after_08 = add_unique_t<after_07, T08>;
+  using after_09 = add_unique_t<after_08, T09>;
+  using after_10 = add_unique_t<after_09, T10>;
+  using after_11 = add_unique_t<after_10, T11>;
+  using after_12 = add_unique_t<after_11, T12>;
+  using after_13 = add_unique_t<after_12, T13>;
+  using after_14 = add_unique_t<after_13, T14>;
+  using after_15 = add_unique_t<after_14, T15>;
+  using after_16 = add_unique_t<after_15, T16>;
+  using after_17 = add_unique_t<after_16, T17>;
+  using after_18 = add_unique_t<after_17, T18>;
+  using after_19 = add_unique_t<after_18, T19>;
+  using after_20 = add_unique_t<after_19, T20>;
+  using after_21 = add_unique_t<after_20, T21>;
+  using after_22 = add_unique_t<after_21, T22>;
+  using after_23 = add_unique_t<after_22, T23>;
+  using after_24 = add_unique_t<after_23, T24>;
+  using after_25 = add_unique_t<after_24, T25>;
+  using after_26 = add_unique_t<after_25, T26>;
+  using after_27 = add_unique_t<after_26, T27>;
+  using after_28 = add_unique_t<after_27, T28>;
+  using after_29 = add_unique_t<after_28, T29>;
+  using after_30 = add_unique_t<after_29, T30>;
+  using after_31 = add_unique_t<after_30, T31>;
+  using after_32 = add_unique_t<after_31, T32>;
+  using after_33 = add_unique_t<after_32, T33>;
+  using after_34 = add_unique_t<after_33, T34>;
+  using after_35 = add_unique_t<after_34, T35>;
+  using after_36 = add_unique_t<after_35, T36>;
+  using after_37 = add_unique_t<after_36, T37>;
+  using after_38 = add_unique_t<after_37, T38>;
+  using after_39 = add_unique_t<after_38, T39>;
+  using after_40 = add_unique_t<after_39, T40>;
+  using after_41 = add_unique_t<after_40, T41>;
+  using after_42 = add_unique_t<after_41, T42>;
+  using after_43 = add_unique_t<after_42, T43>;
+  using after_44 = add_unique_t<after_43, T44>;
+  using after_45 = add_unique_t<after_44, T45>;
+  using after_46 = add_unique_t<after_45, T46>;
+  using after_47 = add_unique_t<after_46, T47>;
+  using after_48 = add_unique_t<after_47, T48>;
+  using after_49 = add_unique_t<after_48, T49>;
+  using after_50 = add_unique_t<after_49, T50>;
+  using after_51 = add_unique_t<after_50, T51>;
+  using after_52 = add_unique_t<after_51, T52>;
+  using after_53 = add_unique_t<after_52, T53>;
+  using after_54 = add_unique_t<after_53, T54>;
+  using after_55 = add_unique_t<after_54, T55>;
+  using after_56 = add_unique_t<after_55, T56>;
+  using after_57 = add_unique_t<after_56, T57>;
+  using after_58 = add_unique_t<after_57, T58>;
+  using after_59 = add_unique_t<after_58, T59>;
+  using after_60 = add_unique_t<after_59, T60>;
+  using after_61 = add_unique_t<after_60, T61>;
+  using after_62 = add_unique_t<after_61, T62>;
+  using after_63 = add_unique_t<after_62, T63>;
+  using after_64 = add_unique_t<after_63, T64>;
+  using batch_result = extract_types<after_64>;
+ public:
+  using type = typename unique_impl<batch_result, Tail...>::type;
+};
 template <class... Ts>
 struct unique : unique_impl<type<>, Ts...> {};
 template <class T>
