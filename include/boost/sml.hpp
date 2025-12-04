@@ -384,9 +384,9 @@ template <class... Ts, class... Acc>
 struct extract_types_impl<inherit<type_wrapper<Ts>...>, type_wrapper<Acc...>> {
   using type = type_wrapper<Acc..., Ts...>;
 };
-template <class Base, class T, class... Acc>
-struct extract_types_impl<inherit<Base, type_wrapper<T>>, type_wrapper<Acc...>>
-    : extract_types_impl<Base, type_wrapper<Acc..., T>> {};
+template <class... Inner, class T, class... Acc>
+struct extract_types_impl<inherit<inherit<Inner...>, type_wrapper<T>>, type_wrapper<Acc...>>
+    : extract_types_impl<inherit<Inner...>, type_wrapper<Acc..., T>> {};
 template <class T>
 using extract_types = typename extract_types_impl<T>::type;
 template <class UniquesSoFar, class... RemainingTypes>
@@ -404,23 +404,6 @@ struct unique_impl<type_wrapper<UniqueTypes...>, Head, Tail...> {
   >;
  public:
   using type = typename unique_impl<next_uniques, Tail...>::type;
-};
-template <class... UniqueTypes,
-    class T1, class T2, class T3, class T4,
-    class... Tail>
-struct unique_impl<type_wrapper<UniqueTypes...>,
-    T1, T2, T3, T4,
-    Tail...>
-{
-private:
-    using initial_set = inherit<type_wrapper<UniqueTypes>...>;
-    using after_1 = add_unique_t<initial_set, T1>;
-    using after_2 = add_unique_t<after_1, T2>;
-    using after_3 = add_unique_t<after_2, T3>;
-    using after_4 = add_unique_t<after_3, T4>;
-    using batch_result = extract_types<after_4>;
-public:
-    using type = typename unique_impl<batch_result, Tail...>::type;
 };
 template <class... UniqueTypes,
           class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8,
