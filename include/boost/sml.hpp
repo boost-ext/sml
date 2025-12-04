@@ -146,7 +146,7 @@ struct conditional {
   using type = typename detail::conditional<B>::template fn<T, F>;
 };
 template <bool B, class T, class F>
-using conditional_t = typename detail::conditional<B>::template fn<T, F>;
+using conditional_t = typename conditional<B, T, F>::type;
 template <bool B, class T = void>
 struct enable_if {};
 template <class T>
