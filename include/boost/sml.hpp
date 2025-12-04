@@ -308,19 +308,64 @@ template <class... Ts>
 struct join<type_list<Ts...>> : type_list<Ts...> {};
 template <class... T1s, class... T2s>
 struct join<type_list<T1s...>, type_list<T2s...>> : type_list<T1s..., T2s...> {};
-template <class... T1s, class... T2s, class... T3s>
-struct join<type_list<T1s...>, type_list<T2s...>, type_list<T3s...>> : type_list<T1s..., T2s..., T3s...> {};
-template <class... T1s, class... T2s, class... Ts>
-struct join<type_list<T1s...>, type_list<T2s...>, Ts...> : join<type_list<T1s..., T2s...>, Ts...> {};
-template <class... Ts, class... T1s, class... T2s, class... T3s, class... T4s, class... T5s, class... T6s, class... T7s,
-          class... T8s, class... T9s, class... T10s, class... T11s, class... T12s, class... T13s, class... T14s, class... T15s,
-          class... T16s, class... Us>
-struct join<type_list<Ts...>, type_list<T1s...>, type_list<T2s...>, type_list<T3s...>, type_list<T4s...>, type_list<T5s...>,
-            type_list<T6s...>, type_list<T7s...>, type_list<T8s...>, type_list<T9s...>, type_list<T10s...>, type_list<T11s...>,
-            type_list<T12s...>, type_list<T13s...>, type_list<T14s...>, type_list<T15s...>, type_list<T16s...>, Us...>
-    : join<type_list<Ts..., T1s..., T2s..., T3s..., T4s..., T5s..., T6s..., T7s..., T8s..., T9s..., T10s..., T11s..., T12s...,
-                     T13s..., T14s..., T15s..., T16s...>,
-           Us...> {};
+template <class... T1s, class... T2s, class... Us>
+struct join<type_list<T1s...>, type_list<T2s...>, Us...> : join<type_list<T1s..., T2s...>, Us...> {};
+template <class... T1s, class... T2s, class... T3s, class... T4s, class... Us>
+struct join<type_list<T1s...>, type_list<T2s...>, type_list<T3s...>, type_list<T4s...>, Us...>
+    : join<type_list<T1s..., T2s..., T3s..., T4s...>, Us...> {};
+template <class... T1s, class... T2s, class... T3s, class... T4s, class... T5s, class... T6s, class... T7s, class... T8s,
+          class... Us>
+struct join<type_list<T1s...>, type_list<T2s...>, type_list<T3s...>, type_list<T4s...>, type_list<T5s...>, type_list<T6s...>,
+            type_list<T7s...>, type_list<T8s...>, Us...>
+    : join<type_list<T1s..., T2s..., T3s..., T4s... , T5s..., T6s..., T7s..., T8s...>, Us...> {};
+template <class... T01s, class... T02s, class... T03s, class... T04s, class... T05s, class... T06s, class... T07s, class... T08s,
+          class... T09s, class... T10s, class... T11s, class... T12s, class... T13s, class... T14s, class... T15s, class... T16s,
+          class... Us>
+struct join<type_list<T01s...>, type_list<T02s...>, type_list<T03s...>, type_list<T04s...>, type_list<T05s...>, type_list<T06s...>,
+            type_list<T07s...>, type_list<T08s...>, type_list<T09s...>, type_list<T10s...>, type_list<T11s...>, type_list<T12s...>,
+            type_list<T13s...>, type_list<T14s...>, type_list<T15s...>, type_list<T16s...>, Us...>
+    : join<type_list<T01s..., T02s..., T03s..., T04s..., T05s..., T06s..., T07s..., T08s..., T09s..., T10s..., T11s..., T12s...,
+                     T13s..., T14s..., T15s..., T16s...>, Us...> {};
+template <class... T01s, class... T02s, class... T03s, class... T04s, class... T05s, class... T06s, class... T07s, class... T08s,
+          class... T09s, class... T10s, class... T11s, class... T12s, class... T13s, class... T14s, class... T15s, class... T16s,
+          class... T17s, class... T18s, class... T19s, class... T20s, class... T21s, class... T22s, class... T23s, class... T24s,
+          class... T25s, class... T26s, class... T27s, class... T28s, class... T29s, class... T30s, class... T31s, class... T32s,
+          class... Us>
+struct join<type_list<T01s...>, type_list<T02s...>, type_list<T03s...>, type_list<T04s...>, type_list<T05s...>, type_list<T06s...>,
+            type_list<T07s...>, type_list<T08s...>, type_list<T09s...>, type_list<T10s...>, type_list<T11s...>, type_list<T12s...>,
+            type_list<T13s...>, type_list<T14s...>, type_list<T15s...>, type_list<T16s...>, type_list<T17s...>, type_list<T18s...>,
+            type_list<T19s...>, type_list<T20s...>, type_list<T21s...>, type_list<T22s...>, type_list<T23s...>, type_list<T24s...>,
+            type_list<T25s...>, type_list<T26s...>, type_list<T27s...>, type_list<T28s...>, type_list<T29s...>, type_list<T30s...>,
+            type_list<T31s...>, type_list<T32s...>, Us...>
+    : join<type_list<T01s..., T02s..., T03s..., T04s..., T05s..., T06s..., T07s..., T08s..., T09s..., T10s..., T11s..., T12s...,
+                     T13s..., T14s..., T15s..., T16s..., T17s..., T18s..., T19s..., T20s..., T21s..., T22s..., T23s..., T24s...,
+                     T25s..., T26s..., T27s..., T28s..., T29s..., T30s..., T31s..., T32s...>, Us...> {};
+template <class... T01s, class... T02s, class... T03s, class... T04s, class... T05s, class... T06s, class... T07s, class... T08s,
+          class... T09s, class... T10s, class... T11s, class... T12s, class... T13s, class... T14s, class... T15s, class... T16s,
+          class... T17s, class... T18s, class... T19s, class... T20s, class... T21s, class... T22s, class... T23s, class... T24s,
+          class... T25s, class... T26s, class... T27s, class... T28s, class... T29s, class... T30s, class... T31s, class... T32s,
+          class... T33s, class... T34s, class... T35s, class... T36s, class... T37s, class... T38s, class... T39s, class... T40s,
+          class... T41s, class... T42s, class... T43s, class... T44s, class... T45s, class... T46s, class... T47s, class... T48s,
+          class... T49s, class... T50s, class... T51s, class... T52s, class... T53s, class... T54s, class... T55s, class... T56s,
+          class... T57s, class... T58s, class... T59s, class... T60s, class... T61s, class... T62s, class... T63s, class... T64s,
+          class... Us>
+struct join<type_list<T01s...>, type_list<T02s...>, type_list<T03s...>, type_list<T04s...>, type_list<T05s...>, type_list<T06s...>,
+            type_list<T07s...>, type_list<T08s...>, type_list<T09s...>, type_list<T10s...>, type_list<T11s...>, type_list<T12s...>,
+            type_list<T13s...>, type_list<T14s...>, type_list<T15s...>, type_list<T16s...>, type_list<T17s...>, type_list<T18s...>,
+            type_list<T19s...>, type_list<T20s...>, type_list<T21s...>, type_list<T22s...>, type_list<T23s...>, type_list<T24s...>,
+            type_list<T25s...>, type_list<T26s...>, type_list<T27s...>, type_list<T28s...>, type_list<T29s...>, type_list<T30s...>,
+            type_list<T31s...>, type_list<T32s...>, type_list<T33s...>, type_list<T34s...>, type_list<T35s...>, type_list<T36s...>,
+            type_list<T37s...>, type_list<T38s...>, type_list<T39s...>, type_list<T40s...>, type_list<T41s...>, type_list<T42s...>,
+            type_list<T43s...>, type_list<T44s...>, type_list<T45s...>, type_list<T46s...>, type_list<T47s...>, type_list<T48s...>,
+            type_list<T49s...>, type_list<T50s...>, type_list<T51s...>, type_list<T52s...>, type_list<T53s...>, type_list<T54s...>,
+            type_list<T55s...>, type_list<T56s...>, type_list<T57s...>, type_list<T58s...>, type_list<T59s...>, type_list<T60s...>,
+            type_list<T61s...>, type_list<T62s...>, type_list<T63s...>, type_list<T64s...>, Us...>
+    : join<type_list<T01s..., T02s..., T03s..., T04s..., T05s..., T06s..., T07s..., T08s..., T09s..., T10s..., T11s..., T12s...,
+                     T13s..., T14s..., T15s..., T16s..., T17s..., T18s..., T19s..., T20s..., T21s..., T22s..., T23s..., T24s...,
+                     T25s..., T26s..., T27s..., T28s..., T29s..., T30s..., T31s..., T32s..., T33s..., T34s..., T35s..., T36s...,
+                     T37s..., T38s..., T39s..., T40s..., T41s..., T42s..., T43s..., T44s..., T45s..., T46s..., T47s..., T48s...,
+                     T49s..., T50s..., T51s..., T52s..., T53s..., T54s..., T55s..., T56s..., T57s..., T58s..., T59s..., T60s...,
+                     T61s..., T62s..., T63s..., T64s...>, Us...> {};
 template <class... TArgs>
 using join_t = typename join<TArgs...>::type;
 template <class, class...>
