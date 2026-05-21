@@ -2,7 +2,7 @@
 #define STATIC_DEQUE_H
 
 #include <array>
-#include <stdexcept>
+#include <cassert>
 
 template <typename T, std::size_t Size>
 struct MinimalStaticDeque {
@@ -23,34 +23,24 @@ struct MinimalStaticDeque {
 
   void push_back(T&& t) { queue_data[current_index++] = std::move(t); }
   T& front() {
-    if (current_index == 0) {
-      throw std::out_of_range("queue is empty");
-    }
+    assert(current_index != 0 && "queue is empty");
     return queue_data[0];
   }
   T& back() {
-    if (current_index == 0) {
-      throw std::out_of_range("queue is empty");
-    }
+    assert(current_index != 0 && "queue is empty");
     return queue_data[current_index - 1];
   }
   void pop_front() {
-    if (current_index == 0) {
-      throw std::out_of_range("queue is empty");
-    }
+    assert(current_index != 0 && "queue is empty");
     std::move(std::next(queue_data.begin()), queue_data.end(), queue_data.begin());
     current_index--;
   }
-  void pop_back() {  // removes the last element
-    if (current_index == 0) {
-      throw std::out_of_range("queue is empty");
-    }
+  void pop_back() {
+    assert(current_index != 0 && "queue is empty");
     current_index--;
   }
   void push_front(T&& value) {
-    if (current_index == Size) {
-      throw std::runtime_error("queue is full");
-    }
+    assert(current_index != Size && "queue is full");
     std::move_backward(begin(), end(), std::next(end()));
     queue_data[0] = std::move(value);
     current_index++;
@@ -64,9 +54,7 @@ struct MinimalStaticDeque {
   const_iterator cend() const { return std::next(queue_data.begin(), current_index); }
 
   iterator erase(const_iterator pos) {
-    if (pos == end()) {
-      throw std::out_of_range("queue is empty");
-    }
+    assert(pos != end() && "erase past end");
     const auto position = std::distance(cbegin(), pos);
     auto start = queue_data.begin() + position;
     std::move(std::next(start), end(), start);

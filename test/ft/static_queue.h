@@ -2,7 +2,7 @@
 #define STATIC_QUEUE_H
 
 #include <array>
-#include <stdexcept>
+#include <cassert>
 
 template <typename T, std::size_t Size>
 struct MinimalStaticQueue {
@@ -23,24 +23,18 @@ struct MinimalStaticQueue {
 
   void push(T&& t) { queue_data[current_index++] = std::move(t); }
   T& front() {
-    if (current_index == 0) {
-      throw std::out_of_range("queue is empty");
-    }
+    assert(current_index != 0 && "queue is empty");
     return queue_data[0];
   }
   T& back() {
-    if (current_index == 0) {
-      throw std::out_of_range("queue is empty");
-    }
+    assert(current_index != 0 && "queue is empty");
     return queue_data[current_index - 1];
   }
   iterator begin() { return queue_data.begin(); }
   iterator end() { return std::next(queue_data.begin(), current_index); }
 
-  void pop() {  // removes the first element
-    if (current_index == 0) {
-      throw std::out_of_range("queue is empty");
-    }
+  void pop() {
+    assert(current_index != 0 && "queue is empty");
     std::move(std::next(begin()), end(), begin());
     current_index--;
   }
