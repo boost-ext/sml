@@ -929,13 +929,13 @@ class queue_event {
   static constexpr auto alignment = aux::max_element<alignof(Ts)...>();
   static constexpr auto size = aux::max_element<sizeof(Ts)...>();
   template <class T>
-  constexpr static void dtor_impl(aux::byte *data) {
+  constexpr static void dtor_impl(void *data) {
     (void)data;
-    reinterpret_cast<T *>(data)->~T();
+    static_cast<T *>(data)->~T();
   }
   template <class T>
   constexpr static void move_impl(aux::byte (&data)[size], queue_event &&other) {
-    new (&data) T(static_cast<T &&>(*reinterpret_cast<T *>(other.data)));
+    new (&data) T(static_cast<T &&>(*static_cast<T *>(static_cast<void *>(other.data))));
   }
 
  public:
@@ -971,7 +971,7 @@ class queue_event {
   int id = -1;
 
  private:
-  void (*dtor)(aux::byte *);
+  void (*dtor)(void *);
   void (*move)(aux::byte (&)[size], queue_event &&);
 };
 template <class TEvent>
