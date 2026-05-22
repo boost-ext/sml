@@ -1786,15 +1786,19 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
     const auto lock = thread_safety_.create_lock();
     (void)lock;
     bool changed = false;
-    state_t old = current_state_[0];
+    state_t old[regions];
+    for (auto i = 0u; i < regions; ++i) old[i] = current_state_[i];
     bool handled = process_internal_events(event, deps, subs);
     bool queued_handled = true;
     do {
       do {
         while (process_internal_events(anonymous{}, deps, subs)) {
         }
-        changed = (old != current_state_[0]);
-        old = current_state_[0];
+        changed = false;
+        for (auto i = 0u; i < regions; ++i) {
+          if (old[i] != current_state_[i]) { changed = true; break; }
+        }
+        for (auto i = 0u; i < regions; ++i) old[i] = current_state_[i];
       } while (process_defer_events(deps, subs, changed, aux::type_wrapper<defer_queue_t<TEvent>>{}, events_t{}));
     } while (process_queued_events(deps, subs, queued_handled, aux::type_wrapper<process_queue_t<TEvent>>{}, events_t{}));
     return handled && queued_handled;
@@ -1993,13 +1997,18 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
       defer_again_ = false;
       defer_it_ = defer_.begin();
       defer_end_ = defer_.end();
-      state_t old = current_state_[0];
+      state_t old[regions];
+      for (auto i = 0u; i < regions; ++i) old[i] = current_state_[i];
       while (defer_it_ != defer_end_) {
         processed_events |= (this->*dispatch_table[defer_it_->id])(deps, subs, defer_it_->data);
         defer_again_ = false;
-        if (old != current_state_[0]) {
+        bool state_changed = false;
+        for (auto i = 0u; i < regions; ++i) {
+          if (old[i] != current_state_[i]) { state_changed = true; break; }
+        }
+        if (state_changed) {
           defer_it_ = defer_.begin();
-          old = current_state_[0];
+          for (auto i = 0u; i < regions; ++i) old[i] = current_state_[i];
         }
       }
       defer_processing_ = false;
