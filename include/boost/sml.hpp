@@ -839,7 +839,11 @@ template <class, class>
 struct zero_wrapper_impl;
 template <class TExpr, class... TArgs>
 struct zero_wrapper_impl<TExpr, type_list<TArgs...>> {
+#if __cplusplus >= 202002L
+  constexpr auto operator()(TArgs... args) const { return TExpr{}(args...); }
+#else
   constexpr auto operator()(TArgs... args) const { return reinterpret_cast<const TExpr &>(*this)(args...); }
+#endif
   __BOOST_SML_ZERO_SIZE_ARRAY(byte);
 };
 template <class TExpr>
@@ -2981,7 +2985,7 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, A> {
   using guard = always;
   using action = A;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<A, E>>;
-  constexpr transition(const always &, const A &a) : a(a) {}
+  constexpr transition(always, const A &a) : a(a) {}
   template <class TEvent, class SM, class TDeps, class TSubs>
   constexpr bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state, aux::true_type) {
     sm.process_internal_event(back::on_exit<back::_, TEvent>{event}, deps, subs, current_state);
@@ -3012,7 +3016,7 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, A> {
   using guard = always;
   using action = A;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<A, E>>;
-  constexpr transition(const always &, const A &a) : a(a) {}
+  constexpr transition(always, const A &a) : a(a) {}
   template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
   constexpr bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, Ts &&...) {
     call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
@@ -3082,7 +3086,7 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, none> {
   using guard = always;
   using action = none;
   using deps = aux::type_list<>;
-  constexpr transition(const always &, const none &) {}
+  constexpr transition(always, const none &) {}
   template <class TEvent, class SM, class TDeps, class TSubs>
   constexpr bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state, aux::true_type) {
     sm.process_internal_event(back::on_exit<back::_, TEvent>{event}, deps, subs, current_state);
@@ -3111,7 +3115,7 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
   using guard = always;
   using action = none;
   using deps = aux::type_list<>;
-  constexpr transition(const always &, const none &) {}
+  constexpr transition(always, const none &) {}
   template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
   constexpr bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &, Ts &&...) {
     return true;
