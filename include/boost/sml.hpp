@@ -1637,9 +1637,9 @@ struct thread_safe : aux::pair<thread_safety_policy__, thread_safe<TLock>> {
   using type = thread_safe;
   constexpr auto create_lock() {
     struct lock_guard {
+      TLock &lock_;
       constexpr explicit lock_guard(TLock &lock) : lock_{lock} { lock_.lock(); }
       ~lock_guard() { lock_.unlock(); }
-      TLock &lock_;
     };
     return lock_guard{lock};
   }
