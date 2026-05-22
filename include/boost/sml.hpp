@@ -668,7 +668,7 @@ struct missing_ctor_parameter {
     return {};
   }
 #if !(defined(_MSC_VER) && !defined(__clang__))
-  template <class TMissing, __BOOST_SML_REQUIRES(!aux::is_base_of<pool_type_base, TMissing>::value)>
+  template <class TMissing, __BOOST_SML_REQUIRES(!aux::is_base_of<pool_type_base, TMissing>::value && !aux::is_constructible<TMissing>::value)>
   constexpr operator TMissing &() const {
     static_assert(missing_ctor_parameter<TMissing>::value,
                   "State Machine is missing a constructor parameter! Check out the `missing_ctor_parameter` error to see the "
