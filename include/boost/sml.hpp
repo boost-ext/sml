@@ -1359,6 +1359,22 @@ struct extend_mapping : aux::join_t<typename get_mapping<typename T::element_typ
 };
 template <class T, class... Ts>
 using extend_mapping_t = aux::apply_t<aux::inherit, typename extend_mapping<T, Ts...>::type>;
+// O(1)-depth specialization for merging two event_mappings with the same event.
+// T always has exactly one state_mapping (from pool construction); R has k already-unique
+// state_mappings. Avoids O(k) nested unique_mappings_t call by using is_base_of + pack expansion.
+template <class E, class NewSM, class... RSMs>
+struct get_mapping_event_same_impl {
+  static constexpr bool exists =
+      aux::is_base_of<aux::type_wrapper<typename NewSM::element_type>,
+                      aux::inherit<aux::type_wrapper<typename RSMs::element_type>...>>::value;
+  using merged_inherit =
+      aux::conditional_t<exists, extend_mapping_t<NewSM, RSMs...>, aux::inherit<RSMs..., NewSM>>;
+  using type = aux::type_list<event_mappings<E, merged_inherit>>;
+};
+template <class E, class NewSM, class... RSMs>
+struct get_mapping<event<E>, event<E>, event_mappings<E, aux::inherit<NewSM>>,
+                   event_mappings<E, aux::inherit<RSMs...>>>
+    : get_mapping_event_same_impl<E, NewSM, RSMs...>::type {};
 template <bool, class, class...>
 struct conditional_mapping;
 template <class T1, class T2, class... Rs, class... Ts>

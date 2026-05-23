@@ -62,6 +62,9 @@ test/ft/policies_thread_safe.out: #-fsanitize=thread
 test/ft/constexpr.out:
 	$(CXX) test/ft/constexpr.cpp $(CXXFLAGS) -ftemplate-depth=1024 $(DISABLE_EXCEPTIONS) $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/constexpr.out && $($(MEMCHECK)) test/ft/constexpr.out
 
+test/ft/issue_639_repro.out:
+	$(CXX) test/ft/issue_639_repro.cpp $(CXXFLAGS) -ftemplate-depth=100 $(DISABLE_EXCEPTIONS) $($(COVERAGE)) $(INCLUDE_TEST) -o test/ft/issue_639_repro.out && $($(MEMCHECK)) test/ft/issue_639_repro.out
+
 test/unit/%.out:
 	$(CXX) test/unit/unit1.cpp test/unit/unit2.cpp test/unit/units.cpp $(CXXFLAGS) $(DISABLE_EXCEPTIONS) $($(COVERAGE)) -o test/unit/units.out
 
