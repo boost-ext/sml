@@ -324,7 +324,6 @@ test any_state_fallback_when_guard_fails = [] {
       auto action1 = [this]{ calls += "a1|"; };
       auto action2 = [this]{ calls += "a2|"; };
       
-      auto true_guard = []{ return true; };
       auto false_guard = []{ return false; };
       
       // clang-format off

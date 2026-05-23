@@ -668,7 +668,7 @@ struct missing_ctor_parameter {
     return {};
   }
 #if !(defined(_MSC_VER) && !defined(__clang__))
-  template <class TMissing, __BOOST_SML_REQUIRES(!aux::is_base_of<pool_type_base, TMissing>::value)>
+  template <class TMissing, __BOOST_SML_REQUIRES(!aux::is_base_of<pool_type_base, TMissing>::value && !aux::is_constructible<TMissing>::value)>
   constexpr operator TMissing &() const {
     static_assert(missing_ctor_parameter<TMissing>::value,
                   "State Machine is missing a constructor parameter! Check out the `missing_ctor_parameter` error to see the "
@@ -839,7 +839,11 @@ template <class, class>
 struct zero_wrapper_impl;
 template <class TExpr, class... TArgs>
 struct zero_wrapper_impl<TExpr, type_list<TArgs...>> {
+#if __cplusplus >= 202002L
+  constexpr auto operator()(TArgs... args) const { return TExpr{}(args...); }
+#else
   constexpr auto operator()(TArgs... args) const { return reinterpret_cast<const TExpr &>(*this)(args...); }
+#endif
   __BOOST_SML_ZERO_SIZE_ARRAY(byte);
 };
 template <class TExpr>
@@ -929,13 +933,13 @@ class queue_event {
   static constexpr auto alignment = aux::max_element<alignof(Ts)...>();
   static constexpr auto size = aux::max_element<sizeof(Ts)...>();
   template <class T>
-  constexpr static void dtor_impl(aux::byte *data) {
+  constexpr static void dtor_impl(void *data) {
     (void)data;
-    reinterpret_cast<T *>(data)->~T();
+    static_cast<T *>(data)->~T();
   }
   template <class T>
   constexpr static void move_impl(aux::byte (&data)[size], queue_event &&other) {
-    new (&data) T(static_cast<T &&>(*reinterpret_cast<T *>(other.data)));
+    new (&data) T(static_cast<T &&>(*static_cast<T *>(static_cast<void *>(other.data))));
   }
 
  public:
@@ -971,7 +975,7 @@ class queue_event {
   int id = -1;
 
  private:
-  void (*dtor)(aux::byte *);
+  void (*dtor)(void *);
   void (*move)(aux::byte (&)[size], queue_event &&);
 };
 template <class TEvent>
@@ -1786,15 +1790,19 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
     const auto lock = thread_safety_.create_lock();
     (void)lock;
     bool changed = false;
-    state_t old = current_state_[0];
+    state_t old[regions];
+    for (auto i = 0u; i < regions; ++i) old[i] = current_state_[i];
     bool handled = process_internal_events(event, deps, subs);
     bool queued_handled = true;
     do {
       do {
         while (process_internal_events(anonymous{}, deps, subs)) {
         }
-        changed = (old != current_state_[0]);
-        old = current_state_[0];
+        changed = false;
+        for (auto i = 0u; i < regions; ++i) {
+          if (old[i] != current_state_[i]) { changed = true; break; }
+        }
+        for (auto i = 0u; i < regions; ++i) old[i] = current_state_[i];
       } while (process_defer_events(deps, subs, changed, aux::type_wrapper<defer_queue_t<TEvent>>{}, events_t{}));
     } while (process_queued_events(deps, subs, queued_handled, aux::type_wrapper<process_queue_t<TEvent>>{}, events_t{}));
     return handled && queued_handled;
@@ -1993,13 +2001,18 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
       defer_again_ = false;
       defer_it_ = defer_.begin();
       defer_end_ = defer_.end();
-      state_t old = current_state_[0];
+      state_t old[regions];
+      for (auto i = 0u; i < regions; ++i) old[i] = current_state_[i];
       while (defer_it_ != defer_end_) {
         processed_events |= (this->*dispatch_table[defer_it_->id])(deps, subs, defer_it_->data);
         defer_again_ = false;
-        if (old != current_state_[0]) {
+        bool state_changed = false;
+        for (auto i = 0u; i < regions; ++i) {
+          if (old[i] != current_state_[i]) { state_changed = true; break; }
+        }
+        if (state_changed) {
           defer_it_ = defer_.begin();
-          old = current_state_[0];
+          for (auto i = 0u; i < regions; ++i) old[i] = current_state_[i];
         }
       }
       defer_processing_ = false;
@@ -2981,7 +2994,7 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, A> {
   using guard = always;
   using action = A;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<A, E>>;
-  constexpr transition(const always &, const A &a) : a(a) {}
+  constexpr transition(always, const A &a) : a(a) {}
   template <class TEvent, class SM, class TDeps, class TSubs>
   constexpr bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state, aux::true_type) {
     sm.process_internal_event(back::on_exit<back::_, TEvent>{event}, deps, subs, current_state);
@@ -3012,7 +3025,7 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, A> {
   using guard = always;
   using action = A;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<A, E>>;
-  constexpr transition(const always &, const A &a) : a(a) {}
+  constexpr transition(always, const A &a) : a(a) {}
   template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
   constexpr bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, Ts &&...) {
     call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
@@ -3082,7 +3095,7 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, none> {
   using guard = always;
   using action = none;
   using deps = aux::type_list<>;
-  constexpr transition(const always &, const none &) {}
+  constexpr transition(always, const none &) {}
   template <class TEvent, class SM, class TDeps, class TSubs>
   constexpr bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state, aux::true_type) {
     sm.process_internal_event(back::on_exit<back::_, TEvent>{event}, deps, subs, current_state);
@@ -3111,7 +3124,7 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
   using guard = always;
   using action = none;
   using deps = aux::type_list<>;
-  constexpr transition(const always &, const none &) {}
+  constexpr transition(always, const none &) {}
   template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
   constexpr bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &, Ts &&...) {
     return true;

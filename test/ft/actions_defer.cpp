@@ -364,3 +364,26 @@ test defer_minimal_static_deque = [] {
   sm.process_event(event2());
   expect(sm.is(sml::X));
 };
+
+const auto dummy = sml::state<class dummy>;
+
+test defer_non_first_orthogonal_region = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *dummy  + event<event4> = X       // region 0 (dummy, never fires)
+        ,*state1 + event<event1> / defer   // region 1: defer e1
+        , state1 + event<event2> = state2
+        , state2 + event<event1> = state1
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c, sml::defer_queue<std::deque>> sm{};
+  sm.process_event(event1());  // deferred
+  sm.process_event(event2());  // state1->state2; deferred event1 fires: state2->state1
+  expect(sm.is(state1));
+};

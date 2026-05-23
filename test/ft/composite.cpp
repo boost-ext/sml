@@ -1008,7 +1008,7 @@ test nested_composite_anonymous = [] {
 
   struct Leaf {
     struct INITIAL {};
-    struct FINAL   {};
+    struct FINAL {};
 
     auto operator()() const {
       using namespace boost::sml;
@@ -1028,8 +1028,8 @@ test nested_composite_anonymous = [] {
     struct SUCCESS {};
 
     // events
-    struct WIN       {};
-    struct LOSE      {};
+    struct WIN {};
+    struct LOSE {};
 
     auto operator()() const {
       using namespace boost::sml;
@@ -1077,9 +1077,8 @@ test composite_state_reentry = [] {
 
   struct Outer {
     // states
-    struct START {};   // for demonstrating the workaround
+    struct START {};  // for demonstrating the workaround
     struct END {};
-
 
     auto operator()() const noexcept {
       using namespace sml;
@@ -1092,7 +1091,6 @@ test composite_state_reentry = [] {
         );
       /* clang-format on */
     }
-
   };
 
   // events
@@ -1116,7 +1114,6 @@ test composite_state_reentry = [] {
         );
       /* clang-format on */
     }
-
   };
 
   sml::sm<Top> sm;
@@ -1141,4 +1138,25 @@ test composite_state_reentry = [] {
   expect(sm.is(state<Outer>));
   expect(sm.is<decltype(state<Outer>)>(state<Inner>));
   expect(sm.is<decltype(state<Inner>)>(state<Inner::MID>));
+};
+
+struct virtual_base_ev {};
+struct virtual_base_s1 {};
+struct virtual_base_base { virtual ~virtual_base_base() = default; };
+struct virtual_base_sub : virtual_base_base {
+  auto operator()() {
+    return sml::make_transition_table(*sml::state<virtual_base_s1> + sml::event<virtual_base_ev> = sml::X);
+  }
+};
+struct virtual_base_top {
+  auto operator()() {
+    return sml::make_transition_table(*sml::state<virtual_base_sub> = sml::X);
+  }
+};
+
+test composite_virtual_base = [] {
+  sml::sm<virtual_base_top> sm{};
+  expect(sm.is(sml::state<virtual_base_sub>));
+  sm.process_event(virtual_base_ev{});
+  expect(sm.is(sml::X));
 };
