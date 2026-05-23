@@ -1160,3 +1160,43 @@ test composite_virtual_base = [] {
   sm.process_event(virtual_base_ev{});
   expect(sm.is(sml::X));
 };
+
+// issue #659: state data must persist when the state is a submachine
+test submachine_state_data_persistence = [] {
+  struct start_e { int amount = 0; };
+  struct increment_e {};
+
+  struct counter_sub {
+    auto operator()() noexcept {
+      using namespace sml;
+      const auto counting = state<class counting>;
+      return make_transition_table(
+         *counting + event<increment_e> / [this] { count += increment_by; }
+      );
+    }
+    int increment_by = 0;
+    int count = 0;
+  };
+
+  struct outer {
+    auto operator()() noexcept {
+      using namespace sml;
+      return make_transition_table(
+         *state<class outer_idle> + event<start_e> / [](counter_sub &cs, const start_e &e) { cs.increment_by = e.amount; }
+              = state<counter_sub>
+      );
+    }
+  };
+
+  counter_sub cs_dep{};
+  sml::sm<outer> sm{cs_dep};
+
+  sm.process_event(start_e{5});
+  sm.process_event(increment_e{});
+  sm.process_event(increment_e{});
+  sm.process_event(increment_e{});
+
+  counter_sub &cs = sm;  // access the live submachine state via sm
+  expect(5 == cs.increment_by);
+  expect(15 == cs.count);
+};

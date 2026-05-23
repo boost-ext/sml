@@ -2292,6 +2292,21 @@ template <class... TEvents, class TEvent, class Tsm, class TDeps>
 constexpr decltype(auto) get_arg(const aux::type_wrapper<back::process<TEvents...>> &, const TEvent, Tsm &sm, TDeps &) {
   return back::process<TEvents...>{sm.process_};
 }
+// 6-parameter overloads: look in sub_sms for submachine state types (issue #659)
+// Excluded: the current SM's own type (Tsm::sm_t), which belongs in deps
+template <class T, class TEvent, class Tsm, class TDeps, class TSubs,
+          class T_ = aux::remove_const_t<aux::remove_reference_t<T>>,
+          __BOOST_SML_REQUIRES(!aux::is_same<T_, typename Tsm::sm_t>::value)>
+constexpr auto get_arg(const aux::type_wrapper<T> &, const TEvent &, Tsm &, TDeps &,
+                       TSubs &subs, int)
+    -> decltype(static_cast<T_ &>(back::sub_sm<back::sm_impl<back::sm_policy<T_>>>::get(&subs))) {
+  return static_cast<T_ &>(back::sub_sm<back::sm_impl<back::sm_policy<T_>>>::get(&subs));
+}
+template <class T, class TEvent, class Tsm, class TDeps, class TSubs>
+constexpr decltype(auto) get_arg(const aux::type_wrapper<T> &tw, const TEvent &event, Tsm &sm,
+                                 TDeps &deps, TSubs &, ...) {
+  return get_arg(tw, event, sm, deps);
+}
 template <class, class, class>
 struct call;
 template <class TEvent>
@@ -2363,27 +2378,27 @@ struct call<TEvent, aux::type_list<action_base>, TLogger> {
 template <class TEvent, class... Ts>
 struct call<TEvent, aux::type_list<Ts...>, back::no_policy> {
   template <class T, class Tsm, class TDeps, class TSubs>
-  constexpr static auto execute(T object, const TEvent &event, Tsm &sm, TDeps &deps, TSubs &) {
-    return object(get_arg(aux::type_wrapper<Ts>{}, event, sm, deps)...);
+  constexpr static auto execute(T object, const TEvent &event, Tsm &sm, TDeps &deps, TSubs &subs) {
+    return object(get_arg(aux::type_wrapper<Ts>{}, event, sm, deps, subs, 0)...);
   }
 };
 template <class TEvent, class... Ts, class TLogger>
 struct call<TEvent, aux::type_list<Ts...>, TLogger> {
   template <class T, class Tsm, class TDeps, class TSubs>
-  constexpr static auto execute(T object, const TEvent &event, Tsm &sm, TDeps &deps, TSubs &) {
-    using result_type = decltype(object(get_arg(aux::type_wrapper<Ts>{}, event, sm, deps)...));
-    return execute_impl<typename Tsm::sm_t>(aux::type_wrapper<result_type>{}, object, event, sm, deps);
+  constexpr static auto execute(T object, const TEvent &event, Tsm &sm, TDeps &deps, TSubs &subs) {
+    using result_type = decltype(object(get_arg(aux::type_wrapper<Ts>{}, event, sm, deps, subs, 0)...));
+    return execute_impl<typename Tsm::sm_t>(aux::type_wrapper<result_type>{}, object, event, sm, deps, subs);
   }
-  template <class Tsm, class T, class SM, class TDeps>
-  constexpr static auto execute_impl(const aux::type_wrapper<bool> &, T object, const TEvent &event, SM &sm, TDeps &deps) {
-    const auto result = object(get_arg(aux::type_wrapper<Ts>{}, event, sm, deps)...);
+  template <class Tsm, class T, class SM, class TDeps, class TSubs>
+  constexpr static auto execute_impl(const aux::type_wrapper<bool> &, T object, const TEvent &event, SM &sm, TDeps &deps, TSubs &subs) {
+    const auto result = object(get_arg(aux::type_wrapper<Ts>{}, event, sm, deps, subs, 0)...);
     back::policies::log_guard<Tsm>(aux::type_wrapper<TLogger>{}, deps, object, event, result);
     return result;
   }
-  template <class Tsm, class T, class SM, class TDeps>
-  constexpr static auto execute_impl(const aux::type_wrapper<void> &, T object, const TEvent &event, SM &sm, TDeps &deps) {
+  template <class Tsm, class T, class SM, class TDeps, class TSubs>
+  constexpr static auto execute_impl(const aux::type_wrapper<void> &, T object, const TEvent &event, SM &sm, TDeps &deps, TSubs &subs) {
     back::policies::log_action<Tsm>(aux::type_wrapper<TLogger>{}, deps, object, event);
-    object(get_arg(aux::type_wrapper<Ts>{}, event, sm, deps)...);
+    object(get_arg(aux::type_wrapper<Ts>{}, event, sm, deps, subs, 0)...);
   }
 };
 template <class... Ts>
