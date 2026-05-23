@@ -2063,7 +2063,9 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
     const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
         &sm_impl::process_event_no_queue<TDeps, TSubs, TEvents>...};
     bool wasnt_empty = !process_.empty();
-    while (!process_.empty()) {
+    if (!process_.empty()) {
+      // Dispatch ONE event per call so the outer loop can run anonymous
+      // transitions and defer drains between queued events (#542).
       typename process_t::value_type event{static_cast<typename process_t::value_type &&>(process_.front())};
       process_.pop();  // pop before dispatch so re-entrant calls see an advanced queue (#465)
       queued_handled &= (this->*dispatch_table[event.id])(deps, subs, event.data);

@@ -420,3 +420,63 @@ test process_queue_no_double_pop_on_reentrant_process_event = [] {
   expect(1 == c_.e2_action_count);
   expect(sm.is(sml::X));
 };
+
+// Issue #542: process_queued_events drained the entire process queue in one pass,
+// giving anonymous (guard-only) transitions no opportunity to fire between dispatches.
+// Events were therefore dispatched in the wrong state, causing guard failures and
+// silent drops.  Fix: dispatch one queued event per process_queued_events call so the
+// outer loop runs anonymous transitions before picking up the next queued event.
+//
+// c542 is defined at file scope because the fixture uses a dedicated counted event
+// type (e542) and four cycling states connected by anonymous guard-only transitions.
+struct e542 {
+  int count;
+};
+
+struct c542 {
+  int n = 0;
+  int fires = 0;
+
+  auto operator()() noexcept {
+    using namespace sml;
+    auto g = [this] { return n > 0; };
+    auto on_ev = [this](const e542 &ev, sml::back::process<e542> proc) {
+      ++fires;
+      ++n;
+      if (ev.count > 0) proc(e542{ev.count - 1});
+    };
+    auto reset = [this] { n = 0; };
+    // clang-format off
+    return make_transition_table(
+        *sml::state<class sa542> + event<e542>[!g] / on_ev
+       , sml::state<class sa542> + on_entry<_> / reset
+       , sml::state<class sa542> [g] = sml::state<class sb542>
+
+       , sml::state<class sb542> + event<e542>[!g] / on_ev
+       , sml::state<class sb542> + on_entry<_> / reset
+       , sml::state<class sb542> [g] = sml::state<class sc542>
+
+       , sml::state<class sc542> + event<e542>[!g] / on_ev
+       , sml::state<class sc542> + on_entry<_> / reset
+       , sml::state<class sc542> [g] = sml::state<class sd542>
+
+       , sml::state<class sd542> + event<e542>[!g] / on_ev
+       , sml::state<class sd542> + on_entry<_> / reset
+       , sml::state<class sd542> [g] = sml::state<class sa542>
+    );
+    // clang-format on
+  }
+};
+
+test process_queue_anonymous_transitions_between_queued_events = [] {
+  sml::sm<c542, sml::process_queue<std::queue>> sm{};
+  c542 &c_ = sm;
+
+  sm.process_event(e542{5});
+
+  // With the bug: only 2 events fire (all queued events dispatched in the second
+  // state before the anonymous transition runs, so subsequent events see n>0
+  // and the guard !g fails — events silently dropped).
+  // With the fix: all 6 events fire (initial e542{5} + 5 recursive).
+  expect(6 == c_.fires);
+};
