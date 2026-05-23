@@ -642,6 +642,26 @@ struct pool_type_impl : pool_type_base {
   constexpr pool_type_impl(init i, TObject object) : value{i, object} {}
   T value{};
 };
+// Forward declarations required by pool_type_impl<T&>(init, object) below.
+// try_get and pool_type are defined later in the same namespace; without these
+// the compiler cannot recognise try_get<T>(...) as a template call at
+// definition time (C++ two-phase name lookup, [temp.dep.res]).
+template <class T>
+struct pool_type;
+template <class T>
+struct missing_ctor_parameter;
+template <class T>
+constexpr missing_ctor_parameter<T> try_get(...);
+template <class T>
+constexpr T try_get(const pool_type<T> *);
+template <class T>
+constexpr const T &try_get(const pool_type<const T &> *);
+template <class T>
+constexpr T &try_get(const pool_type<T &> *);
+template <class T>
+constexpr const T *try_get(const pool_type<const T *> *);
+template <class T>
+constexpr T *try_get(const pool_type<T *> *);
 #if defined(BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS)
 template <class T>
 struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value && aux::is_constructible<T, const T &>::value>>
