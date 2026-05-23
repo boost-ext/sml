@@ -725,6 +725,17 @@ template <class T>
 constexpr T *try_get(const pool_type<T *> *object) {
   return object->value;
 }
+// When a pointer dep is passed as an lvalue the forwarding constructor wraps
+// it in T*& (reference-to-pointer).  Strip the reference so the pool init
+// constructor can find the stored value. (#485)
+template <class T>
+constexpr T *try_get(const pool_type<T *&> *object) {
+  return object->value;
+}
+template <class T>
+constexpr const T *try_get(const pool_type<const T *&> *object) {
+  return object->value;
+}
 template <class T, class TPool>
 constexpr bool would_instantiate_missing_ctor_parameter() {
   return is_same<missing_ctor_parameter<T>, decltype(try_get<T>(aux::declval<TPool>()))>::value;

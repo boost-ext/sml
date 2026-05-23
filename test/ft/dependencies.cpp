@@ -396,3 +396,51 @@ test ref_dep_copy_from_pool_not_dangling = [] {
   // verifying the dep reference is valid (not dangling).
   sm.process_event(e2{});
 };
+
+// Issue #485: passing a pointer dependency as an lvalue caused the SM to store
+// nullptr instead of the actual pointer.  Root cause: forwarding reference
+// deduction wraps a T* lvalue as T*&; the pool init constructor's try_get
+// lookup had no overload for pool_type<T*&>*, so it fell through to the
+// missing_ctor_parameter catch-all which returned nullptr.
+// Fix: add try_get overloads for reference-to-pointer types (T*& and const T*&).
+struct dep485 {
+  int val = 42;
+};
+
+test pointer_dep_lvalue_not_null = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // action takes non-const pointer: Dep*
+      auto action = [](dep485* d) { expect(d != nullptr); expect(42 == d->val); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / action = X);
+      // clang-format on
+    }
+  };
+
+  dep485 dep;
+  dep485* ptr = &dep;  // lvalue pointer — was getting stored as nullptr before the fix
+  sml::sm<c> sm{ptr};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+test const_pointer_dep_lvalue_not_null = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // action takes const pointer: const Dep*
+      auto action = [](const dep485* d) { expect(d != nullptr); expect(42 == d->val); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / action = X);
+      // clang-format on
+    }
+  };
+
+  dep485 dep;
+  dep485* ptr = &dep;  // non-const Dep* lvalue: should be implicitly convertible to const Dep*
+  sml::sm<c> sm{ptr};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
