@@ -353,3 +353,45 @@ test dependencies_multiple_subs = [] {
   }
 };
 #endif
+
+// Issue #504: pool_type_impl<T&>'s (init, object) constructor used a comma
+// expression ': value(i, object)' to "initialize" a reference member.
+// (i, object) is the C++ comma operator — it evaluates i, discards the result,
+// then evaluates object, whose value becomes the initializer.  For a T& member
+// this bound the reference to the 'object' function parameter, which is a
+// dangling reference after the constructor returns.
+// Fix: initialize the backing store value_ via try_get, then bind value to value_.
+// This test exercises the pool(const pool<TArgs...>&) copy-constructor path that
+// instantiates pool_type_impl<T&>(const init&, const TObject&).
+struct dep504 {
+  int val = 99;
+};
+
+test ref_dep_copy_from_pool_not_dangling = [] {
+  // SM with a reference dep (dep504&) and a sub-SM so that the
+  // pool(const pool<TArgs...>&) path is exercised during sm construction.
+  struct sub504 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](dep504& d) { expect(99 == d.val); };
+      // clang-format off
+      return make_transition_table(*idle + event<e2> / check = X);
+      // clang-format on
+    }
+  };
+
+  struct top504 {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(*idle + event<e1> = sml::state<sub504>);
+      // clang-format on
+    }
+  };
+
+  dep504 dep;
+  sml::sm<top504> sm{dep};
+  sm.process_event(e1{});
+  sm.process_event(e2{});
+  expect(sm.is<sml::state<sub504>>(sml::X));
+};

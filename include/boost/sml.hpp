@@ -649,8 +649,13 @@ struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value && a
   constexpr explicit pool_type_impl(T &value) : value{value} {}
   template <class TObject>
   constexpr explicit pool_type_impl(TObject value) : value_{value}, value{value_} {}
+  // Copy-construct from another pool: extract T from the source pool into the
+  // local backing store, then bind the reference member to it.  The old code
+  // used ': value(i, object)' which is a comma expression — it evaluated
+  // (i, object) and bound 'value' (T&) directly to the pool parameter
+  // 'object', leaving a dangling reference once the constructor returned. (#504)
   template <class TObject>
-  constexpr pool_type_impl(const init &i, const TObject &object) : value(i, object) {}
+  constexpr pool_type_impl(const init &, const TObject &object) : value_{try_get<T>(&object)}, value{value_} {}
   T value_{};
   T &value;
 };
