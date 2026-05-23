@@ -25,6 +25,33 @@ const auto s1 = sml::state<class s1>;
 const auto s2 = sml::state<class s2>;
 const auto s3 = sml::state<class s3>;
 
+// Regression fixture for issue #465.
+// Defined at file scope so sm<c465> can be named without circular instantiation:
+// the action lambda calls do_reentrant (a plain function pointer set in the test),
+// which in turn calls sm.process_event — without any sm<c465> reference in operator().
+struct c465 {
+  bool (*do_reentrant)(void*) = nullptr;  // filled in by the test after sm construction
+  void* sm_ptr = nullptr;
+  int e2_action_count = 0;
+  bool first_dispatch = true;
+
+  auto operator()() noexcept {
+    using namespace sml;
+    // clang-format off
+    return make_transition_table(
+        *state<class s1_465> + event<e1> / process(e2{}) = state<class s2_465>
+      , state<class s2_465> + event<e2> / [this] {
+            ++e2_action_count;
+            if (first_dispatch) {
+              first_dispatch = false;
+              if (do_reentrant) do_reentrant(sm_ptr);  // re-entrant sm.process_event(e3)
+            }
+          } = sml::X
+    );
+    // clang-format on
+  }
+};
+
 test process_event = [] {
   struct c {
     auto operator()() {
@@ -367,4 +394,29 @@ test queue_process_events_static_queue = [] {
   expect(0 == c_.calls[0]);
   expect(1 == c_.calls[1]);
   expect(2 == c_.calls[2]);
+};
+
+// Issue #465: process_queued_events dispatched the front event before popping it.
+// A re-entrant sm.process_event() call inside the action saw the same event still at
+// the front, dispatched it again (double action call), popped it, then the outer loop
+// called pop() on an empty queue — undefined behaviour / crash.
+// c465 is defined at file scope (above) to avoid circular sm<c465> instantiation.
+test process_queue_no_double_pop_on_reentrant_process_event = [] {
+  using sm465_t = sml::sm<c465, sml::process_queue<std::queue>>;
+
+  sm465_t sm{};
+  c465& c_ = sm;
+  c_.sm_ptr = &sm;
+  // Captureless lambda → function pointer: calls sm.process_event(e3) re-entrantly.
+  // e3 has no handler; its sole job is triggering a re-entrant process_queued_events.
+  c_.do_reentrant = +[](void* ptr) -> bool {
+    return static_cast<sm465_t*>(ptr)->process_event(e3{});
+  };
+
+  sm.process_event(e1{});  // queues e2; process_queued_events then dispatches it
+
+  // With the bug: e2 action fires twice (count==2) and outer pop() on empty queue is UB.
+  // With the fix: e2 action fires exactly once.
+  expect(1 == c_.e2_action_count);
+  expect(sm.is(sml::X));
 };

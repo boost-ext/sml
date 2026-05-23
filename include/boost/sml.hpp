@@ -946,6 +946,7 @@ class queue_event {
   constexpr queue_event() : dtor(nullptr) {}
   constexpr queue_event(queue_event &&other) : id(other.id), dtor(other.dtor), move(other.move) {
     move(data, static_cast<queue_event &&>(other));
+    other.dtor = nullptr;  // prevent double-destruction of the moved-from payload (#279)
   }
   constexpr queue_event &operator=(queue_event &&other) {
     if (dtor != nullptr) {
@@ -955,6 +956,7 @@ class queue_event {
     dtor = other.dtor;
     move = other.move;
     move(data, static_cast<queue_event &&>(other));
+    other.dtor = nullptr;  // prevent double-destruction of the moved-from payload (#279)
     return *this;
   }
   constexpr queue_event(const queue_event &) = delete;
@@ -2057,8 +2059,9 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
         &sm_impl::process_event_no_queue<TDeps, TSubs, TEvents>...};
     bool wasnt_empty = !process_.empty();
     while (!process_.empty()) {
-      queued_handled &= (this->*dispatch_table[process_.front().id])(deps, subs, process_.front().data);
-      process_.pop();
+      typename process_t::value_type event{static_cast<typename process_t::value_type &&>(process_.front())};
+      process_.pop();  // pop before dispatch so re-entrant calls see an advanced queue (#465)
+      queued_handled &= (this->*dispatch_table[event.id])(deps, subs, event.data);
     }
     return wasnt_empty;
   }
