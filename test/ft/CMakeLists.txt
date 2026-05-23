@@ -27,6 +27,12 @@ add_test(test_wrap test_wrap)
 
 add_executable(test_deep_sm deep_sm.cpp)
 
+add_executable(test_issue_639_repro issue_639_repro.cpp)
+if(IS_COMPILER_OPTION_GCC_LIKE)
+  target_compile_options(test_issue_639_repro PRIVATE "-ftemplate-depth=100")
+endif()
+add_test(test_issue_639_repro test_issue_639_repro)
+
 add_executable(test_di di.cpp)
 add_test(test_di test_di)
 

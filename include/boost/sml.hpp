@@ -1806,7 +1806,7 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
     const auto lock = thread_safety_.create_lock();
     (void)lock;
     bool changed = false;
-    state_t old[regions];
+    state_t old[regions]{};
     for (auto i = 0u; i < regions; ++i) old[i] = current_state_[i];
     bool handled = process_internal_events(event, deps, subs);
     bool queued_handled = true;
@@ -2017,7 +2017,7 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
       defer_again_ = false;
       defer_it_ = defer_.begin();
       defer_end_ = defer_.end();
-      state_t old[regions];
+      state_t old[regions]{};
       for (auto i = 0u; i < regions; ++i) old[i] = current_state_[i];
       while (defer_it_ != defer_end_) {
         processed_events |= (this->*dispatch_table[defer_it_->id])(deps, subs, defer_it_->data);
