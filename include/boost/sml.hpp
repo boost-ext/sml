@@ -30,7 +30,7 @@
 #if !defined(BOOST_SML_CFG_DISABLE_MIN_SIZE)
 #define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
 #else
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...)
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...) static_assert(true)
 #endif
 #define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...)
 #define __BOOST_SML_TEMPLATE_KEYWORD template
@@ -48,7 +48,7 @@
 #if !defined(BOOST_SML_CFG_DISABLE_MIN_SIZE)
 #define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]{}
 #else
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...)
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...) static_assert(true)
 #endif
 #define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
 #define __BOOST_SML_TEMPLATE_KEYWORD template
@@ -63,7 +63,7 @@
 #define __has_builtin__make_integer_seq(...) 1
 #define __BOOST_SML_UNUSED
 #define __BOOST_SML_VT_INIT
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...)
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...) static_assert(true)
 #define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
 #if defined(_MSC_VER) && !defined(__clang__) && _MSC_VER >= 1910  // MSVC 2017
 #define __BOOST_SML_TEMPLATE_KEYWORD template
@@ -81,7 +81,7 @@
 #define __BOOST_SML_UNUSED __attribute__((unused))
 #define __BOOST_SML_VT_INIT \
   {}
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...)
+#define __BOOST_SML_ZERO_SIZE_ARRAY(...) static_assert(true)
 #define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
 #define __BOOST_SML_TEMPLATE_KEYWORD template
 #endif
