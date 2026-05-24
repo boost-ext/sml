@@ -2555,6 +2555,13 @@ template <class T1, class T2, __BOOST_SML_REQUIRES(concepts::callable<bool, T1>:
 constexpr auto operator||(const T1 &t1, const T2 &t2) {
   return front::or_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
+// Action sequencing: / (a1, a2) or / (a1, a2, a3, ...)
+// At least one operand must be a class type (lambda, functor, or sml::wrap(mfp)) for
+// this user-defined operator, to be selected over the built-in comma operator.
+// Two raw member-function pointers, e.g. / (&C::a, &C::b), are both pointer types
+// (not class types), so the built-in comma is selected instead and only the last
+// action runs.  Wrap the first pointer with sml::wrap() to fix:
+//   / (sml::wrap(&C::a), &C::b)   -- correct: both a and b execute
 template <class T1, class T2, __BOOST_SML_REQUIRES(concepts::callable<void, T1>::value &&concepts::callable<void, T2>::value)>
 constexpr auto operator,(const T1 &t1, const T2 &t2) {
   return front::seq_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
