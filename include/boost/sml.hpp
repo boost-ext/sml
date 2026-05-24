@@ -662,6 +662,14 @@ template <class T>
 constexpr const T *try_get(const pool_type<const T *> *);
 template <class T>
 constexpr T *try_get(const pool_type<T *> *);
+// Covariant overloads: when the pool holds D& (or const D&) where D derives
+// from T, return T& (or const T&) via implicit base-class conversion. (#467)
+// remove_const_t<T> in the is_same guard prevents matching when T is const D
+// (i.e. the same underlying type, just cv-qualified differently).
+template <class T, class D, __BOOST_SML_REQUIRES(!aux::is_same<aux::remove_const_t<T>, D>::value && aux::is_base_of<T, D>::value)>
+constexpr T &try_get(const pool_type<D &> *);
+template <class T, class D, __BOOST_SML_REQUIRES(!aux::is_same<aux::remove_const_t<T>, D>::value && aux::is_base_of<T, D>::value)>
+constexpr const T &try_get(const pool_type<const D &> *);
 #if defined(BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS)
 template <class T>
 struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value && aux::is_constructible<T, const T &>::value>>
@@ -734,6 +742,16 @@ constexpr T *try_get(const pool_type<T *&> *object) {
 }
 template <class T>
 constexpr const T *try_get(const pool_type<const T *&> *object) {
+  return object->value;
+}
+// Covariant overloads: pool holds D& or const D& where D is a subclass of T.
+// Allows passing NiceMock<T> (or any derived, non-copyable type) as a T& dep. (#467)
+template <class T, class D, typename aux::enable_if<!aux::is_same<aux::remove_const_t<T>, D>::value && aux::is_base_of<T, D>::value, int>::type>
+constexpr T &try_get(const pool_type<D &> *object) {
+  return object->value;
+}
+template <class T, class D, typename aux::enable_if<!aux::is_same<aux::remove_const_t<T>, D>::value && aux::is_base_of<T, D>::value, int>::type>
+constexpr const T &try_get(const pool_type<const D &> *object) {
   return object->value;
 }
 template <class T, class TPool>
