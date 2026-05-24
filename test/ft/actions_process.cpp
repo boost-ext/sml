@@ -480,3 +480,38 @@ test process_queue_anonymous_transitions_between_queued_events = [] {
   // With the fix: all 6 events fire (initial e542{5} + 5 recursive).
   expect(6 == c_.fires);
 };
+
+// Issue #441: using process_queue<std::queue> failed to compile on GCC 9/10 and
+// Clang 10/11 because push_impl passed a const lvalue to std::queue::push, causing
+// overload resolution to select push(const value_type&) instead of push(value_type&&).
+// Since queue_event's copy constructor is deleted this produced a hard compile error.
+// Fix: explicitly construct the value_type rvalue so push(value_type&&) is always chosen.
+test process_queue_std_queue_compiles_and_works = [] {
+  struct c441 {
+    int processed = 0;
+
+    auto operator()() noexcept {
+      using namespace sml;
+      auto enqueue = [this](back::process<e2> proc) {
+        proc(e2{});
+        ++processed;
+      };
+      auto finish = [this] { ++processed; };
+      // clang-format off
+      return make_transition_table(
+          *idle + event<e1> / enqueue = s1
+        ,  s1   + event<e2> / finish  = X
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c441, sml::process_queue<std::queue>> sm{};
+  c441 &c_ = sm;
+
+  sm.process_event(e1{});   // enqueues e2, transitions idle→s1
+  sm.process_event(e2{});   // drains the queue: fires finish, transitions s1→X
+
+  expect(2 == c_.processed);
+  expect(sm.is(sml::X));
+};
