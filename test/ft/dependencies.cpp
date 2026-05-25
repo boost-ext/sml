@@ -523,3 +523,44 @@ test final_sm_class_compiles = [] {
   sm.process_event(e2{});
   expect(sm.is(sml::X));
 };
+
+// Issue #530: a guard taking `const State &` received a default-constructed copy
+// instead of the live state modified by earlier actions.  Root cause: two separate
+// pool slots were created for `State &` (mutable actions) and `const State &`
+// (const guards), so mutations through the mutable slot were invisible to the const
+// slot.
+// Fix: normalise `const T &` → `T &` in ignore::non_events (single pool slot) and
+// add a get_arg overload that strips const at lookup time so both see the same object.
+#if defined(BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS)
+struct State530 {
+  int id{};
+};
+struct connect530 { int id{}; };
+struct interrupt530 {};
+
+test const_ref_state_dep_sees_live_state = [] {
+  struct c530 {
+    auto operator()() noexcept {
+      using namespace sml;
+      const auto set    = [](const connect530& ev, State530& s) { s.id = ev.id; };
+      // Guard takes const State& — must see the value set by previous `set` action.
+      const auto check  = [](const connect530& ev, const State530& s) {
+        expect(s.id == 42);   // set by the prior `set` action
+        expect(ev.id == 99);
+        return true;
+      };
+      // clang-format off
+      return make_transition_table(
+        *idle + event<connect530>   / set             = sml::state<State530>,
+         sml::state<State530> + event<connect530>[check]           = X
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c530> sm;
+  sm.process_event(connect530{42});   // -> State530, id = 42
+  sm.process_event(connect530{99});   // guard checks const State530& — must see id == 42
+  expect(sm.is(sml::X));
+};
+#endif

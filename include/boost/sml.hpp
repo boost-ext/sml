@@ -2371,6 +2371,21 @@ template <class... TEvents, class TEvent, class Tsm, class TDeps>
 constexpr decltype(auto) get_arg(const aux::type_wrapper<back::process<TEvents...>> &, const TEvent, Tsm &sm, TDeps &) {
   return back::process<TEvents...>{sm.process_};
 }
+// For const lvalue-ref dep parameters (`const State &`): look up the non-const
+// `State &` pool slot instead of a separate `const State &` slot.
+// Combined with the normalisation in ignore::non_events (which maps `const T &`
+// → `T &` in the dep_list so no separate pool slot is created), this ensures
+// that a guard taking `const State &` sees the same live object that actions
+// taking `State &` mutate.  Without this overload the generic get_arg below
+// would do aux::get<const State &>(deps) which static_cast-fails or (with
+// BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS) hits the primary-template
+// pool_type_impl whose reference member dangles after construction. (#530)
+template <class T, class TEvent, class Tsm, class TDeps,
+          __BOOST_SML_REQUIRES(!aux::is_same<aux::remove_const_t<aux::remove_reference_t<back::get_event_t<TEvent>>>,
+                                             T>::value)>
+constexpr const T &get_arg(const aux::type_wrapper<const T &> &, const TEvent &, Tsm &, TDeps &deps) {
+  return aux::get<T &>(deps);
+}
 // 6-parameter overloads: look in sub_sms for submachine state types (issue #659)
 // Excluded: the current SM's own type (Tsm::sm_t), which belongs in deps
 template <class T, class TEvent, class Tsm, class TDeps, class TSubs,
@@ -2779,10 +2794,18 @@ template <class E, class... Ts>
 struct ignore<E, aux::type_list<Ts...>> {
   template <class T>
   struct non_events {
+    // Normalise const lvalue refs: `const U &` → `U &`.
+    // This ensures that a guard taking `const State &` and an action taking
+    // `State &` share the same pool slot, so mutations through the mutable ref
+    // are visible through the const ref.  Without normalisation a separate
+    // pool_type<const State &> entry would be created, carrying a stale copy
+    // of the original default-constructed State value. (#530)
+    using stripped_ = aux::remove_const_t<aux::remove_reference_t<T>>;
+    using norm_ = aux::conditional_t<aux::is_same<T, const stripped_ &>::value, stripped_ &, T>;
     using type =
         aux::conditional_t<aux::is_same<back::get_event_t<E>, aux::remove_const_t<aux::remove_reference_t<T>>>::value ||
                                aux::is_same<T, action_base>::value,
-                           aux::type_list<>, aux::type_list<T>>;
+                           aux::type_list<>, aux::type_list<norm_>>;
   };
   using type = aux::join_t<typename non_events<Ts>::type...>;
 };
