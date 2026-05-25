@@ -397,6 +397,39 @@ test ref_dep_copy_from_pool_not_dangling = [] {
   sm.process_event(e2{});
 };
 
+// Issue #467: passing a derived (non-copyable) type as a base-class reference
+// dependency failed to compile after v1.1.3.  The pool init copy-constructor
+// called try_get<Base>() which found nothing when the pool held Derived&, fell
+// back to missing_ctor_parameter<Base>, tried to default-construct Base, and
+// then could not bind the temporary to Base&.
+// Fix: add covariant try_get overloads for pool_type<D&> and pool_type<const D&>
+// constrained on is_base_of<T,D> — returns T& via implicit base-class conversion.
+struct base467 {
+  base467() = default;
+  base467(const base467 &) = delete;  // non-copyable, like NiceMock<T>
+  int val = 7;
+};
+
+struct derived467 : base467 {};
+
+test non_copyable_derived_dep_as_base_ref = [] {
+  struct c467 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](base467 &d) { expect(7 == d.val); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  derived467 dep;
+  // Action takes base467& but we pass derived467 — must compile and work.
+  sml::sm<c467> sm{dep};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
 // Issue #485: passing a pointer dependency as an lvalue caused the SM to store
 // nullptr instead of the actual pointer.  Root cause: forwarding reference
 // deduction wraps a T* lvalue as T*&; the pool init constructor's try_get
