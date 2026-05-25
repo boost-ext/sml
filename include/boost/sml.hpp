@@ -181,8 +181,11 @@ template <class T, class U>
 struct is_empty_base : T {
   U _;
 };
-template <class T>
+template <class T, class = void>
 struct is_empty : aux::integral_constant<bool, sizeof(is_empty_base<T, none_type>) == sizeof(none_type)> {};
+// Specialisation: final classes cannot be used as base; treat them as non-empty. (#483)
+template <class T>
+struct is_empty<T, aux::enable_if_t<bool(__is_final(T))>> : aux::false_type {};
 template <class>
 struct function_traits;
 template <class R, class... TArgs>
@@ -1675,7 +1678,8 @@ struct should_not_instantiate_statemachine_class
 
 template <class Tsm>
 struct should_not_subclass_statemachine_class
-    : integral_constant<bool, is_empty<typename Tsm::sm>::value || should_not_instantiate_statemachine_class<Tsm>::value> {};
+    : integral_constant<bool, is_empty<typename Tsm::sm>::value || should_not_instantiate_statemachine_class<Tsm>::value ||
+                                  bool(__is_final(typename Tsm::sm))> {};
 } // namespace aux
 
 namespace back {

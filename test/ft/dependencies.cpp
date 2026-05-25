@@ -444,3 +444,49 @@ test const_pointer_dep_lvalue_not_null = [] {
   sm.process_event(e1{});
   expect(sm.is(sml::X));
 };
+
+// Issue #483: dependencies (and SM classes themselves) declared `final` failed
+// to compile because `is_empty_base<T>` tried to inherit from T, and `sm_impl`
+// tried to subclass the SM class.
+// Fix (is_empty): add a partial specialisation guarded by __is_final(T) that
+//   reports false without ever instantiating is_empty_base<T>.
+// Fix (sm_impl): extend should_not_subclass_statemachine_class to also return
+//   true for final SM classes, routing them through the composition path.
+
+struct final_dep483 final {
+  int val = 99;
+};
+
+test final_dependency_type_compiles = [] {
+  // A dependency type declared `final` must be usable as an SM dependency.
+  struct c483dep {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto action = [](final_dep483& d) { expect(99 == d.val); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / action = X);
+      // clang-format on
+    }
+  };
+
+  final_dep483 dep;
+  sml::sm<c483dep> sm{dep};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+test final_sm_class_compiles = [] {
+  // An SM class declared `final` must work via the composition path.
+  struct final_sm483 final {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(*idle + event<e2> = X);
+      // clang-format on
+    }
+  };
+
+  sml::sm<final_sm483> sm;
+  sm.process_event(e2{});
+  expect(sm.is(sml::X));
+};
