@@ -2580,15 +2580,40 @@ class not_ : operator_base {
   T g;
 };
 }  // namespace front
-template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
+// Detect integral_constant<bool,V>-like types (std::, aux::, etc.).
+// Such types carry a self-referential 'type' typedef (T::type == T) and a
+// static boolean 'value' member; they are constant-wrappers, not SML guard
+// callables. SML's operator&&/||/! must not grab them or the result is
+// front::and_<...>/or_<...>/not_<...> instead of bool, poisoning any code
+// that combines these types in a TU with 'using namespace boost::sml'. (#546)
+template <class T, class = aux::void_t<>>
+struct is_integral_constant_like : aux::false_type {};
+template <class T>
+struct is_integral_constant_like<T,
+    aux::void_t<decltype(T::value), typename T::type>>
+    : aux::integral_constant<bool,
+        aux::is_same<bool,
+            aux::remove_const_t<decltype(T::value)>>::value &&
+        aux::is_same<T, typename T::type>::value> {};
+template <class T, __BOOST_SML_REQUIRES(
+    concepts::callable<bool, T>::value &&
+    !is_integral_constant_like<T>::value)>
 constexpr auto operator!(const T &t) {
   return front::not_<aux::zero_wrapper<T>>(aux::zero_wrapper<T>{t});
 }
-template <class T1, class T2, __BOOST_SML_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
+template <class T1, class T2, __BOOST_SML_REQUIRES(
+    concepts::callable<bool, T1>::value &&
+    concepts::callable<bool, T2>::value &&
+    !is_integral_constant_like<T1>::value &&
+    !is_integral_constant_like<T2>::value)>
 constexpr auto operator&&(const T1 &t1, const T2 &t2) {
   return front::and_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
-template <class T1, class T2, __BOOST_SML_REQUIRES(concepts::callable<bool, T1>::value &&concepts::callable<bool, T2>::value)>
+template <class T1, class T2, __BOOST_SML_REQUIRES(
+    concepts::callable<bool, T1>::value &&
+    concepts::callable<bool, T2>::value &&
+    !is_integral_constant_like<T1>::value &&
+    !is_integral_constant_like<T2>::value)>
 constexpr auto operator||(const T1 &t1, const T2 &t2) {
   return front::or_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }

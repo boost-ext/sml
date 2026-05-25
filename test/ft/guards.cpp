@@ -52,3 +52,47 @@ test guards_logic_should_short_circuit = [] {
   expect(1 == static_cast<const c&>(sm).guard_true_calls);
   expect(sm.is(state2));
 };
+
+// Issue #546: SML's operator&& / operator|| / operator! must not be selected
+// for std::integral_constant<bool,V> (a.k.a. std::true_type / std::false_type)
+// when 'using namespace boost::sml;' is in scope.  Before the fix, combining
+// two std::true_type values with && returned front::and_<...> (an SML guard
+// combinator) instead of bool, which breaks any code that expects the standard
+// && semantics (e.g. Google Mock type-trait machinery on GCC 11+).
+//
+// These two types mimic std::integral_constant<bool,V>:
+//   T::type == T  and  bool T::value  => is_integral_constant_like<T> = true
+//   operator()()                      => callable (like std::integral_constant)
+//   operator bool()                   => built-in &&/||/! work via conversion
+// (File-scope to avoid C++ restriction on static members in local classes.)
+struct ic546_true {
+  using type = ic546_true;
+  static constexpr bool value = true;
+  constexpr bool operator()() const noexcept { return value; }
+  constexpr operator bool() const noexcept { return value; }
+};
+struct ic546_false {
+  using type = ic546_false;
+  static constexpr bool value = false;
+  constexpr bool operator()() const noexcept { return value; }
+  constexpr operator bool() const noexcept { return value; }
+};
+test integral_constant_and_or_not_not_grabbed_by_sml_operators = [] {
+  using namespace sml;  // NOLINT(build/namespaces)
+
+  const ic546_true t{};
+  const ic546_false f{};
+
+  auto r_and = t && t;  // must be bool (built-in &&), not front::and_<...>
+  auto r_or  = f || t;  // must be bool (built-in ||), not front::or_<...>
+  auto r_not = !t;      // must be bool (built-in !),  not front::not_<...>
+
+  // Each decltype must be bool, not an SML combinator type (#546).
+  static_assert(aux::is_same<decltype(r_and), bool>::value, "&&");
+  static_assert(aux::is_same<decltype(r_or),  bool>::value, "||");
+  static_assert(aux::is_same<decltype(r_not), bool>::value, "!");
+
+  expect(r_and == true);
+  expect(r_or  == true);
+  expect(r_not == false);
+};
