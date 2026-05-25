@@ -214,3 +214,34 @@ test transition_table_types = [] {
   float f = 12.0;
   sml::sm<c> sm{f, 42, 87.0, 0.0f};
 };
+
+// Issue #389: two member-function-pointer actions combined with operator,
+// silently ran only the last action because raw MFP types are not class types —
+// the built-in comma operator was selected instead of the user-defined one.
+// Fix: wrap the first MFP with sml::wrap() so it becomes a class type and the
+// overloaded operator, is considered by overload resolution.
+test member_functions_two_mfp_actions_with_wrap = [] {
+  struct c {
+    using self = c;
+
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         // wrap() the first MFP so operator, sees a class type and sequences both.
+         *idle + event<e1> / (wrap(&self::action_a), &self::action_b) = X
+      );
+      // clang-format on
+    }
+
+    void action_a() { ++calls; }
+    void action_b() { ++calls; }
+    int calls = 0;
+  };
+
+  c c_{};
+  sml::sm<c> sm{c_};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+  expect(2 == c_.calls);  // both action_a and action_b must have run
+};

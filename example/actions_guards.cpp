@@ -52,7 +52,9 @@ struct actions_guards {
       , "s2"_s + event<e3> [ guard1 && ![] { return false;} ] / (action1, action2{}) = "s3"_s
       , "s3"_s + event<e4> [ !guard1 || guard2 ] / (action1, [] { std::cout << "action3" << std::endl; }) = "s4"_s
       , "s3"_s + event<e4> [ guard1 ] / ([] { std::cout << "action4" << std::endl; }, [this] { action4(); } ) = "s5"_s
-      , "s5"_s + event<e5> [ &self::guard3 ] / &self::action5 = X
+      // Two member-function-pointer actions: wrap() the first so operator, fires correctly.
+      // (&self::action4, &self::action5) would silently run only action5 (built-in comma).
+      , "s5"_s + event<e5> [ &self::guard3 ] / (wrap(&self::action4), &self::action5) = X
     );
     // clang-format on
   }
