@@ -1499,30 +1499,39 @@ struct get_state_mapping<sm<T>, TMappings, TUnexpected> {
 };
 template <class T, class TMappings, class TUnexpected>
 using get_state_mapping_t = typename get_state_mapping<T, TMappings, TUnexpected>::type;
-template <class>
+template <class...>
 transitions<aux::true_type> get_event_mapping_impl(...);
 template <class T, class TMappings>
 TMappings get_event_mapping_impl(event_mappings<T, TMappings> *);
-template <class T, class... T1Mappings, class... T2Mappings>
-unique_mappings_t<T1Mappings..., T2Mappings...> get_event_mapping_impl(event_mappings<T, aux::inherit<T1Mappings...>> *,
-                                                                       event_mappings<_, aux::inherit<T2Mappings...>> *);
+template <class T1, class T2, class... T1Mappings, class... T2Mappings>
+unique_mappings_t<T1Mappings..., T2Mappings...> get_event_mapping_impl(event_mappings<T1, aux::inherit<T1Mappings...>> *,
+                                                                       event_mappings<T2, aux::inherit<T2Mappings...>> *);
+// Look up event E with fallback to DefaultE.  Three cases:
+//   DefaultE not in mappings → return E's mapping (or empty if E also missing)
+//   DefaultE in mappings but E not → return DefaultE's mapping (pure fallback)
+//   Both in mappings → merge them (unique_mappings_t deduplicates by state)
+template <class E, class DefaultE, class TMappings>
+using with_default_event_mapping_t = typename aux::conditional<
+    aux::is_same<transitions<aux::true_type>, decltype(get_event_mapping_impl<DefaultE>((TMappings *)0))>::value,
+    decltype(get_event_mapping_impl<E>((TMappings *)0)),
+    typename aux::conditional<
+        aux::is_same<transitions<aux::true_type>, decltype(get_event_mapping_impl<E>((TMappings *)0))>::value,
+        decltype(get_event_mapping_impl<DefaultE>((TMappings *)0)),
+        decltype(get_event_mapping_impl<E, DefaultE>((TMappings *)0, (TMappings *)0))>::type>::type;
 template <class T, class TMappings>
-struct get_event_mapping_impl_helper
-    : aux::conditional<aux::is_same<transitions<aux::true_type>, decltype(get_event_mapping_impl<_>((TMappings *)0))>::value,
-                       decltype(get_event_mapping_impl<T>((TMappings *)0)),
-                       decltype(get_event_mapping_impl<T>((TMappings *)0, (TMappings *)0))>::type {};
+struct get_event_mapping_impl_helper : with_default_event_mapping_t<T, _, TMappings> {};
 template <class T, class TMappings>
 struct get_event_mapping_impl_helper<exception<T>, TMappings> : decltype(get_event_mapping_impl<exception<T>>((TMappings *)0)) {
 };
-template <class T1, class T2, class TMappings>
-struct get_event_mapping_impl_helper<unexpected_event<T1, T2>, TMappings>
-    : decltype(get_event_mapping_impl<unexpected_event<T1, T2>>((TMappings *)0)) {};
-template <class T1, class T2, class TMappings>
-struct get_event_mapping_impl_helper<on_entry<T1, T2>, TMappings>
-    : decltype(get_event_mapping_impl<on_entry<T1, T2>>((TMappings *)0)) {};
-template <class T1, class T2, class TMappings>
-struct get_event_mapping_impl_helper<on_exit<T1, T2>, TMappings>
-    : decltype(get_event_mapping_impl<on_exit<T1, T2>>((TMappings *)0)) {};
+template <class E, class S, class TMappings>
+struct get_event_mapping_impl_helper<unexpected_event<S, E>, TMappings>
+    : with_default_event_mapping_t<unexpected_event<S, E>, unexpected_event<S, _>, TMappings> {};
+template <class E, class S, class TMappings>
+struct get_event_mapping_impl_helper<on_entry<S, E>, TMappings>
+    : with_default_event_mapping_t<on_entry<S, E>, on_entry<S, _>, TMappings> {};
+template <class E, class S, class TMappings>
+struct get_event_mapping_impl_helper<on_exit<S, E>, TMappings>
+    : with_default_event_mapping_t<on_exit<S, E>, on_exit<S, _>, TMappings> {};
 template <class T, class TMappings>
 using get_event_mapping_t = get_event_mapping_impl_helper<T, TMappings>;
 }  // namespace back
@@ -1978,12 +1987,11 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
   constexpr bool process_internal_event(const TEvent &event, TDeps &d, TSubs &subs, state_t &current_state) {
     policies::log_process_event<sm_t>(aux::type_wrapper<logger_t>{}, d, event);
 #if BOOST_SML_DISABLE_EXCEPTIONS
-    return process_event_impl<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, d, subs, states_t{}, current_state)
+    return process_event_impl<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, d, subs, states_t{}, current_state);
 #else
     return process_event_except_impl<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, d, subs, current_state,
-                                                                                         has_exceptions{})
+                                                                                         has_exceptions{});
 #endif
-           || process_internal_generic_event(event, d, subs, current_state);
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
   constexpr bool process_event_impl(const TEvent &event, TDeps &d, TSubs &subs, const aux::type_list<TStates...> &states,

@@ -823,6 +823,110 @@ test initial_nontrivial_exit = [] {
   }
 };
 
+// Issue #372: non-trivial on_entry/on_exit in a sub-SM suppressed the generic
+// on_entry<_>/on_exit<_> fallback in the *outer* SM.
+//
+// Root cause (old code): process_internal_event for a specific on_entry<_,E>
+// that was NOT explicitly handled in the outer SM used:
+//   process_event_impl<transitions<true_type>>(on_entry<_,E>{}, ...)
+//     || process_internal_generic_event(...)
+// The sub-SM was started inside the transitions<true_type> dispatch path (which
+// routes the entry into the sub-SM), returning true.  The `||` then
+// short-circuited process_internal_generic_event, so the outer SM's
+// on_entry<_> handler was never reached.
+//
+// Fix: with_default_event_mapping_t falls back to the generic on_entry<_,_>
+// mapping when no specific on_entry<_,E> is registered in the outer SM.
+// The || is removed entirely; fallback is encoded in the mapping lookup.
+
+template <int N>
+struct subsm_nontrivial {
+  auto operator()() noexcept {
+    using namespace sml;
+    // Idle state has BOTH a specific on_entry<e1> and a generic on_entry<_>.
+    // Within the same SM, the specific takes priority (short-circuit).
+    return make_transition_table(
+       *idle + sml::on_entry<e1> / [](std::string &s) { s += "sub_e1en|"; }
+       ,idle + sml::on_entry<_>  / [](std::string &s) { s += "sub_en|"; }
+       ,idle + sml::on_exit<e2>  / [](std::string &s) { s += "sub_e2ex|"; }
+       ,idle + sml::on_exit<_>   / [](std::string &s) { s += "sub_ex|"; }
+    );
+  }
+};
+
+test composite_nontrivial_entry = [] {
+  // Outer SM has a generic on_entry<_> for the composite sub-state.
+  // The sub-SM has both a specific on_entry<e1> and a generic on_entry<_>.
+  struct outer {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto sub = sml::state<subsm_nontrivial<1>>;
+      // clang-format off
+      return make_transition_table(
+         *idle + event<e1> = sub
+         ,idle + event<e2> = sub  // also enter via e2
+         ,sub  + sml::on_entry<_> / [](std::string &s) { s += "outer_en|"; }
+      );
+      // clang-format on
+    }
+  };
+
+  {
+    // Enter composite state via e1: outer generic fires, sub specific fires.
+    std::string s;
+    sml::sm<outer> sm{s};
+    sm.process_event(e1{});
+    expect("outer_en|sub_e1en|" == s);
+  }
+  {
+    // Enter composite state via e2: outer generic fires, sub falls back to
+    // its own generic (no on_entry<e2> in sub-SM).
+    std::string s;
+    sml::sm<outer> sm{s};
+    sm.process_event(e2{});
+    expect("outer_en|sub_en|" == s);
+  }
+};
+
+test composite_nontrivial_exit = [] {
+  // Outer SM has a generic on_exit<_> for the composite sub-state.
+  // The sub-SM has both a specific on_exit<e2> and a generic on_exit<_>.
+  struct outer {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto sub = sml::state<subsm_nontrivial<1>>;
+      // clang-format off
+      return make_transition_table(
+         *idle + event<e1> = sub   // enter via e1 (uses sub's specific on_entry<e1>)
+         ,sub  + event<e2> = idle  // exit via e2
+         ,sub  + event<e3> = idle  // exit via e3 (sub has no specific on_exit<e3>)
+         ,sub  + sml::on_entry<_> / [](std::string &s) { s += "outer_en|"; }
+         ,sub  + sml::on_exit<_>  / [](std::string &s) { s += "outer_ex|"; }
+      );
+      // clang-format on
+    }
+  };
+
+  {
+    // Enter then exit via e2: sub's specific on_exit<e2> fires, then outer generic.
+    std::string s;
+    sml::sm<outer> sm{s};
+    sm.process_event(e1{});
+    s.clear();  // discard entry output
+    sm.process_event(e2{});
+    expect("sub_e2ex|outer_ex|" == s);
+  }
+  {
+    // Enter then exit via e3: sub falls back to generic on_exit<_>, then outer generic.
+    std::string s;
+    sml::sm<outer> sm{s};
+    sm.process_event(e1{});
+    s.clear();  // discard entry output
+    sm.process_event(e3{});
+    expect("sub_ex|outer_ex|" == s);
+  }
+};
+
 #if defined(__cpp_noexcept_function_type)
 test member_functions_as_actions_and_guards = [] {
   struct class0 {
