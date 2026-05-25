@@ -24,69 +24,69 @@
   }                             \
   }
 #if defined(__clang__)
-#define __BOOST_SML_UNUSED __attribute__((unused))
-#define __BOOST_SML_VT_INIT \
+#define BOOST_SML_DETAIL_UNUSED __attribute__((unused))
+#define BOOST_SML_DETAIL_VT_INIT \
   {}
 #if !defined(BOOST_SML_CFG_DISABLE_MIN_SIZE)
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
+#define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
 #else
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...) static_assert(true)
+#define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(...) static_assert(true)
 #endif
-#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...)
-#define __BOOST_SML_TEMPLATE_KEYWORD template
+#define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY_CREATE(...)
+#define BOOST_SML_DETAIL_TEMPLATE_KEYWORD template
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
 #pragma clang diagnostic ignored "-Wzero-length-array"
 #elif defined(__GNUC__)
 #if !defined(__has_builtin)
-#define __BOOST_SML_DEFINED_HAS_BUILTIN
+#define BOOST_SML_DETAIL_DEFINED_HAS_BUILTIN
 #define __has_builtin(...) 0
 #endif
-#define __BOOST_SML_UNUSED __attribute__((unused))
-#define __BOOST_SML_VT_INIT \
+#define BOOST_SML_DETAIL_UNUSED __attribute__((unused))
+#define BOOST_SML_DETAIL_VT_INIT \
   {}
 #if !defined(BOOST_SML_CFG_DISABLE_MIN_SIZE)
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]{}
+#define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]{}
 #else
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...) static_assert(true)
+#define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(...) static_assert(true)
 #endif
-#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
-#define __BOOST_SML_TEMPLATE_KEYWORD template
+#define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
+#define BOOST_SML_DETAIL_TEMPLATE_KEYWORD template
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #if defined(__GNUC__) && (__GNUC__ >= 10)
 #pragma GCC diagnostic ignored "-Wsubobject-linkage"
 #endif
 #elif defined(_MSC_VER) && !defined(__clang__)
-#define __BOOST_SML_DEFINED_HAS_BUILTIN
+#define BOOST_SML_DETAIL_DEFINED_HAS_BUILTIN
 #define __has_builtin(...) __has_builtin##__VA_ARGS__
 #define __has_builtin__make_integer_seq(...) 1
-#define __BOOST_SML_UNUSED
-#define __BOOST_SML_VT_INIT
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...) static_assert(true)
-#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
+#define BOOST_SML_DETAIL_UNUSED
+#define BOOST_SML_DETAIL_VT_INIT
+#define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(...) static_assert(true)
+#define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
 #if defined(_MSC_VER) && !defined(__clang__) && _MSC_VER >= 1910  // MSVC 2017
-#define __BOOST_SML_TEMPLATE_KEYWORD template
+#define BOOST_SML_DETAIL_TEMPLATE_KEYWORD template
 #else
-#define __BOOST_SML_TEMPLATE_KEYWORD
+#define BOOST_SML_DETAIL_TEMPLATE_KEYWORD
 #endif
 #pragma warning(disable : 4503)
 #pragma warning(disable : 4200)
 #elif defined(__ICCARM__)
 #if !defined(__has_builtin)
-#define __BOOST_SML_DEFINED_HAS_BUILTIN
+#define BOOST_SML_DETAIL_DEFINED_HAS_BUILTIN
 #define __has_builtin(...) 0
 #endif
 /* Needs IAR language extensions */
-#define __BOOST_SML_UNUSED __attribute__((unused))
-#define __BOOST_SML_VT_INIT \
+#define BOOST_SML_DETAIL_UNUSED __attribute__((unused))
+#define BOOST_SML_DETAIL_VT_INIT \
   {}
-#define __BOOST_SML_ZERO_SIZE_ARRAY(...) static_assert(true)
-#define __BOOST_SML_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
-#define __BOOST_SML_TEMPLATE_KEYWORD template
+#define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(...) static_assert(true)
+#define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
+#define BOOST_SML_DETAIL_TEMPLATE_KEYWORD template
 #endif
 BOOST_SML_NAMESPACE_BEGIN
-#define __BOOST_SML_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0
+#define BOOST_SML_DETAIL_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0
 namespace aux {
 using byte = unsigned char;
 struct none_type {};
@@ -626,7 +626,7 @@ struct tuple_impl<index_sequence<Ns...>, Ts...> : tuple_type<Ns, Ts>... {
 };
 template <>
 struct tuple_impl<index_sequence<0>> {
-  __BOOST_SML_ZERO_SIZE_ARRAY(byte);
+  BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(byte);
 };
 template <class... Ts>
 using tuple = tuple_impl<make_index_sequence<sizeof...(Ts)>, Ts...>;
@@ -636,7 +636,7 @@ constexpr T &get_by_id(tuple_type<N, T> *object) {
 }
 struct init {};
 struct pool_type_base {
-  __BOOST_SML_ZERO_SIZE_ARRAY(byte);
+  BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(byte);
 };
 template <class T, class = void>
 struct pool_type_impl : pool_type_base {
@@ -669,9 +669,9 @@ constexpr T *try_get(const pool_type<T *> *);
 // from T, return T& (or const T&) via implicit base-class conversion. (#467)
 // remove_const_t<T> in the is_same guard prevents matching when T is const D
 // (i.e. the same underlying type, just cv-qualified differently).
-template <class T, class D, __BOOST_SML_REQUIRES(!aux::is_same<aux::remove_const_t<T>, D>::value && aux::is_base_of<T, D>::value)>
+template <class T, class D, BOOST_SML_DETAIL_REQUIRES(!aux::is_same<aux::remove_const_t<T>, D>::value && aux::is_base_of<T, D>::value)>
 constexpr T &try_get(const pool_type<D &> *);
-template <class T, class D, __BOOST_SML_REQUIRES(!aux::is_same<aux::remove_const_t<T>, D>::value && aux::is_base_of<T, D>::value)>
+template <class T, class D, BOOST_SML_DETAIL_REQUIRES(!aux::is_same<aux::remove_const_t<T>, D>::value && aux::is_base_of<T, D>::value)>
 constexpr const T &try_get(const pool_type<const D &> *);
 #if defined(BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS)
 template <class T>
@@ -699,12 +699,12 @@ template <class T>
 struct missing_ctor_parameter {
   static constexpr auto value = false;
   constexpr auto operator()() const { return T{}(); }
-  template <class U, __BOOST_SML_REQUIRES(!aux::is_base_of<pool_type_base, U>::value && aux::is_constructible<U>::value)>
+  template <class U, BOOST_SML_DETAIL_REQUIRES(!aux::is_base_of<pool_type_base, U>::value && aux::is_constructible<U>::value)>
   constexpr operator U() {
     return {};
   }
 #if !(defined(_MSC_VER) && !defined(__clang__))
-  template <class TMissing, __BOOST_SML_REQUIRES(!aux::is_base_of<pool_type_base, TMissing>::value && !aux::is_constructible<TMissing>::value)>
+  template <class TMissing, BOOST_SML_DETAIL_REQUIRES(!aux::is_base_of<pool_type_base, TMissing>::value && !aux::is_constructible<TMissing>::value)>
   constexpr operator TMissing &() const {
     static_assert(missing_ctor_parameter<TMissing>::value,
                   "State Machine is missing a constructor parameter! Check out the `missing_ctor_parameter` error to see the "
@@ -794,7 +794,7 @@ struct pool<> {
   pool() = default;
   template <class... Ts>
   constexpr explicit pool(Ts &&...) {}
-  __BOOST_SML_ZERO_SIZE_ARRAY(byte);
+  BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(byte);
 };
 template <int, class>
 struct type_id_type {};
@@ -901,7 +901,7 @@ struct zero_wrapper_impl<TExpr, type_list<TArgs...>> {
 #else
   constexpr auto operator()(TArgs... args) const { return reinterpret_cast<const TExpr &>(*this)(args...); }
 #endif
-  __BOOST_SML_ZERO_SIZE_ARRAY(byte);
+  BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(byte);
 };
 template <class TExpr>
 struct zero_wrapper<TExpr, void_t<decltype(+declval<TExpr>())>>
@@ -1551,7 +1551,7 @@ struct jump_table {
   static bool dispatch(sm_impl &self, State &current_state, const TEvent &event, TDeps &deps, TSubs &subs,
                        const aux::type_list<TStates...> &) {
     using dispatch_table_t = bool (*)(const TEvent &, sm_impl &, TDeps &, TSubs &, State &);
-    constexpr static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
+    constexpr static dispatch_table_t dispatch_table[BOOST_SML_DETAIL_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &get_state_mapping_t<TStates, TMappings, typename sm_impl::has_unexpected_events>::template execute<TEvent, sm_impl,
                                                                                                             TDeps, TSubs>...};
     return dispatch_table[current_state](event, self, deps, subs, current_state);
@@ -1719,7 +1719,7 @@ namespace back {
 namespace policies {
 struct thread_safety_policy__ {
   constexpr auto create_lock() { return *this; }
-  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
+  BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(aux::byte);
 };
 template <class TLock>
 struct thread_safe : aux::pair<thread_safety_policy__, thread_safe<TLock>> {
@@ -1745,7 +1745,7 @@ struct no_policy : policies::thread_safety_policy__ {
   using defer = no_policy;
   using const_iterator = no_policy;
   using flag = no_policy;
-  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
+  BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(aux::byte);
 };
 template <class TDefault, class>
 TDefault get_policy(...);
@@ -1911,14 +1911,14 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
     process_event(on_entry<_, initial>{}, d, subs);
   }
   template <class TEvent, class TDeps, class TSubs, class... Ts,
-            __BOOST_SML_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
+            BOOST_SML_DETAIL_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
                                  !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value &&
                                  !aux::is_same<get_event_t<TEvent>, initial>::value)>
   constexpr bool process_internal_events(const TEvent &, TDeps &, TSubs &, Ts &&...) {
     return false;
   }
   template <class TEvent, class TDeps, class TSubs, class... Ts,
-            __BOOST_SML_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
+            BOOST_SML_DETAIL_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
                                  !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value &&
                                  aux::is_same<get_event_t<TEvent>, initial>::value)>
   constexpr bool process_internal_events(const TEvent &event, TDeps &d, TSubs &subs) {
@@ -1931,7 +1931,7 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
 #endif
   }
   template <class TEvent, class TDeps, class TSubs,
-            __BOOST_SML_REQUIRES(aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
+            BOOST_SML_DETAIL_REQUIRES(aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
                                  !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
   constexpr bool process_internal_events(const TEvent &event, TDeps &d, TSubs &subs) {
     policies::log_process_event<sm_t>(aux::type_wrapper<logger_t>{}, d, event);
@@ -1943,7 +1943,7 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
 #endif
   }
   template <class TEvent, class TDeps, class TSubs,
-            __BOOST_SML_REQUIRES(aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
+            BOOST_SML_DETAIL_REQUIRES(aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
   constexpr bool process_internal_events(const TEvent &event, TDeps &d, TSubs &subs) {
     policies::log_process_event<sm_t>(aux::type_wrapper<logger_t>{}, d, event);
 #if BOOST_SML_DISABLE_EXCEPTIONS
@@ -1954,18 +1954,18 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
 #endif
   }
   template <class TEvent, class TDeps, class TSubs, class... Ts,
-            __BOOST_SML_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
+            BOOST_SML_DETAIL_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
                                  !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
   constexpr bool process_internal_event(const TEvent &, TDeps &, TSubs &, Ts &&...) {
     return false;
   }
   template <class TEvent, class TDeps, class TSubs,
-            __BOOST_SML_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value)>
+            BOOST_SML_DETAIL_REQUIRES(!aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value)>
   constexpr bool process_internal_generic_event(const TEvent &, TDeps &, TSubs &, state_t &) {
     return false;
   }
   template <class TEvent, class TDeps, class TSubs,
-            __BOOST_SML_REQUIRES(aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value)>
+            BOOST_SML_DETAIL_REQUIRES(aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value)>
   constexpr bool process_internal_generic_event(const TEvent &event, TDeps &d, TSubs &subs, state_t &current_state) {
     policies::log_process_event<sm_t>(aux::type_wrapper<logger_t>{}, d, event);
 #if BOOST_SML_DISABLE_EXCEPTIONS
@@ -1977,13 +1977,13 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
 #endif
   }
   template <class TEvent, class TDeps, class TSubs,
-            __BOOST_SML_REQUIRES(aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
+            BOOST_SML_DETAIL_REQUIRES(aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
                                  !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
   constexpr bool process_internal_event(const TEvent &event, TDeps &d, TSubs &subs, state_t &current_state) {
     return process_internal_generic_event(event, d, subs, current_state);
   }
   template <class TEvent, class TDeps, class TSubs,
-            __BOOST_SML_REQUIRES(aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
+            BOOST_SML_DETAIL_REQUIRES(aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
   constexpr bool process_internal_event(const TEvent &event, TDeps &d, TSubs &subs, state_t &current_state) {
     policies::log_process_event<sm_t>(aux::type_wrapper<logger_t>{}, d, event);
 #if BOOST_SML_DISABLE_EXCEPTIONS
@@ -2079,7 +2079,7 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
     bool processed_events = false;
     if (handled) {
       using dispatch_table_t = bool (sm_impl::*)(TDeps &, TSubs &, const void *);
-      const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
+      const static dispatch_table_t dispatch_table[BOOST_SML_DETAIL_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
           &sm_impl::process_event_no_defer<TDeps, TSubs, TEvents>...};
       defer_processing_ = true;
       defer_again_ = false;
@@ -2121,7 +2121,7 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
   template <class TDeps, class TSubs, class TDeferQueue, class... TEvents>
   bool process_queued_events(TDeps &d, TSubs &subs, bool &queued_handled, const aux::type_wrapper<TDeferQueue> &, const aux::type_list<TEvents...> &) {
     using dispatch_table_t = bool (sm_impl::*)(TDeps &, TSubs &, const void *);
-    const static dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
+    const static dispatch_table_t dispatch_table[BOOST_SML_DETAIL_ZERO_SIZE_ARRAY_CREATE(sizeof...(TEvents))] = {
         &sm_impl::process_event_no_queue<TDeps, TSubs, TEvents>...};
     bool wasnt_empty = !process_.empty();
     if (!process_.empty()) {
@@ -2136,14 +2136,14 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
   template <class TVisitor, class... TStates>
   constexpr void visit_current_states(const TVisitor &visitor, const aux::type_list<TStates...> &, aux::index_sequence<0>) const {
     using dispatch_table_t = void (*)(const TVisitor &);
-    const dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
+    const dispatch_table_t dispatch_table[BOOST_SML_DETAIL_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &sm_impl::visit_state<TVisitor, TStates>...};
     dispatch_table[current_state_[0]](visitor);
   }
   template <class TVisitor, class... TStates, int... Ns>
   constexpr void visit_current_states(const TVisitor &visitor, const aux::type_list<TStates...> &, aux::index_sequence<Ns...>) const {
     using dispatch_table_t = void (*)(const TVisitor &);
-    const dispatch_table_t dispatch_table[__BOOST_SML_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
+    const dispatch_table_t dispatch_table[BOOST_SML_DETAIL_ZERO_SIZE_ARRAY_CREATE(sizeof...(TStates))] = {
         &sm_impl::visit_state<TVisitor, TStates>...};
 #if defined(__cpp_fold_expressions)
     (dispatch_table[current_state_[Ns]](visitor), ...);
@@ -2213,11 +2213,11 @@ class sm {
 
  public:
   constexpr sm() : deps_{aux::init{}, aux::pool<>{}}, sub_sms_{aux::pool<>{}} { aux::get<sm_impl<Tsm>>(sub_sms_).start(deps_, sub_sms_); }
-  template <class TDeps, __BOOST_SML_REQUIRES(!aux::is_same<aux::remove_reference_t<TDeps>, sm>::value)>
+  template <class TDeps, BOOST_SML_DETAIL_REQUIRES(!aux::is_same<aux::remove_reference_t<TDeps>, sm>::value)>
   constexpr explicit sm(TDeps &&deps) : deps_{aux::init{}, aux::pool<TDeps>{deps}}, sub_sms_{aux::pool<TDeps>{deps}} {
     aux::get<sm_impl<Tsm>>(sub_sms_).start(deps_, sub_sms_);
   }
-  template <class... TDeps, __BOOST_SML_REQUIRES((sizeof...(TDeps) > 1) && aux::is_unique_t<TDeps...>::value)>
+  template <class... TDeps, BOOST_SML_DETAIL_REQUIRES((sizeof...(TDeps) > 1) && aux::is_unique_t<TDeps...>::value)>
   constexpr explicit sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
     aux::get<sm_impl<Tsm>>(sub_sms_).start(deps_, sub_sms_);
   }
@@ -2226,15 +2226,15 @@ class sm {
   constexpr sm(sm &&) = default;
   constexpr sm &operator=(const sm &) = default;
   constexpr sm &operator=(sm &&) = default;
-  template <class TEvent, __BOOST_SML_REQUIRES(aux::is_base_of<TEvent, events_ids>::value)>
+  template <class TEvent, BOOST_SML_DETAIL_REQUIRES(aux::is_base_of<TEvent, events_ids>::value)>
   constexpr bool process_event(const TEvent &event) {
     return aux::get<sm_impl<Tsm>>(sub_sms_).process_event(event, deps_, sub_sms_);
   }
-  template <class TEvent, __BOOST_SML_REQUIRES(!aux::is_base_of<TEvent, events_ids>::value)>
+  template <class TEvent, BOOST_SML_DETAIL_REQUIRES(!aux::is_base_of<TEvent, events_ids>::value)>
   constexpr bool process_event(const TEvent &event) {
     return aux::get<sm_impl<Tsm>>(sub_sms_).process_event(unexpected_event<_, TEvent>{event}, deps_, sub_sms_);
   }
-  template <class T = aux::identity<sm_t>, class TVisitor, __BOOST_SML_REQUIRES(concepts::callable<void, TVisitor>::value)>
+  template <class T = aux::identity<sm_t>, class TVisitor, BOOST_SML_DETAIL_REQUIRES(concepts::callable<void, TVisitor>::value)>
   constexpr void visit_current_states(const TVisitor &visitor) const {
     using type = typename T::type;
     using sm_impl_t = sm_impl<typename Tsm::template rebind<type>>;
@@ -2243,7 +2243,7 @@ class sm {
     aux::cget<sm_impl_t>(sub_sms_).visit_current_states(visitor, states_t{}, aux::make_index_sequence<regions>{});
   }
   template <class T = aux::identity<sm_t>, class TState,
-            __BOOST_SML_REQUIRES(sm_impl<typename Tsm::template rebind<typename T::type>>::regions == 1)>
+            BOOST_SML_DETAIL_REQUIRES(sm_impl<typename Tsm::template rebind<typename T::type>>::regions == 1)>
   constexpr bool is(const TState &) const {
     using type = typename T::type;
     using sm_impl_t = sm_impl<typename Tsm::template rebind<type>>;
@@ -2252,7 +2252,7 @@ class sm {
     return aux::get_id<state_t, typename TState::type>((states_ids_t *)0) == aux::cget<sm_impl_t>(sub_sms_).current_state_[0];
   }
   template <class T = aux::identity<sm_t>, class TState,
-            __BOOST_SML_REQUIRES(sm_impl<typename Tsm::template rebind<typename T::type>>::regions != 1)>
+            BOOST_SML_DETAIL_REQUIRES(sm_impl<typename Tsm::template rebind<typename T::type>>::regions != 1)>
   constexpr bool is(const TState &) const {
     using type = typename T::type;
     using sm_impl_t = sm_impl<typename Tsm::template rebind<type>>;
@@ -2281,7 +2281,7 @@ class sm {
     return result;
   }
   template <class T = aux::identity<sm_t>, class... TStates,
-            __BOOST_SML_REQUIRES(sizeof...(TStates) == sm_impl<typename Tsm::template rebind<typename T::type>>::regions)>
+            BOOST_SML_DETAIL_REQUIRES(sizeof...(TStates) == sm_impl<typename Tsm::template rebind<typename T::type>>::regions)>
   constexpr bool is(const TStates &...) const {
     using type = typename T::type;
     using sm_impl_t = sm_impl<typename Tsm::template rebind<type>>;
@@ -2297,7 +2297,7 @@ class sm {
     return result;
   }
   template <class T = aux::identity<sm_t>, class... TStates,
-            __BOOST_SML_REQUIRES(!aux::is_same<no_policy, typename Tsm::testing_policy>::value && aux::always<T>::value)>
+            BOOST_SML_DETAIL_REQUIRES(!aux::is_same<no_policy, typename Tsm::testing_policy>::value && aux::always<T>::value)>
   constexpr void set_current_states(const TStates &...) {
     using type = typename T::type;
     using sm_impl_t = sm_impl<typename Tsm::template rebind<type>>;
@@ -2334,15 +2334,15 @@ TRootSM get_root_sm_impl(aux::pool<TRootSM, TSubSMs...> *);
 template <class TSubs>
 using get_root_sm_t = decltype(get_root_sm_impl((TSubs *)0));
 template <class, class>
-aux::type_list<action_base> args1__(...);
+aux::type_list<action_base> args1_(...);
 template <class T, class E>
-auto args1__(int) -> aux::function_traits_t<decltype(&T::operator())>;
+auto args1_(int) -> aux::function_traits_t<decltype(&T::operator())>;
 template <class T, class E>
-auto args__(int) -> aux::function_traits_t<decltype(&T::__BOOST_SML_TEMPLATE_KEYWORD operator()<back::get_event_t<E>>)>;
+auto args_(int) -> aux::function_traits_t<decltype(&T::BOOST_SML_DETAIL_TEMPLATE_KEYWORD operator()<back::get_event_t<E>>)>;
 template <class T, class E>
-auto args__(...) -> decltype(args1__<T, E>(0));
+auto args_(...) -> decltype(args1_<T, E>(0));
 template <class T, class E>
-using args_t = decltype(args__<T, E>(0));
+using args_t = decltype(args_<T, E>(0));
 template <class T, class TEvent, class Tsm, class TDeps>
 constexpr decltype(auto) get_arg(const aux::type_wrapper<T> &, const TEvent &, Tsm &, TDeps &deps) {
   return aux::get<T>(deps);
@@ -2389,7 +2389,7 @@ constexpr decltype(auto) get_arg(const aux::type_wrapper<back::process<TEvents..
 // BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS) hits the primary-template
 // pool_type_impl whose reference member dangles after construction. (#530)
 template <class T, class TEvent, class Tsm, class TDeps,
-          __BOOST_SML_REQUIRES(!aux::is_same<aux::remove_const_t<aux::remove_reference_t<back::get_event_t<TEvent>>>,
+          BOOST_SML_DETAIL_REQUIRES(!aux::is_same<aux::remove_const_t<aux::remove_reference_t<back::get_event_t<TEvent>>>,
                                              T>::value)>
 constexpr const T &get_arg(const aux::type_wrapper<const T &> &, const TEvent &, Tsm &, TDeps &deps) {
   return aux::get<T &>(deps);
@@ -2398,7 +2398,7 @@ constexpr const T &get_arg(const aux::type_wrapper<const T &> &, const TEvent &,
 // Excluded: the current SM's own type (Tsm::sm_t), which belongs in deps
 template <class T, class TEvent, class Tsm, class TDeps, class TSubs,
           class T_ = aux::remove_const_t<aux::remove_reference_t<T>>,
-          __BOOST_SML_REQUIRES(!aux::is_same<T_, typename Tsm::sm_t>::value)>
+          BOOST_SML_DETAIL_REQUIRES(!aux::is_same<T_, typename Tsm::sm_t>::value)>
 constexpr auto get_arg(const aux::type_wrapper<T> &, const TEvent &, Tsm &, TDeps &,
                        TSubs &subs, int)
     -> decltype(static_cast<T_ &>(back::sub_sm<back::sm_impl<back::sm_policy<T_>>>::get(&subs))) {
@@ -2603,13 +2603,13 @@ struct is_integral_constant_like<T,
         aux::is_same<bool,
             aux::remove_const_t<decltype(T::value)>>::value &&
         aux::is_same<T, typename T::type>::value> {};
-template <class T, __BOOST_SML_REQUIRES(
+template <class T, BOOST_SML_DETAIL_REQUIRES(
     concepts::callable<bool, T>::value &&
     !is_integral_constant_like<T>::value)>
 constexpr auto operator!(const T &t) {
   return front::not_<aux::zero_wrapper<T>>(aux::zero_wrapper<T>{t});
 }
-template <class T1, class T2, __BOOST_SML_REQUIRES(
+template <class T1, class T2, BOOST_SML_DETAIL_REQUIRES(
     concepts::callable<bool, T1>::value &&
     concepts::callable<bool, T2>::value &&
     !is_integral_constant_like<T1>::value &&
@@ -2617,7 +2617,7 @@ template <class T1, class T2, __BOOST_SML_REQUIRES(
 constexpr auto operator&&(const T1 &t1, const T2 &t2) {
   return front::and_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
-template <class T1, class T2, __BOOST_SML_REQUIRES(
+template <class T1, class T2, BOOST_SML_DETAIL_REQUIRES(
     concepts::callable<bool, T1>::value &&
     concepts::callable<bool, T2>::value &&
     !is_integral_constant_like<T1>::value &&
@@ -2632,7 +2632,7 @@ constexpr auto operator||(const T1 &t1, const T2 &t2) {
 // (not class types), so the built-in comma is selected instead and only the last
 // action runs.  Wrap the first pointer with sml::wrap() to fix:
 //   / (sml::wrap(&C::a), &C::b)   -- correct: both a and b execute
-template <class T1, class T2, __BOOST_SML_REQUIRES(concepts::callable<void, T1>::value &&concepts::callable<void, T2>::value)>
+template <class T1, class T2, BOOST_SML_DETAIL_REQUIRES(concepts::callable<void, T1>::value &&concepts::callable<void, T2>::value)>
 constexpr auto operator,(const T1 &t1, const T2 &t2) {
   return front::seq_<aux::zero_wrapper<T1>, aux::zero_wrapper<T2>>(aux::zero_wrapper<T1>{t1}, aux::zero_wrapper<T2>{t2});
 }
@@ -2715,11 +2715,11 @@ template <class, class>
 struct transition_ea;
 template <class TEvent>
 struct event {
-  template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
+  template <class T, BOOST_SML_DETAIL_REQUIRES(concepts::callable<bool, T>::value)>
   constexpr auto operator[](const T &t) const {
     return transition_eg<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
   }
-  template <class T, __BOOST_SML_REQUIRES(concepts::callable<void, T>::value)>
+  template <class T, BOOST_SML_DETAIL_REQUIRES(concepts::callable<void, T>::value)>
   constexpr auto operator/(const T &t) const {
     return transition_ea<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
   }
@@ -2749,11 +2749,11 @@ struct state_impl {
   constexpr auto operator+(const T &t) const {
     return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
-  template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
+  template <class T, BOOST_SML_DETAIL_REQUIRES(concepts::callable<bool, T>::value)>
   constexpr auto operator[](const T &t) const {
     return transition_sg<TState, aux::zero_wrapper<T>>{static_cast<const TState &>(*this), aux::zero_wrapper<T>{t}};
   }
-  template <class T, __BOOST_SML_REQUIRES(concepts::callable<void, T>::value)>
+  template <class T, BOOST_SML_DETAIL_REQUIRES(concepts::callable<void, T>::value)>
   constexpr auto operator/(const T &t) const {
     return transition_sa<TState, aux::zero_wrapper<T>>{static_cast<const TState &>(*this), aux::zero_wrapper<T>{t}};
   }
@@ -2855,12 +2855,12 @@ struct get_deps<T<Ts...>, E, aux::enable_if_t<aux::is_base_of<operator_base, T<T
 struct always {
   using type = always;
   constexpr bool operator()() const { return true; }
-  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
+  BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(aux::byte);
 };
 struct none {
   using type = none;
   constexpr void operator()() {}
-  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
+  BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(aux::byte);
 };
 template <class...>
 struct transition;
@@ -3269,7 +3269,7 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, none> {
                          state<dst_state>{});
     return true;
   }
-  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
+  BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(aux::byte);
 };
 template <class S2, class E>
 struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
@@ -3286,7 +3286,7 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
   constexpr bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &, Ts &&...) {
     return true;
   }
-  __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
+  BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(aux::byte);
 };
 }  // namespace front
 using _ = back::_;
@@ -3295,16 +3295,16 @@ template <class TEvent>
 constexpr front::event<TEvent> event{};
 #else
 template <class TEvent>
-front::event<TEvent> event __BOOST_SML_VT_INIT;
+front::event<TEvent> event BOOST_SML_DETAIL_VT_INIT;
 #endif
 template <class TEvent>
-__BOOST_SML_UNUSED front::event<back::on_entry<_, TEvent>> on_entry __BOOST_SML_VT_INIT;
+BOOST_SML_DETAIL_UNUSED front::event<back::on_entry<_, TEvent>> on_entry BOOST_SML_DETAIL_VT_INIT;
 template <class TEvent>
-__BOOST_SML_UNUSED front::event<back::on_exit<_, TEvent>> on_exit __BOOST_SML_VT_INIT;
+BOOST_SML_DETAIL_UNUSED front::event<back::on_exit<_, TEvent>> on_exit BOOST_SML_DETAIL_VT_INIT;
 template <class TEvent>
-front::event<back::unexpected_event<TEvent>> unexpected_event __BOOST_SML_VT_INIT;
+front::event<back::unexpected_event<TEvent>> unexpected_event BOOST_SML_DETAIL_VT_INIT;
 template <class T>
-front::event<back::exception<T>> exception __BOOST_SML_VT_INIT;
+front::event<back::exception<T>> exception BOOST_SML_DETAIL_VT_INIT;
 using anonymous = back::anonymous;
 using initial = back::initial;
 #if !(defined(_MSC_VER) && !defined(__clang__))
@@ -3312,7 +3312,7 @@ template <class T>
 constexpr typename front::state_sm<T>::type state{};
 #else
 template <class T>
-typename front::state_sm<T>::type state __BOOST_SML_VT_INIT;
+typename front::state_sm<T>::type state BOOST_SML_DETAIL_VT_INIT;
 #endif
 #if !(defined(__ICCARM__))
 inline namespace literals {
@@ -3340,30 +3340,31 @@ constexpr auto operator""_e() {
 #endif
 }  // namespace literals
 #endif
-__BOOST_SML_UNUSED static front::state<back::terminate_state> X;
-__BOOST_SML_UNUSED static front::history_state H;
-__BOOST_SML_UNUSED static front::actions::defer defer;
-__BOOST_SML_UNUSED static front::actions::process process;
-__BOOST_SML_UNUSED static front::state<class SML_EVAL> eval;
-template <class... Ts, __BOOST_SML_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
+BOOST_SML_DETAIL_UNUSED static front::state<back::terminate_state> X;
+BOOST_SML_DETAIL_UNUSED static front::history_state H;
+BOOST_SML_DETAIL_UNUSED static front::actions::defer defer;
+BOOST_SML_DETAIL_UNUSED static front::actions::process process;
+BOOST_SML_DETAIL_UNUSED static front::state<class SML_EVAL> eval;
+template <class... Ts, BOOST_SML_DETAIL_REQUIRES(aux::is_same<aux::bool_list<aux::always<Ts>::value...>,
                                                          aux::bool_list<concepts::transitional<Ts>::value...>>::value)>
 constexpr auto make_transition_table(Ts... ts) {
   return aux::pool<Ts...>{ts...};
 }
 BOOST_SML_NAMESPACE_END
-#undef __BOOST_SML_UNUSED
-#undef __BOOST_SML_VT_INIT
-#undef __BOOST_SML_ZERO_SIZE_ARRAY
-#undef __BOOST_SML_ZERO_SIZE_ARRAY_CREATE
-#undef __BOOST_SML_TEMPLATE_KEYWORD
+#undef BOOST_SML_DETAIL_UNUSED
+#undef BOOST_SML_DETAIL_VT_INIT
+#undef BOOST_SML_DETAIL_ZERO_SIZE_ARRAY
+#undef BOOST_SML_DETAIL_ZERO_SIZE_ARRAY_CREATE
+#undef BOOST_SML_DETAIL_TEMPLATE_KEYWORD
+#undef BOOST_SML_DETAIL_REQUIRES
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #elif defined(__GNUC__)
-#if defined(__BOOST_SML_DEFINED_HAS_BUILTIN)
+#if defined(BOOST_SML_DETAIL_DEFINED_HAS_BUILTIN)
 #undef __has_builtin
 #endif
 #pragma GCC diagnostic pop
-#elif defined(_MSC_VER) && !defined(__clang__) && defined(__BOOST_SML_DEFINED_HAS_BUILTIN)
+#elif defined(_MSC_VER) && !defined(__clang__) && defined(BOOST_SML_DETAIL_DEFINED_HAS_BUILTIN)
 #undef __has_builtin
 #undef __has_builtin__make_integer_seq
 #endif
