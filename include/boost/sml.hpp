@@ -1039,7 +1039,7 @@ struct queue_handler : queue_event_call<TEvents>... {
  private:
   template <class TQueue, class TEvent>
   constexpr static auto push_impl(void *queue, const TEvent &event) {
-    static_cast<TQueue *>(queue)->push(event);
+    static_cast<TQueue *>(queue)->push(typename TQueue::value_type{event});
   }
   void *queue_{};
 };
@@ -1057,7 +1057,7 @@ struct deque_handler : queue_event_call<TEvents>... {
  private:
   template <class TDeque, class TEvent>
   constexpr static auto push_impl(void *deque, const TEvent &event) {
-    static_cast<TDeque *>(deque)->push_back(event);
+    static_cast<TDeque *>(deque)->push_back(typename TDeque::value_type{event});
   }
   void *deque_{};
 };
