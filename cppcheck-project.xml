@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="1">
+    <!-- Tell cppcheck where to find <boost/sml.hpp> and common/test.hpp -->
+    <includedir>
+        <dir name="include"/>
+        <dir name="test"/>
+    </includedir>
+</project>
