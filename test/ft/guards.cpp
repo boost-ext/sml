@@ -96,3 +96,28 @@ test integral_constant_and_or_not_not_grabbed_by_sml_operators = [] {
   expect(r_or  == true);
   expect(r_not == false);
 };
+
+// Issue #515: event<e>[!guard] and *state[!guard] must compile in C++20 mode
+// (MSVC C++20 failed to deduce T in operator[] when the argument type is
+// front::not_<...> and the SFINAE was expressed as a default template parameter.
+// Fix: move the constraint to the trailing return type.)
+test negated_guard_compiles_on_event_and_state = [] {
+  struct c {
+    auto operator()() {
+      using namespace sml;
+      auto guard_true = [] { return true; };
+
+      // clang-format off
+      return make_transition_table(
+        *state1 + event<event1> [ !guard_true ] = state2,   // event<e>[!guard]
+         state2                 [ !guard_true ] = state3    // *state[!guard]
+      );
+      // clang-format on
+    }
+  };
+
+  sml::sm<c> sm{};
+  // !guard_true always evaluates to false, so neither transition fires.
+  sm.process_event(event1{});
+  expect(sm.is(state1));
+};

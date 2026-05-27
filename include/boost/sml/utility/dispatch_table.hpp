@@ -9,6 +9,10 @@
 
 #include "boost/sml.hpp"
 
+// BOOST_SML_DETAIL_REQUIRES is #undef'd at the end of sml.hpp; re-define it
+// locally for use in this utility header.
+#define BOOST_SML_DETAIL_REQUIRES(...) typename aux::enable_if<__VA_ARGS__, int>::type = 0
+
 BOOST_SML_NAMESPACE_BEGIN
 
 namespace utility {
@@ -41,17 +45,17 @@ namespace detail {
 
 template <int Id, class TEvent = void>
 struct dispatch_event_impl {
-  template <class SM, class T, __BOOST_SML_REQUIRES(aux::is_constructible<TEvent>::value &&aux::always<T>::value)>
+  template <class SM, class T, BOOST_SML_DETAIL_REQUIRES(aux::is_constructible<TEvent>::value &&aux::always<T>::value)>
   static bool execute(SM &sm, const T &) {
     return sm.process_event(TEvent());
   }
 
-  template <class SM, class T, __BOOST_SML_REQUIRES(aux::is_constructible<TEvent, T>::value)>
+  template <class SM, class T, BOOST_SML_DETAIL_REQUIRES(aux::is_constructible<TEvent, T>::value)>
   static bool execute(SM &sm, const T &data) {
     return sm.process_event(TEvent(data));
   }
 
-  template <class SM, class T, __BOOST_SML_REQUIRES(aux::is_constructible<TEvent, T, int>::value)>
+  template <class SM, class T, BOOST_SML_DETAIL_REQUIRES(aux::is_constructible<TEvent, T, int>::value)>
   static bool execute(SM &sm, const T &data) {
     return sm.process_event(TEvent(data, Id));
   }
@@ -121,7 +125,7 @@ template <int... Ids>
 using id = id_impl<Ids...>;
 
 template <class TEvent, int EventRangeBegin, int EventRangeEnd, class SM,
-          __BOOST_SML_REQUIRES(concepts::dispatchable<TEvent, typename SM::events>::value)>
+          BOOST_SML_DETAIL_REQUIRES(concepts::dispatchable<TEvent, typename SM::events>::value)>
 auto make_dispatch_table(SM &fsm) {
   static_assert(EventRangeEnd - EventRangeBegin > 0, "Event ids range difference has to be greater than 0");
   return detail::make_dispatch_table<TEvent, EventRangeBegin>(fsm,
@@ -131,5 +135,7 @@ auto make_dispatch_table(SM &fsm) {
 BOOST_SML_NAMESPACE_END
 
 }  // namespace utility
+
+#undef BOOST_SML_DETAIL_REQUIRES
 
 #endif
