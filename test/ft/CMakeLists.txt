@@ -96,4 +96,9 @@ add_test(test_unexpected_events test_unexpected_events)
 add_executable(test_dont_instantiate_statemachine_class dont_instantiate_statemachine_class.cpp)
 add_test(test_dont_instantiate_statemachine_class test_dont_instantiate_statemachine_class)
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_437_explicit_deps.cpp)
+  add_executable(test_issue_437_explicit_deps issue_437_explicit_deps.cpp)
+  add_test(test_issue_437_explicit_deps test_issue_437_explicit_deps)
+endif()
+
 add_subdirectory(errors)
