@@ -27,7 +27,10 @@
 #define BOOST_SML_DETAIL_UNUSED __attribute__((unused))
 #define BOOST_SML_DETAIL_VT_INIT \
   {}
-#if !defined(BOOST_SML_CFG_DISABLE_MIN_SIZE)
+// Zero-size array trick shrinks SM objects but triggers UBSan "insufficient
+// object size" at -O2+ (issue #249).  Opt in via BOOST_SML_CFG_ENABLE_MIN_SIZE;
+// the old BOOST_SML_CFG_DISABLE_MIN_SIZE remains honoured for backward compat.
+#if defined(BOOST_SML_CFG_ENABLE_MIN_SIZE) && !defined(BOOST_SML_CFG_DISABLE_MIN_SIZE)
 #define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]
 #else
 #define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(...) static_assert(true)
@@ -45,7 +48,10 @@
 #define BOOST_SML_DETAIL_UNUSED __attribute__((unused))
 #define BOOST_SML_DETAIL_VT_INIT \
   {}
-#if !defined(BOOST_SML_CFG_DISABLE_MIN_SIZE)
+// Zero-size array trick shrinks SM objects but triggers UBSan "insufficient
+// object size" at -O2+ (issue #249).  Opt in via BOOST_SML_CFG_ENABLE_MIN_SIZE;
+// the old BOOST_SML_CFG_DISABLE_MIN_SIZE remains honoured for backward compat.
+#if defined(BOOST_SML_CFG_ENABLE_MIN_SIZE) && !defined(BOOST_SML_CFG_DISABLE_MIN_SIZE)
 #define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(...) __VA_ARGS__ _[0]{}
 #else
 #define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(...) static_assert(true)
