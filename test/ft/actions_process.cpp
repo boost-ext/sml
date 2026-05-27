@@ -515,3 +515,37 @@ test process_queue_std_queue_compiles_and_works = [] {
   expect(2 == c_.processed);
   expect(sm.is(sml::X));
 };
+
+// Issue #400 / #562: back::process<E> from inside a sub-SM action must enqueue
+// the event on the ROOT SM's process queue, not the sub-SM's local queue.
+// Before the fix, the event was pushed to the sub-SM's queue and never drained
+// by the root SM's loop → silently dropped (root SM only saw "").
+// After the fix, the root SM dispatches e2 and fires the outer-level action.
+struct sub_c400 {
+  auto operator()() const noexcept {
+    using namespace sml;
+    auto back_proc = [](back::process<e2> proc) { proc(e2{}); };
+    // clang-format off
+    return make_transition_table(
+      * s1 + event<e1> / back_proc
+    );
+    // clang-format on
+  }
+};
+struct c400 {
+  std::string received;
+  auto operator()() noexcept {
+    using namespace sml;
+    // clang-format off
+    return make_transition_table(
+      * sml::state<sub_c400> + event<e2> / [this] { received += "e2|"; }
+    );
+    // clang-format on
+  }
+};
+test back_process_from_sub_sm_routes_to_root_queue = [] {
+  sml::sm<c400, sml::process_queue<std::queue>> sm{};
+  sm.process_event(e1{});           // sub-SM fires back_proc → enqueues e2 on root queue
+  const c400 &c_ = sm;
+  expect(c_.received == "e2|");     // before fix: "" (e2 silently dropped)
+};

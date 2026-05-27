@@ -2375,9 +2375,19 @@ template <class... TEvents, class TEvent, class Tsm, class TDeps>
 constexpr decltype(auto) get_arg(const aux::type_wrapper<back::defer<TEvents...>> &, const TEvent, Tsm &sm, TDeps &) {
   return back::defer<TEvents...>{sm.defer_};
 }
+// 4-param fallback: used when no subs pool is available.
 template <class... TEvents, class TEvent, class Tsm, class TDeps>
 constexpr decltype(auto) get_arg(const aux::type_wrapper<back::process<TEvents...>> &, const TEvent, Tsm &sm, TDeps &) {
   return back::process<TEvents...>{sm.process_};
+}
+// 6-param overload (preferred over the variadic fallback): route to the ROOT
+// SM's process queue so that events pushed via back::process<E> from inside a
+// sub-SM are dispatched by the root SM's drain loop and not silently dropped.
+// The root SM is always the first element of the subs pool (see get_root_sm_t).
+// (#400 / #562)
+template <class... TEvents, class TEvent, class Tsm, class TDeps, class TSubs>
+constexpr decltype(auto) get_arg(const aux::type_wrapper<back::process<TEvents...>> &, const TEvent &, Tsm &, TDeps &, TSubs &subs, int) {
+  return back::process<TEvents...>{aux::get<get_root_sm_t<TSubs>>(subs).process_};
 }
 // For const lvalue-ref dep parameters (`const State &`): look up the non-const
 // `State &` pool slot instead of a separate `const State &` slot.
