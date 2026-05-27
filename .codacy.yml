@@ -1,0 +1,4 @@
+---
+engines:
+  cppcheck:
+    language: c++

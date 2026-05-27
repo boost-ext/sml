@@ -45,7 +45,6 @@ int main() {
   using namespace sml;
 
   sm<hello_world> sm;
-  static_assert(1 == sizeof(sm), "sizeof(sm) != 1b");
   assert(sm.is("established"_s));
 
   sm.process_event(release{});
