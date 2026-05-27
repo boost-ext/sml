@@ -9,7 +9,12 @@
 
 namespace sml = boost::sml;
 
-#if !defined(_MSC_VER)
+// All tests in this file check compile-time sizes that depend on the
+// zero-size-array trick (BOOST_SML_CFG_ENABLE_MIN_SIZE).  With the trick
+// disabled (the default since issue #249 was fixed), lambda wrappers and
+// pool entries are each ≥1 byte, so sizeof(sm<...>) is larger.
+// Skip on MSVC (no zero-size-array extension) and when ENABLE_MIN_SIZE is off.
+#if !defined(_MSC_VER) && defined(BOOST_SML_CFG_ENABLE_MIN_SIZE)
 test transition_sizeof = [] {
   using namespace sml;
   constexpr auto i = 0;
