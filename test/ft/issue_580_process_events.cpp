@@ -8,7 +8,9 @@
 // Issue #580: back::process<E> fails with a template error when event E is not
 // referenced in any transition row (only in the action parameter list).
 //
+// cppcheck-suppress missingIncludeSystem
 #include <boost/sml.hpp>
+// cppcheck-suppress missingIncludeSystem
 #include <queue>
 
 namespace sml = boost::sml;
