@@ -1629,6 +1629,9 @@ template <class T>
 struct logger : aux::pair<logger_policy__, logger<T>> {
   using type = T;
 };
+struct explicit_deps_policy__ {};
+template <class... Ts>
+struct explicit_deps : aux::pair<explicit_deps_policy__, explicit_deps<Ts...>> {};
 template <class>
 struct get_state_name;
 template <class T>
@@ -1769,6 +1772,8 @@ struct sm_policy {
   using logger_policy = decltype(get_policy<no_policy, policies::logger_policy__>((aux::inherit<TPolicies...> *)0));
   using testing_policy = decltype(get_policy<no_policy, policies::testing_policy__>((aux::inherit<TPolicies...> *)0));
   using dont_instantiate_statemachine_class_policy = decltype(get_policy<no_policy, policies::dont_instantiate_statemachine_class_policy__>((aux::inherit<TPolicies...> *)0));
+  using explicit_deps_policy =
+      decltype(get_policy<no_policy, policies::explicit_deps_policy__>((aux::inherit<TPolicies...> *)0));
   using default_dispatch_policy = policies::switch_stm;
   using dispatch_policy =
       decltype(get_policy<default_dispatch_policy, policies::dispatch_policy__>((aux::inherit<TPolicies...> *)0));
@@ -2185,6 +2190,14 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
   typename defer_t::const_iterator defer_it_{};
   typename defer_t::const_iterator defer_end_{};
 };
+template <class>
+struct get_explicit_deps {
+  using type = aux::type_list<>;
+};
+template <class... Ts>
+struct get_explicit_deps<policies::explicit_deps<Ts...>> {
+  using type = aux::type_list<aux::remove_const_t<aux::remove_reference_t<Ts>> &...>;
+};
 template <class Tsm>
 class sm {
   using sm_t = typename Tsm::sm;
@@ -2212,9 +2225,10 @@ class sm {
       aux::apply_t<aux::pool,
                    typename convert_to_sm<Tsm, aux::apply_t<aux::unique_t, aux::apply_t<get_sub_sms, states>>>::type>;
   using dep_list = aux::apply_t<merge_deps, transitions_t>;
+  using explicit_dep_list = typename get_explicit_deps<typename Tsm::explicit_deps_policy>::type;
   using deps_t =
       aux::apply_t<aux::pool,
-                   aux::apply_t<aux::unique_t, aux::join_t<dep_list, sm_all_t, logger_dep_t, aux::apply_t<merge_deps, sub_sms_t>>>>;
+                   aux::apply_t<aux::unique_t, aux::join_t<explicit_dep_list, dep_list, sm_all_t, logger_dep_t, aux::apply_t<merge_deps, sub_sms_t>>>>;
   struct events_ids : aux::apply_t<aux::inherit, events> {};
 
  public:
@@ -2678,6 +2692,8 @@ using defer_queue = back::policies::defer_queue<T>;
 template <template <class...> class T>
 using process_queue = back::policies::process_queue<T>;
 using dont_instantiate_statemachine_class = back::policies::dont_instantiate_statemachine_class;
+template <class... Ts>
+using deps = back::policies::explicit_deps<Ts...>;
 #if defined(_MSC_VER) && !defined(__clang__)
 template <class T, class... TPolicies, class T__ = aux::remove_reference_t<decltype(aux::declval<T>())>>
 using sm = back::sm<back::sm_policy<T__, TPolicies...>>;
