@@ -3087,6 +3087,15 @@ template<class T>
 constexpr bool is_composite_state_v = is_composite_state<T>::value;
 } // namespace detail
 
+// C++14-compatible tag-dispatch helper for update_composite_states.
+// Forward-declared here so update_composite_states below can call it;
+// definitions follow after update_composite_states (to allow the
+// true_type body to call update_composite_states recursively).
+template <class T, class TSubs>
+constexpr void recurse_composite(TSubs &, aux::false_type);
+template <class T, class TSubs>
+constexpr void recurse_composite(TSubs &subs, aux::true_type);
+
 template <class T, class TSubs, class... Ts>
 constexpr void update_composite_states(TSubs &subs, aux::false_type, Ts &&...) {
   back::sub_sm<T>::get(&subs).initialize(typename T::initial_states_t{});
@@ -3094,11 +3103,20 @@ constexpr void update_composite_states(TSubs &subs, aux::false_type, Ts &&...) {
   aux::for_each(typename T::initial_states_t{},
                 [&](auto state_identity){
                   using state_t = typename decltype(state_identity)::type;
-                  if constexpr (detail::is_composite_state_v<state_t>) {
-                    using sm_impl_t = aux::apply_t<back::sm_impl, state_t>;
-                    update_composite_states<sm_impl_t>(subs, aux::false_type{}, Ts{}...);
-                  }
+                  recurse_composite<state_t>(
+                      subs,
+                      aux::integral_constant<bool, detail::is_composite_state_v<state_t>>{});
                 });
+}
+
+// Definitions after update_composite_states so the true_type body can
+// call update_composite_states<sm_impl_t> which is now fully declared.
+template <class T, class TSubs>
+constexpr void recurse_composite(TSubs &, aux::false_type) {}
+template <class T, class TSubs>
+constexpr void recurse_composite(TSubs &subs, aux::true_type) {
+  using sm_impl_t = aux::apply_t<back::sm_impl, T>;
+  update_composite_states<sm_impl_t>(subs, aux::false_type{});
 }
 template <class SM, class TDeps, class TSubs, class TSrcState, class TDstState>
 constexpr void update_current_state(SM &, TDeps &deps, TSubs &, typename SM::state_t &current_state,
