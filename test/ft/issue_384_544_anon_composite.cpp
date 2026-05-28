@@ -10,6 +10,7 @@
 // Issue #544: Same defect when the composite is entered via a runtime event —
 //   auto-transitions inside the sub-SM are not triggered after entry.
 //
+// cppcheck-suppress missingIncludeSystem
 #include <boost/sml.hpp>
 
 namespace sml = boost::sml;
