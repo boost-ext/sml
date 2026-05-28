@@ -640,76 +640,134 @@ template <int N, class T>
 constexpr T &get_by_id(tuple_type<N, T> *object) {
   return static_cast<tuple_type<N, T> &>(*object).value;
 }
+// ──────────────────────────────────────────────────────────────────────────────
+// Dependency pool — design overview
+//
+// The pool is the compile-time dependency injection container for sm<>.
+// It stores one value slot per unique dependency type and provides O(1)
+// typed access via static_cast.
+//
+// Design: pool<Ts...> inherits from pool_type<T> for every T in Ts.
+// Because each base is a distinct type, static_cast<pool_type<T>&>(pool)
+// resolves in O(1) without any runtime search.  This is the "mixin" or
+// "type-indexed base" pattern.
+//
+//   pool<A&, B*, const C&>
+//     : pool_type<A&>      ← stores A& (reference slot)
+//     : pool_type<B*>      ← stores B* (pointer slot)
+//     : pool_type<const C&>← stores const C& (const-reference slot)
+//
+// Access path:
+//   try_get<T>(pool*) — resolves to the matching pool_type<X>* overload;
+//                       falls back to missing_ctor_parameter<T> sentinel.
+//   get<T>(pool&)     — direct static_cast; asserts T is in pool (no fallback).
+//
+// Dependency types in Ts are const-normalised (const T& → T&) so the pool
+// slot matches regardless of cv-qualification at the call site.
+//
+// try_get overload resolution order (most-specific wins):
+//   1. pool_type<T>*           → value by copy          (exact value match)
+//   2. pool_type<T&>*          → T& by reference        (exact mutable-ref match)
+//   3. pool_type<const T&>*    → const T& by ref        (exact const-ref match)
+//   4. pool_type<T*>*          → T* by pointer          (exact pointer match)
+//   5. pool_type<const T*>*    → const T* by pointer    (exact const-ptr match)
+//   6. pool_type<T*&>*         → T* (strip ref)         (#485: lvalue ptr wraps as T*&)
+//   7. pool_type<const T*&>*   → const T* (strip ref)   (#485: same for const)
+//   8. pool_type<D&>* (D⊇T)   → T& covariant           (#467: derived mock as base dep)
+//   9. pool_type<const D&>*(D⊇T)→const T& covariant    (#467: same, const variant)
+//  10. (...)                   → missing_ctor_parameter  (not in pool → compile error)
+//
+// Known subtleties captured below (search #NNN for the fixing PR):
+//   #467 — non-copyable derived type (e.g. NiceMock<T>) passed as T& dep
+//   #485 — pointer dep passed as lvalue wraps to T*& in forwarding ctor
+//   #504 — dangling ref in pool_type_impl<T&> cross-pool copy ctor
+//   #530 — guard receiving const T& must see live pool value, not a snapshot
+// ──────────────────────────────────────────────────────────────────────────────
+
+// Tag type: selects the cross-pool copy constructor in pool_type_impl.
 struct init {};
+
+// Empty base for all pool slots — enables is_base_of<pool_type_base, X>
+// checks used by missing_ctor_parameter to avoid matching pool types.
 struct pool_type_base {
   BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(byte);
 };
+
+// General pool slot: stores T by value.
 template <class T, class = void>
 struct pool_type_impl : pool_type_base {
   constexpr explicit pool_type_impl(T object) : value{object} {}
+  // Cross-pool copy: delegate to T's own ctor (used when T is itself a pool).
   template <class TObject>
   constexpr pool_type_impl(init i, TObject object) : value{i, object} {}
   T value{};
 };
-// Forward declarations required by pool_type_impl<T&>(init, object) below.
-// try_get and pool_type are defined later in the same namespace; without these
-// the compiler cannot recognise try_get<T>(...) as a template call at
-// definition time (C++ two-phase name lookup, [temp.dep.res]).
+
+// ── Forward declarations ──────────────────────────────────────────────────────
+// pool_type_impl<T&>(init, object) calls try_get<T>() in its initialiser list.
+// try_get and pool_type are defined later in this namespace; without these
+// forward declarations the compiler cannot find them at template-definition
+// time (C++ two-phase name lookup, [temp.dep.res]).
 template <class T>
 struct pool_type;
 template <class T>
 struct missing_ctor_parameter;
-template <class T>
-constexpr missing_ctor_parameter<T> try_get(...);
-template <class T>
-constexpr T try_get(const pool_type<T> *);
-template <class T>
-constexpr const T &try_get(const pool_type<const T &> *);
-template <class T>
-constexpr T &try_get(const pool_type<T &> *);
-template <class T>
-constexpr const T *try_get(const pool_type<const T *> *);
-template <class T>
-constexpr T *try_get(const pool_type<T *> *);
-// Covariant overloads: when the pool holds D& (or const D&) where D derives
-// from T, return T& (or const T&) via implicit base-class conversion. (#467)
-// remove_const_t<T> in the is_same guard prevents matching when T is const D
-// (i.e. the same underlying type, just cv-qualified differently).
+template <class T> constexpr missing_ctor_parameter<T> try_get(...);           // fallback: not in pool
+template <class T> constexpr T           try_get(const pool_type<T> *);        // #1 value
+template <class T> constexpr const T    &try_get(const pool_type<const T &> *);// #3 const-ref
+template <class T> constexpr T          &try_get(const pool_type<T &> *);      // #2 mutable-ref
+template <class T> constexpr const T    *try_get(const pool_type<const T *> *);// #5 const-ptr
+template <class T> constexpr T          *try_get(const pool_type<T *> *);      // #4 ptr
+// #8/#9 covariant: pool holds D& where D derives from T; return T& via base conversion.
+// The is_same guard excludes the case where T == remove_const_t<D> (same type, different cv).
 template <class T, class D, BOOST_SML_DETAIL_REQUIRES(!aux::is_same<aux::remove_const_t<T>, D>::value && aux::is_base_of<T, D>::value)>
 constexpr T &try_get(const pool_type<D &> *);
 template <class T, class D, BOOST_SML_DETAIL_REQUIRES(!aux::is_same<aux::remove_const_t<T>, D>::value && aux::is_base_of<T, D>::value)>
 constexpr const T &try_get(const pool_type<const D &> *);
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Reference pool slot (BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS only).
+// Stores a backing T value_ plus a T& reference that aliases it, so the pool
+// can be copy-constructed from another pool without dangling references.
 #if defined(BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS)
 template <class T>
 struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value && aux::is_constructible<T, const T &>::value>>
     : pool_type_base {
-  constexpr explicit pool_type_impl(T &val) : value{val} {}
+  constexpr explicit pool_type_impl(T &val) : value{val} {}                    // bind ref directly
   template <class TObject>
-  constexpr explicit pool_type_impl(TObject val) : value_{val}, value{value_} {}
-  // Copy-construct from another pool: extract T from the source pool into the
-  // local backing store, then bind the reference member to it.  The old code
-  // used ': value(i, object)' which is a comma expression — it evaluated
-  // (i, object) and bound 'value' (T&) directly to the pool parameter
-  // 'object', leaving a dangling reference once the constructor returned. (#504)
+  constexpr explicit pool_type_impl(TObject val) : value_{val}, value{value_} {}// default-construct backing store
+  // #504: cross-pool copy — extract T into the local backing store first, then
+  // bind value to it.  The naive ': value(i, object)' was a comma-expression
+  // that bound value directly to the pool parameter (dangling after return).
   template <class TObject>
   constexpr pool_type_impl(const init &, const TObject &object) : value_{try_get<T>(&object)}, value{value_} {}
-  T value_{};
-  T &value;
+  T  value_{};  // backing store (owns the value when default-constructing)
+  T &value;     // the reference exposed to callers (aliases value_ or an external T)
 };
 #endif
+
+// Public pool slot — thin wrapper that inherits all pool_type_impl constructors.
 template <class T>
 struct pool_type : pool_type_impl<T> {
   using pool_type_impl<T>::pool_type_impl;
 };
+
+// Sentinel returned by try_get when T is not in the pool.
+// Produces a human-readable static_assert on use: "missing constructor parameter".
+// Also implicitly converts to default-constructible types so that optional
+// deps (e.g. logger) silently resolve to their default when absent.
 template <class T>
 struct missing_ctor_parameter {
   static constexpr auto value = false;
   constexpr auto operator()() const { return T{}(); }
+  // Silently provide a default-constructed value for optional deps.
   template <class U, BOOST_SML_DETAIL_REQUIRES(!aux::is_base_of<pool_type_base, U>::value && aux::is_constructible<U>::value)>
   constexpr operator U() {
     return {};
   }
 #if !(defined(_MSC_VER) && !defined(__clang__))
+  // Hard error for non-default-constructible missing deps (MSVC excluded:
+  // it instantiates conversion operators eagerly, causing spurious errors).
   template <class TMissing, BOOST_SML_DETAIL_REQUIRES(!aux::is_base_of<pool_type_base, TMissing>::value && !aux::is_constructible<TMissing>::value)>
   constexpr operator TMissing &() const {
     static_assert(missing_ctor_parameter<TMissing>::value,
@@ -718,79 +776,76 @@ struct missing_ctor_parameter {
   }
 #endif
 };
+
+// ── try_get definitions ───────────────────────────────────────────────────────
 template <class T>
-constexpr missing_ctor_parameter<T> try_get(...) {
-  return {};
-}
+constexpr missing_ctor_parameter<T> try_get(...) { return {}; }               // #10 fallback: T not in pool
+
 template <class T>
-constexpr T try_get(const pool_type<T> *object) {
-  return object->value;
-}
+constexpr T try_get(const pool_type<T> *object) { return object->value; }     // #1 value
+
 template <class T>
-constexpr const T &try_get(const pool_type<const T &> *object) {
-  return object->value;
-}
+constexpr const T &try_get(const pool_type<const T &> *object) { return object->value; } // #3 const-ref
+
 template <class T>
-constexpr T &try_get(const pool_type<T &> *object) {
-  return object->value;
-}
+constexpr T &try_get(const pool_type<T &> *object) { return object->value; }  // #2 mutable-ref
+
 template <class T>
-constexpr const T *try_get(const pool_type<const T *> *object) {
-  return object->value;
-}
+constexpr const T *try_get(const pool_type<const T *> *object) { return object->value; } // #5 const-ptr
+
 template <class T>
-constexpr T *try_get(const pool_type<T *> *object) {
-  return object->value;
-}
-// When a pointer dep is passed as an lvalue the forwarding constructor wraps
-// it in T*& (reference-to-pointer).  Strip the reference so the pool init
-// constructor can find the stored value. (#485)
+constexpr T *try_get(const pool_type<T *> *object) { return object->value; }  // #4 ptr
+
+// #6/#7: pointer dep passed as lvalue — forwarding ctor stores it as T*&.
+// Strip the reference so the caller gets back the raw pointer. (#485)
 template <class T>
-constexpr T *try_get(const pool_type<T *&> *object) {
-  return object->value;
-}
+constexpr T *try_get(const pool_type<T *&> *object) { return object->value; }
+
 template <class T>
-constexpr const T *try_get(const pool_type<const T *&> *object) {
-  return object->value;
-}
-// Covariant overloads: pool holds D& or const D& where D is a subclass of T.
-// Allows passing NiceMock<T> (or any derived, non-copyable type) as a T& dep. (#467)
+constexpr const T *try_get(const pool_type<const T *&> *object) { return object->value; }
+
+// #8/#9: pool holds D& / const D& where D derives from T — covariant access.
+// Allows e.g. NiceMock<Base> (non-copyable derived) to satisfy a Base& dep. (#467)
 template <class T, class D, typename aux::enable_if<!aux::is_same<aux::remove_const_t<T>, D>::value && aux::is_base_of<T, D>::value, int>::type>
-constexpr T &try_get(const pool_type<D &> *object) {
-  return object->value;
-}
+constexpr T &try_get(const pool_type<D &> *object) { return object->value; }
+
 template <class T, class D, typename aux::enable_if<!aux::is_same<aux::remove_const_t<T>, D>::value && aux::is_base_of<T, D>::value, int>::type>
-constexpr const T &try_get(const pool_type<const D &> *object) {
-  return object->value;
-}
+constexpr const T &try_get(const pool_type<const D &> *object) { return object->value; }
+// ─────────────────────────────────────────────────────────────────────────────
+
+// True when try_get<T> would resolve to the missing_ctor_parameter sentinel.
 template <class T, class TPool>
 constexpr bool would_instantiate_missing_ctor_parameter() {
   return is_same<missing_ctor_parameter<T>, decltype(try_get<T>(aux::declval<TPool>()))>::value;
 }
+
+// get<T> / cget<T>: direct O(1) access via static_cast — T must be in pool.
 template <class T, class TPool>
-constexpr T &get(TPool &p) {
-  return static_cast<pool_type<T> &>(p).value;
-}
+constexpr T &get(TPool &p) { return static_cast<pool_type<T> &>(p).value; }
+
 template <class T, class TPool>
-constexpr const T &cget(const TPool &p) {
-  return static_cast<const pool_type<T> &>(p).value;
-}
+constexpr const T &cget(const TPool &p) { return static_cast<const pool_type<T> &>(p).value; }
+
 template <class T, class TPool>
-T *get(TPool *p) {
-  return static_cast<pool_type<T> &>(p).value;
-}
+T *get(TPool *p) { return static_cast<pool_type<T> &>(p).value; }
+
 template <class T, class TPool>
-const T *cget(const TPool *p) {
-  return static_cast<const pool_type<T> &>(p).value;
-}
+const T *cget(const TPool *p) { return static_cast<const pool_type<T> &>(p).value; }
+
+// pool<Ts...>: the dependency container, inheriting one pool_type<T> per dep.
+// static_cast<pool_type<T>&>(pool) is the O(1) access mechanism.
 template <class... Ts>
 struct pool : pool_type<Ts>... {
   using boost_di_inject__ = type_list<Ts...>;
   constexpr pool() = default;
-  constexpr explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
+  constexpr explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}                  // direct construction from dep values
+  // Cross-pool init: populate each slot by try_get-ing T from the source pool.
+  // The init tag selects pool_type_impl's copy-from-pool constructor path.
   template <class... TArgs>
   constexpr pool(init, const pool<TArgs...> &p)
       : pool_type<Ts>(try_get<aux::remove_const_t<aux::remove_reference_t<aux::remove_pointer_t<Ts>>>>(&p))... {}
+  // Sub-SM pool construction: delegate each slot through the init path above
+  // so that reference slots copy into their own backing stores (avoids #504).
   template <class... TArgs>
   constexpr pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, p)... {}
 };
