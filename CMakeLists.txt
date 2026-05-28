@@ -148,11 +148,7 @@ endfunction()
 
 if (SML_BUILD_BENCHMARKS)
   find_package(Boost REQUIRED)
-  target_link_libraries(sml
-    INTERFACE Boost::boost)
-endif()
-
-if (SML_BUILD_BENCHMARKS)
+  target_link_libraries(sml INTERFACE Boost::boost)
   add_subdirectory(benchmark)
 endif()
 
@@ -162,6 +158,39 @@ endif()
 
 if (SML_BUILD_TESTS)
   add_subdirectory(test)
+endif()
+
+find_program(CLANG_FORMAT_EXE NAMES clang-format)
+if(CLANG_FORMAT_EXE)
+  file(GLOB_RECURSE ALL_SOURCE_FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/example/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/test/*.hpp"
+  )
+  add_custom_target(style
+    COMMAND ${CLANG_FORMAT_EXE} -i ${ALL_SOURCE_FILES}
+    COMMAND git -C ${CMAKE_CURRENT_SOURCE_DIR} diff -- include example test
+    COMMAND bash -c "exit $(git -C ${CMAKE_CURRENT_SOURCE_DIR} ls-files -m include example test | wc -l)"
+    COMMENT "Checking code style"
+    VERBATIM
+  )
+endif()
+
+find_program(CLANG_TIDY_EXE NAMES clang-tidy)
+if(CLANG_TIDY_EXE)
+  file(GLOB_RECURSE TIDY_SOURCE_FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/test/ft/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/test/ut/*.cpp"
+  )
+  add_custom_target(clang-tidy
+    COMMAND ${CLANG_TIDY_EXE} ${TIDY_SOURCE_FILES}
+      -- -std=c++14 -I${CMAKE_CURRENT_SOURCE_DIR}/include
+         -I${CMAKE_CURRENT_SOURCE_DIR}/test
+         -include common/test.hpp
+    COMMENT "Running clang-tidy"
+    VERBATIM
+  )
 endif()
 
 # install support
