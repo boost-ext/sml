@@ -4,7 +4,14 @@
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
-#add_executable(test_not_callable not_callable.cpp)
-#add_executable(test_not_configurable not_configurable.cpp)
-#add_executable(test_not_dispatchable not_dispatchable.cpp)
-#add_executable(test_not_transitional not_transitional.cpp)
+# Each target must be EXCLUDE_FROM_ALL so it is only built when ctest
+# invokes cmake --build for that specific target (WILL_FAIL TRUE).
+foreach(name not_callable not_configurable not_dispatchable not_transitional)
+  add_library(error_${name} OBJECT EXCLUDE_FROM_ALL ${name}.cpp)
+  target_link_libraries(error_${name} sml)
+  add_test(
+    NAME test_error_${name}
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target error_${name}
+  )
+  set_tests_properties(test_error_${name} PROPERTIES WILL_FAIL TRUE)
+endforeach()
