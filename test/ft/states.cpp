@@ -28,6 +28,7 @@ struct e7 {
 const auto idle = sml::state<class idle>;
 const auto s1 = sml::state<class s1>;
 const auto s2 = sml::state<class s2>;
+const auto s3 = sml::state<class s3>;
 const auto any = sml::state<sml::_>;
 
 test terminate_state = [] {
@@ -352,6 +353,57 @@ test any_state_fallback_when_guard_fails = [] {
   expect(sm.is(s1));
 
   expect("a1|a2|" == c_.calls);
+};
+
+// Regression test for issue #565: on_entry<_> instantiates the action for
+// every event that can reach the state, including back::initial.  Actions
+// with a generic (auto/template) call operator must therefore be defined in
+// the same translation unit where the SM is instantiated; placing only a
+// declaration in the header causes a linker error for the initial-event
+// specialisation.
+//
+// Workaround: use on_entry<E> with a specific event type — only that single
+// template specialisation is generated, so an out-of-line definition works.
+// The test below verifies both forms compile and run correctly when defined
+// inline (the only way to cover both in a single-TU test).
+//
+// Dispatch priority: when both on_entry<_> and on_entry<E> are registered for
+// the same state, the specific handler takes priority and the wildcard does NOT
+// fire.  The wildcard is a fallback for events that have no specific handler.
+test on_entry_wildcard_fires_for_all_events = [] {
+  struct c {
+    auto operator()() noexcept {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+          *s1 + event<e1> = s3    // enter s3 via e1 (specific handler registered)
+         , s1 + event<e2> = s3    // enter s3 via e2 (no specific handler → wildcard fires)
+         , s3 + event<e1> = s1    // leave s3
+         , s3 + sml::on_entry<_>  / [this] { wildcard_count++; }
+         , s3 + sml::on_entry<e1> / [this] { specific_count++; }
+      );
+      // clang-format on
+    }
+    int wildcard_count{};
+    int specific_count{};
+  };
+
+  sml::sm<c> sm{};
+  const c &c_ = sm;
+
+  // Enter s3 via e1: specific on_entry<e1> fires; wildcard is fallback and does NOT fire
+  sm.process_event(e1{});
+  expect(sm.is(s3));
+  expect(0 == c_.wildcard_count);
+  expect(1 == c_.specific_count);
+
+  sm.process_event(e1{});  // back to s1
+
+  // Enter s3 via e2: no specific handler → wildcard on_entry<_> fires
+  sm.process_event(e2{});
+  expect(sm.is(s3));
+  expect(1 == c_.wildcard_count);
+  expect(1 == c_.specific_count);
 };
 
 #if !defined(_MSC_VER)

@@ -1103,6 +1103,21 @@ struct internal_event {
 struct anonymous : internal_event {
   constexpr static auto c_str() { return "anonymous"; }
 };
+// on_entry<_> (wildcard entry) is instantiated for every event that can reach
+// the target state — including internal events such as `back::initial` and
+// `back::anonymous`.  When the associated action has a generic (auto/template)
+// call operator it becomes a function template, which means its definition
+// must be visible in the same translation unit where the SM is instantiated.
+// Defining such an action in a separate .cpp (with only a declaration in the
+// header) causes a linker "undefined reference" for the `initial`-event
+// specialisation even if the action body is empty.
+//
+// Workarounds:
+//   1. Define the action in the header (not just declared).
+//   2. Use on_entry<E> with a specific event type — only that one
+//      specialisation is generated, so the out-of-line definition works.
+//   3. Avoid a generic call operator: overload explicitly for each event type
+//      that is actually used.
 template <class T, class TEvent = T>
 struct on_entry : internal_event, entry_exit {
   constexpr static auto c_str() { return "on_entry"; }
