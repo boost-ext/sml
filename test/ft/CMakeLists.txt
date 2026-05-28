@@ -107,4 +107,9 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_384_544_anon_composite.cpp)
   add_test(test_issue_384_544_anon_composite test_issue_384_544_anon_composite)
 endif()
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_580_process_events.cpp)
+  add_executable(test_issue_580_process_events issue_580_process_events.cpp)
+  add_test(test_issue_580_process_events test_issue_580_process_events)
+endif()
+
 add_subdirectory(errors)

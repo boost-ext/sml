@@ -1272,6 +1272,23 @@ using get_sub_internal_events =
                 typename get_sub_internal_events_impl<typename Ts::dst_state, typename Ts::event>::type...>;
 template <class... Ts>
 using get_events = aux::type_list<typename Ts::event...>;
+// Marker injected into transition deps by the get_deps specialisations for
+// front::actions::process::process_impl (the sml::process() helper) so that
+// events pushed via process(E{}) are added to events_t and the process queue
+// can store them even when E never appears as a transition-row event. (#580)
+template <class T>
+struct process_event_marker {};
+// Extract TEvents... from back::process<TEvents...> dep slots (lambda style:
+// [](back::process<E> p){...}) and from process_event_marker<T> (sml::process()
+// helper style) so that both usage forms add E to events_t. (#580)
+template <class T>
+struct get_process_events_impl : aux::type_list<> {};
+template <class... TEvents>
+struct get_process_events_impl<back::process<TEvents...>> : aux::type_list<TEvents...> {};
+template <class T>
+struct get_process_events_impl<process_event_marker<T>> : aux::type_list<T> {};
+template <class... Ts>
+using get_process_events = aux::join_t<typename get_process_events_impl<Ts>::type...>;
 template <class T>
 struct get_exception : aux::type_list<> {};
 template <class T>
@@ -1894,7 +1911,7 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
   using has_history_states =
       aux::integral_constant<bool, aux::size<initial_states_t>::value != aux::size<history_states_t>::value>;
   using sub_internal_events_t = aux::apply_t<aux::unique_t, aux::apply_t<get_sub_internal_events, transitions_t>>;
-  using events_t = aux::apply_t<aux::unique_t, aux::join_t<sub_internal_events_t, aux::apply_t<get_all_events, transitions_t>>>;
+  using events_t = aux::apply_t<aux::unique_t, aux::join_t<sub_internal_events_t, aux::apply_t<get_all_events, transitions_t>, aux::apply_t<get_process_events, aux::apply_t<merge_deps, transitions_t>>>>;
   using events_ids_t = aux::apply_t<aux::inherit, events_t>;
   using has_unexpected_events = typename aux::is_base_of<unexpected, aux::apply_t<aux::inherit, events_t>>::type;
   using has_entry_exits = typename aux::is_base_of<entry_exit, aux::apply_t<aux::inherit, events_t>>::type;
@@ -2942,6 +2959,17 @@ using get_deps_t = typename get_deps<T, E>::type;
 template <template <class...> class T, class... Ts, class E>
 struct get_deps<T<Ts...>, E, aux::enable_if_t<aux::is_base_of<operator_base, T<Ts...>>::value>> {
   using type = aux::join_t<get_deps_t<Ts, E>...>;
+};
+// Inject back::process_event_marker<TEvent> into deps for sml::process(E{})
+// actions so events pushed via the built-in helper are captured in events_t
+// even when E never appears in a transition-row event slot. (#580)
+template <class TEvent, class E>
+struct get_deps<front::actions::process::process_impl<TEvent>, E> {
+  using type = aux::type_list<back::process_event_marker<TEvent>>;
+};
+template <class TEvent, class E>
+struct get_deps<aux::zero_wrapper<front::actions::process::process_impl<TEvent>>, E> {
+  using type = aux::type_list<back::process_event_marker<TEvent>>;
 };
 struct always {
   using type = always;
