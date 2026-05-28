@@ -16,8 +16,11 @@ add_test(test_actions_process_n_defer test_actions_process_n_defer)
 add_executable(test_composite composite.cpp)
 add_test(test_composite test_composite)
 
-add_executable(test_constexpr constexpr.cpp)
-add_test(test_constexpr test_constexpr)
+# constexpr.cpp uses constexpr lambdas and static_assert without message (C++17)
+if(CMAKE_CXX_STANDARD GREATER_EQUAL 17)
+  add_executable(test_constexpr constexpr.cpp)
+  add_test(test_constexpr test_constexpr)
+endif()
 
 add_executable(test_dependencies dependencies.cpp)
 add_test(test_dependencies test_dependencies)
@@ -75,8 +78,6 @@ target_link_libraries(test_policies_thread_safe -lpthread)
 
 add_executable(test_sizeof sizeof.cpp)
 add_test(test_sizeof test_sizeof)
-
-add_test(test_constexpr test_constexpr)
 
 add_executable(test_state_machine state_machine.cpp)
 add_test(test_state_machine test_state_machine)
