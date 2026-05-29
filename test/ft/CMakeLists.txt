@@ -102,4 +102,9 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_437_explicit_deps.cpp)
   add_test(test_issue_437_explicit_deps test_issue_437_explicit_deps)
 endif()
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_384_544_anon_composite.cpp)
+  add_executable(test_issue_384_544_anon_composite issue_384_544_anon_composite.cpp)
+  add_test(test_issue_384_544_anon_composite test_issue_384_544_anon_composite)
+endif()
+
 add_subdirectory(errors)
