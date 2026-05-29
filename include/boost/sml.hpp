@@ -1041,6 +1041,17 @@ template <class T>
 constexpr auto wrap(T callback) {
   return aux::zero_wrapper<T, T>{callback};
 }
+template <class F, class... TDeps>
+struct action_wrap {
+  constexpr explicit action_wrap(F f) : f_(f) {}
+  constexpr auto operator()(TDeps... args) const { return f_(args...); }
+ private:
+  F f_;
+};
+template <class... TDeps, class F>
+constexpr auto make_action(F f) {
+  return action_wrap<F, TDeps...>{f};
+}
 namespace back {
 namespace policies {
 struct defer_queue_policy__ {};

@@ -137,4 +137,9 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_456_flush_queue.cpp)
   add_test(test_issue_456_flush_queue test_issue_456_flush_queue)
 endif()
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_629_action_wrap.cpp)
+  add_executable(test_issue_629_action_wrap issue_629_action_wrap.cpp)
+  add_test(test_issue_629_action_wrap test_issue_629_action_wrap)
+endif()
+
 add_subdirectory(errors)
