@@ -989,16 +989,21 @@ auto get_type_name(const char *ptr, index_sequence<Ns...>) {
 }  // namespace detail
 template <class T>
 const char *get_type_name() {
+// NOTE: these offsets skip the function-signature prefix up to `T`. That prefix
+// includes the inline namespace (e.g. v1_2_0) on compilers that print it
+// (MSVC/GCC/IAR), so the offsets must be re-tuned whenever the namespace string
+// length changes on a release. clang elides the inline namespace, so its offsets
+// are length-independent.
 #if defined(_MSC_VER) && !defined(__clang__)
-  return detail::get_type_name<T, 65>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 65 - 8>{});
+  return detail::get_type_name<T, 64>(__FUNCSIG__, make_index_sequence<sizeof(__FUNCSIG__) - 64 - 8>{});
 #elif defined(__clang__) && (__clang_major__ >= 12)
   return detail::get_type_name<T, 50>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 50 - 2>{});
 #elif defined(__clang__)
   return detail::get_type_name<T, 63>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 63 - 2>{});
 #elif defined(__GNUC__)
-  return detail::get_type_name<T, 69>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 69 - 2>{});
+  return detail::get_type_name<T, 68>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 68 - 2>{});
 #elif defined(__ICCARM__)
-  return detail::get_type_name<T, 72>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 72 -2>{});
+  return detail::get_type_name<T, 71>(__PRETTY_FUNCTION__, make_index_sequence<sizeof(__PRETTY_FUNCTION__) - 71 -2>{});
 #endif
 }
 #if defined(__cpp_nontype_template_parameter_class) || \
