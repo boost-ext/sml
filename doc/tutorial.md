@@ -325,6 +325,31 @@ return make_transition_table(
 );
 ```
 
+Events can also be deferred and re-evaluated later with `defer`, and a transition
+can discard everything currently deferred with `clear_defer` (a no-op when nothing
+is deferred). This is handy when leaving a composite/sub-state so that stale
+deferred events do not survive re-entry. Both require a `defer_queue` policy.
+
+```cpp
+using namespace sml;
+return make_transition_table(
+  *"s1"_s + event<my_event>   / defer,                 // postpone my_event
+   state<sub> + event<leave>  / clear_defer = "s1"_s   // drop anything deferred on the way out
+);
+```
+
+When events are queued asynchronously — e.g. an action stores a `back::process<>`
+handle that fires after `process_event` has already returned — call `flush_queue()`
+to drain whatever is still pending (it is a no-op when the queue is empty). This
+requires a `process_queue` policy.
+
+```cpp
+sml::sm<example, sml::process_queue<std::queue>> sm{...};
+sm.process_event(e1{}); // action stores a back::process<e2> handle
+handle.push(e2{});      // async callback pushes e2 after process_event returned
+sm.flush_queue();       // drain: e2 is processed now
+```
+
 `SML` also provides a way to dispatch dynamically created events into the state machine.
 
 ```cpp

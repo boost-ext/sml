@@ -1,3 +1,26 @@
+## [Unreleased] - since 1.1.13
+- **Additions**
+    - `sm::flush_queue()` — drain pending queued events from async handlers (#456)
+    - `sml::clear_defer` action — discard deferred events from a transition (#643)
+    - `sml::deps<Ts...>` policy — explicit pool dependencies for generic-lambda actions/guards (#437)
+
+- **Behavior changes**
+    - Empty-SM min-size trick is now OFF by default on GCC/Clang (it was UB at `-O2`);
+      opt back in with `BOOST_SML_CFG_ENABLE_MIN_SIZE`. `sizeof(sm)` for an empty SM may change (#249)
+    - `any`/`_` wildcard no longer fires when a composable sub-SM has terminated (#622)
+    - Events raised via `process(E{})` are now storable in the process queue (#580)
+    - Guard taking `const State&` now sees live pool state instead of a stale copy (#530)
+    - Sub-SM defer queue is cleared when its composite state is re-entered (#253)
+
+- **Bug Fixes**
+    - Template-depth, `-Wshadow`, `-Wextra-semi`, UBSan, final-class, null-deref,
+      double-pop, reserved-identifier and related fixes — see full list:
+    - https://github.com/boost-ext/sml/compare/v1.1.13...master
+
+- **Documented limitations**
+    - `on_entry<_>` multi-TU linker limitation and dispatch priority (#565)
+    - `operator,` with two raw member-function-pointer actions; `wrap()` workaround (#389)
+
 ## [1.1.13] - 2025-12-01
 - Changes
     - https://github.com/boost-ext/sml/compare/v1.1.12...v1.1.13

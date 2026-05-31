@@ -362,6 +362,8 @@ Creates a State Machine.
       template<class TEvent> // no requirements
       bool process_event(const TEvent&)
 
+      void flush_queue(); // drain events still pending in the process queue
+
       template <class TVisitor> requires callable<void, TVisitor>
       void visit_current_states(const TVisitor &) const noexcept(noexcept(visitor(state{})));
 
@@ -376,6 +378,7 @@ Creates a State Machine.
 | ---------- | ----------- | ----------- | ------- |
 | `TDeps...` | is_base_of dependencies | constructor | |
 | `process_event<TEvent>` | - | process event `TEvent` | returns true when handled, false otherwise |
+| `flush_queue` | requires a `process_queue` / `defer_queue` policy | drain events still pending in the process queue (e.g. pushed from an async handler after `process_event` returned); no-op when empty | - |
 | `visit_current_states<TVisitor>` | [callable](#callable-concept) | visit current states | - |
 | `is<TState>` | - | verify whether any of current states equals `TState` | true when any current state matches `TState`, false otherwise |
 | `is<TStates...>` | size of TStates... equals number of initial states | verify whether all current states match `TStates...` | true when all states match `TState...`, false otherwise |
@@ -432,11 +435,13 @@ Additional State Machine configurations.
 
     thread_safe<Lockable>
     logger<Loggable>
+    deps<Ts...>
 
 | Expression | Requirement | Description | Example |
 | ---------- | ----------- | ----------- | ------- |
 | `Lockable` | `lock/unlock` | Lockable type | `std::mutex`, `std::recursive_mutex` |
 | `Loggable` | `log_process_event/log_state_change/log_action/log_guard` | Loggable type | - |
+| `deps<Ts...>` | - | force `Ts...` into the dependency pool even when no action/guard signature names them (needed when a dependency is only reached via a generic lambda using `sml::aux::get<Dep&>(deps)`) | `sml::sm<example, sml::deps<MyDep>> sm{dep};` |
 
 ***Example***
 
@@ -444,6 +449,7 @@ Additional State Machine configurations.
     sml::sm<example, sml::logger<my_logger>> sm; // logger policy
     sml::sm<example, sml::thread_safe<std::recursive_mutex>, sml::logger<my_logger>> sm; // thread safe and logger policy
     sml::sm<example, sml::logger<my_logger>, sml::thread_safe<std::recursive_mutex>> sm; // thread safe and logger policy
+    sml::sm<example, sml::deps<MyDep>> sm{dep}; // explicit pool dependency for generic-lambda actions/guards
 
 ![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/logging.cpp)
 

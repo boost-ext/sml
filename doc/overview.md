@@ -48,7 +48,17 @@ git clone https://github.com/boost-ext/sml && cd sml && make test
 ###Configuration
 | Macro                                                         | Description                                                  |
 | --------------------------------------------------------------|--------------------------------------------------------------|
-| `BOOST_SML_VERSION`                                           | Current version of [Boost].SML (ex. 1'0'0)                |
+| `BOOST_SML_VERSION`                                           | Current version of [Boost].SML (ex. 1'1'13)                |
+| `BOOST_SML_CFG_ENABLE_MIN_SIZE`                               | Opt in to the empty-SM size trick (zero-size array); disabled by default, see note below |
+| `BOOST_SML_CFG_DISABLE_MIN_SIZE`                              | Legacy name kept for backward compatibility; the min-size trick is now disabled by default |
+| `BOOST_SML_DISABLE_EXCEPTIONS`                                | Build with exceptions disabled (e.g. with `-fno-exceptions`) |
+| `BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS`                 | Allow default-constructing dependencies owned by the State Machine |
+
+> **Note (min-size):** Since the changes after `v1.1.13`, the empty-State-Machine
+> size optimization is **off by default** on GCC/Clang because the zero-length-array
+> trick triggered undefined behavior at `-O2` (UBSan violations). As a result,
+> `sizeof(sm<...>)` for an empty State Machine may differ from earlier releases.
+> Define `BOOST_SML_CFG_ENABLE_MIN_SIZE` to opt back in.
 
 
 ###Exception Safety
