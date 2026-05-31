@@ -48,7 +48,7 @@ function compile_and_run(id) {
     document.getElementById("compile_and_run_" + id).firstChild.data = "Compiling...";
     cpp_output[id].setValue("Compiling...");
     var http = new XMLHttpRequest();
-    http.open("POST", "http://melpon.org/wandbox/api/compile.json", true);
+    http.open("POST", "https://wandbox.org/api/compile.json", true);
     http.onreadystatechange = function(){
         if (http.readyState == 4 && http.status == 200) {
             var output_json = JSON.parse(http.response);
@@ -74,8 +74,11 @@ function compile_and_run(id) {
         , "codes" : [{
               "file" : "boost/sml.hpp"
             , "code" : get_cpp_file("https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml.hpp")
+           }, {
+              "file" : "boost/sml/utility/dispatch_table.hpp"
+            , "code" : get_cpp_file("https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml/utility/dispatch_table.hpp")
            }]
-         , "options": "warning,cpp-pedantic-errors,optimize,boost-1.60,c++1y"
+         , "options": "warning,cpp-pedantic-errors,optimize,c++1y"
          , "compiler" : "clang-head"
          , "compiler-option-raw": "-I." + "\n" + "-fno-color-diagnostics"
     }));
