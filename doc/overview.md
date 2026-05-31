@@ -93,15 +93,19 @@ sm.process_event(event{}); // thread safe call
 
 ***Not configurable***
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_configurable.cpp)
+[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/Pf64KjfG8)
 
 ***Not callable***
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_callable.cpp)
+[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/b7xP5brcE)
 
 ***Not transitional***
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_transitional.cpp)
+[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/cnhP9Pf4o)
 
 ***Not dispatchable***
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_dispatchable.cpp)
+[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/abKhzTz1T)
 
 [Boost.MSM-eUML]: http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html
 [Boost.MSM3-eUML2]: https://htmlpreview.github.io/?https://raw.githubusercontent.com/boostorg/msm/msm3/doc/HTML/ch03s05.html

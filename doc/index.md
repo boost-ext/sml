@@ -46,9 +46,13 @@ to avoid it `[Boost].SML` may suit you!
 ###Real Life examples?
 
 ![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/sdl2.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/K4q6hhz5o)
 ![CPP(BTN)](Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/plant_uml.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/4sb18vWG3)
 ![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/logging.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/vheaGPWqT)
 ![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/testing.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/e9j19aTd7)
 
 &nbsp;
 

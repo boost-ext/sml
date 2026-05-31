@@ -41,7 +41,8 @@ Requirements for transition.
     static_assert(transitional<decltype(transition)>::value);
     }
 
-![CPP(BTN)](Run_Transitional_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/errors/not_transitional.cpp)
+![CPP(BTN)](Run_Transitional_Example|https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_transitional.cpp)
+[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/cnhP9Pf4o)
 
 &nbsp;
 
@@ -80,7 +81,8 @@ Requirements for the state machine.
 
     static_assert(configurable<example>::value);
 
-![CPP(BTN)](Run_Configurable_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/errors/not_configurable.cpp)
+![CPP(BTN)](Run_Configurable_Example|https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_configurable.cpp)
+[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/Pf64KjfG8)
 
 &nbsp;
 
@@ -117,7 +119,8 @@ Requirements for action and guards.
     static_assert(callable<bool, decltype(guard)>::value);
     static_assert(callable<void, decltype(action)>::value);
 
-![CPP(BTN)](Run_Callable_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/errors/not_callable.cpp)
+![CPP(BTN)](Run_Callable_Example|https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_callable.cpp)
+[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/b7xP5brcE)
 
 &nbsp;
 
@@ -163,8 +166,10 @@ Requirements for the dispatch table.
     static_assert(dispatchable<runtime_event, event1>::value);
     static_assert(dispatchable<runtime_event, event2>::value);
 
-![CPP(BTN)](Run_Dispatchable_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/errors/not_dispatchable.cpp)
+![CPP(BTN)](Run_Dispatchable_Example|https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_dispatchable.cpp)
+[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/abKhzTz1T)
 ![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/sdl2.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/K4q6hhz5o)
 
 &nbsp;
 
@@ -229,8 +234,11 @@ Represents a state machine state.
     auto terminate_state = X;
 
 ![CPP(BTN)](Run_States_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/states.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/EfbfqqTYo)
 ![CPP(BTN)](Run_Composite_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/composite.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/9xPc56P36)
 ![CPP(BTN)](Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/orthogonal_regions.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/Ma7sT74hq)
 
 &nbsp;
 
@@ -280,8 +288,10 @@ Represents a state machine event.
 
     auto my_int_event = event<int>;
 
-![CPP(BTN)](Run_Events_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/action_guards.cpp)
+![CPP(BTN)](Run_Events_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/actions_guards.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/q9nEfv9qv)
 ![CPP(BTN)](Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/error_handling.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/1G3P6ne7Y)
 
 &nbsp;
 
@@ -328,6 +338,7 @@ Creates a transition table.
     };
 
 ![CPP(BTN)](Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/transitions.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/jqz5frEP5)
 
 &nbsp;
 
@@ -414,8 +425,11 @@ Creates a State Machine.
     sm.visit_current_states([](auto state) { std::cout << state.c_str() << std::endl; });
 
 ![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/hello_world.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/W9zoarv69)
 ![CPP(BTN)](Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/dependency_injection.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/zYvM1a6v4)
 ![CPP(BTN)](Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/euml_emulation.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/KhqvGjKPP)
 
 &nbsp;
 
@@ -452,6 +466,7 @@ Additional State Machine configurations.
     sml::sm<example, sml::deps<MyDep>> sm{dep}; // explicit pool dependency for generic-lambda actions/guards
 
 ![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/logging.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/vheaGPWqT)
 
 &nbsp;
 
@@ -497,6 +512,7 @@ Creates a state machine with testing capabilities.
     sm.is(X);
 
 ![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/testing.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/e9j19aTd7)
 
 &nbsp;
 
@@ -541,7 +557,9 @@ Creates a dispatch table to handle runtime events.
     dispatch_event(event, event.id);
 
 ![CPP(BTN)](Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/dispatch_table.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/6vs9E6Ynf)
 ![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/sdl2.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/K4q6hhz5o)
 
 &nbsp;
 
