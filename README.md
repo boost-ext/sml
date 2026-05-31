@@ -316,7 +316,7 @@ send: 42
     * [`on_entry<_>` across translation units](https://boost-ext.github.io/sml/faq.html#on_entry_-across-translation-units)
     * [`operator,` with two raw member-function-pointer actions](https://boost-ext.github.io/sml/faq.html#operator-with-two-raw-member-function-pointer-actions)
 * [CHANGELOG](https://boost-ext.github.io/sml/CHANGELOG.html)
-    * [[Unreleased] - since 1.1.13](https://boost-ext.github.io/sml/CHANGELOG.html#unreleased-since-1113)
+    * [[1.2.0] - 2026-06-01](https://boost-ext.github.io/sml/CHANGELOG.html#120-2026-06-01)
     * [[1.1.13] - 2025-12-01](https://boost-ext.github.io/sml/CHANGELOG.html#1113-2025-12-01)
     * [[1.1.12] - 2025-04-02](https://boost-ext.github.io/sml/CHANGELOG.html#1112-2025-04-02)
     * [[1.1.11] - 2024-03-09](https://boost-ext.github.io/sml/CHANGELOG.html#1111-2024-03-09)

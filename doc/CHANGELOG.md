@@ -1,4 +1,4 @@
-## [Unreleased] - since 1.1.13
+## [1.2.0] - 2026-06-01
 - **Additions**
     - `sm::flush_queue()` — drain pending queued events from async handlers (#456)
     - `sml::clear_defer` action — discard deferred events from a transition (#643)
@@ -15,7 +15,7 @@
 - **Bug Fixes**
     - Template-depth, `-Wshadow`, `-Wextra-semi`, UBSan, final-class, null-deref,
       double-pop, reserved-identifier and related fixes — see full list:
-    - https://github.com/boost-ext/sml/compare/v1.1.13...master
+    - https://github.com/boost-ext/sml/compare/v1.1.13...v1.2.0
 
 - **Documented limitations**
     - `on_entry<_>` multi-TU linker limitation and dispatch priority (#565)
