@@ -3,14 +3,17 @@
 # Regenerate the "Run on Compiler Explorer" links embedded in the docs.
 #
 # Boost.SML is a single-header library that is NOT registered as a Compiler
-# Explorer library, so each godbolt.org/z/ link inlines include/boost/sml.hpp
-# (and utility/dispatch_table.hpp where used) ahead of the example source.
-# Any `#define BOOST_SML_*` config macro is hoisted above the inlined header so
-# it still takes effect (see data.cpp / BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS).
+# Explorer library. Each godbolt.org/z/ link keeps the example source intact and
+# pulls the header via Compiler Explorer's client-side "#include from URL" feature:
+#   #include <https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml.hpp>
+# CE fetches and pastes that header in the browser when the link is opened (it is
+# NOT resolved by the compile API). dispatch_table.hpp itself does a relative
+# `#include "boost/sml.hpp"`, which CE's fetcher cannot resolve, so for the two
+# examples that use it (dispatch_table, sdl2) the small utility header is inlined
+# with its own sml.hpp include rewritten to the URL form.
 #
-# All examples are validated to compile (and execute) on GCC 14.2 at -std=c++14
-# before a short link is created. The error/* examples intentionally fail to
-# compile and get compile-only links that show the diagnostic.
+# The error/* examples intentionally fail to compile and get compile-only links
+# that show the diagnostic.
 #
 # Requirements: bash, curl, jq. Run from the repository root.
 # Usage:
@@ -22,19 +25,20 @@ cd "$(git rev-parse --show-toplevel)"
 
 GCC=g142                      # Compiler Explorer GCC 14.2
 STD_DEFAULT=c++14             # SML's minimum standard
-HDR=include/boost/sml.hpp
 DT=include/boost/sml/utility/dispatch_table.hpp
-INC_STRIP='#include[[:space:]]*[<"]boost/sml\.hpp[>"]|#include[[:space:]]*[<"]boost/sml/utility/dispatch_table\.hpp[>"]'
-EX_STRIP="${INC_STRIP}|^[[:space:]]*#define[[:space:]]+BOOST_SML"
+URL='https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml.hpp'
 
-assemble() { # <src.cpp>  -> self-contained translation unit on stdout
-  local ex="$1"
-  grep -E '^[[:space:]]*#define[[:space:]]+BOOST_SML' "$ex" || true   # hoist config macros from example
-  cat "$HDR"
-  # dispatch_table.hpp: strip ONLY its sml.hpp include; KEEP its own #define/#undef of
-  # BOOST_SML_DETAIL_REQUIRES (sml.hpp #undef's that macro before this point)
-  grep -q 'utility/dispatch_table.hpp' "$ex" && grep -vE "$INC_STRIP" "$DT"
-  grep -vE "$EX_STRIP" "$ex"
+assemble() { # <src.cpp>  -> thin url-include source on stdout
+  # Rewrite `#include <boost/sml.hpp>` to the URL form; for the dispatch_table.hpp
+  # include, inline that small header with its own sml.hpp include rewritten too.
+  awk -v url="$URL" -v dt="$DT" '
+    /#include[ \t]*[<"]boost\/sml\.hpp[>"]/ { print "#include <" url ">"; next }
+    /#include[ \t]*[<"]boost\/sml\/utility\/dispatch_table\.hpp[>"]/ {
+        while ((getline l < dt) > 0)
+          if (l ~ /#include[ \t]*[<"]boost\/sml\.hpp[>"]/) print "#include <" url ">"; else print l
+        close(dt); next }
+    { print }
+  ' "$1"
 }
 
 shorten() { # <assembled-file> <std> <execute:true|false> -> godbolt short url

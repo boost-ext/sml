@@ -25,88 +25,88 @@
 
 ###Hello World
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/hello_world.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/9x4E1hnWP)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/dq85hW4ab)
 
 ###Events
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/events.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/93joP5dv1)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/s816cG5j8)
 
 ###States
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/states.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/Y8b3he645)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/c9asGjYTr)
 
 ###Actions Guards
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/actions_guards.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/qqGsrTGq3)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/nehrdofPx)
 
 ###Transitions
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/transitions.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/dErTW4jxb)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/qr8qs78Ts)
 
 ###Defer/Process
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/defer_and_process.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/ah94rM966)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/T7YaW61en)
 
 ###Orthogonal Regions
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/orthogonal_regions.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/rf9c76hxK)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/vqGbsrqM3)
 
 ###Composite
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/composite.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/zbojc8oKs)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/5sYb9eGbe)
 
 ###History
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/history.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/8G5on88nK)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/Pvz6Y7vd4)
 
 ###Error handling
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/error_handling.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/e4Wj5858W)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/cGd7TnM1G)
 
 ###Logging
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/logging.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/raYvoWzjq)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/Tec7jz36r)
 
 ###Nested
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/nested.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/4ve1WfT9E)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/xd9PoEPdn)
 
 ###Testing
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/testing.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/4a7vK9o8a)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/oc73h5sY8)
 
 ###Runtime Dispatcher
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/dispatch_table.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/EKGKvWjdG)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/j5bMnobY9)
 
 ###eUML Emulation
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/euml_emulation.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/W9Tbafna1)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/n93Y5Mner)
 
 ###Dependencies
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/dependencies.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/c9W9hqEE5)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/afxWz4jq3)
 
 ###Data
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/data.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/v6vzcze4b)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/P4vn1dK9e)
 
 ###In-Place
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/in_place.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/GMcYd8Wva)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/r43fKbz6z)
 
 ###Dependency Injection
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/dependency_injection.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/KxxKbhY5s)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/1Pv6EaG7n)
 
 ###Arduino Integration
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/arduino.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/d8Goaha46)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/Kfba9GovG)
 
 ###SDL2 Integration
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/sdl2.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/79zo4YxYM)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/8heY58eE6)
 
 ###Plant UML Integration
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/plant_uml.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/ssbY17Ks4)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/8eT6aWsc9)

@@ -75,11 +75,11 @@ assert(string("idle") == "idle"_s.c_str());
 ```
 
 ![CPP(BTN)](Run_Events_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/events.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/93joP5dv1)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/s816cG5j8)
 ![CPP(BTN)](Run_States_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/states.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/Y8b3he645)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/c9asGjYTr)
 ![CPP(BTN)](Run_Composite_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/composite.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/zbojc8oKs)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/5sYb9eGbe)
 
 &nbsp;
 
@@ -131,7 +131,7 @@ auto inc = sml::make_action<Counter&>([](auto& c) { c.n++; }); // generic lambda
 ```
 
 ![CPP(BTN)](Run_Actions_Guards_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/actions_guards.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/qqGsrTGq3)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/nehrdofPx)
 
 &nbsp;
 
@@ -202,9 +202,9 @@ make_transition_table(
 ```
 
 ![CPP(BTN)](Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/transitions.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/dErTW4jxb)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/qr8qs78Ts)
 ![CPP(BTN)](Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/euml_emulation.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/W9Tbafna1)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/n93Y5Mner)
 
 &nbsp;
 
@@ -249,9 +249,9 @@ make_transition_table(
 ```
 
 ![CPP(BTN)](Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/orthogonal_regions.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/rf9c76hxK)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/vqGbsrqM3)
 ![CPP(BTN)](Run_History_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/history.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/8G5on88nK)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/Pvz6Y7vd4)
 
 &nbsp;
 
@@ -315,9 +315,9 @@ sm.process_event(e1{});
 ```
 
 ![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/hello_world.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/9x4E1hnWP)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/dq85hW4ab)
 ![CPP(BTN)](Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/dependency_injection.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/KxxKbhY5s)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/1Pv6EaG7n)
 
 &nbsp;
 
@@ -385,11 +385,11 @@ dispatch_event(event, event.type); // will call sm.process(game_over{});
 ```
 
 ![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/hello_world.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/9x4E1hnWP)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/dq85hW4ab)
 ![CPP(BTN)](Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/dispatch_table.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/EKGKvWjdG)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/j5bMnobY9)
 ![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/sdl2.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/79zo4YxYM)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/8heY58eE6)
 
 &nbsp;
 
@@ -457,7 +457,7 @@ make_transition_table(
 ```
 
 ![CPP(BTN)](Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/error_handling.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/e4Wj5858W)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/cGd7TnM1G)
 
 &nbsp;
 
@@ -491,7 +491,7 @@ assert(sm.is(X));
 ```
 
 ![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/testing.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/4a7vK9o8a)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/oc73h5sY8)
 
 &nbsp;
 
@@ -533,9 +533,9 @@ sm.process_event(my_event{}); // will call logger appropriately
 ```
 
 ![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/logging.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/raYvoWzjq)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/Tec7jz36r)
 ![CPP(BTN)](Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/plant_uml.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/ssbY17Ks4)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/8eT6aWsc9)
 
 &nbsp;
 
