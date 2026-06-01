@@ -18,9 +18,10 @@
 #   Memcheck:  make test MEMCHECK=VALGRIND
 #   Coverage:  make test COVERAGE=GCOV
 #
-.PHONY: all test example style static_analysis clean
+.PHONY: all test example style static_analysis doc serve clean
 
 CXX    ?= g++
+MKDOCS ?= mkdocs
 CXXSTD ?= c++14
 _STD    = $(subst c++,,$(CXXSTD))
 BDIR    = build-$(CXXSTD)
@@ -67,5 +68,12 @@ style: $(BDIR)/.configured
 static_analysis: $(BDIR)/.configured
 	$(CMAKE) --build $(BDIR) --target clang-tidy
 
+# Documentation (https://boost-ext.github.io/sml). Requires: pip install mkdocs
+doc:
+	$(MKDOCS) build --config-file .mkdocs.yml --clean --site-dir site
+
+serve:
+	$(MKDOCS) serve --config-file .mkdocs.yml
+
 clean:
-	rm -rf $(BDIR)
+	rm -rf $(BDIR) site

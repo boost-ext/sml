@@ -1,6 +1,6 @@
-copyright: Copyright &copy; 2016-2020
+copyright: Copyright &copy; 2016-2026
 site_name: "[Boost::ext].SML"
-site_url: http://boost-ext.github.io/sml
+site_url: https://boost-ext.github.io/sml
 site_author: Kris Jusiak
 repo_url: https://github.com/boost-ext/sml
 repo_name: sml
@@ -8,8 +8,7 @@ docs_dir: doc
 use_directory_urls: false
 theme:
   name: null
-  custom_dir: !!python/object/apply:os.getenv ["MKDOCS_THEME_DIR"]
-google_analytics: ['UA-73083568-1', 'auto']
+  custom_dir: doc/themes/boost-modern
 extra_javascript: []
 extra_css: []
 

@@ -1,0 +1,72 @@
+name: release
+
+# Cut a GitHub Release for the version currently on master.
+#
+# Manually triggered. It reads BOOST_SML_VERSION from include/boost/sml.hpp,
+# creates the matching vX.Y.Z tag (if missing) and a GitHub Release whose notes
+# are the matching section of doc/CHANGELOG.md. Safe to re-run: it is a no-op if
+# the release already exists.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 1.2.0). Leave empty to read it from include/boost/sml.hpp.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: ver
+        run: |
+          version="${{ github.event.inputs.version }}"
+          if [ -z "$version" ]; then
+            # BOOST_SML_VERSION is written as e.g. 1'2'0 -> 1.2.0
+            version=$(grep -E '#define BOOST_SML_VERSION' include/boost/sml.hpp \
+              | grep -oE "[0-9]+'[0-9]+'[0-9]+" | tr "'" '.')
+          fi
+          if [ -z "$version" ]; then
+            echo "::error::could not determine version"; exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version"   >> "$GITHUB_OUTPUT"
+          echo "Releasing v$version"
+
+      - name: Extract changelog section
+        id: notes
+        run: |
+          version="${{ steps.ver.outputs.version }}"
+          # Print the block from "## [x.y.z]" up to (but not including) the next "## [".
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" {grab=1; next}
+            grab && /^## \[/ {exit}
+            grab {print}
+          ' doc/CHANGELOG.md > RELEASE_NOTES.md
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "See doc/CHANGELOG.md" > RELEASE_NOTES.md
+          fi
+          echo "----- release notes -----"; cat RELEASE_NOTES.md
+
+      - name: Create tag and release (idempotent)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${{ steps.ver.outputs.tag }}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists - nothing to do."
+            exit 0
+          fi
+          gh release create "$tag" \
+            --target "${{ github.sha }}" \
+            --title "$tag" \
+            --notes-file RELEASE_NOTES.md

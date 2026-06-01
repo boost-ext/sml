@@ -27,9 +27,9 @@ git clone https://github.com/boost-ext/sml && cd sml && make test
 
 ###Supported/Tested compilers
 
-* [Clang-3.4+](https://travis-ci.org/boost-ext/sml)
-* [GCC-5.2+](https://travis-ci.org/boost-ext/sml)
-* [MSVC-2015](https://ci.appveyor.com/project/krzysztof-jusiak/sml)
+* [Clang-3.4+](https://github.com/boost-ext/sml/actions/workflows/build_matrix.yml)
+* [GCC-5.2+](https://github.com/boost-ext/sml/actions/workflows/build_matrix.yml)
+* [MSVC-2015+](https://github.com/boost-ext/sml/actions/workflows/build_matrix.yml)
     * Known limitations
 
 ```cpp
