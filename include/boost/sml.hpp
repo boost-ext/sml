@@ -1046,6 +1046,14 @@ template <class T>
 constexpr auto wrap(T callback) {
   return aux::zero_wrapper<T, T>{callback};
 }
+// make_action<Deps...>(f) — adapt a callable whose parameter types SML cannot
+// deduce (#629).  SML normally reads the wanted dep/event types off a callable's
+// operator(); a *generic* lambda ([](auto&){}) or a concept-constrained one
+// (`[](HasFoo auto&){}`) exposes only a template, so function_traits has nothing
+// concrete to read and picks the wrong type.  action_wrap pins a fixed
+// operator(TDeps...) in front of `f`, giving SML the explicit signature to
+// inspect while still forwarding to the original callable.  TDeps are listed in
+// call order, e.g. make_action<const Event&, Dep&>([](auto& e, auto& d){...}).
 template <class F, class... TDeps>
 struct action_wrap {
   constexpr explicit action_wrap(F f) : f_(f) {}
@@ -1753,6 +1761,12 @@ template <class T>
 struct logger : aux::pair<logger_policy__, logger<T>> {
   using type = T;
 };
+// explicit_deps<Ts...> policy (#437) — force Ts into the dependency pool even
+// when no action/guard *signature* names them.  The pool is built from the dep
+// types that appear in callable signatures; a dep reached only through a generic
+// lambda via `aux::get<Dep&>(deps)` never appears in any signature, so it would
+// be dropped from the pool and the static_cast to pool_type<Dep&> would fail to
+// compile.  sml::deps<Ts...> widens the pool to include these types explicitly.
 struct explicit_deps_policy__ {};
 template <class... Ts>
 struct explicit_deps : aux::pair<explicit_deps_policy__, explicit_deps<Ts...>> {};
@@ -2027,6 +2041,11 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
     } while (process_queued_events(d, subs, queued_handled, aux::type_wrapper<process_queue_t<TEvent>>{}, events_t{}));
     return handled && queued_handled;
   }
+  // flush_queue — drain events left in the process queue (#456).  process_event
+  // already drains its own queue before returning; this is for events pushed
+  // *after* it returned, e.g. from an async callback holding a back::process<>
+  // handle.  Runs anonymous transitions to a fixpoint, then the queued events.
+  // No-op when the queue is empty; takes the thread_safe lock like process_event.
   template <class TDeps, class TSubs>
   constexpr void flush_queue(TDeps &d, TSubs &subs) {
     const auto lock = thread_safety_.create_lock();
@@ -2328,6 +2347,8 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
   constexpr void clear_deferred_impl_(aux::false_type) {}
   constexpr void clear_deferred_impl_(aux::true_type) { defer_.clear(); }
 };
+// Lower the explicit_deps policy to a dep list joined into the pool (#437).
+// Types are const-/ref-normalised to `T&` so they match how pool_type keys deps.
 template <class>
 struct get_explicit_deps {
   using type = aux::type_list<>;
@@ -2392,6 +2413,7 @@ class sm {
   constexpr bool process_event(const TEvent &event) {
     return aux::get<sm_impl<Tsm>>(sub_sms_).process_event(unexpected_event<_, TEvent>{event}, deps_, sub_sms_);
   }
+  // Public entry point: drain events queued after process_event returned (#456).
   constexpr void flush_queue() {
     aux::get<sm_impl<Tsm>>(sub_sms_).flush_queue(deps_, sub_sms_);
   }
@@ -2819,6 +2841,10 @@ struct defer : action_base {
     }
   }
 };
+// clear_defer — the counterpart to `defer` (#643): drop every event currently
+// held in the defer queue.  Typical use is on the way out of a composite/sub-SM
+// so events deferred during that scope do not resurface after re-entry.  No-op
+// when nothing is deferred; requires a defer_queue policy.
 struct clear_defer : action_base {
   template <class TEvent, class Tsm, class TDeps, class TSubs>
   constexpr void operator()(const TEvent &, Tsm &sm, TDeps &, TSubs &) const {
@@ -2839,6 +2865,7 @@ using defer_queue = back::policies::defer_queue<T>;
 template <template <class...> class T>
 using process_queue = back::policies::process_queue<T>;
 using dont_instantiate_statemachine_class = back::policies::dont_instantiate_statemachine_class;
+// sml::deps<Ts...> — SM policy adding Ts to the dependency pool (see explicit_deps, #437).
 template <class... Ts>
 using deps = back::policies::explicit_deps<Ts...>;
 #if defined(_MSC_VER) && !defined(__clang__)
