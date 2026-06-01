@@ -146,3 +146,4 @@ to avoid it `[Boost].SML` may suit you!
 * Thanks to [Oliver Daniell](https://github.com/oliverdaniell) for all contributions
 * Thanks to [Julius Gelšvartas](https://github.com/JuliusGel) for bug fixes
 * Thanks to [Christopher Motl](https://github.com/cmotl) for documentation fixes
+* Thanks to [Pavel Guzenfeld](https://github.com/PavelGuzenfeld) ([pavelguzenfeld.com](https://pavelguzenfeld.com)) for the v1.2.0 release and numerous bug fixes
