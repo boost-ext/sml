@@ -24,14 +24,17 @@ GCC=g142                      # Compiler Explorer GCC 14.2
 STD_DEFAULT=c++14             # SML's minimum standard
 HDR=include/boost/sml.hpp
 DT=include/boost/sml/utility/dispatch_table.hpp
-STRIP='#include[[:space:]]*[<"]boost/sml\.hpp[>"]|#include[[:space:]]*[<"]boost/sml/utility/dispatch_table\.hpp[>"]|^[[:space:]]*#define[[:space:]]+BOOST_SML'
+INC_STRIP='#include[[:space:]]*[<"]boost/sml\.hpp[>"]|#include[[:space:]]*[<"]boost/sml/utility/dispatch_table\.hpp[>"]'
+EX_STRIP="${INC_STRIP}|^[[:space:]]*#define[[:space:]]+BOOST_SML"
 
 assemble() { # <src.cpp>  -> self-contained translation unit on stdout
   local ex="$1"
-  grep -E '^[[:space:]]*#define[[:space:]]+BOOST_SML' "$ex" || true   # hoist config macros
+  grep -E '^[[:space:]]*#define[[:space:]]+BOOST_SML' "$ex" || true   # hoist config macros from example
   cat "$HDR"
-  grep -q 'utility/dispatch_table.hpp' "$ex" && grep -vE "$STRIP" "$DT"
-  grep -vE "$STRIP" "$ex"
+  # dispatch_table.hpp: strip ONLY its sml.hpp include; KEEP its own #define/#undef of
+  # BOOST_SML_DETAIL_REQUIRES (sml.hpp #undef's that macro before this point)
+  grep -q 'utility/dispatch_table.hpp' "$ex" && grep -vE "$INC_STRIP" "$DT"
+  grep -vE "$EX_STRIP" "$ex"
 }
 
 shorten() { # <assembled-file> <std> <execute:true|false> -> godbolt short url
@@ -59,9 +62,13 @@ for f in example/*.cpp; do process "$f" true; done
 for f in test/ft/errors/not_*.cpp; do process "$f" false; done
 
 if [ "${1:-}" = "--insert" ]; then
-  # strip previously-generated CE links, then re-insert after each embed
+  # strip previously-generated CE links, then re-insert after each embed.
+  # Only delete a CE link that immediately FOLLOWS an ![CPP] embed, so standalone
+  # links (e.g. the make_action example in the user guide) are preserved.
   DOCS=(doc/examples.md doc/tutorial.md doc/user_guide.md doc/index.md doc/overview.md)
-  for d in "${DOCS[@]}"; do sed -i '/Compiler Explorer\](https:\/\/godbolt.org/d' "$d"; done
+  for d in "${DOCS[@]}"; do
+    awk '{ if (prev ~ /!\[CPP/ && $0 ~ /Compiler Explorer\]\(https:\/\/godbolt\.org/) { prev=$0; next } print; prev=$0 }' "$d" > "$d.tmp" && mv "$d.tmp" "$d"
+  done
   while read -r name url; do
     case "$name" in
       not_*) label="▶ See the compile error on Compiler Explorer";;

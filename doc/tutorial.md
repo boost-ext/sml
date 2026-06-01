@@ -75,11 +75,11 @@ assert(string("idle") == "idle"_s.c_str());
 ```
 
 ![CPP(BTN)](Run_Events_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/events.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/sWWEYvj3s)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/93joP5dv1)
 ![CPP(BTN)](Run_States_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/states.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/EfbfqqTYo)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/Y8b3he645)
 ![CPP(BTN)](Run_Composite_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/composite.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/9xPc56P36)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/zbojc8oKs)
 
 &nbsp;
 
@@ -120,8 +120,18 @@ struct action4 {
 };
 ```
 
+`SML` deduces the dependencies/event a guard or action wants from its `operator()`.
+A *generic* lambda (`[](auto&){}`) or a concept-constrained one hides that, so wrap
+it with [`make_action<Deps...>`](user_guide.md#make_action-utility) to name the types
+explicitly:
+
+```cpp
+struct Counter { int n = 0; };
+auto inc = sml::make_action<Counter&>([](auto& c) { c.n++; }); // generic lambda -> Counter&
+```
+
 ![CPP(BTN)](Run_Actions_Guards_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/actions_guards.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/q9nEfv9qv)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/qqGsrTGq3)
 
 &nbsp;
 
@@ -192,9 +202,9 @@ make_transition_table(
 ```
 
 ![CPP(BTN)](Run_Transition_Table_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/transitions.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/jqz5frEP5)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/dErTW4jxb)
 ![CPP(BTN)](Run_eUML_Emulation_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/euml_emulation.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/KhqvGjKPP)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/W9Tbafna1)
 
 &nbsp;
 
@@ -239,9 +249,9 @@ make_transition_table(
 ```
 
 ![CPP(BTN)](Run_Orthogonal_Regions_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/orthogonal_regions.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/Ma7sT74hq)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/rf9c76hxK)
 ![CPP(BTN)](Run_History_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/history.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/46erdGWxx)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/8G5on88nK)
 
 &nbsp;
 
@@ -305,9 +315,9 @@ sm.process_event(e1{});
 ```
 
 ![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/hello_world.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/W9zoarv69)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/9x4E1hnWP)
 ![CPP(BTN)](Run_Dependency_Injection_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/dependency_injection.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/zYvM1a6v4)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/KxxKbhY5s)
 
 &nbsp;
 
@@ -375,11 +385,11 @@ dispatch_event(event, event.type); // will call sm.process(game_over{});
 ```
 
 ![CPP(BTN)](Run_Hello_World_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/hello_world.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/W9zoarv69)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/9x4E1hnWP)
 ![CPP(BTN)](Run_Dispatch_Table_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/dispatch_table.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/6vs9E6Ynf)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/EKGKvWjdG)
 ![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/sdl2.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/K4q6hhz5o)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/79zo4YxYM)
 
 &nbsp;
 
@@ -447,7 +457,7 @@ make_transition_table(
 ```
 
 ![CPP(BTN)](Run_Error_Handling_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/error_handling.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/1G3P6ne7Y)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/e4Wj5858W)
 
 &nbsp;
 
@@ -481,7 +491,7 @@ assert(sm.is(X));
 ```
 
 ![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/testing.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/e9j19aTd7)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/4a7vK9o8a)
 
 &nbsp;
 
@@ -523,9 +533,9 @@ sm.process_event(my_event{}); // will call logger appropriately
 ```
 
 ![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/logging.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/vheaGPWqT)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/raYvoWzjq)
 ![CPP(BTN)](Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/plant_uml.cpp)
-[▶ Run on Compiler Explorer](https://godbolt.org/z/4sb18vWG3)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/ssbY17Ks4)
 
 &nbsp;
 

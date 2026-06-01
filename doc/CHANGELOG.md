@@ -3,6 +3,7 @@
     - `sm::flush_queue()` — drain pending queued events from async handlers (#456)
     - `sml::clear_defer` action — discard deferred events from a transition (#643)
     - `sml::deps<Ts...>` policy — explicit pool dependencies for generic-lambda actions/guards (#437)
+    - `sml::make_action<Deps...>(f)` — wrap a template/generic/constrained callable so its dependency and event types are deduced from the explicit `<Deps...>` list (#629)
 
 - **Behavior changes**
     - Empty-SM min-size trick is now OFF by default on GCC/Clang (it was UB at `-O2`);

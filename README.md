@@ -287,6 +287,7 @@ send: 42
     * [sm [state machine]](https://boost-ext.github.io/sml/user_guide.html#sm-state-machine)
     * [policies [state machine]](https://boost-ext.github.io/sml/user_guide.html#policies-state-machine)
     * [testing::sm [testing]](https://boost-ext.github.io/sml/user_guide.html#testingsm-testing)
+    * [make_action [utility]](https://boost-ext.github.io/sml/user_guide.html#make_action-utility)
     * [make_dispatch_table [utility]](https://boost-ext.github.io/sml/user_guide.html#make_dispatch_table-utility)
 * [Examples](https://boost-ext.github.io/sml/examples.html)
     * [Hello World](https://boost-ext.github.io/sml/examples.html#hello-world)

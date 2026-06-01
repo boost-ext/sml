@@ -93,19 +93,19 @@ sm.process_event(event{}); // thread safe call
 
 ***Not configurable***
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_configurable.cpp)
-[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/Pf64KjfG8)
+[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/3ceoa8fP4)
 
 ***Not callable***
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_callable.cpp)
-[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/b7xP5brcE)
+[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/Wv9rbG7ab)
 
 ***Not transitional***
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_transitional.cpp)
-[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/cnhP9Pf4o)
+[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/6P7qf1qvv)
 
 ***Not dispatchable***
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/test/ft/errors/not_dispatchable.cpp)
-[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/abKhzTz1T)
+[▶ See the compile error on Compiler Explorer](https://godbolt.org/z/5cWcc98x1)
 
 [Boost.MSM-eUML]: http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s04.html
 [Boost.MSM3-eUML2]: https://htmlpreview.github.io/?https://raw.githubusercontent.com/boostorg/msm/msm3/doc/HTML/ch03s05.html
