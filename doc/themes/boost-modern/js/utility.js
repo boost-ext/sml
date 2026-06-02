@@ -12,3 +12,7 @@ $(document).ready(function () {
         $(this).replaceWith(video);
     });
 });
+// Open "Run on Compiler Explorer" links in a new browser tab.
+$(document).ready(function () {
+    $('a[href*="godbolt.org"]').attr('target', '_blank').attr('rel', 'noopener');
+});

@@ -11,10 +11,10 @@ Introduction
 
 | **[Boost::ext].SML (State Machine Language/Lite/Library)** | |
 | - | - |
-| Your scalable C++14 one header only State Machine Library with no dependencies ([__Try it online!__](hsttp://boost-ext.github.io/sml/examples/index.html#hello-world)) | <a class="github-button" href="https://github.com/boost-ext/sml" data-style="mega" data-count-href="/boost-ext/sml/stargazers" data-count-api="/repos/boost-ext/sml#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-ext/sml on GitHub">GitHub</a> |
+| Your scalable C++14 one header only State Machine Library with no dependencies ([__Try it online!__](examples.html#hello-world)) | <a class="github-button" href="https://github.com/boost-ext/sml" data-style="mega" data-count-href="/boost-ext/sml/stargazers" data-count-api="/repos/boost-ext/sml#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star boost-ext/sml on GitHub">GitHub</a> |
 
 <div class="important">
-<a href="https://github.com/boost-ext/sml/releases" class="btn btn-success" style="margin-bottom:8px;" role="button"><span class="fa fa-download"></span>&nbsp; <b>Download</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="CHANGELOG/index.html" class="btn btn-info" style="margin-bottom:8px;" role="button"><span class="fa fa-reorder"></span>&nbsp; <b>Changelog</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="tutorial/index.html" class="btn btn-warning" style="margin-bottom:8px;" role="button"><span class="fa fa-gear"></span>&nbsp; <b>Tutorial</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="examples/index.html" class="btn btn-danger" style="margin-bottom:8px;" role="button"><span class="fa fa-book"></span>&nbsp; <b>Examples</b></a>
+<a href="https://github.com/boost-ext/sml/releases" class="btn btn-success" style="margin-bottom:8px;" role="button"><span class="fa fa-download"></span>&nbsp; <b>Download</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="CHANGELOG.html" class="btn btn-info" style="margin-bottom:8px;" role="button"><span class="fa fa-reorder"></span>&nbsp; <b>Changelog</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="tutorial.html" class="btn btn-warning" style="margin-bottom:8px;" role="button"><span class="fa fa-gear"></span>&nbsp; <b>Tutorial</b></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="examples.html" class="btn btn-danger" style="margin-bottom:8px;" role="button"><span class="fa fa-book"></span>&nbsp; <b>Examples</b></a>
 </div>
 
 ###UML State Machine
@@ -44,13 +44,9 @@ to avoid it `[Boost].SML` may suit you!
 
 ###Real Life examples?
 
-![CPP(BTN)](Run_SDL2_Integration_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/sdl2.cpp)
 [▶ Run on Compiler Explorer](https://godbolt.org/z/8heY58eE6)
-![CPP(BTN)](Run_Plant_UML_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/plant_uml.cpp)
 [▶ Run on Compiler Explorer](https://godbolt.org/z/8eT6aWsc9)
-![CPP(BTN)](Run_Logging_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/logging.cpp)
 [▶ Run on Compiler Explorer](https://godbolt.org/z/Tec7jz36r)
-![CPP(BTN)](Run_Testing_Example|https://raw.githubusercontent.com/boost-ext/sml/master/example/testing.cpp)
 [▶ Run on Compiler Explorer](https://godbolt.org/z/oc73h5sY8)
 
 &nbsp;
