@@ -79,6 +79,10 @@
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/dispatch_table.cpp)
 [▶ Run on Compiler Explorer](https://godbolt.org/z/j5bMnobY9)
 
+###Dispatch Policy
+![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/dispatch_policy.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/Mnqz6bEoz)
+
 ###eUML Emulation
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/euml_emulation.cpp)
 [▶ Run on Compiler Explorer](https://godbolt.org/z/n93Y5Mner)
@@ -94,6 +98,14 @@
 ###In-Place
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/in_place.cpp)
 [▶ Run on Compiler Explorer](https://godbolt.org/z/r43fKbz6z)
+
+###Eval
+![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/eval.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/MM1aTd11a)
+
+###Visitor
+![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/visitor.cpp)
+[▶ Run on Compiler Explorer](https://godbolt.org/z/frPxxYv74)
 
 ###Dependency Injection
 ![CPP](https://raw.githubusercontent.com/boost-ext/sml/master/example/dependency_injection.cpp)
