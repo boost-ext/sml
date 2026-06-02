@@ -14,5 +14,5 @@ $(document).ready(function () {
 });
 // Open "Run on Compiler Explorer" links in a new browser tab.
 $(document).ready(function () {
-    $('a[href*="godbolt.org"]').attr('target', '_blank').attr('rel', 'noopener');
+    $("a[href*='godbolt.org']").attr("target", "_blank").attr("rel", "noopener");
 });
