@@ -611,6 +611,23 @@ struct is_unique<type_wrapper<Rs...>, T, Ts...>
     : conditional_t<is_base_of<type_wrapper<T>, inherit<type_wrapper<Rs>...>>::value, false_type, is_unique<type_wrapper<Rs..., T>, Ts...>> {};
 template <class... Ts>
 using is_unique_t = is_unique<type_wrapper<>, Ts...>;
+template <class TSet, class T>
+struct dep_is_kept : true_type {};
+template <class TSet, class U>
+struct dep_is_kept<TSet, const U &> : integral_constant<bool, !is_base_of<type_wrapper<U &>, TSet>::value> {};
+template <class>
+struct collapse_const_refs;
+template <class... Ts>
+struct collapse_const_refs<type_list<Ts...>> {
+  using set = inherit<type_wrapper<Ts>...>;
+  using type = join_t<conditional_t<dep_is_kept<set, Ts>::value, type_list<Ts>, type_list<>>...>;
+};
+// const U&, U& -> U&
+// const U& -> const U&
+template <class TList>
+using collapse_const_refs_t = typename collapse_const_refs<TList>::type;
+static_assert(aux::is_same<collapse_const_refs_t<type_list<const none_type &>>, type_list<const none_type &>>::value, "`const U &` should collapse to `const U &` if only const refs are present");
+static_assert(aux::is_same<collapse_const_refs_t<type_list<const none_type &, none_type &>>, type_list<none_type &>>::value, "`const U &` should collapse to `U &` if at least one non-const ref is present");
 template <template <class...> class, class>
 struct apply;
 template <template <class...> class T, template <class...> class U, class... Ts>
@@ -2387,7 +2404,7 @@ class sm {
   using explicit_dep_list = typename get_explicit_deps<typename Tsm::explicit_deps_policy>::type;
   using deps_t =
       aux::apply_t<aux::pool,
-                   aux::apply_t<aux::unique_t, aux::join_t<explicit_dep_list, dep_list, sm_all_t, logger_dep_t, aux::apply_t<merge_deps, sub_sms_t>>>>;
+                   aux::collapse_const_refs_t<aux::apply_t<aux::unique_t, aux::join_t<explicit_dep_list, dep_list, sm_all_t, logger_dep_t, aux::apply_t<merge_deps, sub_sms_t>>>>>;
   struct events_ids : aux::apply_t<aux::inherit, events> {};
 
  public:
@@ -2572,20 +2589,19 @@ template <class... TEvents, class TEvent, class Tsm, class TDeps, class TSubs>
 constexpr decltype(auto) get_arg(const aux::type_wrapper<back::process<TEvents...>> &, const TEvent &, Tsm &, TDeps &, TSubs &subs, int) {
   return back::process<TEvents...>{aux::get<get_root_sm_t<TSubs>>(subs).process_};
 }
-// For const lvalue-ref dep parameters (`const State &`): look up the non-const
-// `State &` pool slot instead of a separate `const State &` slot.
-// Combined with the normalisation in ignore::non_events (which maps `const T &`
-// → `T &` in the dep_list so no separate pool slot is created), this ensures
-// that a guard taking `const State &` sees the same live object that actions
-// taking `State &` mutate.  Without this overload the generic get_arg below
-// would do aux::get<const State &>(deps) which static_cast-fails or (with
-// BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS) hits the primary-template
-// pool_type_impl whose reference member dangles after construction. (#530)
+// access via `const U &` when pool stores `U &`.
 template <class T, class TEvent, class Tsm, class TDeps,
           BOOST_SML_DETAIL_REQUIRES(!aux::is_same<aux::remove_const_t<aux::remove_reference_t<back::get_event_t<TEvent>>>,
-                                             T>::value)>
+                                             T>::value && aux::is_base_of<aux::pool_type<T &>, TDeps>::value)>
 constexpr const T &get_arg(const aux::type_wrapper<const T &> &, const TEvent &, Tsm &, TDeps &deps) {
   return aux::get<T &>(deps);
+}
+// access via `const U &` when pool stores `const U &`.
+template <class T, class TEvent, class Tsm, class TDeps,
+          BOOST_SML_DETAIL_REQUIRES(!aux::is_same<aux::remove_const_t<aux::remove_reference_t<back::get_event_t<TEvent>>>,
+                                             T>::value && !aux::is_base_of<aux::pool_type<T &>, TDeps>::value)>
+constexpr const T &get_arg(const aux::type_wrapper<const T &> &, const TEvent &, Tsm &, TDeps &deps) {
+  return aux::get<const T &>(deps);
 }
 // 6-parameter overloads: look in sub_sms for submachine state types (issue #659)
 // Excluded: the current SM's own type (Tsm::sm_t), which belongs in deps
@@ -3037,18 +3053,10 @@ template <class E, class... Ts>
 struct ignore<E, aux::type_list<Ts...>> {
   template <class T>
   struct non_events {
-    // Normalise const lvalue refs: `const U &` → `U &`.
-    // This ensures that a guard taking `const State &` and an action taking
-    // `State &` share the same pool slot, so mutations through the mutable ref
-    // are visible through the const ref.  Without normalisation a separate
-    // pool_type<const State &> entry would be created, carrying a stale copy
-    // of the original default-constructed State value. (#530)
-    using stripped_ = aux::remove_const_t<aux::remove_reference_t<T>>;
-    using norm_ = aux::conditional_t<aux::is_same<T, const stripped_ &>::value, stripped_ &, T>;
     using type =
         aux::conditional_t<aux::is_same<back::get_event_t<E>, aux::remove_const_t<aux::remove_reference_t<T>>>::value ||
                                aux::is_same<T, action_base>::value,
-                           aux::type_list<>, aux::type_list<norm_>>;
+                           aux::type_list<>, aux::type_list<T>>;
   };
   using type = aux::join_t<typename non_events<Ts>::type...>;
 };
