@@ -25,6 +25,9 @@ endif()
 add_executable(test_dependencies dependencies.cpp)
 add_test(test_dependencies test_dependencies)
 
+add_executable(test_non_owning_dependencies non_owning_dependencies.cpp)
+add_test(test_non_owning_dependencies test_non_owning_dependencies)
+
 add_executable(test_wrap wrap.cpp)
 add_test(test_wrap test_wrap)
 
