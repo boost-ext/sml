@@ -2309,7 +2309,10 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
       // transitions and defer drains between queued events (#542).
       typename process_t::value_type event{static_cast<typename process_t::value_type &&>(process_.front())};
       process_.pop();  // pop before dispatch so re-entrant calls see an advanced queue (#465)
-      queued_handled &= (this->*dispatch_table[event.id])(d, subs, event.data);
+      // Subscript in its own statement to dodge a GCC(-O0) ASan+UBSan miscompilation/crash on
+      // the folded (this->*dispatch_table[event.id])(...) call.
+      const auto handler = dispatch_table[event.id];
+      queued_handled &= (this->*handler)(d, subs, event.data);
     }
     return wasnt_empty;
   }

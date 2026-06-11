@@ -34,6 +34,14 @@ jobs:
             generators: "Ninja"
           }
         - {
+            name: "ubuntu g++ asan+ubsan",
+            os: ubuntu-latest,
+            build_type: "Debug",
+            cxx: "g++",
+            generators: "Ninja",
+            cxx_flags: "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -g"
+          }
+        - {
             name: "macos clang++",
             os: macos-latest,
             build_type: "Debug",
@@ -80,6 +88,7 @@ jobs:
             -B . \
             -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+            -DCMAKE_CXX_FLAGS="${{ matrix.config.cxx_flags }}" \
             -DSML_BUILD_EXAMPLES=ON \
             -DSML_BUILD_TESTS=ON \
             -G "${{ matrix.config.generators }}"
