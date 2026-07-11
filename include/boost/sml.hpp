@@ -3135,7 +3135,7 @@ struct transition<state<S1>, state<S2>> : transition<state<S1>, state<S2>, front
 template <class S2, class G>
 struct transition_sg<state<S2>, G> : transition<state<internal>, state<S2>, front::event<back::anonymous>, G, none> {
   using transition<state<internal>, state<S2>, front::event<back::anonymous>, G, none>::g;
-  transition_sg(const state<S2> &, const G &g_init)
+  constexpr transition_sg(const state<S2> &, const G &g_init)
       : transition<state<internal>, state<S2>, front::event<back::anonymous>, G, none>{g_init, none{}} {}
   template <class T>
   constexpr auto operator/(const T &t) const {
@@ -3149,7 +3149,7 @@ struct transition_sg<state<S2>, G> : transition<state<internal>, state<S2>, fron
 template <class S2, class A>
 struct transition_sa<state<S2>, A> : transition<state<internal>, state<S2>, front::event<back::anonymous>, always, A> {
   using transition<state<internal>, state<S2>, front::event<back::anonymous>, always, A>::a;
-  transition_sa(const state<S2> &, const A &a_init)
+  constexpr transition_sa(const state<S2> &, const A &a_init)
       : transition<state<internal>, state<S2>, front::event<back::anonymous>, always, A>{always{}, a_init} {}
   template <class T>
   constexpr auto operator=(const T &) const {
