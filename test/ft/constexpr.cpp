@@ -11,6 +11,7 @@
 namespace sml = boost::sml;
 
 struct e1 {};
+struct e2 {};
 
 const auto idle = sml::state<class idle>;
 const auto s1 = sml::state<class s1>;
@@ -51,6 +52,23 @@ test constexpr_anonymous_transitions_sm = [] {
         *idle + event<e1> = s1,
          s1[guard]        = s2,
          s2 / action      = X
+      );
+    }
+    // clang-format on
+  };
+
+  constexpr sml::sm<c, sml::dispatch<sml::back::policies::branch_stm>> sm{};
+  (void)sm;
+};
+
+test constexpr_unexpected_event_sm = [] {
+  using namespace sml;
+  struct c {
+    // clang-format off
+    constexpr auto operator()() noexcept {
+      return make_transition_table(
+        *idle + event<e1>             = s1,
+         s1   + unexpected_event<e2>  = X
       );
     }
     // clang-format on
