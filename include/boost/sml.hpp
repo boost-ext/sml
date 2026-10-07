@@ -1750,7 +1750,9 @@ struct fold_expr {
   template <class TMappings, int... Ns, class sm_impl, class State, class TEvent, class TDeps, class TSubs, class... TStates>
   constexpr static bool dispatch_impl(sm_impl &self, State &current_state, aux::index_sequence<Ns...>, const TEvent &event, TDeps &deps,
                             TSubs &subs, const aux::type_list<TStates...> &) {
-    return ((current_state == Ns
+    // execute may change current_state and still return false (unexpected_event fallback), so compare a snapshot
+    const auto state_snapshot = current_state;
+    return ((state_snapshot == Ns
                  ? get_state_mapping_t<TStates, TMappings, typename sm_impl::has_unexpected_events>::template execute<
                        TEvent, sm_impl, TDeps, TSubs>(event, self, deps, subs, current_state)
                  : false) ||
