@@ -2040,10 +2040,15 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
   constexpr bool process_event(const TEvent &event, TDeps &d, TSubs &subs) {
     const auto lock = thread_safety_.create_lock();
     (void)lock;
-    bool changed = false;
     state_t old[regions]{};
     for (auto i = 0u; i < regions; ++i) old[i] = current_state_[i];
-    bool handled = process_internal_events(event, d, subs);
+    const bool handled = process_internal_events(event, d, subs);
+    const bool queued_handled = process_pending_events(old, d, subs);
+    return handled && queued_handled;
+  }
+  template <class TDeps, class TSubs>
+  constexpr bool process_pending_events(state_t (&old)[regions], TDeps &d, TSubs &subs) {
+    bool changed = false;
     bool queued_handled = true;
     do {
       do {
@@ -2054,9 +2059,9 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
           if (old[i] != current_state_[i]) { changed = true; break; }
         }
         for (auto i = 0u; i < regions; ++i) old[i] = current_state_[i];
-      } while (process_defer_events(d, subs, changed, aux::type_wrapper<defer_queue_t<TEvent>>{}, events_t{}));
-    } while (process_queued_events(d, subs, queued_handled, aux::type_wrapper<process_queue_t<TEvent>>{}, events_t{}));
-    return handled && queued_handled;
+      } while (process_defer_events(d, subs, changed, aux::type_wrapper<defer_t>{}, events_t{}));
+    } while (process_queued_events(d, subs, queued_handled, aux::type_wrapper<process_t>{}, events_t{}));
+    return queued_handled;
   }
   // flush_queue — drain events left in the process queue (#456).  process_event
   // already drains its own queue before returning; this is for events pushed
