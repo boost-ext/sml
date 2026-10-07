@@ -75,3 +75,32 @@ test sm_dispatch_orthogonal_regions = [] {
   test(sml::dispatch<sml::back::policies::fold_expr>{});
 #endif
 };
+
+test sm_dispatch_unexpected_event = [] {
+  struct c {
+    auto operator()() {
+      using namespace sml;
+      // clang-format off
+      return make_transition_table(
+         *s1 + unexpected_event<e1> = s2
+        , s2 + event<e1> = X
+      );
+      // clang-format on
+    }
+  };
+
+  const auto test = [](auto type) {
+    (void)type;
+    sml::sm<c, decltype(type)> sm{};
+    expect(sm.is(s1));
+    expect(!sm.process_event(e1{}));
+    expect(sm.is(s2));
+  };
+
+  test(sml::dispatch<sml::back::policies::jump_table>{});
+  test(sml::dispatch<sml::back::policies::branch_stm>{});
+  test(sml::dispatch<sml::back::policies::switch_stm>{});
+#if defined(__cpp_fold_expressions)
+  test(sml::dispatch<sml::back::policies::fold_expr>{});
+#endif
+};
