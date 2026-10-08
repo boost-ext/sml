@@ -104,7 +104,7 @@ int main() {
 }
 ```
 
-> MSVC-2015 ([Example](https://boost-ext.github.io/sml/examples/index.html#hello-world))
+> MSVC-2015 ([Example](https://boost-ext.github.io/sml/examples.html#hello-world))
 
   * use `state<class state_name>` instead of `"state_name"_s`
   * expliclty state a lambda's result type `auto action = [] -> void {}`
