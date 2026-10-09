@@ -402,8 +402,8 @@ test ref_dep_copy_from_pool_not_dangling = [] {
 // called try_get<Base>() which found nothing when the pool held Derived&, fell
 // back to missing_ctor_parameter<Base>, tried to default-construct Base, and
 // then could not bind the temporary to Base&.
-// Fix: add covariant try_get overloads for pool_type<D&> and pool_type<const D&>
-// constrained on is_base_of<T,D> — returns T& via implicit base-class conversion.
+// Fix: a covariant try_get that finds the unique D& / const D& dep with D derived
+// from T and returns T& via implicit base-class conversion (see also #715 below).
 struct base467 {
   base467() = default;
   base467(const base467 &) = delete;  // non-copyable, like NiceMock<T>
@@ -429,6 +429,243 @@ test non_copyable_derived_dep_as_base_ref = [] {
   sm.process_event(e1{});
   expect(sm.is(sml::X));
 };
+
+// Issue #715: the #467 lookup deduced D from the pool's pool_type<D&> bases.
+// That deduction fails as soon as the pool holds more than one reference dep,
+// and MSVC needs exponential time to find out.  The slot is now found by
+// scanning the pool's dep list, so other reference deps must not interfere.
+test derived_dep_as_base_ref_among_other_ref_deps = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](base467 &d, int &i) { expect(7 == d.val && 42 == i); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  derived467 dep;
+  int i = 42;
+  std::string unused;
+  sml::sm<c715> sm{unused, dep, i};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+test const_derived_dep_as_const_base_ref = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](const base467 &d) { expect(7 == d.val); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  const derived467 dep;
+  int i = 42;
+  sml::sm<c715> sm{dep, i};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+// A const derived dep next to another const reference dep: before #715 the const
+// covariant lookup needed the pool's only const reference dep.  iface715 is
+// abstract, so a missed lookup cannot fall back to a default-constructed object.
+struct iface715 {
+  virtual ~iface715() = default;
+  virtual int id() const = 0;
+};
+struct impl715a : iface715 {
+  int id() const override { return 1; }
+};
+struct impl715b : iface715 {
+  int id() const override { return 2; }
+};
+
+test const_derived_dep_as_const_base_ref_among_other_const_ref_deps = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](const iface715 &f, const int &i) { expect(2 == f.id() && 42 == i); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  const impl715b impl{};
+  const int i = 42;
+  sml::sm<c715> sm{impl, i};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+// With a mutable and a const derived dep, a const lookup reads the single const one,
+// as #9 did before #715.  base467& needs the covariant lookup among other reference deps.
+test const_derived_dep_not_hidden_by_mutable_derived_dep = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](base467 &b, const iface715 &f) { expect(7 == b.val && 2 == f.id()); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  derived467 derived;
+  impl715a a;
+  const impl715b b{};
+  sml::sm<c715> sm{derived, a, b};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+// An exact base467& dep must win over a derived467& dep that would also match covariantly.
+// Without the exact-dep check, base467& itself would be a second candidate (a hard error), or,
+// were it excluded, the covariant overload (taking the pool itself) would win.
+test exact_base_dep_preferred_over_derived_dep = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](base467 &d) { expect(1 == d.val); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  base467 base;
+  base.val = 1;
+  derived467 derived;
+  sml::sm<c715> sm{derived, base};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+// Before #715 the const covariant overload was more specialized than the exact
+// T& one, so a const derived467 dep won over an exact base467& dep, and the
+// base467& slot could not be initialized.
+test exact_base_dep_preferred_over_const_derived_dep = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](base467 &d) { expect(1 == d.val); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  base467 base;
+  base.val = 1;
+  const derived467 derived{};
+  sml::sm<c715> sm{base, derived};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+// void is not a class: its lookup must neither form void& nor take every reference
+// dep as derived from void (any D* converts to void*).  A passed void* dep is read,
+// also next to a covariant lookup; an unpassed one stays the null default.
+test void_ptr_deps_next_to_derived_dep = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](base467 &b, void *p, int *q) { expect(7 == b.val && p == q && 42 == *q); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+  struct c715_unpassed {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](int *q, void *p) { expect(42 == *q && nullptr == p); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  derived467 derived;
+  int i = 42;
+  void *p = &i;
+  int *q = &i;
+  sml::sm<c715> sm{derived, p, q};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+  sml::sm<c715_unpassed> sm_unpassed{q};
+  sm_unpassed.process_event(e1{});
+  expect(sm_unpassed.is(sml::X));
+};
+
+// The covariant lookup must not be affected by declarations that ADL finds in a
+// dep's namespace, e.g. a function template named like a helper that an earlier
+// revision of the #715 lookup called unqualified.
+namespace user715 {
+struct base {
+  int val = 1;
+};
+struct derived : base {
+  derived() { val = 715; }
+};
+template <class T>
+void implicitly_convert_to(T);
+}  // namespace user715
+
+test covariant_dep_lookup_ignores_adl = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](user715::base &b, int &i) { expect(715 == b.val && 42 == i); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  user715::derived derived;
+  int i = 42;
+  sml::sm<c715> sm{derived, i};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+// Reference deps need not be complete types, also when a forward-declared type is
+// the only reference dep: the lookup of the state machine class itself must not
+// apply is_base_of to it (before #715: an error with GCC and MSVC).  The second
+// sm also needs the covariant lookup among other reference deps.
+struct incomplete715;
+struct sm_with_single_incomplete_ref_dep {
+  auto operator()() noexcept {
+    using namespace sml;
+    // clang-format off
+    return make_transition_table(*idle + event<e1> / [](incomplete715 &, int i) { expect(5 == i); } = X);
+    // clang-format on
+  }
+};
+struct sm_with_derived_and_incomplete_ref_deps {
+  auto operator()() noexcept {
+    using namespace sml;
+    // clang-format off
+    return make_transition_table(*idle + event<e1> / [](incomplete715 &, base467 &b) { expect(7 == b.val); } = X);
+    // clang-format on
+  }
+};
+
+// Never called: there is no incomplete715 object, only constructing the sms has to compile.
+void construct_sm_with_single_incomplete_ref_dep(incomplete715 &dep) {
+  sml::sm<sm_with_single_incomplete_ref_dep> sm{dep, 5};
+  sm.process_event(e1{});
+}
+void construct_sm_with_derived_and_incomplete_ref_deps(incomplete715 &dep, derived467 &derived) {
+  sml::sm<sm_with_derived_and_incomplete_ref_deps> sm{dep, derived};
+  sm.process_event(e1{});
+}
 
 // Issue #485: passing a pointer dependency as an lvalue caused the SM to store
 // nullptr instead of the actual pointer.  Root cause: forwarding reference
