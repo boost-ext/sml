@@ -678,12 +678,14 @@ constexpr T &get_by_id(tuple_type<N, T> *object) {
 //   try_get<T>(pool*) — resolves to the matching pool_type<X>* overload or the
 //                       covariant lookup (#8/#9 below);
 //                       falls back to missing_ctor_parameter<T> sentinel.
+//   try_get_slot<X>(pool*, 0) — try_get for a pool slot X, used by pool(init, ...);
+//                       its covariant lookup depends on whether X is T&, const T& or T.
 //   get<T>(pool&)     — direct static_cast; asserts T is in pool (no fallback).
 //
 // Dependency types in Ts are const-normalised (const T& → T&) so the pool
 // slot matches regardless of cv-qualification at the call site.
 //
-// try_get overload resolution order (most-specific wins):
+// try_get overloads (most-specific wins; 8/9 also win over 1, see has_exact_dep):
 //   1. pool_type<T>*           → value by copy          (exact value match)
 //   2. pool_type<T&>*          → T& by reference        (exact mutable-ref match)
 //   3. pool_type<const T&>*    → const T& by ref        (exact const-ref match)
@@ -693,7 +695,10 @@ constexpr T &get_by_id(tuple_type<N, T> *object) {
 //   7. pool_type<const T*&>*   → const T* (strip ref)   (#485: same for const)
 //   8. pool<.., D&, ..>* (D⊇T) → T& covariant          (#467: derived mock as base dep)
 //   9. pool<.., const D&, ..>* → const T& covariant    (#467: same, const variant)
-//      (8/9: class T, no exact match 1-7; a single candidate D, else a single const one)
+//      (8/9: class T, no exact match 2-7; a single candidate D, else a single const one,
+//       else an error; a D with T as an inaccessible or ambiguous base is an error to
+//       read; instead of either error a T held by value is read by #1, except for a
+//       const T& slot; a T& slot prefers D& candidates, see try_get_slot)
 //  10. (...)                   → missing_ctor_parameter  (not in pool → compile error)
 //
 // Known subtleties captured below (search #NNN for the fixing PR):
@@ -745,91 +750,170 @@ struct pool;
 // The slot is found by scanning the pool's dep list, not by deducing D from a
 // pool_type<D&> base: MSVC's deduction through N matching bases is exponential
 // in N and runs out of heap at ~28 deps (#715).
-// covariant_slots<pool<Ts...>> lists, once per pool, the referenced type (D or
-// const D) of each reference dep with a complete D: is_base_of<T, D> below needs
-// a complete D, so an incomplete D, e.g. a forward-declared reference dep, is
-// never a candidate. Whether D is complete is fixed when covariant_slot is first
-// instantiated for it, which a compiler may defer to the end of the translation
-// unit: a dep defined only after an sm was constructed with it, or only in some
-// translation units, gives compiler-dependent results or an ODR violation, so
-// define the dep before constructing an sm with it if it is to be found as a base.
-template <class TDep, class = void>
-struct covariant_slot : type_list<> {};
-template <class D>
-struct covariant_slot<D &, void_t<decltype(sizeof(D))>> : type_list<D> {};
-template <class TPool>
-struct covariant_slots;
-template <class... Ts>
-struct covariant_slots<pool<Ts...>> : join_t<typename covariant_slot<Ts>::type...> {};
-// A slot is a candidate when is_base_of<T, D>, the test #8/#9 used before #715;
-// sml strips const from the T it looks up, so a T& / const T& slot is an exact
-// dep (see has_exact_dep), never a candidate. is_base_of ignores access, so a
-// private or ambiguous base is a candidate too, and reading it is a hard error
-// instead of a silent fallback.
-// A single candidate is read; none leaves the lookup to the fallback.
-template <class T, class TCandidates>
-struct unique_covariant_dep;
-template <class T, class TSlots>
-struct covariant_candidates;
-template <class T, class... Ds>
-struct covariant_candidates<T, type_list<Ds...>>
-    : unique_covariant_dep<T, join_t<conditional_t<is_base_of<T, Ds>::value, type_list<Ds &>, type_list<>>...>> {};
+// The kind of pool slot a lookup fills (see try_get_slot): ref_slot for T&,
+// const_ref_slot for const T&, value_slot for anything else, also for the lookups of
+// the state machine class.
+struct value_slot {};
+struct ref_slot {};
+struct const_ref_slot {};
+template <class TSlot>
+struct slot_kind : identity<value_slot> {};
 template <class T>
-struct unique_covariant_dep<T, type_list<>> {};
+struct slot_kind<T &> : identity<ref_slot> {};
+template <class T>
+struct slot_kind<const T &> : identity<const_ref_slot> {};
+template <class T>
+struct slot_kind<T *&> : identity<value_slot> {};
+template <class T>
+struct slot_kind<T *const &> : identity<value_slot> {};
+// covariant_slots<pool<Ts...>, TMutable> lists, once per pool and TMutable, the
+// referenced type (D or const D) of each reference dep. TMutable is true_type for
+// the lookup of a T& slot, which cannot bind a const D& (see try_get_slot), so then
+// it only lists the mutable D&.
+template <class TDep, class TMutable>
+struct covariant_slot : type_list<> {};
+template <class D, class TMutable>
+struct covariant_slot<D &, TMutable> : type_list<D> {};
+template <class D>
+struct covariant_slot<const D &, true_type> : type_list<> {};
+template <class TPool, class TMutable>
+struct covariant_slots;
+template <class... Ts, class TMutable>
+struct covariant_slots<pool<Ts...>, TMutable> : join_t<typename covariant_slot<Ts, TMutable>::type...> {};
+// A slot is a candidate when D derives from T, the test #8/#9 used before #715
+// (is_base_of<T, D>); sml strips const from the T it looks up, so a T& / const T&
+// slot is an exact dep (see has_exact_dep), never a candidate.
+// covariant_kind tests it by overload resolution of a D* -> const T* conversion, not
+// by is_base_of, which needs a complete D: an incomplete D, e.g. a forward-declared
+// reference dep, has no known bases, so it is no candidate, and nothing tests
+// whether D is complete (gcc 16 warns about types completed after a failed test,
+// -Wsfinae-incomplete). A volatile D is no candidate for a T that is not volatile,
+// since the T& / const T& read could not bind it.
+// A private, protected or ambiguous base selects the conversion, which is then
+// ill-formed: an unreadable candidate. Reading it is a hard error instead of a silent
+// fallback, unless the pool holds T by value (see read_covariant_dep). MSVC in
+// /permissive mode accepts the conversion to an ambiguous base that is also a direct
+// base, whatever its access, so there such a D is read through its direct base, as
+// #8/#9 did before #715.
+// Whether D is a candidate for T is fixed for the translation unit when (T, D) is
+// first tested, which a compiler may do where an sm is constructed, e.g. clang in the
+// constexpr constructor. Lookups of other types, e.g. of the state machine class, do
+// not decide it, but define D before constructing an sm with it if D is to be found
+// as a base: a lookup of T in between, or a translation unit where D is incomplete,
+// does not find it (an ODR violation for the latter).
+struct covariant_yes {};
+struct covariant_no {};
+struct covariant_unreadable {};
+template <class T>
+covariant_yes covariant_conv(const T *);
+template <class T>
+covariant_no covariant_conv(...);
 template <class T, class D>
-struct unique_covariant_dep<T, type_list<D &>> {
-  using slot = D &;
-  using type = T &;
-};
+auto covariant_kind(int) -> decltype(aux::covariant_conv<T>(static_cast<D *>(nullptr)));
 template <class T, class D>
-struct unique_covariant_dep<T, type_list<const D &>> {
-  using slot = const D &;
-  using type = const T &;
-};
-// Of several candidates a single const one is read, which keeps #9's result
-// before #715 for e.g. D1& + const D2& (#9 read a pool's only const D& dep).
-// Otherwise the lookup is ambiguous: a hard error, not the fallback, which
-// would silently give a default T, a dangling const T& or a null T*.
+covariant_unreadable covariant_kind(...);
+template <class TDep>
+struct unreadable_dep {};
+template <class TKind, class TDep>
+struct covariant_candidate : type_list<> {};
+template <class TDep>
+struct covariant_candidate<covariant_yes, TDep> : type_list<TDep> {};
+template <class TDep>
+struct covariant_candidate<covariant_unreadable, TDep> : type_list<unreadable_dep<TDep>> {};
 template <class TDep>
 struct is_const_ref : false_type {};
 template <class D>
 struct is_const_ref<const D &> : true_type {};
-template <class T, class TCandidates, class TConstCandidates>
+template <class TDep>
+struct is_const_ref<unreadable_dep<TDep>> : is_const_ref<TDep> {};
+// read_covariant_dep reads the candidate the lookup selected. An unreadable one is
+// still read, which is the hard error, unless the pool holds T by value
+// (TByValue, see covariant_dep): then #1 reads that T instead. Before #715 that
+// happened when #8/#9 failed to deduce D next to other reference deps; with D the
+// only (const) reference dep, #8/#9 were selected and did not compile.
+template <class T, class TDep, class TByValue>
+struct read_covariant_dep;
+template <class T, class D, class TByValue>
+struct read_covariant_dep<T, D &, TByValue> {
+  using slot = D &;
+  using type = T &;
+};
+template <class T, class D, class TByValue>
+struct read_covariant_dep<T, const D &, TByValue> {
+  using slot = const D &;
+  using type = const T &;
+};
+template <class T, class TDep>
+struct read_covariant_dep<T, unreadable_dep<TDep>, false_type> : read_covariant_dep<T, TDep, false_type> {};
+template <class T, class TDep>
+struct read_covariant_dep<T, unreadable_dep<TDep>, true_type> {};
+// A single candidate is read; none leaves the lookup to the fallback.
+template <class T, class TCandidates, class TByValue>
+struct unique_covariant_dep;
+template <class T, class TSlots, class TByValue>
+struct covariant_candidates;
+template <class T, class... Ds, class TByValue>
+struct covariant_candidates<T, type_list<Ds...>, TByValue>
+    : unique_covariant_dep<T, join_t<typename covariant_candidate<decltype(aux::covariant_kind<T, Ds>(0)), Ds &>::type...>,
+                           TByValue> {};
+template <class T, class TByValue>
+struct unique_covariant_dep<T, type_list<>, TByValue> {};
+template <class T, class TDep, class TByValue>
+struct unique_covariant_dep<T, type_list<TDep>, TByValue> : read_covariant_dep<T, TDep, TByValue> {};
+// Of several candidates a single const one is read, which keeps #9's result
+// before #715 for e.g. D1& + const D2& (#9 read a pool's only const D& dep).
+// Otherwise a T held by value is read by #1 (TByValue), as before #715, when #8/#9
+// could not deduce D from several matching deps; for a T& slot that is the lookup
+// without TMutable, which may read a single const candidate first (see try_get_slot).
+// Otherwise the lookup is ambiguous: a hard error, not the fallback, which
+// would silently give a default T, a dangling const T& or a null T*.
+template <class T, class TCandidates, class TConstCandidates, class TByValue>
 struct several_covariant_deps {
-  static_assert(never<T>::value,
+  static_assert(TByValue::value || never<T>::value,
                 "State Machine has several constructor parameters derived from a requested type! Check out the "
                 "`several_covariant_deps` error to see the type and the candidates.");
 };
-template <class T, class TCandidates, class D>
-struct several_covariant_deps<T, TCandidates, type_list<const D &>> : unique_covariant_dep<T, type_list<const D &>> {};
-template <class T, class... TCandidates>
-struct unique_covariant_dep<T, type_list<TCandidates...>>
-    : several_covariant_deps<
-          T, type_list<TCandidates...>,
-          join_t<conditional_t<is_const_ref<TCandidates>::value, type_list<TCandidates>, type_list<>>...>> {};
-// True when one of the exact overloads #1-#7 matches, which must take priority:
+template <class T, class TCandidates, class TDep, class TByValue>
+struct several_covariant_deps<T, TCandidates, type_list<TDep>, TByValue> : read_covariant_dep<T, TDep, TByValue> {};
+template <class T, class TByValue, class... TCandidates>
+struct unique_covariant_dep<T, type_list<TCandidates...>, TByValue>
+    : several_covariant_deps<T, type_list<TCandidates...>,
+                             join_t<conditional_t<is_const_ref<TCandidates>::value, type_list<TCandidates>, type_list<>>...>,
+                             TByValue> {};
+// True when one of the exact overloads #2-#7 matches, which must take priority:
 // the covariant overload takes the pool pointer itself, so it would otherwise win.
-// That includes a T held by value (#1). Before #715 partial ordering let #8/#9
-// win over #1 and #9 over #2 instead.
+// Before #715 partial ordering let #9 win over #2 instead.
+// A T held by value (#1) is no exact dep: a derived dep wins over it, as #8/#9 did
+// before #715 where they could deduce D (a pool with a single reference dep, or for
+// #9 a single const reference dep), since #1 returns a copy, which a const T& slot
+// would bind as a dangling temporary. That holds for every slot kind, so a T slot
+// and a const T& slot of one sm read the same dep.
 // TSet is inherit<type_wrapper<Ts>...> of the pool's deps.
 template <class T, class TSet>
 struct has_exact_dep
-    : integral_constant<bool, is_base_of<type_wrapper<T>, TSet>::value || is_base_of<type_wrapper<T &>, TSet>::value ||
-                                  is_base_of<type_wrapper<const T &>, TSet>::value || is_base_of<type_wrapper<T *>, TSet>::value ||
+    : integral_constant<bool, is_base_of<type_wrapper<T &>, TSet>::value || is_base_of<type_wrapper<const T &>, TSet>::value ||
+                                  is_base_of<type_wrapper<T *>, TSet>::value ||
                                   is_base_of<type_wrapper<const T *>, TSet>::value ||
                                   is_base_of<type_wrapper<T *&>, TSet>::value ||
                                   is_base_of<type_wrapper<const T *&>, TSet>::value> {};
-// covariant_dep<T, pool<Ts...>>: ::slot is the pool slot to read, ::type the returned reference.
-// Only a class T has a derived dep (is_base_of<T, D> is false for any other T), so any
-// other T, e.g. void, stays with #1-#7 and the fallback; conditional_t keeps
-// has_exact_dep, which forms T& and const T&, from being instantiated for it.
-template <class T, class TPool, class = void>
+// covariant_dep<T, pool<Ts...>, TSlotKind>: ::slot is the pool slot to read, ::type the returned reference.
+// Only a class T can have a derived dep; covariant_kind would take every D for e.g.
+// void (any D* converts to const void*), so any other T stays with #1-#7 and the
+// fallback; conditional_t keeps has_exact_dep, which forms T& and const T&, from
+// being instantiated for it.
+// TByValue, the pool holding T by value, is false for a const T& slot: it would bind
+// the copy #1 returns, a dangling temporary, so there an ambiguous lookup or an
+// unreadable candidate stays an error.
+template <class T, class TPool, class TSlotKind = value_slot, class = void>
 struct covariant_dep {};
-template <class T, class... Ts>
+template <class T, class... Ts, class TSlotKind>
 struct covariant_dep<
-    T, pool<Ts...>,
+    T, pool<Ts...>, TSlotKind,
     enable_if_t<!conditional_t<__is_class(T), has_exact_dep<T, inherit<type_wrapper<Ts>...>>, true_type>::value>>
-    : covariant_candidates<T, typename covariant_slots<pool<Ts...>>::type> {};
+    : covariant_candidates<
+          T, typename covariant_slots<pool<Ts...>, integral_constant<bool, is_same<TSlotKind, ref_slot>::value>>::type,
+          integral_constant<bool, !is_same<TSlotKind, const_ref_slot>::value &&
+                                      is_base_of<type_wrapper<T>, inherit<type_wrapper<Ts>...>>::value>> {};
 template <class T, class TPool, class TDep = covariant_dep<T, TPool>>
 constexpr typename TDep::type try_get(const TPool *);
 // ─────────────────────────────────────────────────────────────────────────────
@@ -919,6 +1003,28 @@ template <class T, class TPool, class TDep>
 constexpr typename TDep::type try_get(const TPool *object) {
   return static_cast<const pool_type<typename TDep::slot> &>(*object).value;
 }
+
+// try_get_slot<TSlot>: try_get for the pool slot TSlot (pool(init, ...)), with the
+// covariant lookup for its slot_kind. A T& slot cannot bind a const D& (with
+// BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS it would hold a sliced copy), so its
+// covariant lookup first takes only D& candidates: with D1& + const D2& it reads D1,
+// where a const T& or T slot reads D2. Without a D& candidate, or when the D&
+// candidates are ambiguous next to a T held by value, it falls back to try_get<T>,
+// which may read a const D& as before #715: a compile error, or with the macro a
+// sliced copy. A const T& parameter shares the T& slot when the sm also takes T&
+// (collapse_const_refs), so it then reads D1 as well.
+// The calls are qualified, so that no function of a dep's namespace is found by ADL.
+template <class TSlot>
+using slot_lookup_t = remove_const_t<remove_reference_t<remove_pointer_t<TSlot>>>;
+template <class TSlot, class TPool, class T = slot_lookup_t<TSlot>,
+          class TDep = covariant_dep<T, TPool, typename slot_kind<TSlot>::type>>
+constexpr typename TDep::type try_get_slot(const TPool *object, int) {
+  return aux::try_get<T, TPool, TDep>(object);
+}
+template <class TSlot, class TPool>
+constexpr decltype(auto) try_get_slot(const TPool *object, ...) {
+  return aux::try_get<slot_lookup_t<TSlot>>(object);
+}
 // ─────────────────────────────────────────────────────────────────────────────
 
 // True when try_get<T> would resolve to the missing_ctor_parameter sentinel.
@@ -950,8 +1056,7 @@ struct pool : pool_type<Ts>... {
   // Cross-pool init: populate each slot by try_get-ing T from the source pool.
   // The init tag selects pool_type_impl's copy-from-pool constructor path.
   template <class... TArgs>
-  constexpr pool(init, const pool<TArgs...> &p)
-      : pool_type<Ts>(try_get<aux::remove_const_t<aux::remove_reference_t<aux::remove_pointer_t<Ts>>>>(&p))... {}
+  constexpr pool(init, const pool<TArgs...> &p) : pool_type<Ts>(aux::try_get_slot<Ts>(&p, 0))... {}
   // Sub-SM pool construction: delegate each slot through the init path above
   // so that reference slots copy into their own backing stores (avoids #504).
   template <class... TArgs>

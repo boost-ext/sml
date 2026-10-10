@@ -150,4 +150,9 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_715_many_ctor_deps.cpp)
   add_test(test_issue_715_many_ctor_deps test_issue_715_many_ctor_deps)
 endif()
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_715_incomplete_deps.cpp)
+  add_executable(test_issue_715_incomplete_deps issue_715_incomplete_deps.cpp)
+  add_test(test_issue_715_incomplete_deps test_issue_715_incomplete_deps)
+endif()
+
 add_subdirectory(errors)

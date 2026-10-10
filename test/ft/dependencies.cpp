@@ -524,6 +524,26 @@ test const_derived_dep_not_hidden_by_mutable_derived_dep = [] {
   expect(sm.is(sml::X));
 };
 
+// A mutable lookup cannot bind a const derived dep, so next to one it reads the single
+// mutable derived dep.
+test mutable_derived_dep_not_hidden_by_const_derived_dep = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](iface715 &f) { expect(1 == f.id()); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  impl715a a;
+  const impl715b b{};
+  sml::sm<c715> sm{a, b};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
 // An exact base467& dep must win over a derived467& dep that would also match covariantly.
 // Without the exact-dep check, base467& itself would be a second candidate (a hard error), or,
 // were it excluded, the covariant overload (taking the pool itself) would win.
@@ -568,6 +588,156 @@ test exact_base_dep_preferred_over_const_derived_dep = [] {
   expect(sm.is(sml::X));
 };
 
+// A base held by value is no exact dep: a derived dep wins over it, as before #715.
+// try_get returns a copy of the base, which the const base& slot would bind as a
+// dangling temporary.
+struct copyable_base715 {
+  int val = 1;
+};
+struct copyable_derived715a : copyable_base715 {
+  copyable_derived715a() { val = 715; }
+};
+struct copyable_derived715b : copyable_base715 {
+  copyable_derived715b() { val = 716; }
+};
+
+test derived_dep_preferred_over_base_held_by_value = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](const copyable_base715 &b) { expect(715 == b.val); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  copyable_derived715a derived;
+  copyable_base715 base;
+  base.val = 5;
+  sml::sm<c715> sm{std::move(base), derived};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+// Also next to another reference dep and for a base taken by value.  Before #715 the
+// deduction of D failed there, so the base held by value was read.
+test derived_dep_preferred_over_base_held_by_value_among_other_ref_deps = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](copyable_base715 b, int &i) { expect(715 == b.val && 42 == i); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  copyable_derived715a derived;
+  copyable_base715 base;
+  base.val = 5;
+  int i = 42;
+  sml::sm<c715> sm{std::move(base), derived, i};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+// A dep with the base as a private base cannot be read as the base.  With a base held
+// by value that one is read, as before #715 next to another reference dep, instead of
+// the error that replaces a silent fallback otherwise (errors/private_base_dep.cpp);
+// not for a const base& slot, which would bind a dangling copy
+// (errors/private_base_dep_next_to_base_by_value.cpp).
+struct private_derived715 : private copyable_base715 {};
+
+test base_held_by_value_read_next_to_private_derived_dep = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](copyable_base715 b, int &i) { expect(5 == b.val && 42 == i); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  private_derived715 derived;
+  copyable_base715 base;
+  base.val = 5;
+  int i = 42;
+  sml::sm<c715> sm{std::move(base), derived, i};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+// A volatile derived dep is no candidate for a base that is not volatile: neither a
+// base& nor a const base& can bind it.  So the base held by value is read, as before.
+test volatile_derived_dep_is_no_candidate = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](copyable_base715 b, int &i) { expect(5 == b.val && 42 == i); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  volatile copyable_derived715a derived;
+  copyable_base715 base;
+  base.val = 5;
+  int i = 42;
+  sml::sm<c715> sm{std::move(base), derived, i};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+// BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS (defined above) lets a base& slot hold a
+// copy, also a sliced copy of a const derived dep.  Next to a mutable derived dep the
+// slot binds that one itself, as without the macro.
+test mutable_derived_dep_bound_not_copied_next_to_const_derived_dep = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](copyable_base715 &b) {
+        expect(715 == b.val);
+        b.val = 42;
+      };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  copyable_derived715a a;
+  const copyable_derived715b b{};
+  sml::sm<c715> sm{a, b};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+  expect(42 == a.val);
+};
+
+// With several derived deps the base held by value is read, as before #715, when
+// the deduction of D failed, instead of the error for several derived deps.
+test base_held_by_value_read_next_to_several_derived_deps = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](copyable_base715 b) { expect(5 == b.val); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  copyable_derived715a a;
+  copyable_derived715b b;
+  copyable_base715 base;
+  base.val = 5;
+  sml::sm<c715> sm{std::move(base), a, b};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
 // void is not a class: its lookup must neither form void& nor take every reference
 // dep as derived from void (any D* converts to void*).  A passed void* dep is read,
 // also next to a covariant lookup; an unpassed one stays the null default.
@@ -604,8 +774,8 @@ test void_ptr_deps_next_to_derived_dep = [] {
 };
 
 // The covariant lookup must not be affected by declarations that ADL finds in a
-// dep's namespace, e.g. a function template named like a helper that an earlier
-// revision of the #715 lookup called unqualified.
+// dep's namespace, e.g. function templates named like helpers that revisions of the
+// #715 lookup called unqualified (try_get_slot would be an exact match).
 namespace user715 {
 struct base {
   int val = 1;
@@ -615,6 +785,8 @@ struct derived : base {
 };
 template <class T>
 void implicitly_convert_to(T);
+template <class T, class TPool>
+int try_get_slot(const TPool *, int);
 }  // namespace user715
 
 test covariant_dep_lookup_ignores_adl = [] {
