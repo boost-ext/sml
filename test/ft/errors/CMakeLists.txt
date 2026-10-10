@@ -6,7 +6,8 @@
 #
 # Each target must be EXCLUDE_FROM_ALL so it is only built when ctest
 # invokes cmake --build for that specific target (WILL_FAIL TRUE).
-foreach(name not_callable not_configurable not_dispatchable not_transitional)
+foreach(name not_callable not_configurable not_dispatchable not_transitional
+             several_derived_deps private_base_dep private_base_dep_next_to_base_by_value)
   add_library(error_${name} OBJECT EXCLUDE_FROM_ALL ${name}.cpp)
   target_link_libraries(error_${name} sml)
   add_test(
