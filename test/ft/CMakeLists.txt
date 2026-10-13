@@ -155,4 +155,9 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_552_sub_sm_dep_identity.cpp)
   add_test(test_issue_552_sub_sm_dep_identity test_issue_552_sub_sm_dep_identity)
 endif()
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_718_expected_member.cpp)
+  add_executable(test_issue_718_expected_member issue_718_expected_member.cpp)
+  add_test(test_issue_718_expected_member test_issue_718_expected_member)
+endif()
+
 add_subdirectory(errors)
