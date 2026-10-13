@@ -155,4 +155,9 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_552_sub_sm_dep_identity.cpp)
   add_test(test_issue_552_sub_sm_dep_identity test_issue_552_sub_sm_dep_identity)
 endif()
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_317_bare_internal_transition.cpp)
+  add_executable(test_issue_317_bare_internal_transition issue_317_bare_internal_transition.cpp)
+  add_test(test_issue_317_bare_internal_transition test_issue_317_bare_internal_transition)
+endif()
+
 add_subdirectory(errors)
