@@ -2614,10 +2614,10 @@ constexpr const T &get_arg(const aux::type_wrapper<const T &> &, const TEvent &,
   return aux::get<const T &>(deps);
 }
 // 6-parameter overloads: look in sub_sms for submachine state types (issue #659)
-// Excluded: the current SM's own type (Tsm::sm_t), which belongs in deps
+// Excluded: the root SM's own type, which belongs in deps
 template <class T, class TEvent, class Tsm, class TDeps, class TSubs,
           class T_ = aux::remove_const_t<aux::remove_reference_t<T>>,
-          BOOST_SML_DETAIL_REQUIRES(!aux::is_same<T_, typename Tsm::sm_t>::value)>
+          BOOST_SML_DETAIL_REQUIRES(!aux::is_same<T_, typename get_root_sm_t<TSubs>::sm_t>::value)>
 constexpr auto get_arg(const aux::type_wrapper<T> &, const TEvent &, Tsm &, TDeps &,
                        TSubs &subs, int)
     -> decltype(static_cast<T_ &>(back::sub_sm<back::sm_impl<back::sm_policy<T_>>>::get(&subs))) {
