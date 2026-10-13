@@ -24,6 +24,7 @@ struct greedy718 {
   int value{};
   greedy718() = default;
   template <class U>
+  // cppcheck-suppress noExplicitConstructor
   greedy718(U&&) : value{-1} {}
 };
 
