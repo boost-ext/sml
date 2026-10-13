@@ -32,9 +32,6 @@ if(IS_COMPILER_GCC_LIKE)
 
   add_example(euml_emulation example_euml_emulation euml_emulation.cpp)
   add_example(events example_events events.cpp)
-  if(IS_COMPILER_OPTION_GCC_LIKE)
-    target_compile_options(events PRIVATE "-Wno-unused-parameter")
-  endif()
 
   add_example(eval example_eval eval.cpp)
 endif()

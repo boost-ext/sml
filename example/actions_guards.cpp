@@ -39,7 +39,7 @@ struct actions_guards {
     auto action1 = [](auto e) { std::cout << "action1: " << typeid(e).name() << std::endl; };
 
     struct action2 {
-      void operator()([[maybe_unused]] int i) {
+      void operator()([[gnu::unused]] int i) {
         assert(42 == i);
         std::cout << "action2" << std::endl;
       }
@@ -59,7 +59,7 @@ struct actions_guards {
     // clang-format on
   }
 
-  bool guard3(int i) const noexcept {
+  bool guard3([[gnu::unused]] int i) const noexcept {
     assert(42 == i);
     std::cout << "guard3" << std::endl;
     return true;
@@ -67,12 +67,12 @@ struct actions_guards {
 
   void action4() const { std::cout << "action4" << std::endl; }
 
-  void action5(int i, const e5&) {
+  void action5([[gnu::unused]] int i, const e5&) {
     assert(42 == i);
     std::cout << "action5" << std::endl;
   }
 };
-bool guard2_impl(int i) {
+bool guard2_impl([[gnu::unused]] int i) {
   assert(42 == i);
   std::cout << "guard2" << std::endl;
   return false;
