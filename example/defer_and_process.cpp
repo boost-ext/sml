@@ -40,7 +40,8 @@ int main() {
       sm;  /// defer_queue policy to enable deferred events using std::queue
   assert(sm.is("idle"_s));
 
-  [[gnu::unused]] auto handled = sm.process_event(e1{});
+  auto handled = sm.process_event(e1{});
+  (void)handled;
   assert(handled);
   assert(sm.is("idle"_s));
 
