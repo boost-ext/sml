@@ -3144,6 +3144,9 @@ struct transition_sg<state<S2>, G> : transition<state<internal>, state<S2>, fron
   using transition<state<internal>, state<S2>, front::event<back::anonymous>, G, none>::g;
   constexpr transition_sg(const state<S2> &, const G &g_init)
       : transition<state<internal>, state<S2>, front::event<back::anonymous>, G, none>{g_init, none{}} {}
+  constexpr auto operator*() const {
+    return transition_sg<state<S2(initial_state)>, G>{state<S2(initial_state)>{}, g};
+  }
   template <class T>
   constexpr auto operator/(const T &t) const {
     return transition<state<S2>, G, aux::zero_wrapper<T>>{g, aux::zero_wrapper<T>{t}};

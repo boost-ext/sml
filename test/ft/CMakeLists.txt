@@ -145,6 +145,11 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_629_action_wrap.cpp)
   add_test(test_issue_629_action_wrap test_issue_629_action_wrap)
 endif()
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_318_initial_guarded_anonymous.cpp)
+  add_executable(test_issue_318_initial_guarded_anonymous issue_318_initial_guarded_anonymous.cpp)
+  add_test(test_issue_318_initial_guarded_anonymous test_issue_318_initial_guarded_anonymous)
+endif()
+
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_552_sub_sm_dep_identity.cpp)
   add_executable(test_issue_552_sub_sm_dep_identity issue_552_sub_sm_dep_identity.cpp)
   add_test(test_issue_552_sub_sm_dep_identity test_issue_552_sub_sm_dep_identity)
