@@ -2278,6 +2278,7 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
       while (defer_it_ != defer_end_) {
         processed_events |= (this->*dispatch_table[defer_it_->id])(d, subs, defer_it_->data);
         defer_again_ = false;
+        while (process_internal_events(anonymous{}, d, subs)) {}
         bool state_changed = false;
         for (auto i = 0u; i < regions; ++i) {
           if (old[i] != current_state_[i]) { state_changed = true; break; }
