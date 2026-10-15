@@ -39,7 +39,8 @@ struct actions_guards {
     auto action1 = [](auto e) { std::cout << "action1: " << typeid(e).name() << std::endl; };
 
     struct action2 {
-      void operator()([[maybe_unused]] int i) {
+      void operator()(int i) {
+        (void)i;
         assert(42 == i);
         std::cout << "action2" << std::endl;
       }
@@ -60,6 +61,7 @@ struct actions_guards {
   }
 
   bool guard3(int i) const noexcept {
+    (void)i;
     assert(42 == i);
     std::cout << "guard3" << std::endl;
     return true;
@@ -68,11 +70,13 @@ struct actions_guards {
   void action4() const { std::cout << "action4" << std::endl; }
 
   void action5(int i, const e5&) {
+    (void)i;
     assert(42 == i);
     std::cout << "action5" << std::endl;
   }
 };
 bool guard2_impl(int i) {
+  (void)i;
   assert(42 == i);
   std::cout << "guard2" << std::endl;
   return false;
