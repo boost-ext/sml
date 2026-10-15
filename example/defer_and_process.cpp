@@ -40,13 +40,17 @@ int main() {
       sm;  /// defer_queue policy to enable deferred events using std::queue
   assert(sm.is("idle"_s));
 
-  assert(sm.process_event(e1{}));
+  auto handled = sm.process_event(e1{});
+  (void)handled;
+  assert(handled);
   assert(sm.is("idle"_s));
 
-  assert(!sm.process_event(e2{}));  /// triggers idle -> s1 and s1 -> s2 (via deferred e1)
-                                    /// additionally triggers e2 again which is unhandled so it returns false
+  handled = sm.process_event(e2{});  /// triggers idle -> s1 and s1 -> s2 (via deferred e1)
+                                     /// additionally triggers e2 again which is unhandled so it returns false
+  assert(!handled);
   assert(sm.is("s2"_s));
 
-  assert(sm.process_event(e3{}));  /// triggers s2.process(e4) -> X (via processed e4)
+  handled = sm.process_event(e3{});  /// triggers s2.process(e4) -> X (via processed e4)
+  assert(handled);
   assert(sm.is(sml::X));
 }

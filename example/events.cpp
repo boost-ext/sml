@@ -30,7 +30,7 @@ struct events {
        *"idle"_s + event<e1> = "s1"_s
       , "s1"_s + event2 [guard] = "s2"_s
       , "s2"_s + "e3"_e = "s3"_s
-      , "s3"_s + event<e4> / [] (const auto& e) { assert(42 == e.value); } = X
+      , "s3"_s + event<e4> / [] (const auto& e) { (void)e; assert(42 == e.value); } = X
     );
     // clang-format on
   }
