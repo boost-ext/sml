@@ -499,6 +499,51 @@ test missing_void_ptr_dep_next_to_ref_dep = [] {
   expect(sm.is(sml::X));
 };
 
+struct base727 {
+  int val = 5;
+};
+struct derived727 : base727 {
+  derived727() { val = 727; }
+};
+struct other727 {};
+
+test pointer_slot_is_null_beside_same_type_ref_dep = [] {
+  struct c727 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](base727 &r, base727 *p, other727 &) { expect(5 == r.val && nullptr == p); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  base727 base;
+  other727 other;
+  sml::sm<c727> sm{base, other};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+test ref_slot_binds_derived_dep_beside_pointer_dep = [] {
+  struct c727 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](base727 &r, base727 *p, other727 &) { expect(727 == r.val && nullptr != p && 5 == p->val); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  base727 base;
+  derived727 derived;
+  other727 other;
+  sml::sm<c727> sm{&base, derived, other};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
 // Issue #485: passing a pointer dependency as an lvalue caused the SM to store
 // nullptr instead of the actual pointer.  Root cause: forwarding reference
 // deduction wraps a T* lvalue as T*&; the pool init constructor's try_get
