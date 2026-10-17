@@ -807,8 +807,9 @@ template <class T>
 struct pool_type_impl<T &, aux::enable_if_t<aux::is_constructible<T>::value && aux::is_constructible<T, const T &>::value>>
     : pool_type_base {
   constexpr explicit pool_type_impl(T &val) : value{val} {}                    // bind ref directly
+  constexpr explicit pool_type_impl(missing_ctor_parameter<T>) : value_{}, value{value_} {} // default-construct backing store
   template <class TObject>
-  constexpr explicit pool_type_impl(TObject val) : value_{val}, value{value_} {}// default-construct backing store
+  constexpr explicit pool_type_impl(TObject val) : value_{val}, value{value_} {}
   // #504: cross-pool copy — extract T into the local backing store first, then
   // bind value to it.  The naive ': value(i, object)' was a comma-expression
   // that bound value directly to the pool parameter (dangling after return).
