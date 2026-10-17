@@ -160,6 +160,11 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_718_expected_member.cpp)
   add_test(test_issue_718_expected_member test_issue_718_expected_member)
 endif()
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_317_bare_internal_transition.cpp)
+  add_executable(test_issue_317_bare_internal_transition issue_317_bare_internal_transition.cpp)
+  add_test(test_issue_317_bare_internal_transition test_issue_317_bare_internal_transition)
+endif()  
+  
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/issue_473_defer_anonymous.cpp)
   add_executable(test_issue_473_defer_anonymous issue_473_defer_anonymous.cpp)
   add_test(test_issue_473_defer_anonymous test_issue_473_defer_anonymous)
