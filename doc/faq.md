@@ -82,3 +82,23 @@ neither STL nor Boost are required. It is part of the `boost-ext` project; it is
 
 Both. Transition actions run on transitions (Mealy), while `on_entry<...>` /
 `on_exit<...>` provide per-state actions (Moore).
+
+### Can a state hold data?
+
+Yes. A state is a plain type, take it by reference in a guard or action to read or
+change it. `example/data.cpp` keeps an `id` in the `Connected` and `Interrupted`
+states and copies it between them:
+
+```cpp
+const auto set = [](const auto& event, Connected& state) { state.id = event.id; };
+const auto update = [](Connected& src_state, Interrupted& dst_state) { dst_state.id = src_state.id; };
+```
+
+### Is a state machine thread safe? Can I call `process_event` from an action?
+
+Not by default. Pass the `thread_safe` policy with a lock type. With
+`std::recursive_mutex`, `process_event` can be called from inside an action:
+
+```cpp
+sml::sm<example, sml::thread_safe<std::recursive_mutex>> sm;
+```
