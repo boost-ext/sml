@@ -783,8 +783,11 @@ struct unique_covariant_dep<T, type_list<const D &>> {
 // #2-#7; it is only enabled for a class T without one (any D* converts to const void*).
 // A T held by value (#1) does not count: a derived dep wins over it, as #8 did before.
 template <class T, class TSet>
+struct has_exact_ref_dep
+    : integral_constant<bool, is_base_of<type_wrapper<T &>, TSet>::value || is_base_of<type_wrapper<const T &>, TSet>::value> {};
+template <class T, class TSet>
 struct has_exact_dep
-    : integral_constant<bool, is_base_of<type_wrapper<T &>, TSet>::value || is_base_of<type_wrapper<const T &>, TSet>::value ||
+    : integral_constant<bool, has_exact_ref_dep<T, TSet>::value ||
                                   is_base_of<type_wrapper<T *>, TSet>::value ||
                                   is_base_of<type_wrapper<const T *>, TSet>::value ||
                                   is_base_of<type_wrapper<T *&>, TSet>::value ||
@@ -794,6 +797,11 @@ struct covariant_dep {};
 template <class T, class... Ts>
 struct covariant_dep<
     T, pool<Ts...>, enable_if_t<!conditional_t<__is_class(T), has_exact_dep<T, inherit<type_wrapper<Ts>...>>, true_type>::value>>
+    : unique_covariant_dep<T, join_t<typename covariant_candidate<T, Ts>::type...>> {};
+template <class T, class TPool, class = void>
+struct covariant_ref_dep {};
+template <class T, class... Ts>
+struct covariant_ref_dep<T, pool<Ts...>, enable_if_t<__is_class(T) && !has_exact_ref_dep<T, inherit<type_wrapper<Ts>...>>::value>>
     : unique_covariant_dep<T, join_t<typename covariant_candidate<T, Ts>::type...>> {};
 template <class T, class TPool, class TDep = covariant_dep<T, TPool>>
 constexpr typename TDep::type try_get(const TPool *);
@@ -893,6 +901,29 @@ constexpr bool would_instantiate_missing_ctor_parameter() {
   return is_same<missing_ctor_parameter<T>, decltype(try_get<T>(aux::declval<TPool>()))>::value;
 }
 
+template <class T>
+using is_pointer_slot = integral_constant<bool, !is_same<remove_pointer_t<remove_reference_t<T>>, remove_reference_t<T>>::value>;
+template <class T, class TPool>
+using lookup_t = decltype(try_get<T>(aux::declval<const TPool *>()));
+template <class T, class TPool>
+constexpr auto try_get_ref(const TPool *object, int) -> decltype(try_get<T, TPool, covariant_ref_dep<T, TPool>>(object)) {
+  return try_get<T, TPool, covariant_ref_dep<T, TPool>>(object);
+}
+template <class T, class TPool>
+constexpr missing_ctor_parameter<T> try_get_ref(const TPool *, ...) { return {}; }
+
+// slot_get<TSlot, T>: a pointer slot only reads a pointer dep and a reference or value slot never reads one;
+// a dep of the other kind counts as missing (#727).
+template <class TSlot, class T, class TPool,
+          BOOST_SML_DETAIL_REQUIRES(is_pointer_slot<TSlot>::value == is_pointer_slot<lookup_t<T, TPool>>::value)>
+constexpr lookup_t<T, TPool> slot_get(const TPool *object) { return try_get<T>(object); }
+template <class TSlot, class T, class TPool,
+          BOOST_SML_DETAIL_REQUIRES(is_pointer_slot<TSlot>::value && !is_pointer_slot<lookup_t<T, TPool>>::value)>
+constexpr missing_ctor_parameter<T> slot_get(const TPool *) { return {}; }
+template <class TSlot, class T, class TPool,
+          BOOST_SML_DETAIL_REQUIRES(!is_pointer_slot<TSlot>::value && is_pointer_slot<lookup_t<T, TPool>>::value)>
+constexpr auto slot_get(const TPool *object) -> decltype(try_get_ref<T>(object, 0)) { return try_get_ref<T>(object, 0); }
+
 // get<T> / cget<T>: direct O(1) access via static_cast — T must be in pool.
 template <class T, class TPool>
 constexpr T &get(TPool &p) { return static_cast<pool_type<T> &>(p).value; }
@@ -917,7 +948,7 @@ struct pool : pool_type<Ts>... {
   // The init tag selects pool_type_impl's copy-from-pool constructor path.
   template <class... TArgs>
   constexpr pool(init, const pool<TArgs...> &p)
-      : pool_type<Ts>(try_get<aux::remove_const_t<aux::remove_reference_t<aux::remove_pointer_t<Ts>>>>(&p))... {}
+      : pool_type<Ts>(slot_get<Ts, aux::remove_const_t<aux::remove_reference_t<aux::remove_pointer_t<Ts>>>>(&p))... {}
   // Sub-SM pool construction: delegate each slot through the init path above
   // so that reference slots copy into their own backing stores (avoids #504).
   template <class... TArgs>
