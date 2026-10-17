@@ -203,3 +203,7 @@ The logger must define all four `log_*` members and be passed as an lvalue to th
 ### Why does `wrap(&Class::method)` fail with "cannot bind non-const lvalue reference"?
 
 A member-function pointer makes `Class` a dependency of the machine and dependencies are held by reference. Pass an lvalue of `Class` to the `sm` constructor, a temporary will not bind.
+
+### Why can't I pass a temporary dependency to the `sm` constructor?
+
+Dependencies are held by reference, so `sm{logger{}}` does not compile when an action or the logger takes `logger&`. Pass an lvalue that outlives the machine, or define `BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS` to make the machine keep its own copy of a default-constructible dependency.
