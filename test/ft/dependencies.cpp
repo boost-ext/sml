@@ -430,6 +430,75 @@ test non_copyable_derived_dep_as_base_ref = [] {
   expect(sm.is(sml::X));
 };
 
+// Issue #715: the derived dep is found by scanning the pool's deps.  An exact
+// base467& dep still wins over it.
+test exact_base_dep_preferred_over_derived_dep = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](base467 &d) { expect(1 == d.val); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  base467 base;
+  base.val = 1;
+  derived467 derived;
+  sml::sm<c715> sm{derived, base};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+// A base held by value does not win over a derived dep, as before #715: without
+// BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS the const base& would bind its copy
+// as a dangling temporary.
+struct copyable_base715 {
+  int val = 1;
+};
+struct copyable_derived715 : copyable_base715 {
+  copyable_derived715() { val = 715; }
+};
+
+test derived_dep_preferred_over_base_held_by_value = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](const copyable_base715 &b) { expect(715 == b.val); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  copyable_derived715 derived;
+  copyable_base715 base;
+  base.val = 5;
+  sml::sm<c715> sm{std::move(base), derived};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
+// Only a class type is looked up among the derived deps (any D* converts to void*),
+// so a void* that is not passed stays null.
+test missing_void_ptr_dep_next_to_ref_dep = [] {
+  struct c715 {
+    auto operator()() noexcept {
+      using namespace sml;
+      auto check = [](int &i, void *p) { expect(42 == i && nullptr == p); };
+      // clang-format off
+      return make_transition_table(*idle + event<e1> / check = X);
+      // clang-format on
+    }
+  };
+
+  int i = 42;
+  sml::sm<c715> sm{i};
+  sm.process_event(e1{});
+  expect(sm.is(sml::X));
+};
+
 // Issue #485: passing a pointer dependency as an lvalue caused the SM to store
 // nullptr instead of the actual pointer.  Root cause: forwarding reference
 // deduction wraps a T* lvalue as T*&; the pool init constructor's try_get
