@@ -3224,13 +3224,13 @@ struct transition_sa<state<S2>, A> : transition<state<internal>, state<S2>, fron
   }
 };
 template <class S2, class E>
-struct transition<state<S2>, front::event<E>> {
+struct transition<state<S2>, front::event<E>> : transition<state<internal>, state<S2>, front::event<E>, always, none> {
+  constexpr transition(const state<S2> &, const front::event<E> &)
+      : transition<state<internal>, state<S2>, front::event<E>, always, none>{always{}, none{}} {}
   template <class T>
   constexpr auto operator=(const T &) const {
     return transition<T, state<S2>, front::event<E>, always, none>{always{}, none{}};
   }
-  const state<S2> &s2;
-  front::event<E> e;
 };
 template <class E, class G>
 struct transition_eg<front::event<E>, G> {
