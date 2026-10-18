@@ -3,9 +3,9 @@ name: release
 # Cut a GitHub Release for the version currently on master.
 #
 # Manually triggered. It reads BOOST_SML_VERSION from include/boost/sml.hpp,
-# creates the matching vX.Y.Z tag (if missing) and a GitHub Release whose notes
-# are the matching section of doc/CHANGELOG.md. Safe to re-run: it is a no-op if
-# the release already exists.
+# creates the matching vX.Y.Z tag (if missing) and a GitHub Release with
+# auto-generated notes. Release history lives on the GitHub Releases page.
+# Safe to re-run: it is a no-op if the release already exists.
 
 on:
   workflow_dispatch:
@@ -42,21 +42,6 @@ jobs:
           echo "tag=v$version"   >> "$GITHUB_OUTPUT"
           echo "Releasing v$version"
 
-      - name: Extract changelog section
-        id: notes
-        run: |
-          version="${{ steps.ver.outputs.version }}"
-          # Print the block from "## [x.y.z]" up to (but not including) the next "## [".
-          awk -v v="$version" '
-            $0 ~ "^## \\[" v "\\]" {grab=1; next}
-            grab && /^## \[/ {exit}
-            grab {print}
-          ' doc/CHANGELOG.md > RELEASE_NOTES.md
-          if [ ! -s RELEASE_NOTES.md ]; then
-            echo "See doc/CHANGELOG.md" > RELEASE_NOTES.md
-          fi
-          echo "----- release notes -----"; cat RELEASE_NOTES.md
-
       - name: Create tag and release (idempotent)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -69,4 +54,4 @@ jobs:
           gh release create "$tag" \
             --target "${{ github.sha }}" \
             --title "$tag" \
-            --notes-file RELEASE_NOTES.md
+            --generate-notes

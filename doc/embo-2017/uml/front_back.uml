@@ -1,6 +1,0 @@
-@startuml
-
-front_end "1" ---* "N" "<<transitional>>"
-"<<transitional>>" "N" *--- "1" back_end
-
-@enduml

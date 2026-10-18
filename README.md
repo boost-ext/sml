@@ -1,87 +1,76 @@
-<a href="http://www.boost.org/LICENSE_1_0.txt" target="_blank">![Boost Licence](http://img.shields.io/badge/license-boost-blue.svg)</a>
-<a href="https://github.com/boost-ext/sml/releases" target="_blank">![Version](https://img.shields.io/github/v/release/boost-ext/sml)</a>
-<a href="https://github.com/boost-ext/sml/actions/workflows/build_matrix.yml" target="_blank">![Linux](https://github.com/boost-ext/sml/actions/workflows/build_matrix.yml/badge.svg)</a>
-<a href="https://codecov.io/gh/boost-ext/sml" target="_blank">![Codecov](https://codecov.io/gh/boost-ext/sml/branch/master/graph/badge.svg)</a>
-<a href="https://godbolt.org/z/y99L50">![Try it online](https://img.shields.io/badge/try%20it-online-blue.svg)</a>
+[![Boost Licence](https://img.shields.io/badge/license-boost-blue.svg)](https://www.boost.org/LICENSE_1_0.txt)
+[![Version](https://img.shields.io/github/v/release/boost-ext/sml)](https://github.com/boost-ext/sml/releases)
+[![Build](https://github.com/boost-ext/sml/actions/workflows/build_matrix.yml/badge.svg)](https://github.com/boost-ext/sml/actions/workflows/build_matrix.yml)
+[![Codecov](https://codecov.io/gh/boost-ext/sml/branch/master/graph/badge.svg)](https://codecov.io/gh/boost-ext/sml)
+[![Try it online](https://img.shields.io/badge/try%20it-online-blue.svg)](https://godbolt.org/z/dq85hW4ab)
 
----------------------------------------
+# SML - State Machine Language
 
-# SML (State Machine Language)
+A scalable C++14 **single-header** state machine library with no dependencies.
 
-> Your scalable C++14 **one header only** State Machine Library with no dependencies
+## Features
 
-<p align="center"><a href="https://www.youtube.com/watch?v=Zb6xcd2as6o"><img src="doc/images/rise_of_the_state_machines.png" alt="Rise of the State Machines"/></a></p>
+* Single header (`include/boost/sml.hpp`), no dependencies (not even STL or Boost)
+* eUML-like transition table DSL: `src_state + event [ guard ] / action = dst_state`
+* UML compliant: entry/exit actions, orthogonal regions, composite states, history, defer
+* Fast compilation times, small binaries, and minimal memory footprint
+* Short, readable compile-time error messages
+* Testable (`testing::sm`) and observable (logger policy, runtime dispatcher)
 
-> https://www.youtube.com/watch?v=Zb6xcd2as6o
+## Quick start
 
----
+Get the header:
 
-<p align="center">
-  <br />
-  <b>Let's release a TCP connection!</b>
-  <br />
-</p>
+```sh
+wget https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml.hpp
+```
 
-<p align="center"><img src="doc/images/tcp_release.png" alt="tcp release"/></p>
-
-### Quick start
-
-#### Download
-> [Boost::ext].SML requires only one file. Get the latest header [here!](https://raw.githubusercontent.com/boost-ext/sml/master/include/boost/sml.hpp)
-
-#### Include
 ```cpp
 #include <boost/sml.hpp>
 namespace sml = boost::sml;
 ```
 
-#### Dependencies
-```cpp
-struct sender {
-  template<class TMsg>
-  constexpr void send(const TMsg& msg) { std::printf("send: %d\n", msg.id); }
-};
-```
+Define events, guards, and actions:
 
-#### Events
 ```cpp
+struct release {};
 struct ack { bool valid{}; };
 struct fin { int id{}; bool valid{}; };
-struct release {};
 struct timeout {};
+
+const auto is_valid = [](const auto& event) { return event.valid; };
+
+struct sender {
+  template <class TMsg>
+  constexpr void send(const TMsg& msg) { std::printf("send: %d\n", msg.id); }
+};
+
+const auto send_fin = [](sender& s) { s.send(fin{0}); };
+const auto send_ack = [](const auto& event, sender& s) { s.send(event); };
 ```
 
-#### Guards
-```cpp
-constexpr auto is_valid = [](const auto& event) { return event.valid; };
-```
+Define the state machine (TCP release example):
 
-#### Actions
-```cpp
-constexpr auto send_fin = [](sender& s) { s.send(fin{0}); };
-constexpr auto send_ack = [](const auto& event, sender& s) { s.send(event); };
-```
+![TCP release](docs/images/tcp_release.png)
 
-#### State Machine
 ```cpp
 struct tcp_release {
   auto operator()() const {
     using namespace sml;
-    /**
-     * Initial state: *initial_state
-     * Transition DSL: src_state + event [ guard ] / action = dst_state
-     */
+    // Initial state: *initial_state
+    // Transition DSL: src_state + event [ guard ] / action = dst_state
     return make_transition_table(
-      *"established"_s + event<release>          / send_fin  = "fin wait 1"_s,
-       "fin wait 1"_s  + event<ack> [ is_valid ]             = "fin wait 2"_s,
-       "fin wait 2"_s  + event<fin> [ is_valid ] / send_ack  = "timed wait"_s,
-       "timed wait"_s  + event<timeout>                      = X
+      *"established"_s + event<release>          / send_fin = "fin wait 1"_s,
+       "fin wait 1"_s  + event<ack> [ is_valid ]            = "fin wait 2"_s,
+       "fin wait 2"_s  + event<fin> [ is_valid ] / send_ack = "timed wait"_s,
+       "timed wait"_s  + event<timeout>                     = X
     );
   }
 };
 ```
 
-#### Usage
+Use it:
+
 ```cpp
 int main() {
   using namespace sml;
@@ -90,250 +79,124 @@ int main() {
   sm<tcp_release> sm{s}; // pass dependencies via ctor
   assert(sm.is("established"_s));
 
-  sm.process_event(release{}); // complexity O(1)
+  sm.process_event(release{});
   assert(sm.is("fin wait 1"_s));
 
-  sm.process_event(ack{true}); // prints 'send: 0'
+  sm.process_event(ack{true});    // prints 'send: 0'
   assert(sm.is("fin wait 2"_s));
 
   sm.process_event(fin{42, true}); // prints 'send: 42'
   assert(sm.is("timed wait"_s));
 
   sm.process_event(timeout{});
-  assert(sm.is(X));  // terminated
+  assert(sm.is(X)); // terminated
 }
 ```
 
-> MSVC-2015 ([Example](https://boost-ext.github.io/sml/examples.html#hello-world))
+Compile:
 
-  * use `state<class state_name>` instead of `"state_name"_s`
-  * expliclty state a lambda's result type `auto action = [] -> void {}`
-
-#### Compile
-* **GCC/Clang**
-  ```sh
-  $CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic tcp_release.cpp
-  ```
-* **MSVC**
-  ```sh
-  cl /std:c++14 /Ox /W3 tcp_release.cpp
-  ```
-
-<p align="center">
-<table>
-  <tr>
-    <th>tcp_release.cpp</th>
-    <th>Clang-3.8</th>
-    <th>GCC-6.3</th>
-    <th>MSVC-2015</th>
-  </tr>
-
-  <tr>
-    <td>Compilation Time</td>
-    <td>0.102s</td>
-    <td>0.118s</td>
-    <td>0.296s</td>
-  </tr>
-
-  <tr>
-    <td>Binary size (stripped)</td>
-    <td>6.2kb</td>
-    <td>6.2kb</td>
-    <td>105kb</td>
-  </tr>
-
-  <tr>
-    <td>ASM x86-64 - <br/>https://godbolt.org/z/y99L50</td>
-    <td colspan="3">
-      <pre><code>
-main: # @main
-  pushq %rax
-  movl $.L.str, %edi
-  xorl %esi, %esi
-  xorl %eax, %eax
-  callq printf
-  movl $.L.str, %edi
-  movl $42, %esi
-  xorl %eax, %eax
-  callq printf
-  xorl %eax, %eax
-  popq %rcx
-  retq
-.L.str:
-  .asciz "send: %d\n"
-      </code></pre>
-    </td>
-  </tr>
-</table>
-</p>
-
-#### Run
-> Output (https://wandbox.org/permlink/WbvV9HsIyiPkCFw7)
 ```sh
+# GCC / Clang
+$CXX -std=c++14 -O2 -fno-exceptions -Wall -Wextra -Werror -pedantic tcp_release.cpp
+
+# MSVC
+cl /std:c++14 /Ox /W3 tcp_release.cpp
+```
+
+Output:
+
+```text
 send: 0
 send: 42
 ```
 
-### Benchmark
+Notes for MSVC 2015: use `state<class name>` instead of `"name"_s`, and give
+lambdas explicit result types (for example `[] -> void {}`).
 
-> [Complex Test](https://github.com/boost-ext/sml/tree/master/benchmark/complex)
+[Run this example on Compiler Explorer](https://godbolt.org/z/y99L50)
 
-|                  |[Enum/Switch](https://github.com/boost-ext/sml/blob/master/benchmark/complex/switch.cpp) | [Variant](https://github.com/boost-ext/sml/blob/master/benchmark/complex/variant.cpp) | [[Boost::ext].SML - 1.1.0](https://github.com/boost-ext/sml/blob/master/benchmark/complex/sml.cpp)    | [Boost-1.65.MSM-eUML](https://github.com/boost-ext/sml/blob/master/benchmark/complex/euml.cpp)   | [Boost-1.65.Statechart](https://github.com/boost-ext/sml/blob/master/benchmark/complex/sc.cpp)   |
-|------------------|------------|---------|--------------|------------------|--------------------|
-| **Compilation time** |  0.132s    | 15.321s |       0.582s |        1m15.935s |             5.671s |
-| **Execution time**   |   679ms    | 827ms   |        622ms |        664ms     |             2282ms |
-| **Memory usage**     |      1b    | 2b/8b   |           1b |        120b      |             224b   |
-| **Executable size**  |     15K    | 187K    |          34K |        611K      |             211K   |
+## Installation
 
----
+SML is a single header. Pick one of the following:
 
-### Examples
+* Copy [`include/boost/sml.hpp`](include/boost/sml.hpp) into your project.
+* Download the [latest release](https://github.com/boost-ext/sml/releases).
+* CMake with `FetchContent`:
 
-<a name="arduino"></a>
-* #### [Arduino](https://www.arduino.cc)
+```cmake
+include(FetchContent)
+FetchContent_Declare(
+  sml
+  GIT_REPOSITORY https://github.com/boost-ext/sml.git
+  GIT_TAG v1.2.0
+)
+FetchContent_MakeAvailable(sml)
+target_link_libraries(your_target PRIVATE sml::sml)
+```
 
-<p align="center"><a href="http://www.plantuml.com/plantuml/uml/TP11Qy9048Nl-HNlPYnj4ZtcK4JheQtq4kX5HDRiRB9LTyFiXDH_twmM2WKl2n_xFjvZ5a4KIty-9PDaWfNlBcoRLf3MKyoBUO5tjW5lVR3gYFGOGGc-Rgozm95Ch-wB3SBsq0jfz4uJGrh2qliWgBoHGJ5XOsjoWHxnIHoiTvXbHJRAQKK4LTV-t2btiQw1iQSn_hfQVrJh_MnVPF8jy8nwd1Wdj29TcUV3C6I7s95vRl9_-JWCs3xiyFGCRqo2-5x10IMMuigoOmg1DBOtZ3yxvDYGZX0LXr__dcBCdn9h5kJqUD8V"><img src="doc/images/arduino/uml.png" alt="Arduino UML"/></a></p>
+* CMake install: `cmake -B build && cmake --install build` provides the
+  `sml::sml` interface target and `smlConfig.cmake` package files.
 
-<p align="center"><a href="https://godbolt.org/z/Y983h4"><img src="doc/images/arduino/code.png" alt="Arduino Code"/></a></p>
+Requires C++14 or newer: Clang 3.4+, GCC 5.2+, MSVC 2015+.
 
-> https://godbolt.org/z/Y983h4
+## Documentation
 
-<p align="center"><a href="https://www.tinkercad.com/things/9epUrFrzKP3"><img src="doc/images/arduino/board.png" alt="Arduino Board"/></a></p>
+Documentation is plain Markdown in the [`docs/`](docs/) directory and renders
+directly on GitHub. No extra tooling is required.
 
-> https://www.tinkercad.com/things/9epUrFrzKP3
+| Document | Content |
+| -------- | ------- |
+| [Introduction](docs/index.md) | Motivation, design goals, supported UML features |
+| [Overview](docs/overview.md) | Quick start, compilers, configuration, error messages |
+| [Tutorial](docs/tutorial.md) | Events, states, guards, actions, transition tables |
+| [Benchmarks](docs/benchmarks.md) | Feature comparison and benchmark results |
+| [UML vs SML](docs/uml_vs_sml.md) | UML to SML mapping |
+| [User Guide](docs/user_guide.md) | Concepts, state machine API, policies, utilities |
+| [Examples](docs/examples.md) | Runnable examples with Compiler Explorer links |
+| [FAQ](docs/faq.md) | Limitations and frequently asked questions |
 
----
+Release notes are maintained as
+[GitHub Releases](https://github.com/boost-ext/sml/releases).
 
-<a name="avr"></a>
-* #### [AVR](https://www.arduino.cc)
+## Examples
 
-<p align="center"><a href="https://godbolt.org/z/qhx8Md"><img src="doc/images/avr.png" alt="AVR performance"/></a></p>
+* [Hello World](https://github.com/boost-ext/sml/blob/master/example/hello_world.cpp) -
+  [run](https://godbolt.org/z/dq85hW4ab)
+* [Transitions](https://github.com/boost-ext/sml/blob/master/example/transitions.cpp) -
+  [run](https://godbolt.org/z/qr8qs78Ts)
+* [Orthogonal Regions](https://github.com/boost-ext/sml/blob/master/example/orthogonal_regions.cpp) -
+  [run](https://godbolt.org/z/vqGbsrqM3)
+* [Composite](https://github.com/boost-ext/sml/blob/master/example/composite.cpp) -
+  [run](https://godbolt.org/z/5sYb9eGbe)
+* [Defer and Process](https://github.com/boost-ext/sml/blob/master/example/defer_and_process.cpp) -
+  [run](https://godbolt.org/z/T7YaW61en)
+* [Logging](https://github.com/boost-ext/sml/blob/master/example/logging.cpp) -
+  [run](https://godbolt.org/z/Tec7jz36r)
+* [Testing](https://github.com/boost-ext/sml/blob/master/example/testing.cpp) -
+  [run](https://godbolt.org/z/oc73h5sY8)
+* [Runtime Dispatcher](https://github.com/boost-ext/sml/blob/master/example/dispatch_table.cpp) -
+  [run](https://godbolt.org/z/j5bMnobY9)
 
-> https://godbolt.org/z/qhx8Md
+See [docs/examples.md](docs/examples.md) for the complete list.
 
----
+## Benchmarks
 
-<a name="match3"></a>
-* #### [Match3](https://github.com/modern-cpp-examples/match3)
+On the complex benchmark (50 events, 50 states, 50 transitions, 1M events),
+SML compiles in under a second - over 60x faster than Boost.MSM-eUML - with
+comparable runtime performance and 1 byte of state. Details and reproduction
+steps: [docs/benchmarks.md](docs/benchmarks.md) and [`benchmark/`](benchmark/).
 
-<table>
-  <tr>
-    <td>
-      <p align="center"><a href="https://www.youtube.com/watch?v=8gRHHIjx4oE"><img src="doc/images/match3.png" alt="match3"/></a></p>
-    </td>
-    <td>
-      <p align="center"><a href="http://modern-cpp-examples.github.io/match3/"><img src="https://github.com/modern-cpp-examples/match3/raw/master/docs/images/match3.png" alt="match3"/></a></p>
-    </td>
-  </tr>
-</table>
+## Talks
 
-> https://github.com/modern-cpp-examples/match3
+* [Rise of the State Machines - C++Now 2019](https://www.youtube.com/watch?v=Zb6xcd2as6o)
 
----------------------------------------
+## Contributing
 
-### Documentation
+Issues and pull requests are welcome. See
+[.github/CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
-[](GENERATE_TOC_BEGIN)
+## License
 
-* [Introduction](https://boost-ext.github.io/sml/index.html)
-    * [UML State Machine](https://boost-ext.github.io/sml/index.html#uml-state-machine)
-    * [Do I need a State Machine?](https://boost-ext.github.io/sml/index.html#do-i-need-a-state-machine)
-    * [Real Life examples?](https://boost-ext.github.io/sml/index.html#real-life-examples)
-    * [Why [Boost].SML?](https://boost-ext.github.io/sml/index.html#why-boostsml)
-    * [Problems with Boost.MSM - eUML](https://boost-ext.github.io/sml/index.html#problems-with-boostmsm-euml)
-    * [[Boost].SML design goals](https://boost-ext.github.io/sml/index.html#boostsml-design-goals)
-    * [What 'lite' implies?](https://boost-ext.github.io/sml/index.html#what-lite-implies)
-    * [*Supported* UML features](https://boost-ext.github.io/sml/index.html#supported-uml-features)
-    * [*Additional* features](https://boost-ext.github.io/sml/index.html#additional-features)
-    * [Related materials](https://boost-ext.github.io/sml/index.html#related-materials)
-    * [Acknowledgements](https://boost-ext.github.io/sml/index.html#acknowledgements)
-* [Overview](https://boost-ext.github.io/sml/overview.html)
-    * [Quick Start](https://boost-ext.github.io/sml/overview.html#quick-start)
-    * [Dependencies](https://boost-ext.github.io/sml/overview.html#dependencies)
-    * [Supported/Tested compilers](https://boost-ext.github.io/sml/overview.html#supportedtested-compilers)
-    * [Configuration](https://boost-ext.github.io/sml/overview.html#configuration)
-    * [Exception Safety](https://boost-ext.github.io/sml/overview.html#exception-safety)
-    * [Thread Safety](https://boost-ext.github.io/sml/overview.html#thread-safety)
-    * [Design](https://boost-ext.github.io/sml/overview.html#design)
-    * [Error messages](https://boost-ext.github.io/sml/overview.html#error-messages)
-* [Features/Benchmarks](https://boost-ext.github.io/sml/benchmarks.html)
-    * [Features](https://boost-ext.github.io/sml/benchmarks.html#features)
-    * [Benchmarks](https://boost-ext.github.io/sml/benchmarks.html#benchmarks)
-* [Tutorial/Workshop](https://boost-ext.github.io/sml/tutorial.html)
-    * [0. Read Boost.MSM - eUML documentation](https://boost-ext.github.io/sml/tutorial.html#0-read-boostmsm-euml-documentation)
-    * [1. Create events and states](https://boost-ext.github.io/sml/tutorial.html#1-create-events-and-states)
-    * [2. Create guards and actions](https://boost-ext.github.io/sml/tutorial.html#2-create-guards-and-actions)
-    * [3. Create a transition table](https://boost-ext.github.io/sml/tutorial.html#3-create-a-transition-table)
-    * [4. Set initial states](https://boost-ext.github.io/sml/tutorial.html#4-set-initial-states)
-    * [5. Create a state machine](https://boost-ext.github.io/sml/tutorial.html#5-create-a-state-machine)
-    * [6. Process events](https://boost-ext.github.io/sml/tutorial.html#6-process-events)
-    * [8. Handle errors](https://boost-ext.github.io/sml/tutorial.html#8-handle-errors)
-    * [9. Test it](https://boost-ext.github.io/sml/tutorial.html#9-test-it)
-    * [10. Debug it](https://boost-ext.github.io/sml/tutorial.html#10-debug-it)
-* [UML vs SML](https://boost-ext.github.io/sml/uml_vs_sml.html)
-    * [Unified Modeling Language™ (UML®) Version 2.5](https://boost-ext.github.io/sml/uml_vs_sml.html#unified-modeling-language-uml-version-25)
-    * [Initial Pseudostate](https://boost-ext.github.io/sml/uml_vs_sml.html#initial-pseudostate)
-    * [Terminate Pseudostate](https://boost-ext.github.io/sml/uml_vs_sml.html#terminate-pseudostate)
-    * [External transition](https://boost-ext.github.io/sml/uml_vs_sml.html#external-transition)
-    * [Anonymous transition](https://boost-ext.github.io/sml/uml_vs_sml.html#anonymous-transition)
-* [User Guide](https://boost-ext.github.io/sml/user_guide.html)
-    * [transitional [concept]](https://boost-ext.github.io/sml/user_guide.html#transitional-concept)
-    * [configurable [concept]](https://boost-ext.github.io/sml/user_guide.html#configurable-concept)
-    * [callable [concept]](https://boost-ext.github.io/sml/user_guide.html#callable-concept)
-    * [dispatchable [concept]](https://boost-ext.github.io/sml/user_guide.html#dispatchable-concept)
-    * [state [core]](https://boost-ext.github.io/sml/user_guide.html#state-core)
-    * [event [core]](https://boost-ext.github.io/sml/user_guide.html#event-core)
-    * [make_transition_table [state machine]](https://boost-ext.github.io/sml/user_guide.html#make_transition_table-state-machine)
-    * [sm [state machine]](https://boost-ext.github.io/sml/user_guide.html#sm-state-machine)
-    * [policies [state machine]](https://boost-ext.github.io/sml/user_guide.html#policies-state-machine)
-    * [testing::sm [testing]](https://boost-ext.github.io/sml/user_guide.html#testingsm-testing)
-    * [make_action [utility]](https://boost-ext.github.io/sml/user_guide.html#make_action-utility)
-    * [make_dispatch_table [utility]](https://boost-ext.github.io/sml/user_guide.html#make_dispatch_table-utility)
-* [Examples](https://boost-ext.github.io/sml/examples.html)
-    * [Hello World](https://boost-ext.github.io/sml/examples.html#hello-world)
-    * [Events](https://boost-ext.github.io/sml/examples.html#events)
-    * [States](https://boost-ext.github.io/sml/examples.html#states)
-    * [Actions Guards](https://boost-ext.github.io/sml/examples.html#actions-guards)
-    * [Transitions](https://boost-ext.github.io/sml/examples.html#transitions)
-    * [Defer/Process](https://boost-ext.github.io/sml/examples.html#deferprocess)
-    * [Orthogonal Regions](https://boost-ext.github.io/sml/examples.html#orthogonal-regions)
-    * [Composite](https://boost-ext.github.io/sml/examples.html#composite)
-    * [History](https://boost-ext.github.io/sml/examples.html#history)
-    * [Error handling](https://boost-ext.github.io/sml/examples.html#error-handling)
-    * [Logging](https://boost-ext.github.io/sml/examples.html#logging)
-    * [Nested](https://boost-ext.github.io/sml/examples.html#nested)
-    * [Testing](https://boost-ext.github.io/sml/examples.html#testing)
-    * [Runtime Dispatcher](https://boost-ext.github.io/sml/examples.html#runtime-dispatcher)
-    * [eUML Emulation](https://boost-ext.github.io/sml/examples.html#euml-emulation)
-    * [Dependencies](https://boost-ext.github.io/sml/examples.html#dependencies)
-    * [Data](https://boost-ext.github.io/sml/examples.html#data)
-    * [In-Place](https://boost-ext.github.io/sml/examples.html#in-place)
-    * [Dependency Injection](https://boost-ext.github.io/sml/examples.html#dependency-injection)
-    * [Arduino Integration](https://boost-ext.github.io/sml/examples.html#arduino-integration)
-    * [SDL2 Integration](https://boost-ext.github.io/sml/examples.html#sdl2-integration)
-    * [Plant UML Integration](https://boost-ext.github.io/sml/examples.html#plant-uml-integration)
-* [FAQ](https://boost-ext.github.io/sml/faq.html)
-    * [Limitations](https://boost-ext.github.io/sml/faq.html#limitations)
-    * [`on_entry<_>` across translation units](https://boost-ext.github.io/sml/faq.html#on_entry_-across-translation-units)
-    * [`operator,` with two raw member-function-pointer actions](https://boost-ext.github.io/sml/faq.html#operator-with-two-raw-member-function-pointer-actions)
-* [CHANGELOG](https://boost-ext.github.io/sml/CHANGELOG.html)
-    * [[1.2.0] - 2026-06-01](https://boost-ext.github.io/sml/CHANGELOG.html#120-2026-06-01)
-    * [[1.1.13] - 2025-12-01](https://boost-ext.github.io/sml/CHANGELOG.html#1113-2025-12-01)
-    * [[1.1.12] - 2025-04-02](https://boost-ext.github.io/sml/CHANGELOG.html#1112-2025-04-02)
-    * [[1.1.11] - 2024-03-09](https://boost-ext.github.io/sml/CHANGELOG.html#1111-2024-03-09)
-    * [[1.1.10] - 2024-03-09](https://boost-ext.github.io/sml/CHANGELOG.html#1110-2024-03-09)
-    * [[1.1.9] - 2023-09-13](https://boost-ext.github.io/sml/CHANGELOG.html#119-2023-09-13)
-    * [[1.1.6] - 2022-09-07](https://boost-ext.github.io/sml/CHANGELOG.html#116-2022-09-07)
-    * [[1.1.5] - 2022-03-23](https://boost-ext.github.io/sml/CHANGELOG.html#115-2022-03-23)
-    * [[1.1.4] - 2021-02-16](https://boost-ext.github.io/sml/CHANGELOG.html#114-2021-02-16)
-    * [[1.1.3] - 2020-08-02](https://boost-ext.github.io/sml/CHANGELOG.html#113-2020-08-02)
-    * [[1.1.2] - 2020-06-14](https://boost-ext.github.io/sml/CHANGELOG.html#112-2020-06-14)
-    * [[1.1.1] - 2020-05-17](https://boost-ext.github.io/sml/CHANGELOG.html#111-2020-05-17)
-    * [[1.1.0] - 2019-01-08](https://boost-ext.github.io/sml/CHANGELOG.html#110-2019-01-08)
-    * [[1.0.1] - 2016-05-06](https://boost-ext.github.io/sml/CHANGELOG.html#101-2016-05-06)
-    * [[1.0.0] - 2016-01-28](https://boost-ext.github.io/sml/CHANGELOG.html#100-2016-01-28)
-[](GENERATE_TOC_END)
+Distributed under the [Boost Software License, Version 1.0](LICENSE.md).
 
----
-
-**Disclaimer** `[Boost::ext].SML` is not an official Boost library.
+**Disclaimer:** `[Boost::ext].SML` is not an official Boost library.
