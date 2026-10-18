@@ -190,7 +190,7 @@ represents current location of the state machine flow.</p>
 auto state  = &quot;idle&quot;_s;
 </code></pre>
 <p>However, please notice that above solution is a non-standard extension for Clang/GCC.</p>
-<p><code>SML</code> states cannot have data as data is injected directly into guards/actions instead.</p>
+<p><code>SML</code> states are plain types, so a state can hold data. Guards and actions take the state by reference to read or change it, see the <a href="examples.html#data">Data</a> example. Other data is injected directly into guards/actions.</p>
 <p>A state machine might be a State itself.</p>
 <pre><code class="language-cpp">sml::state&lt;state_machine&gt; composite;
 </code></pre>

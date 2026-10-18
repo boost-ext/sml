@@ -209,6 +209,73 @@ neither STL nor Boost are required. It is part of the <code>boost-ext</code> pro
 <h3 id="is-sml-a-moore-or-a-mealy-state-machine">Is SML a Moore or a Mealy state machine?</h3>
 <p>Both. Transition actions run on transitions (Mealy), while <code>on_entry&lt;...&gt;</code> /
 <code>on_exit&lt;...&gt;</code> provide per-state actions (Moore).</p>
+<h3 id="can-a-state-hold-data">Can a state hold data?</h3>
+<p>Yes. A state is a plain type, take it by reference in a guard or action to read or
+change it. <code>example/data.cpp</code> keeps an <code>id</code> in the <code>Connected</code> and <code>Interrupted</code>
+states and copies it between them:</p>
+<pre><code class="language-cpp">const auto set = [](const auto&amp; event, Connected&amp; state) { state.id = event.id; };
+const auto update = [](Connected&amp; src_state, Interrupted&amp; dst_state) { dst_state.id = src_state.id; };
+</code></pre>
+<h3 id="is-a-state-machine-thread-safe-can-i-call-process_event-from-an-action">Is a state machine thread safe? Can I call <code>process_event</code> from an action?</h3>
+<p>Not by default. Pass the <code>thread_safe</code> policy with a lock type. With
+<code>std::recursive_mutex</code>, <code>process_event</code> can be called from inside an action:</p>
+<pre><code class="language-cpp">sml::sm&lt;example, sml::thread_safe&lt;std::recursive_mutex&gt;&gt; sm;
+</code></pre>
+<h3 id="how-do-i-handle-any-event-wildcard">How do I handle any event (wildcard)?</h3>
+<p>Use both <code>event&lt;_&gt;</code> and <code>unexpected_event&lt;_&gt;</code>. <code>"s"_s + event&lt;_&gt; / action</code> matches every event type that appears somewhere in the table, <code>"s"_s + unexpected_event&lt;_&gt; / action</code> the types that do not. A specific <code>event&lt;e&gt;</code> row on the same state has priority over the wildcard.</p>
+<h3 id="why-doesnt-unexpected_event_-catch-an-event-that-is-in-the-table">Why doesn't <code>unexpected_event&lt;_&gt;</code> catch an event that is in the table?</h3>
+<p><code>unexpected_event&lt;_&gt;</code> matches only event types that appear nowhere in the table. A table event with no transition in the current state is dropped and <code>process_event</code> returns <code>false</code>. To react to it add <code>unexpected_event&lt;that_event&gt;</code>, or check the returned <code>bool</code>.</p>
+<h3 id="how-do-i-handle-an-event-in-every-state-with-a-default-action">How do I handle an event in every state, with a default action?</h3>
+<p>Use <code>state&lt;_&gt;</code> as the source. It applies in every state with no transition of its own for the event, so a specific row such as <code>"s2"_s + event&lt;e&gt; / specific</code> wins there and the default does not run:</p>
+<pre><code class="language-cpp">&quot;s2&quot;_s + event&lt;e&gt; / specific,
+state&lt;_&gt; + event&lt;e&gt; / default_action
+</code></pre>
+<h3 id="why-is-my-name_e-event-not-handled">Why is my <code>"name"_e</code> event not handled?</h3>
+<p><code>"name"_e</code> is the event token for tables. To send it, create an instance with parentheses: <code>sm.process_event("name"_e())</code>. Without them it compiles, nothing matches and <code>process_event</code> returns <code>false</code>.</p>
+<h3 id="how-do-i-check-the-state-of-a-sub-state-machine">How do I check the state of a sub-state-machine?</h3>
+<p>Name the sub machine's state type in the first template argument of <code>is</code>:</p>
+<pre><code class="language-cpp">sm.is&lt;decltype(sml::state&lt;sub&gt;)&gt;(sml::state&lt;sub_state&gt;);
+</code></pre>
+<p><code>sm.is(sml::state&lt;sub&gt;)</code> only says the parent is inside <code>sub</code>. For "any of these states" (what MSM calls a flag) combine <code>is</code> calls:</p>
+<pre><code class="language-cpp">template &lt;class SM, class... S&gt;
+bool is_any(const SM&amp; sm, S... s) { return (sm.is(s) || ...); }
+</code></pre>
+<h3 id="how-do-i-enter-a-composite-state-in-a-specific-sub-state">How do I enter a composite state in a specific sub-state?</h3>
+<p>There is no direct entry: <code>state&lt;Composite::Sub2&gt;</code> is treated as a state of the parent and skips the composite's <code>on_entry</code>. Transition to <code>state&lt;Composite&gt;</code> and give the composite an initial dispatch state with guarded anonymous transitions to the sub-states, driven by a dependency the parent sets first.</p>
+<h3 id="how-do-i-reuse-a-base-transition-table-in-several-machines">How do I reuse a base transition table in several machines?</h3>
+<p><code>make_transition_table</code> takes transitions, not other tables. Return the shared transitions in a <code>std::tuple</code> and unpack them with <code>std::apply</code> (C++17):</p>
+<pre><code class="language-cpp">struct base { static constexpr auto transitions() { return std::make_tuple(*&quot;a&quot;_s + event&lt;e&gt; = &quot;b&quot;_s); } };
+struct derived { auto operator()() const { return std::apply([](auto... t) {
+  return sml::make_transition_table(t..., &quot;b&quot;_s + event&lt;f&gt; = &quot;c&quot;_s); }, base::transitions()); } };
+</code></pre>
+<p>This is reuse, a base transition cannot be overridden.</p>
+<h3 id="can-i-build-the-transition-table-conditionally-or-in-pieces">Can I build the transition table conditionally or in pieces?</h3>
+<p>Not at runtime and not by concatenating tables, the table is a type. Select a whole table with <code>if constexpr</code> on a template parameter, or use guards for runtime conditions. For the same state and event, transitions are tried in written order and the first one whose guard passes runs.</p>
+<h3 id="can-i-ask-whether-an-event-would-be-handled-without-processing-it">Can I ask whether an event would be handled without processing it?</h3>
+<p>Not directly, there is no <code>can_process_event</code>. Processing a copy (<code>auto probe = sm; probe.process_event(e)</code>) answers it including guards, but actions run and dependencies passed by reference are shared with the copy. Use it only when actions have no outside side effects.</p>
+<h3 id="how-do-i-ignore-events-while-an-action-is-in-progress">How do I ignore events while an action is in progress?</h3>
+<p>Make the in-progress period a state with one way out: <code>idle + event&lt;start&gt; / begin_work = busy</code> and <code>busy + event&lt;work_done&gt; = idle</code>. Events with no transition in <code>busy</code> are dropped. Send <code>work_done</code> when the work completes, or queue it from the action with <code>process(work_done{})</code> and a <code>process_queue</code> policy.</p>
+<h3 id="how-do-i-process-a-new-event-built-from-the-incoming-one">How do I process a new event built from the incoming one?</h3>
+<p>Use an action taking <code>back::process&lt;E&gt;</code> (needs a <code>process_queue</code> policy):</p>
+<pre><code class="language-cpp">event&lt;raw&gt; / [](const raw&amp; e, back::process&lt;converted&gt; process) { process(converted{e.value * 2}); }
+</code></pre>
+<h3 id="how-do-errors-reach-the-caller-of-process_event">How do errors reach the caller of <code>process_event</code>?</h3>
+<p><code>process_event</code> returns only <code>bool</code>. With no <code>exception&lt;&gt;</code> transition in the table, exceptions propagate to the caller. With any <code>exception&lt;&gt;</code> transition, unmatched exceptions are swallowed. To report one, store it in a dependency:</p>
+<pre><code class="language-cpp">&quot;s&quot;_s + exception&lt;_&gt; / [](std::exception_ptr&amp; e) { e = std::current_exception(); } = &quot;idle&quot;_s
+</code></pre>
+<p>Without exceptions, report an error from a sub-state by firing an event from the action with <code>process(request_failed{})</code> (needs a <code>process_queue</code> policy). Events the sub machine does not handle fall through to the parent.</p>
+<h3 id="how-do-i-read-my-context-in-a-logger-why-is-the-initial-substate-not-logged">How do I read my context in a logger? Why is the initial substate not logged?</h3>
+<p>A logger is a dependency like any other: give it a reference to your context and pass both to the machine, <code>sml::sm&lt;top, sml::logger&lt;my_logger&gt;&gt; sm{logger, ctx}</code>. <code>log_state_change</code> gets only name holders (<code>c_str()</code>), not state objects, and runs on transitions only, before the destination's <code>on_entry</code>. The initial state of a sub machine is entered without a transition, log it from an <code>on_entry&lt;_&gt;</code> action on that state.</p>
+<h3 id="how-do-i-see-the-current-state-in-a-debugger">How do I see the current state in a debugger?</h3>
+<p>The sm object holds template internals, not names. Track the name with a logger policy and watch the variable:</p>
+<pre><code class="language-cpp">template &lt;class SM, class TSrc, class TDst&gt;
+void log_state_change(const TSrc&amp;, const TDst&amp; dst) { current_state_name = dst.c_str(); }
+</code></pre>
+<p>The logger must define all four <code>log_*</code> members and be passed as an lvalue to the <code>sm</code> constructor.</p>
+<h3 id="why-does-wrapclassmethod-fail-with-cannot-bind-non-const-lvalue-reference">Why does <code>wrap(&amp;Class::method)</code> fail with "cannot bind non-const lvalue reference"?</h3>
+<p>A member-function pointer makes <code>Class</code> a dependency of the machine and dependencies are held by reference. Pass an lvalue of <code>Class</code> to the <code>sm</code> constructor, a temporary will not bind.</p>
+<h3 id="why-cant-i-pass-a-temporary-dependency-to-the-sm-constructor">Why can't I pass a temporary dependency to the <code>sm</code> constructor?</h3>
+<p>Dependencies are held by reference, so <code>sm{logger{}}</code> does not compile when an action or the logger takes <code>logger&amp;</code>. Pass an lvalue that outlives the machine, or define <code>BOOST_SML_CREATE_DEFAULT_CONSTRUCTIBLE_DEPS</code> to make the machine keep its own copy of a default-constructible dependency.</p>
               
             </div>
           </div>
