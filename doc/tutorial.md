@@ -54,7 +54,7 @@ auto state  = "idle"_s;
 
 However, please notice that above solution is a non-standard extension for Clang/GCC.
 
-`SML` states cannot have data as data is injected directly into guards/actions instead.
+`SML` states are plain types, so a state can hold data. Guards and actions take the state by reference to read or change it, see the [Data](examples.md#data) example. Other data is injected directly into guards/actions.
 
 A state machine might be a State itself.
 
