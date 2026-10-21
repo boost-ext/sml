@@ -2108,7 +2108,7 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
   }
 
   template <class T, class TPool>
-  constexpr decltype(auto) try_get_without_instantiating(const TPool &p) const {
+  static constexpr decltype(auto) try_get_without_instantiating(const TPool &p) {
     static_assert(!(should_not_instantiate_statemachine_class_t::value &&
               aux::would_instantiate_missing_ctor_parameter<sm_t, decltype(&p)>()),
             "When policy sml::dont_instantiate_statemachine_class is used, you have to provide a reference to an "
