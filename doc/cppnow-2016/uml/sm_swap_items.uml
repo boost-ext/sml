@@ -1,8 +1,0 @@
-@startuml
-
-[*] --> Wait_For_First_Item
-Wait_For_First_Item -> Wait_For_Second_Item : click / select_item
-Wait_For_Second_Item -> Animate : click / select_item, swap_items
-Animate -> Wait_For_First_Item : done
-Animate : play_animation
-@enduml

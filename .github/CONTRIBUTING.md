@@ -11,7 +11,7 @@ you contribute:
 4. Be sure your modifications include:
   * Don't break anything (`make`)
   * Proper unit/functional tests (`make test`)
-  * Documentation updates if required (`make doc`)
+  * Documentation updates if required (plain Markdown in `docs/`)
   * Regenerate preprocessed headers (`tools/pph.sh`)
   * Update/check style using (`make check`)
   * Verify performance (`make benchmarks`)
