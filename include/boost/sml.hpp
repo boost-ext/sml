@@ -25,6 +25,7 @@
   }
 #if defined(__clang__)
 #define BOOST_SML_DETAIL_UNUSED __attribute__((unused))
+#define BOOST_SML_DETAIL_ALWAYS_INLINE __attribute__((always_inline))
 #define BOOST_SML_DETAIL_VT_INIT \
   {}
 // Zero-size array trick shrinks SM objects but triggers UBSan "insufficient
@@ -46,6 +47,7 @@
 #define __has_builtin(...) 0
 #endif
 #define BOOST_SML_DETAIL_UNUSED __attribute__((unused))
+#define BOOST_SML_DETAIL_ALWAYS_INLINE __attribute__((always_inline))
 #define BOOST_SML_DETAIL_VT_INIT \
   {}
 // Zero-size array trick shrinks SM objects but triggers UBSan "insufficient
@@ -68,6 +70,7 @@
 #define __has_builtin(...) __has_builtin##__VA_ARGS__
 #define __has_builtin__make_integer_seq(...) 1
 #define BOOST_SML_DETAIL_UNUSED
+#define BOOST_SML_DETAIL_ALWAYS_INLINE __forceinline
 #define BOOST_SML_DETAIL_VT_INIT
 #define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY(...) static_assert(true, "")
 #define BOOST_SML_DETAIL_ZERO_SIZE_ARRAY_CREATE(...) __VA_ARGS__ ? __VA_ARGS__ : 1
@@ -1817,12 +1820,12 @@ struct branch_stm {
 };
 struct switch_stm {
   template <int, class TMappings, class sm_impl, class State, class TEvent, class TDeps, class TSubs>
-  constexpr static bool dispatch(sm_impl &, State &, const TEvent &, TDeps &, TSubs &, const aux::type_list<> &) {
+  BOOST_SML_DETAIL_ALWAYS_INLINE constexpr static bool dispatch(sm_impl &, State &, const TEvent &, TDeps &, TSubs &, const aux::type_list<> &) {
     return false;
   }
   template <int N, class TMappings, class sm_impl, class State, class TEvent, class TDeps, class TSubs, class TState,
             class... TStates>
-  constexpr static bool dispatch(sm_impl &self, State &current_state, const TEvent &event, TDeps &deps, TSubs &subs,
+  BOOST_SML_DETAIL_ALWAYS_INLINE constexpr static bool dispatch(sm_impl &self, State &current_state, const TEvent &event, TDeps &deps, TSubs &subs,
                        const aux::type_list<TState, TStates...> &) {
     switch (current_state) {
       case N:
@@ -2241,7 +2244,7 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
   }
   template <class TEvent, class TDeps, class TSubs,
             BOOST_SML_DETAIL_REQUIRES(aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value)>
-  constexpr bool process_internal_generic_event(const TEvent &event, TDeps &d, TSubs &subs, state_t &current_state) {
+  BOOST_SML_DETAIL_ALWAYS_INLINE constexpr bool process_internal_generic_event(const TEvent &event, TDeps &d, TSubs &subs, state_t &current_state) {
     policies::log_process_event<sm_t>(aux::type_wrapper<logger_t>{}, d, event);
 #if BOOST_SML_DISABLE_EXCEPTIONS
     return process_event_impl<get_event_mapping_t<get_generic_t<TEvent>, mappings>>(event, d, subs, states_t{},
@@ -2254,12 +2257,12 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
   template <class TEvent, class TDeps, class TSubs,
             BOOST_SML_DETAIL_REQUIRES(aux::is_base_of<get_generic_t<TEvent>, events_ids_t>::value &&
                                  !aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
-  constexpr bool process_internal_event(const TEvent &event, TDeps &d, TSubs &subs, state_t &current_state) {
+  BOOST_SML_DETAIL_ALWAYS_INLINE constexpr bool process_internal_event(const TEvent &event, TDeps &d, TSubs &subs, state_t &current_state) {
     return process_internal_generic_event(event, d, subs, current_state);
   }
   template <class TEvent, class TDeps, class TSubs,
             BOOST_SML_DETAIL_REQUIRES(aux::is_base_of<get_mapped_t<TEvent>, events_ids_t>::value)>
-  constexpr bool process_internal_event(const TEvent &event, TDeps &d, TSubs &subs, state_t &current_state) {
+  BOOST_SML_DETAIL_ALWAYS_INLINE constexpr bool process_internal_event(const TEvent &event, TDeps &d, TSubs &subs, state_t &current_state) {
     policies::log_process_event<sm_t>(aux::type_wrapper<logger_t>{}, d, event);
 #if BOOST_SML_DISABLE_EXCEPTIONS
     return process_event_impl<get_event_mapping_t<get_mapped_t<TEvent>, mappings>>(event, d, subs, states_t{}, current_state);
@@ -2269,12 +2272,12 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
 #endif
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
-  constexpr bool process_event_impl(const TEvent &event, TDeps &d, TSubs &subs, const aux::type_list<TStates...> &states,
+  BOOST_SML_DETAIL_ALWAYS_INLINE constexpr bool process_event_impl(const TEvent &event, TDeps &d, TSubs &subs, const aux::type_list<TStates...> &states,
                           aux::index_sequence<0>) {
     return dispatch_t::template dispatch<0, TMappings>(*this, current_state_[0], event, d, subs, states);
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates, int... Ns>
-  constexpr bool process_event_impl(const TEvent &event, TDeps &d, TSubs &subs, const aux::type_list<TStates...> &states,
+  BOOST_SML_DETAIL_ALWAYS_INLINE constexpr bool process_event_impl(const TEvent &event, TDeps &d, TSubs &subs, const aux::type_list<TStates...> &states,
                           aux::index_sequence<Ns...>) {
     auto handled = false;
 #if defined(__cpp_fold_expressions)
@@ -2287,7 +2290,7 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
     return handled;
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
-  constexpr bool process_event_impl(const TEvent &event, TDeps &d, TSubs &subs, const aux::type_list<TStates...> &states,
+  BOOST_SML_DETAIL_ALWAYS_INLINE constexpr bool process_event_impl(const TEvent &event, TDeps &d, TSubs &subs, const aux::type_list<TStates...> &states,
                           state_t &current_state) {
     return dispatch_t::template dispatch<0, TMappings>(*this, current_state, event, d, subs, states);
   }
