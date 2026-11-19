@@ -2280,13 +2280,9 @@ struct sm_impl : aux::conditional_t<aux::should_not_subclass_statemachine_class<
   BOOST_SML_DETAIL_ALWAYS_INLINE constexpr bool process_event_impl(const TEvent &event, TDeps &d, TSubs &subs, const aux::type_list<TStates...> &states,
                           aux::index_sequence<Ns...>) {
     auto handled = false;
-#if defined(__cpp_fold_expressions)
-    ((handled |= dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, d, subs, states)), ...);
-#else
-    (void)aux::swallow{
-        0,
-        (handled |= dispatch_t::template dispatch<0, TMappings>(*this, current_state_[Ns], event, d, subs, states), 0)...};
-#endif
+    for (auto i = 0u; i < sizeof...(Ns); ++i) {
+      handled |= dispatch_t::template dispatch<0, TMappings>(*this, current_state_[i], event, d, subs, states);
+    }
     return handled;
   }
   template <class TMappings, class TEvent, class TDeps, class TSubs, class... TStates>
