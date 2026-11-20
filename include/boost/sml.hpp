@@ -1901,36 +1901,36 @@ struct get_state_name<aux::string<sm_policy<T, TName>>> {
 template <class T>
 using get_state_name_t = typename get_state_name<T>::type;
 template <class, class TDeps, class TEvent>
-constexpr void log_process_event(const aux::type_wrapper<no_policy> &, TDeps &, const TEvent &) {}
+constexpr void log_process_event(aux::type_wrapper<no_policy>, TDeps &, const TEvent &) {}
 template <class SM, class TLogger, class TDeps, class TEvent>
-constexpr void log_process_event(const aux::type_wrapper<TLogger> &, TDeps &deps, const TEvent &event) {
+constexpr void log_process_event(aux::type_wrapper<TLogger>, TDeps &deps, const TEvent &event) {
   return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_process_event<SM>(event);
 }
 template <class, class TDeps, class TSrcState, class TDstState>
-constexpr void log_state_change(const aux::type_wrapper<no_policy> &, TDeps &, const TSrcState &, const TDstState &) {}
+constexpr void log_state_change(aux::type_wrapper<no_policy>, TDeps &, TSrcState, TDstState) {}
 template <class SM, class TLogger, class TDeps, class TSrcState, class TDstState>
-constexpr void log_state_change(const aux::type_wrapper<TLogger> &, TDeps &deps, const TSrcState &, const TDstState &) {
+constexpr void log_state_change(aux::type_wrapper<TLogger>, TDeps &deps, TSrcState, TDstState) {
   return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_state_change<SM>(get_state_name_t<TSrcState>{},
                                                                                             get_state_name_t<TDstState>{});
 }
 template <class, class TDeps, class TAction, class TEvent>
-constexpr void log_action(const aux::type_wrapper<no_policy> &, TDeps &, const TAction &, const TEvent &) {}
+constexpr void log_action(aux::type_wrapper<no_policy>, TDeps &, const TAction &, const TEvent &) {}
 template <class SM, class TLogger, class TDeps, class TAction, class TEvent>
-constexpr void log_action(const aux::type_wrapper<TLogger> &, TDeps &deps, const TAction &action, const TEvent &event) {
+constexpr void log_action(aux::type_wrapper<TLogger>, TDeps &deps, const TAction &action, const TEvent &event) {
   return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_action<SM>(action, event);
 }
 template <class SM, class TLogger, class TDeps, class TAction, class TEvent>
-constexpr void log_action(const aux::type_wrapper<TLogger> &, TDeps &deps, const aux::zero_wrapper<TAction> &action, const TEvent &event) {
+constexpr void log_action(aux::type_wrapper<TLogger>, TDeps &deps, const aux::zero_wrapper<TAction> &action, const TEvent &event) {
   return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_action<SM>(action.get(), event);
 }
 template <class, class TDeps, class TGuard, class TEvent>
-constexpr void log_guard(const aux::type_wrapper<no_policy> &, TDeps &, const TGuard &, const TEvent &, bool) {}
+constexpr void log_guard(aux::type_wrapper<no_policy>, TDeps &, const TGuard &, const TEvent &, bool) {}
 template <class SM, class TLogger, class TDeps, class TGuard, class TEvent>
-constexpr void log_guard(const aux::type_wrapper<TLogger> &, TDeps &deps, const TGuard &guard, const TEvent &event, bool result) {
+constexpr void log_guard(aux::type_wrapper<TLogger>, TDeps &deps, const TGuard &guard, const TEvent &event, bool result) {
   return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_guard<SM>(guard, event, result);
 }
 template <class SM, class TLogger, class TDeps, class TGuard, class TEvent>
-constexpr void log_guard(const aux::type_wrapper<TLogger> &, TDeps &deps, const aux::zero_wrapper<TGuard> &guard, const TEvent &event,
+constexpr void log_guard(aux::type_wrapper<TLogger>, TDeps &deps, const aux::zero_wrapper<TGuard> &guard, const TEvent &event,
                bool result) {
   return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_guard<SM>(guard.get(), event, result);
 }
@@ -2733,13 +2733,13 @@ struct call<TEvent, aux::type_list<>, TLogger> {
     return execute_impl<typename Tsm::sm_t>(aux::type_wrapper<result_type>{}, object, event, deps);
   }
   template <class Tsm, class T, class TDeps>
-  constexpr static auto execute_impl(const aux::type_wrapper<bool> &, T object, const TEvent &event, TDeps &deps) {
+  constexpr static auto execute_impl(aux::type_wrapper<bool>, T object, const TEvent &event, TDeps &deps) {
     const auto result = object();
     back::policies::log_guard<Tsm>(aux::type_wrapper<TLogger>{}, deps, object, event, result);
     return result;
   }
   template <class Tsm, class T, class TDeps>
-  constexpr static auto execute_impl(const aux::type_wrapper<void> &, T object, const TEvent &event, TDeps &deps) {
+  constexpr static auto execute_impl(aux::type_wrapper<void>, T object, const TEvent &event, TDeps &deps) {
     back::policies::log_action<Tsm>(aux::type_wrapper<TLogger>{}, deps, object, event);
     object();
   }
@@ -2759,13 +2759,13 @@ struct call<TEvent, aux::type_list<TEvent>, TLogger> {
     return execute_impl<typename Tsm::sm_t>(aux::type_wrapper<result_type>{}, object, event, deps);
   }
   template <class Tsm, class T, class TDeps>
-  constexpr static auto execute_impl(const aux::type_wrapper<bool> &, T object, const TEvent &event, TDeps &deps) {
+  constexpr static auto execute_impl(aux::type_wrapper<bool>, T object, const TEvent &event, TDeps &deps) {
     const auto result = object(event);
     back::policies::log_guard<Tsm>(aux::type_wrapper<TLogger>{}, deps, object, event, result);
     return result;
   }
   template <class Tsm, class T, class TDeps>
-  constexpr static auto execute_impl(const aux::type_wrapper<void> &, T object, const TEvent &event, TDeps &deps) {
+  constexpr static auto execute_impl(aux::type_wrapper<void>, T object, const TEvent &event, TDeps &deps) {
     back::policies::log_action<Tsm>(aux::type_wrapper<TLogger>{}, deps, object, event);
     object(event);
   }
@@ -2799,13 +2799,13 @@ struct call<TEvent, aux::type_list<Ts...>, TLogger> {
     return execute_impl<typename Tsm::sm_t>(aux::type_wrapper<result_type>{}, object, event, sm, deps, subs);
   }
   template <class Tsm, class T, class SM, class TDeps, class TSubs>
-  constexpr static auto execute_impl(const aux::type_wrapper<bool> &, T object, const TEvent &event, SM &sm, TDeps &deps, TSubs &subs) {
+  constexpr static auto execute_impl(aux::type_wrapper<bool>, T object, const TEvent &event, SM &sm, TDeps &deps, TSubs &subs) {
     const auto result = object(get_arg(aux::type_wrapper<Ts>{}, event, sm, deps, subs, 0)...);
     back::policies::log_guard<Tsm>(aux::type_wrapper<TLogger>{}, deps, object, event, result);
     return result;
   }
   template <class Tsm, class T, class SM, class TDeps, class TSubs>
-  constexpr static auto execute_impl(const aux::type_wrapper<void> &, T object, const TEvent &event, SM &sm, TDeps &deps, TSubs &subs) {
+  constexpr static auto execute_impl(aux::type_wrapper<void>, T object, const TEvent &event, SM &sm, TDeps &deps, TSubs &subs) {
     back::policies::log_action<Tsm>(aux::type_wrapper<TLogger>{}, deps, object, event);
     object(get_arg(aux::type_wrapper<Ts>{}, event, sm, deps, subs, 0)...);
   }
@@ -3416,7 +3416,7 @@ constexpr void recurse_composite(TSubs &subs, aux::true_type) {
 }
 template <class SM, class TDeps, class TSubs, class TSrcState, class TDstState>
 constexpr void update_current_state(SM &, TDeps &deps, TSubs &, typename SM::state_t &current_state,
-                          const typename SM::state_t &new_state, const TSrcState &, const TDstState &) {
+                          const typename SM::state_t new_state, TSrcState, TDstState) {
   back::policies::log_state_change<typename SM::sm_t>(aux::type_wrapper<typename SM::logger_t>{}, deps,
                                                       aux::string<typename TSrcState::type>{},
                                                       aux::string<typename TDstState::type>{});
@@ -3424,7 +3424,7 @@ constexpr void update_current_state(SM &, TDeps &deps, TSubs &, typename SM::sta
 }
 template <class SM, class TDeps, class TSubs, class TSrcState, class T>
 constexpr void update_current_state(SM &, TDeps &deps, TSubs &subs, typename SM::state_t &current_state,
-                          const typename SM::state_t &new_state, const TSrcState &, const state<back::sm<T>> &) {
+                          const typename SM::state_t new_state, TSrcState, state<back::sm<T>>) {
   back::policies::log_state_change<typename SM::sm_t>(aux::type_wrapper<typename SM::logger_t>{}, deps,
                                                       aux::string<typename TSrcState::type>{}, aux::string<T>{});
   current_state = new_state;
